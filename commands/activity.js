@@ -18,17 +18,11 @@ module.exports = {
             else if (!args[0])
                 return message.author.send(`Provide me with proper arguments please UwU`);
         }
-        else
-            message.author.send(`I can't execute that command in DMs!`);
+        else return message.author.send(`I can't execute that command in DMs!`);
 
         //Create Person variables
-        const User = message.author.username;
-        let Person;
-        try {
-            Person = message.mentions.users.first().username;
-        } catch {
-            Person = message.author.username;
-        }
+        const User = message.author.username,
+              Person = message.mentions.users.first().username || message.author.username; 
 
         if (Person.startsWith('<@!'))
             Person = `<@${Person.substring(3, Person.length)}`;
@@ -38,15 +32,10 @@ module.exports = {
             return message.channel.send(`I shouldn't be posting that stuff here!`);
 
         //Grammarly fix Activity
-        if (args[0].endsWith('s'))
-            args[0] += 'es';
-        else if (args[0].endsWith('y'))
-            args[0] = args[0].substring(0, args[0].length - 1) + 'ies';
-        else
-            args[0] += 's';
+        args[0] += args[0].endsWith('s') ? 'es' :
+            args[0].endsWith('y') ? args[0].substring(0, args[0].length - 1) + 'ies' : 's';
 
-        var Activity = args.slice(0, args.length - 1).join(' ') ||
-            args[0];
+        var Activity = args.slice(0, args.length - 1).join(' ') || args[0];
 
         //ActivityLink Function
         if (!Config || !Config.api_key || !Config.google_custom_search)
@@ -58,21 +47,13 @@ module.exports = {
         //We request 10 items
         request('https://www.googleapis.com/customsearch/v1?key=' + Config.api_key + '&cx=' + Config.google_custom_search + '&q=' + (`"anime" "${args[0]}" person "gif"`) + '&searchType=image&alt=json&num=10&start=' + page, function (err, res, body) {
             let data;
-            try {
-                data = JSON.parse(body);
-            }
-            catch (error) {
-                return console.log(error);
-            }
+            try { data = JSON.parse(body); }
+            catch (error) { return console.log(error); }
 
-            if (!data) {
-                console.log(data);
-                return message.author.send('Error:\n' + JSON.stringify(data));
-            }
-            else if (!data.items || data.items.length == 0) {
-                console.log(data);
+            console.log(data);
+            if (!data) return message.author.send('Error:\n' + JSON.stringify(data));
+            else if (!data.items || data.items.length == 0)
                 return message.channel.send('I failed to find that!');
-            }
 
             const randResult = data.items[Math.floor(Math.random() * data.items.length)],
                 embed = new Discord.RichEmbed()
@@ -84,11 +65,8 @@ module.exports = {
             //React with F if the user uses *activity on themselves
             if (Person === User)
                 message.channel.send(embed)
-                    .then((NewMessage) => {
-                        NewMessage.react('🇫');
-                    });
-            else
-                message.channel.send(embed);
+                    .then((NewMessage) => { NewMessage.react('🇫'); });
+            else message.channel.send(embed);
         });
     },
 };

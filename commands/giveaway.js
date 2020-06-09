@@ -101,6 +101,7 @@ function ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator)
             .setDescription(`Winner not found!`)
             .setFooter(`Giveaway ended.`)
         );
+        console.log(`A winner to "${Prize}" from ${message.guild}, #${message.channel.name} could not be found!`);
         return message.channel.send(`A winner to "**${Prize}**" couldn't be found!`);
     }
 
@@ -127,8 +128,7 @@ function ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator)
     console.log(`Winner of "${Prize}" (hosted by ${GiveawayCreator.username}) was won by ${Winner.username}`);
 }
 function FindWinner(message, GiveawayMessage) {
-    let Winner = SelectWinner(message, GiveawayMessage.reactions.get('🤞').users.array()
-        .filter(User => User.id != message.client.id && message.guild.member(User).roles.find(GiveawayWinnerRole) == null));
+    let Winner = SelectWinner(message, GiveawayMessage.reactions.get('🤞').users.array());
 
     if (Winner == `A winner couldn't be found!`) return Winner;
 
@@ -140,24 +140,24 @@ function FindWinner(message, GiveawayMessage) {
             `, and coudn't create one ;-;`; // Tell author, bot couldn't create GiveawayWinnerRole
         message.author.send(ReturnMessage); // Return whole message
     }
-    else if (message.guild.member(Winner).roles.find(GiveawayWinnerRole)) // If Winner is PreviousWinner
+    else if (message.guild.member(Winner).roles.find(Role => Role == GiveawayWinnerRole)) // If Winner is PreviousWinner
         Winner = null;
     return Winner;
 }
 function SelectWinner(message, peopleReacted) {
     let Winner = peopleReacted[Math.floor(Math.random() * peopleReacted.length)];
 
-    if (Winner.id == message.client.user.id) {
+    if (Winner.id == message.client.user.id) { //If winner is bot
         if (peopleReacted.length === 1) // Are there other winners?
             return `A winner couldn't be found!`;
-        else while (Winner.id == message.client.user.id)
-            Winner = peopleReacted[Math.floor(Math.random() * peopleReacted.length)];
+        else while (Winner.id == message.client.user.id) //Find a new winner that isn't bot
+            Winner = peopleReacted[Math.floor(Math.random() * peopleReacted.length)]; //New winner found
     }
-    if (message.guild.members.find(Winner).roles.find(Role => Role == GiveawayWinnerRole) != null)
-        if (peopleReacted.length > 2)
-            return Winner;
-        else return `A winner couldn't be found!`;
-    return null;
+    if (message.guild.member(Winner).roles.find(Role => Role == GiveawayWinnerRole) != null) //Winner has Giveaway Winner role
+        if (peopleReacted.length < 3) //1 Pingu, 2 Previous winner 3 New winner
+            return `A winner couldn't be found!`;
+        else return SelectWinner(message, peopleReacted); //Try again
+    return Winner;
 }
 function CreateGiveawayWinnerRole(Guild) {
     Guild.createRole(

@@ -41,7 +41,7 @@ client.on('message', message => {
     let command = AssignCommand(commandName, args, client);
     if (command == null) return;
 
-    
+
 
     //If I'm not interacted with don't do anything
     if (!message.content.startsWith(Prefix) || message.author.bot)

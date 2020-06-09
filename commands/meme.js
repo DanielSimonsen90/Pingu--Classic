@@ -24,17 +24,15 @@ module.exports = {
             try { data = JSON.parse(body); }
             catch (error) { return console.log(error); }
 
-            if (!data) {
-                console.log(data);
+            console.log(data);
+            if (!data) 
                 return message.channel.send('Error:\n' + JSON.stringify(data));
-            }
-            else if (!data.items || data.items.length == 0) {
-                console.log(data);
-                return message.channel.send('No result for \'' + 'sloth' + '\'');
-            }
+            else if (!data.items || data.items.length == 0)
+                return message.channel.send('No result for \'' + 'pingu' + '\'');
             const randResult = data.items[Math.floor(Math.random() * data.items.length)];
-
-            message.channel.send(new Discord.RichEmbed().setImage(randResult.link).setColor(0xfb8927));
+            if (randResult != null)
+                message.channel.send(new Discord.RichEmbed().setImage(randResult.link).setColor(0xfb8927));
+            else message.channel.send(`Something went wrong - try again`);
         });
     },
 };
