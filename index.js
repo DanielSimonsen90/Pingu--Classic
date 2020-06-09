@@ -41,7 +41,7 @@ client.on('message', message => {
     let command = AssignCommand(commandName, args, client);
     if (command == null) return;
 
-
+    
 
     //If I'm not interacted with don't do anything
     if (!message.content.startsWith(Prefix) || message.author.bot)
@@ -159,10 +159,8 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
     //if (commandName === 'giveaway') console.clear();
    
     let ConsoleLog = `User "${message.author.username}" executed command "${Prefix}${commandName}", from `;
-    if (!message.guild)
-        ConsoleLog += `DMs and `;
-    else
-        ConsoleLog += `"${message.guild}", #${message.channel.name}, and `;
+    if (!message.guild) ConsoleLog += `DMs and `;
+    else ConsoleLog += `"${message.guild}", #${message.channel.name}, and `;
 
     //Attempt execution of command
     try {
