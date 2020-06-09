@@ -1,0 +1,18 @@
+{
+  "name": "pingubot",
+  "version": "1.0.0",
+  "description": "Discord bot of my old friend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Daniel Simonsen",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "ffmpeg": "0.0.4",
+    "node-opus": "^0.3.3",
+    "simple-youtube-api": "^5.2.1",
+    "ytdl-core": "^1.0.3"
+  }
+}
