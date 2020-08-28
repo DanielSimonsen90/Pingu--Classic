@@ -1,4 +1,5 @@
 //Construction variables
+//#region Variables
 const fs = require('fs'),
     Discord = require('discord.js'),
     { token, Prefix } = require('./config.json'),
@@ -6,6 +7,9 @@ const fs = require('fs'),
     client = new Discord.Client(),
     commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 client.commands = new Discord.Collection();
+let PreviousMessages = [],
+    PreMsgCount = 0;
+//#endregion
 
 //Does individual command work?
 for (const file of commandFiles) {
@@ -18,9 +22,6 @@ client.once('ready', () => {
     console.log(`\nIt's alive!\n`);
     client.user.setActivity('your screams for *help', { type: 'LISTENING' });
 })
-
-let PreviousMessages = [],
-    PreMsgCount = 0;
 
 //Message response
 client.on('message', message => {
@@ -35,17 +36,12 @@ client.on('message', message => {
     //If interacted via @
     TestTagInteraction(commandName, args);
 
-<<<<<<< Updated upstream
-=======
     //If I'm not interacted with don't do anything
     
     if (!message.content.startsWith(Prefix) && !message.author.bot)
         if (!message.content.startsWith(SecondaryPrefix))
             return (message.channel.type == 'dm') ? ExecuteTellReply(message) : null;
 
-    
-
->>>>>>> Stashed changes
     //Attempt "command" assignment
     let command = AssignCommand(commandName, args, client);
     if (command == null) return;
@@ -88,6 +84,7 @@ client.on('message', message => {
 
 client.login(token);
 
+//#region OnMessage Methods
 function TestTagInteraction(commandName, args) {
     if (commandName === '@562176550674366464>') {
         commandName = args[0].toLowerCase();
@@ -173,8 +170,6 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
 
     //Attempt execution of command
     try {
-<<<<<<< Updated upstream
-=======
         if (commandName == "tell") {
             if (args[0] == 'unset') {
                 LastToUseTell = null;
@@ -191,7 +186,6 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
             LastToUseTell = message.author;
         }
 
->>>>>>> Stashed changes
         command.execute(message, args);
         ConsoleLog += `succeeded!`;
     } catch (error) {
@@ -199,13 +193,10 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
         message.author.send(`There was an error trying to execute that command! \n Error being: ${error}`);
     }
     console.log(ConsoleLog);
-<<<<<<< Updated upstream
 }
-=======
-}
-/// #endregion
+// #endregion
 
-/// #region Tell command related
+// #region Tell command related
 function ExecuteTellReply(message) {
     console.log(`${message.author.username} sent "${message.content}" to me in PMs. Assumingly sent to ${LastToBeTold}`);
 
@@ -245,5 +236,4 @@ function GetMention(message, UserMention) {
     }
     return message.mentions.users.first();
 }
-/// #endregion
->>>>>>> Stashed changes
+// #endregion

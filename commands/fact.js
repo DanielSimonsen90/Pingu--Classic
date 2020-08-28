@@ -1,17 +1,15 @@
-const Discord = require('discord.js');
+const { MessageEmbed, Message } = require('discord.js');
 module.exports = {
     name: 'fact',
     cooldown: 5,
     description: 'Pingu Facts woah',
     usage: '',
     id: 2,
+    /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        if (message.channel.type !== "dm") {
-            if (!message.channel.memberPermissions(message.guild.client.user).has('SEND_MESSAGES'))
-                return message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!`);
-            else if (!message.channel.memberPermissions(message.guild.client.user).has('EMBED_LINKS'))
-                return message.author.send(`Hey! I don't have permission to **send embed links** in #${message.channel.name}!`);
-        }
+        const PermCheck = PermissionCheck(message);
+        if (PermCheck != `Permission Granted`) message.author.send(PermCheck);
+
         const Facts = [
             //Literal Penguin facts
             "Penguins are birds but they __cannot__ fly whatsoever. Visit LearnToFly to learn more.",
@@ -38,25 +36,27 @@ module.exports = {
             "Pingu has a girlfriend named \"Pingi\".What are you doing with your life?",
             "Pingu has a tomboy sister named Pinga.",
             "There are 157 episodes of Pingu, including the original series and the revived series.",
-            "Pingu was created by Otmar Gutmann from Switzerland."];
-        let Fact = Math.floor(Math.random() * (Facts.length - 1)),
-            Title;
+            "Pingu was created by Otmar Gutmann from Switzerland."],
+            Fact = Math.floor(Math.random() * (Facts.length - 1)),
+            Title = Fact <= 8 ? "Penguin Facts" : Fact <= 16 ? "Club Penguin Facts" : "Pingu (TV) Facts";
 
-        if (Fact <= 8)
-            Title = "Penguin Facts";
-        else if (Fact <= 16)
-            Title = "Club Penguin Facts";
-        else
-            Title = "Pingu (TV) Facts";
-
-        const Embed = new Discord.RichEmbed()
+        message.channel.send(new MessageEmbed()
             .setTitle(Title)
             .setDescription(Facts[Fact])
             .setColor(0xfb8927)
             .attachFiles([`./pfps/Greeny_Boi.png`])
             .setThumbnail(`attachment://Greeny_Boi.png`)
-            .setFooter('For more facts, use *fact again!');
-
-        message.channel.send(Embed);
+            .setFooter('For more facts, use *fact again!')
+        );
     },
 };
+
+/**@param {Message} message*/
+function PermissionCheck(message) {
+    const PermArr = ["SEND_MESSAGES", "EMBED_LINKS"],
+        PermArrMsg = ["send messages", "send embed links"];
+    for (var x = 0; x < PermArr.length; x++)
+        if (!message.channel.permissionsFor(message.client.user).has(PermArr[x]))
+            return `Hey! I don't have permission to ${PermArrMsg[x]} in #${message.channel.name}!`;
+    return `Permision Granted`;
+}

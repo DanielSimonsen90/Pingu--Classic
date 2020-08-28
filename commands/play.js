@@ -1,4 +1,4 @@
-const Discord = require('discord.js'),
+const { Message, MessageEmbed } = require('discord.js'),
     { prefix } = require('../config.json'),
     fs = require('fs');
 
@@ -8,22 +8,14 @@ module.exports = {
     usage: `<start | stop> [music | link]`,
     //id: 2,
     guildOnly: true,
+    /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        const MainActivity = message.client.user.presence,
-            embed = new Discord.RichEmbed(),
-            { voiceChannel } = message.member;
+        const PermCheck = PermissionCheck(message);
+        if (PermCheck != `Permission Granted`) message.channel.send(PermCheck);
 
-        if (message.channel.type === 'dm')
-            return message.author.send(`I execute this command in DMs.`);
-        else {
-            const PermissionCheck = message.channel.memberPermissions(message.guild.client.user),
-                PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES", "CONNECT", "SPEAK"];
-            for (var Perm = 0; Perm < PermArr.length; Perm++)
-                if (!PermissionCheck.has(PermArr[Perm]))
-                    return `Sorry, ${message.author}. It seems like I don't have the **${PermArr[Perm]}** permission.`
-            if (!voiceChannel)
-                return message.channel.send(`Please join a **voice channel** before executing command ${message.author}!`);
-        }
+        const MainActivity = message.client.user.presence,
+            embed = new MessageEmbed(),
+            { voiceChannel } = message.member;
 
         message.delete();
 
@@ -87,3 +79,18 @@ module.exports = {
         }
     },
 };
+
+/**@param {Message} message*/
+function PermissionCheck(message) {
+    if (message.channel.type == 'dm')
+        return message.author.send(`I execute this command in DMs.`);
+
+    const PermissionCheck = message.channel.permissionsFor(message.guild.client.user),
+        PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES", "CONNECT", "SPEAK"];
+    for (var Perm = 0; Perm < PermArr.length; Perm++)
+        if (!PermissionCheck.has(PermArr[Perm]))
+            return `Sorry, ${message.author}. It seems like I don't have the **${PermArr[Perm]}** permission.`
+    if (!voiceChannel)
+        return `Please join a **voice channel** before executing command ${message.author}!`;
+    return `Permission Granted`;
+}

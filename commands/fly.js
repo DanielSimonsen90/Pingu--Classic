@@ -1,9 +1,12 @@
+const { Message } = require('discord.js');
+
 module.exports = {
     name: 'fly',
     cooldown: 5,
     description: 'The ability to fly',
     usage: '',
     id: 2,
+    /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         if (message.channel.type !== 'dm')
             if (!message.channel.permissionsFor(message.guild.client.user).has('SEND_MESSAGES'))

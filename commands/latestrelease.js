@@ -1,15 +1,16 @@
-const Discord = require('discord.js');
+const { Message, MessageEmbed} = require('discord.js');
 module.exports = {
     name: 'latestrelease',
     cooldown: 5,
     description: 'My owner\'s latest release',
     usage: '',
     id: 3,
+    /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        if (message.channel.type !== 'dm')
-            if (!message.channel.memberPermissions(message.guild.client.user).has('SEND_MESSAGES'))
+        if (message.channel.type != 'dm')
+            if (!message.channel.permissionsFor(message.guild.client.user).has('SEND_MESSAGES'))
                 return message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!`);
-        const Embed = new Discord.RichEmbed()
+        const Embed = new MessageEmbed()
             .setTitle('Latest Releases')
             .setColor(0xfb8927)
             //.setThumbnail('')
@@ -21,7 +22,7 @@ module.exports = {
         message.channel.send(Embed);
 
         if (message.channel.type !== 'dm')
-            if (!message.channel.memberPermissions(message.guild.client.user).has('EMBED_LINKS'))
+            if (!message.channel.permissionsFor(message.guild.client.user).has('EMBED_LINKS'))
                 message.channel.send(`I'm sorry there's no embed. I don't have the **embed links** permission.`);
     },
 };

@@ -1,5 +1,5 @@
 const { prefix } = require('../config.json'),
-    Discord = require('discord.js');
+    { MessageEmbed, Message } = require('discord.js');
 
 module.exports = {
     name: 'help',
@@ -8,11 +8,12 @@ module.exports = {
     usage: '[command]',
     cooldown: 5,
     id: 1,
+    /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         //Create variables
         const data = [], //data for embed
             { commands } = message.client; //Bot's commands
-        let embed = new Discord.RichEmbed() //embed 
+        let embed = new MessageEmbed() //embed 
             .setColor(0xfb8927)
             .setThumbnail(message.client.user.avatarURL),
             ScriptsCategorized = ["", "Utility", "Fun", "Support", "DevOnly"];
@@ -31,7 +32,7 @@ module.exports = {
             //Return embed
             return message.author.send(embed)
                 .then(() => {
-                    if (message.channel.type === 'dm') return;
+                    if (message.channel.type == 'dm') return;
                     message.reply(`I've sent you a DM with all my commands!`);
                 })
                 .catch(error => {
@@ -96,7 +97,7 @@ module.exports = {
                 //Return embed
                 return message.author.send(embed)
                     .then(() => {
-                        if (message.channel.type === 'dm') return;
+                        if (message.channel.type == 'dm') return;
                         message.reply(`I've sent you a DM with all my commands!`);
                     })
                     .catch(error => {

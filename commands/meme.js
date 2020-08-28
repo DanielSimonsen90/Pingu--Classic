@@ -1,14 +1,15 @@
+const request = require('request'),
+    Config = require('../config.json'),
+    { Message, MessageEmbed } = require('discord.js');
+
 module.exports = {
     name: 'meme',
     description: 'Searches google for pingu memes',
     usage: '',
     id: 2, 
     execute(message) {
-        CheckPermissions(message);
-
-        const request = require('request'),
-            Config = require('../config.json'),
-            Discord = require('discord.js');
+        PermCheck = CheckPermissions(message);
+        if (PermCheck != `Permission Granted`) message.channel.send(PermCheck);
 
         if (!Config || !Config.api_key || !Config.google_custom_search)
             return message.channel.send('Image search requires both a YouTube API key and a Google Custom Search key!');
@@ -34,17 +35,19 @@ module.exports = {
             }
             const randResult = data.items[Math.floor(Math.random() * data.items.length)];
 
-            message.channel.send(new Discord.RichEmbed().setImage(randResult.link).setColor(0xfb8927));
+            message.channel.send(new MessageEmbed().setImage(randResult.link).setColor(0xfb8927));
         });
     },
 };
 
+/**@param {Message} message*/
 function CheckPermissions(message) {
-    if (message.channel.type !== 'dm') {
-        const PermissionCheck = message.channel.memberPermissions(message.guild.client.user),
+    if (message.channel.type != 'dm') {
+        const PermissionCheck = message.channel.permissionsFor(message.client.user),
             PermArr = ["SEND_MESSAGES", "EMBED_LINKS"];
         for (var Perm = 0; Perm < PermArr.length; Perm++)
             if (!PermissionCheck.has(PermArr[Perm]))
                 return `Sorry, ${message.author}. It seems like I don't have the **${PermArr[Perm]}** permission.`;
     }
+    return `Permission Granted`;
 }

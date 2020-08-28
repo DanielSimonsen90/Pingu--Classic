@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+const { Message, MessageEmbed } = require('discord.js');
 
 module.exports = {
     name: 'support',
@@ -6,8 +6,9 @@ module.exports = {
     description: 'Contact information incase something is :b:roke or if any questions may occur about me',
     usage: '',
     id: 3,
+    /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        var Embed = new Discord.RichEmbed()
+        var Embed = new MessageEmbed()
             .setTitle('Support of Pingu')
             .setDescription('Contact information & socials about my owner')
             .setColor(0xfb8927)
@@ -21,8 +22,8 @@ module.exports = {
             .addField('SoundCloud', 'https://soundcloud.com/daniel-simonsen-705578407', false)
             .addField('Instagram', 'https://www.instagram.com/danhoesaurus/', false);
 
-        if (message.channel.type !== 'dm')
-            if (!message.channel.memberPermissions(message.guild.client.user).has('SEND_MESSAGES')) {
+        if (message.channel.type != 'dm')
+            if (!message.channel.permissionsFor(message.client.user).has('SEND_MESSAGES')) {
                 message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!\nBut here's your information:`)
                 return message.author.send(Embed);
             }

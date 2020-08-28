@@ -1,20 +1,16 @@
+const { Message, MessageEmbed } = require('discord.js');
+const request = require('request');
+const Config = require('../config.json');
+
 module.exports = {
     name: 'gif',
     description: 'Searches google for pingu memes',
     usage: '',
     id: 2,
-    execute(message) {
-        if (message.channel.type !== 'dm') {
-            if (!message.channel.memberPermissions(message.guild.client.user).has('SEND_MESSAGES'))
-                return message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!`)
-            else if (!message.channel.memberPermissions(message.guild.client.user).has('EMBED_LINKS'))
-                message.channel.send(`I'm sorry there's no embed. I don't have the **embed links** permission.`)
-        }
-
-        const request = require('request'),
-            Config = require('../config.json'),
-            Discord = require('discord.js');
-
+    /**@param {Message} message @param {string[]} args*/
+    execute(message, args) {
+        const PermCheck = PermissionCheck(message);
+        if (PermCheck != `Permission Granted`) message.channel.send(PermCheck);
 
         if (!Config || !Config.api_key || !Config.google_custom_search)
             return message.channel.send('Image search requires both a YouTube API key and a Google Custom Search key!');
@@ -27,13 +23,9 @@ module.exports = {
 
             // "https://www.googleapis.com/customsearch/v1?key=AIzaSyAeAr2Dv1umzuLes_zhlY0lON4Pf_uAKeM&cx=013524999991164939702:z24cpkwx9nz&q=sloth&searchType=image&alt=json&num=10&start=31"
             let data;
-            try {
-                data = JSON.parse(body);
-            }
-            catch (error) {
-                return console.log(error);
-            }
-            if (!data) {
+            try { data = JSON.parse(body); }
+            catch (error) { return console.log(error); }
+            if (!data) { 
                 console.log(data);
                 return message.channel.send('Error:\n' + JSON.stringify(data));
             }
@@ -41,10 +33,22 @@ module.exports = {
                 console.log(data);
                 return message.channel.send('No result for \'' + 'penguins :(' + '\'');
             }
-            const randResult = data.items[Math.floor(Math.random() * data.items.length)],
-                embed = new Discord.RichEmbed().setImage(randResult.link).setColor(0xfb8927);
 
-            message.channel.send(embed);
+            message.channel.send(new MessageEmbed()
+                .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
+                .setColor(0xfb8927)
+            );
         });
     },
 };
+
+/**@param {Message} message*/
+function PermissionCheck(message) {
+    const PermArr = ["SEND_MESSAGES", "EMBED_LINKS"],
+        PermArrMsg = ["send messages", "send embed links"];
+    if (message.channel.type != 'dm')
+        for (var x = 0; x < PermArr.length; x++)
+            if (!message.channel.permissionsFor(message.client.user).has(PermArr))
+                return `Hey! I don't have permission to **${PermArrMsg}** in #${message.channel.name}!`;
+    return `Permission Granted`;
+}
