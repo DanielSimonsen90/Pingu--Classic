@@ -4,6 +4,7 @@
     ytdl = require('ytdl-core'),
     youtube = new YouTube(api_key),
     queue = new Map();
+let serverQueue, voiceChannel;
 
 module.exports = {
     name: 'yt',
@@ -12,91 +13,45 @@ module.exports = {
     usage: '<action> [args[1]]',
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        if (message.channel.type == 'dm')
-            return message.author.send(`I can't play music for you in DMs..?`);
+        const PermCheck = PermissionCheck(message);
+        if (PermCheck != `Permission Granted`) return message.channel.send(PermCheck);
 
-        const PermissionCheck = message.channel.permissionsFor(message.client.user),
-            PermArr = ["SEND_MESSAGES", "CONNECT", "SPEAK", "EMBED_LINKS"];
-        for (var Perm = 0; Perm < PermArr.length; Perm++)
-            if (!PermissionCheck.has(PermArr[Perm]))
-                return `Sorry, ${message.author}. It seems like I don't have the **${PermArr[Perm]}** permission.`;
+        serverQueue = queue.get(message.guild.id);
+        voiceChannel = message.member.voice.channel;
+        const command = args.shift();
 
-        const serverQueue = queue.get(message.guild.id),
-            { voiceChannel } = message.member,
-            command = args[0];
-
-        if (command === 'p' || command === 'play') play(message, voiceChannel);
-        else if (command === 'skip') {
-            if (!voiceChannel)
-                return message.channel.send('You are not in a voice channel!');
-            else if (!serverQueue)
-                return message.channel.send('There is nothing playing that I could skip for you.');
-
-            serverQueue.connection.dispatcher.end('Skip command has been used!');
-            return undefined;
-        }
-        else if (command === 'stop') {
-            if (!voiceChannel)
-                return message.channel.send('You are not in a voice channel!');
-            else if (!serverQueue)
-                return message.channel.send('There is nothing playing that I could stop for you.');
-
-            serverQueue.songs = [];
-            serverQueue.connection.dispatcher.end('Stop command has been used!');
-            return undefined;
-        }
-        else if (command === 'volume' || command === 'vol') {
-            if (!voiceChannel)
-                return message.channel.send('You are not in a voice channel!');
-            else if (!serverQueue)
-                return message.channel.send('There is nothing playing.');
-            else if (!args[1])
-                return message.channel.send(`The current volume is: **${serverQueue.volume}**`);
-
-            serverQueue.volume = args[1];
-            serverQueue.connection.dispatcher.setVolumeLogarithmic(args[1] / 5);
-            return message.channel.send(`I set the volume to: **${args[1]}**`);
-        }
-        else if (command === 'np') {
-            if (!serverQueue)
-                return message.channel.send('There is nothing playing.');
-            return message.channel.send(`🎶 Now playing: **${serverQueue.songs[0].title}**`);
-        }
-        else if (command === 'queue' || command === 'q') {
-            if (!serverQueue)
-                return message.channel.send('There is nothing playing.');
-            return message.channel.send(`__**Song queue:**__${serverQueue.songs.map(song => `**-** ${song.title}`).join('\n')}**Now playing:** ${serverQueue.songs[0].title}`);
-        }
-        else if (command === 'pause') {
-            if (serverQueue && serverQueue.playing) {
-                serverQueue.playing = false;
-                serverQueue.connection.dispatcher.pause();
-                return message.channel.send(':pause_button: Paused the music for you!');
-            }
-            return message.channel.send('There is nothing playing.');
-        }
-        else if (command === 'resume') {
-            if (serverQueue && !serverQueue.playing) {
-                serverQueue.playing = true;
-                serverQueue.connection.dispatcher.resume();
-                return message.channel.send(':arrow_forward: Resumed the music for you!');
-            }
-            return message.channel.send('There is nothing playing.');
-        }
+        if (command === 'p' || command === 'play') return playCommand(message, args);
+        else if (command === 'skip') return skipCommand(message);
+        else if (command === 'stop') return stopCommand(message);
+        else if (command === 'volume' || command === 'vol') return volumeCommand(message, args);
+        else if (command === 'np') return message.channel.send(!serverQueue ? 'There is nothing playing.' : `🎶 Now playing: **${serverQueue.songs[0].title}**`);
+        else if (command === 'queue' || command === 'q') return message.channel.send(!serverQueue ? 'There is nothing playing.' : `__**Song queue:**__${serverQueue.songs.map(song => `**-** ${song.title}`).join('\n')}**Now playing:** ${serverQueue.songs[0].title}`);
+        else if (command === 'pause') return pauseCommand(message);
+        else if (command === 'resume') return resumeCommand(message);
     },
 };
 
+/**@param {Message} message*/
+function PermissionCheck(message) {
+    if (message.channel.type == 'dm')
+        return `I can't play music for you in DMs..?`;
+
+    const PermissionCheck = message.channel.permissionsFor(message.client.user),
+        PermArr = ["SEND_MESSAGES", "CONNECT", "SPEAK", "EMBED_LINKS"];
+    for (var Perm = 0; Perm < PermArr.length; Perm++)
+        if (!PermissionCheck.has(PermArr[Perm]))
+            return `Sorry, ${message.author}. It seems like I don't have the **${PermArr[Perm]}** permission.`;
+    return `Permission Granted`;
+}
+
 //#region Command Handlers
-/**Plays specified song
- * @param {Message} message
- * @param {string[]} args
- * @param {VoiceChannel} voiceChannel*/
-function play(message, args, voiceChannel) {
+/**@param {Message} message @param {string[]} args*/
+function playCommand(message, args) {
     const searchString = args.slice(2).join(' '),
         url = args[1] ? args[1].replace(/<(.+)>/g, '$1') : '';
 
     if (!voiceChannel)
-        return message.channel.send('I\'m sorry but you need to be in a voice channel to play music!');
+        return message.channel.send(`You need to be in a voice channel to play music!`);
     if (url.match(/^https?:\/\/(www.youtube.com|youtube.com)\/playlist(.*)$/)) {
         var playlist;
         youtube.getPlaylist(url).then(Playlist => {
@@ -140,26 +95,55 @@ function play(message, args, voiceChannel) {
         return handleVideo(video, message, voiceChannel);
     }
 }
-function skip() {
+/** @param {Message} message*/
+function skipCommand(message) {
+    if (!voiceChannel)
+        return message.channel.send('You are not in a voice channel!');
+    else if (!serverQueue)
+        return message.channel.send('There is nothing playing that I could skip for you.');
 
+    serverQueue.connection.dispatcher.end('Skip command has been used!');
 }
-function stop() {
+/**@param {Message} message*/
+function stopCommand(message) {
+    if (!voiceChannel)
+        return message.channel.send('You are not in a voice channel!');
+    else if (!serverQueue)
+        return message.channel.send('There is nothing playing that I could stop for you.');
 
+    serverQueue.songs = [];
+    serverQueue.connection.dispatcher.end('Stop command has been used!');
 }
-function volume() {
+/** @param {Message} message @param {string[]} args*/
+function volumeCommand(message, args) {
+    if (!voiceChannel)
+        return message.channel.send('You are not in a voice channel!');
+    else if (!serverQueue)
+        return message.channel.send('There is nothing playing.');
+    else if (!args[0])
+        return message.channel.send(`The current volume is: **${serverQueue.volume}**`);
 
+    serverQueue.volume = args[0];
+    serverQueue.connection.dispatcher.setVolumeLogarithmic(args[0] / 5);
+    return message.channel.send(`I set the volume to: **${args[0]}**`);
 }
-function nowplaying() {
-
+/**@param {Message} message*/
+function pauseCommand(message) {
+    if (serverQueue && serverQueue.playing) {
+        serverQueue.playing = false;
+        serverQueue.connection.dispatcher.pause();
+        return message.channel.send(':pause_button: Paused the music for you!');
+    }
+    return message.channel.send('There is nothing playing.');
 }
-function queue() {
-
-}
-function pause() {
-
-}
-function resume() {
-
+/**@param {Message} message*/
+function resumeCommand(message) {
+    if (serverQueue && !serverQueue.playing) {
+        serverQueue.playing = true;
+        serverQueue.connection.dispatcher.resume();
+        return message.channel.send(':arrow_forward: Resumed the music for you!');
+    }
+    return message.channel.send('There is nothing playing.');
 }
 //#endregion
 
@@ -189,7 +173,7 @@ async function handleVideo(video, message, voiceChannel, playlist = false) {
             var connection;
             voiceChannel.join().then((Con) => { connection = Con });
             queueConstruct.connection = connection;
-            play(message.guild, queueConstruct.songs[0]);
+            playCommand(message.guild, queueConstruct.songs[0]);
         } catch (error) {
             console.error(`I could not join the voice channel: ${error}`);
             queue.delete(message.guild.id);
@@ -204,7 +188,7 @@ async function handleVideo(video, message, voiceChannel, playlist = false) {
     }
     return undefined;
 }
-function play(guild, song) {
+function playCommand(guild, song) {
     const serverQueue = queue.get(guild.id);
 
     if (!song) {
@@ -219,7 +203,7 @@ function play(guild, song) {
                 console.log('Song ended.') :
                 console.log(reason);
             serverQueue.songs.shift();
-            play(guild, serverQueue.songs[0]);
+            playCommand(guild, serverQueue.songs[0]);
         })
         .on('error', error => console.error(error));
     dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);

@@ -9,7 +9,7 @@ module.exports = {
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         PermCheck = PermissionCheck(message);
-        if (PermCheck != `Permission Granted`) message.channel.send(PermCheck);
+        if (PermCheck != `Permission Granted`) return message.channel.send(PermCheck);
 
         const { voiceChannel } = message.member;
         message.delete();

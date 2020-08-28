@@ -1,4 +1,4 @@
-const { Message, Message } = require('discord.js');
+const { Message } = require('discord.js');
 
 module.exports = {
     name: 'setpfp',
@@ -29,7 +29,7 @@ module.exports = {
 
         message.client.user.setAvatar(`./pfps/${PFP}`);
 
-        if (message.channel.type != 'dm' && !message.channel.permissionsFor(message.guild.client.user).has('SEND_MESSAGES'))
+        if (message.channel.type != 'dm' && !message.channel.permissionsFor(message.client.user).has('SEND_MESSAGES'))
             return message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!\nBut I have updated my PFP!`);
 
         return message.channel.send(`Successfully changed my profile picture!`);
@@ -48,7 +48,7 @@ function HandlePreview(message, imageToPreview) {
                 attachment: `./pfps/${imageToPreview}`,
                 name: `${imageToPreview}.png`
             }]
-        }).catch(e => { message.channel.send(e) });
+        }).catch(e => message.channel.send(e));
     }
     catch (e) { message.channel.send(`Unable to find ${imageToPreview} in my available PFPs!\n` + e.message); }
 }

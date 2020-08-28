@@ -8,7 +8,7 @@ module.exports = {
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         const PermCheck = PermissionCheck(message);
-        if (PermCheck != `Permission Granted`) message.author.send(PermCheck);
+        if (PermCheck != `Permission Granted`) return message.author.send(PermCheck);
 
         const Facts = [
             //Literal Penguin facts

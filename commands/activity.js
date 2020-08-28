@@ -12,8 +12,7 @@ module.exports = {
     execute(message, args) {
         //Permission check
         const PermCheck = PermissionCheck(message, args);
-        if (PermCheck != `Permission Granted`)
-            return message.channel.send(PermCheck);
+        if (PermCheck != `Permission Granted`) return message.channel.send(PermCheck);
 
         //Create Person variables
         const User = message.author.username,

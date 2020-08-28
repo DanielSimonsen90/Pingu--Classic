@@ -9,7 +9,7 @@ module.exports = {
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         if (message.channel.type == 'dm')
-            return message.author.send(`I execute this command in DMs.`);
+            return message.author.send(args.join(" "));
 
         const PermissionCheck = message.channel.permissionsFor(message.guild.client.user),
             PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES"];;

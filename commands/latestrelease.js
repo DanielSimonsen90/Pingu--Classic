@@ -10,6 +10,7 @@ module.exports = {
         if (message.channel.type != 'dm')
             if (!message.channel.permissionsFor(message.guild.client.user).has('SEND_MESSAGES'))
                 return message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!`);
+
         const Embed = new MessageEmbed()
             .setTitle('Latest Releases')
             .setColor(0xfb8927)

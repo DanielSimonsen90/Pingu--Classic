@@ -9,7 +9,7 @@ module.exports = {
     id: 2, 
     execute(message) {
         PermCheck = CheckPermissions(message);
-        if (PermCheck != `Permission Granted`) message.channel.send(PermCheck);
+        if (PermCheck != `Permission Granted`) return message.channel.send(PermCheck);
 
         if (!Config || !Config.api_key || !Config.google_custom_search)
             return message.channel.send('Image search requires both a YouTube API key and a Google Custom Search key!');

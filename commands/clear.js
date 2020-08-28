@@ -8,7 +8,7 @@ module.exports = {
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         const PermCheck = PermissionCheck(message, args);
-        if (PermCheck != `Permission Granted`) message.channel.send(PermCheck);
+        if (PermCheck != `Permission Granted`) return message.channel.send(PermCheck);
 
         if (args[0].toLowerCase() === "all")
             return message.author.send(ClearAll(message));

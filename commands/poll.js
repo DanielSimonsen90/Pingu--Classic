@@ -1,4 +1,4 @@
-﻿const { Message, MessageEmbed, MessageEmbed} = require('discord.js'),
+﻿const { Message, MessageEmbed } = require('discord.js'),
     ms = require('ms');
 module.exports = {
     name: 'poll',
@@ -29,9 +29,7 @@ module.exports = {
         //Send Embed and react.
         message.channel.send(Embed).then(NewMessage => {
             PollMessage = NewMessage;
-            PollMessage.react('👍').then(() => {
-                PollMessage.react('👎');
-            })
+            PollMessage.react('👍').then(() => PollMessage.react('👎'));
         })
 
         try { setTimeout(OnTimeOut(message, Embed, PollMessage, Poll), ms(Time)); }
@@ -46,7 +44,7 @@ function PermissionCheck(message, args) {
         if (!message.channel.permissionsFor(message.client.user).has(PermArr[x]))
             return `Hey! I don't have permission to **${PermArrMsg}** in #${message.channel.name}!`;
 
-    if (message.guild.member(message.author).roles.find('name', 'Polls') ||
+    if (message.guild.member(message.author).roles.cache.find('name', 'Polls') ||
         !message.channel.permissionsFor(message.author).has('ADMINISTRATOR'))
         return `You don't have \`administrator\` permissions or a \`Polls\` role!`;
     else if (!args[1])
@@ -54,14 +52,14 @@ function PermissionCheck(message, args) {
     else if (args[0].endsWith('s') && parseInt(args[0].substring(0, args[0].length - 1)) < 30)
         return 'Please specfify a time higher than 29s';
     else if (!parseInt(args[0].substring(0, args[0].length - 1)))
-        return message.author.send('Please provide a valid time!');
+        return 'Please provide a valid time!';
     return `Permission Granted`;
 }
 /**@param {Message} message @param {MessageEmbed} Embed @param {Message} PollMessage @param {string} Poll*/
 function OnTimeOut(message, Embed, PollMessage, Poll) {
     //Creating variables
-    const Yes = PollMessage.reactions.get('👍').count,
-          No = PollMessage.reactions.get('👎').count;
+    const Yes = PollMessage.reactions.cache.get('👍').count,
+          No = PollMessage.reactions.cache.get('👎').count;
     let Verdict;
 
     //Defining Verdict
