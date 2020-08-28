@@ -9,73 +9,23 @@ module.exports = {
     name: 'yt',
     cooldown: 5,
     description: 'Plays stuff from Youtube',
-    usage: '<action> [args[2]]',
+    usage: '<action> [args[1]]',
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         if (message.channel.type == 'dm')
             return message.author.send(`I can't play music for you in DMs..?`);
 
-        const PermissionCheck = message.channel.memberPermissions(message.guild.client.user),
+        const PermissionCheck = message.channel.permissionsFor(message.client.user),
             PermArr = ["SEND_MESSAGES", "CONNECT", "SPEAK", "EMBED_LINKS"];
         for (var Perm = 0; Perm < PermArr.length; Perm++)
             if (!PermissionCheck.has(PermArr[Perm]))
                 return `Sorry, ${message.author}. It seems like I don't have the **${PermArr[Perm]}** permission.`;
 
-        const searchString = args.slice(2).join(' '),
-            url = args[1] ? args[1].replace(/<(.+)>/g, '$1') : '',
-            serverQueue = queue.get(message.guild.id),
+        const serverQueue = queue.get(message.guild.id),
             { voiceChannel } = message.member,
             command = args[0];
 
-        if (command === 'p' || command === 'play') {
-            if (!voiceChannel)
-                return message.channel.send('I\'m sorry but you need to be in a voice channel to play music!');
-            if (url.match(/^https?:\/\/(www.youtube.com|youtube.com)\/playlist(.*)$/)) {
-                var playlist;
-                youtube.getPlaylist(url).then((Playlist) => {
-                    playlist = Playlist;
-                    playlist.getVideos().then((videos) => {
-                        for (const video of Object.values(videos)) {
-                            youtube.getVideoByID(video.id).then((video2) => {
-                                handleVideo(video2, message, voiceChannel, true);
-                            });
-                        }
-                    });
-                });
-                return message.channel.send(`✅ Playlist: **${playlist.title}** has been added to the queue!`);
-            }
-            else {
-                try {
-                    var video;
-                    youtube.getVideo(url).then((Video) => { video = Video });
-                } catch (error) {
-                    try {
-                        var videos;
-                        youtube.searchVideos(searchString, 10).then((Video) => { videos = Video });
-                        let index = 0;
-                        message.channel.send(`__**Song selection:**__${videos.map(video2 => `**${++index} -** ${video2.title}`).join('\n')}Please provide a value to select one of the search results ranging from 1-10.`);
-                        try {
-                            var response;
-                            message.channel.awaitMessages(msg2 => msg2.content > 0 && msg2.content < 11, {
-                                maxMatches: 1,
-                                time: 10000,
-                                errors: ['time']
-                            }).then((Response) => { response = Response });
-                        } catch (err) {
-                            console.error(err);
-                            return message.channel.send('No or invalid value entered, cancelling video selection.');
-                        }
-                        const videoIndex = parseInt(response.first().content);
-                        var video;
-                        youtube.getVideoByID(videos[videoIndex - 1].id).then((Video) => { video = Video });
-                    } catch (err) {
-                        console.error(err);
-                        return message.channel.send('🆘 I could not obtain any search results.');
-                    }
-                }
-                return handleVideo(video, message, voiceChannel);
-            }
-        }
+        if (command === 'p' || command === 'play') play(message, voiceChannel);
         else if (command === 'skip') {
             if (!voiceChannel)
                 return message.channel.send('You are not in a voice channel!');
@@ -135,6 +85,85 @@ module.exports = {
         }
     },
 };
+
+//#region Command Handlers
+/**Plays specified song
+ * @param {Message} message
+ * @param {string[]} args
+ * @param {VoiceChannel} voiceChannel*/
+function play(message, args, voiceChannel) {
+    const searchString = args.slice(2).join(' '),
+        url = args[1] ? args[1].replace(/<(.+)>/g, '$1') : '';
+
+    if (!voiceChannel)
+        return message.channel.send('I\'m sorry but you need to be in a voice channel to play music!');
+    if (url.match(/^https?:\/\/(www.youtube.com|youtube.com)\/playlist(.*)$/)) {
+        var playlist;
+        youtube.getPlaylist(url).then(Playlist => {
+            playlist = Playlist;
+            playlist.getVideos().then(videos => {
+                for (const video of Object.values(videos))
+                    youtube.getVideoByID(video.id).then(video2 => handleVideo(video2, message, voiceChannel, true));
+            });
+        });
+        return message.channel.send(`✅ Playlist: **${playlist.title}** has been added to the queue!`);
+    }
+
+    try {
+        var video;
+        youtube.getVideo(url).then((Video) => { video = Video });
+    } catch (error) {
+        try {
+            var videos;
+            youtube.searchVideos(searchString, 10).then((Video) => { videos = Video });
+            let index = 0;
+            message.channel.send(`__**Song selection:**__${videos.map(video2 => `**${++index} -** ${video2.title}`).join('\n')}Please provide a value to select one of the search results ranging from 1-10.`);
+            try {
+                var response;
+                message.channel.awaitMessages(msg2 => msg2.content > 0 && msg2.content < 11, {
+                    maxMatches: 1,
+                    time: 10000,
+                    errors: ['time']
+                }).then(Response => response = Response);
+            } catch (err) {
+                console.error(err);
+                return message.channel.send('No or invalid value entered, cancelling video selection.');
+            }
+            const videoIndex = parseInt(response.first().content);
+            var video;
+            youtube.getVideoByID(videos[videoIndex - 1].id).then(Video => video = Video);
+        } catch (err) {
+            console.error(err);
+            return message.channel.send('🆘 I could not obtain any search results.');
+        }
+
+        return handleVideo(video, message, voiceChannel);
+    }
+}
+function skip() {
+
+}
+function stop() {
+
+}
+function volume() {
+
+}
+function nowplaying() {
+
+}
+function queue() {
+
+}
+function pause() {
+
+}
+function resume() {
+
+}
+//#endregion
+
+//#region Sub-functions
 async function handleVideo(video, message, voiceChannel, playlist = false) {
     const serverQueue = queue.get(message.guild.id);
     console.log(video);
@@ -197,3 +226,4 @@ function play(guild, song) {
 
     serverQueue.textChannel.send(`🎶 Start playing: **${song.title}**`);
 }
+//#endregion
