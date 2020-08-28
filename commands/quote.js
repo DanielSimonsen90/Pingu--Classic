@@ -1,3 +1,5 @@
+const { Message } = require("discord.js");
+
 module.exports = {
     name: 'quote',
     cooldown: 5,
@@ -5,13 +7,15 @@ module.exports = {
     usage: '<message> [@Quotee]',
     guildOnly: true,
     id: 2,
+    /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        CheckPermissions(message);
+        const PermCheck = CheckPermissions(message);
+        if (PermCheck != `Permission Granted`) return message.channel.send(PermCheck);
 
         let Quote = args.join(" "),
             quotee = message.mentions.users.size != 0 ?
-                     message.mentions.users.first().username :
-                     message.author.username;
+                message.mentions.users.first().username :
+                message.author.username;
 
         if (message.mentions.users.size != 0)
             Quote = Quote.substring(0, Quote.length - args[args.length - 1].length - 1);
@@ -25,15 +29,14 @@ module.exports = {
             .then(QuotedMessage => { QuotedMessage.edit(`\`"${Quote}"\`\n- ${quotee}`) });
     },
 };
-
+/**@param {Message} message*/
 function CheckPermissions(message) {
     if (message.channel.type === 'dm')
-        return message.author.send(`I execute this command in DMs.`);
-    else {
-        const PermissionCheck = message.channel.memberPermissions(message.guild.client.user),
-            PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES", "EMBED_LINKS"];
-        for (var Perm = 0; Perm < PermArr.length; Perm++)
-            if (!PermissionCheck.has(PermArr[Perm]))
-                return `Sorry, ${message.author}. It seems like I don't have the **${PermArr[Perm]}** permission.`;
-    }
+        return `I execute this command in DMs.`;
+
+    const PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES", "EMBED_LINKS"];
+    for (var Perm = 0; Perm < PermArr.length; Perm++)
+        if (!message.channel.permissionsFor(message.guild.client.user).has(PermArr[Perm]))
+            return `Sorry, ${message.author}. It seems like I don't have the **${PermArr[Perm]}** permission.`;
+    return `Permission Granted`;
 }

@@ -1,4 +1,4 @@
-﻿const Discord = require('discord.js'),
+﻿const { Message, MessageEmbed, MessageEmbed} = require('discord.js'),
     ms = require('ms');
 module.exports = {
     name: 'poll',
@@ -7,6 +7,7 @@ module.exports = {
     usage: '<time> <question>',
     guildOnly: true,
     id: 1,
+    /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         //Permission check
         const PermResponse = PermissionCheck(message, args);
@@ -19,7 +20,7 @@ module.exports = {
         message.delete();
 
         //Create Embed
-        let Embed = new Discord.RichEmbed()
+        let Embed = new MessageEmbed()
             .setTitle(Poll)
             .setColor(0xfb8927)
             .setDescription(`Time set: ${Time}`)
@@ -37,23 +38,26 @@ module.exports = {
         catch{ return message.author.send(`Please specify a time!`); }
     },
 };
-
+/**@param {Message} message @param {string[]} args*/
 function PermissionCheck(message, args) {
-    if (!message.channel.memberPermissions(message.guild.client.user).has('SEND_MESSAGES'))
-        return `Hey! I don't have permission to **send messages** in #${message.channel.name}!`;
-    else if (!message.channel.memberPermissions(message.guild.client.user).has('MANAGE_MESSAGES'))
-        return `Hey! I don't have permission to **manage messages**!`;
-    else if (message.guild.member(message.author).roles.find('name', 'Polls') ||
-        !message.channel.memberPermissions(message.author).has('ADMINISTRATOR'))
-        return `You don't have \`administrator\` permissions or a \`Polls\` role!`
+    const PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES"],
+        PermArrMsg = ["send messages", "manage messages"];
+    for (var x = 0; x < PermArr.length; x++)
+        if (!message.channel.permissionsFor(message.client.user).has(PermArr[x]))
+            return `Hey! I don't have permission to **${PermArrMsg}** in #${message.channel.name}!`;
+
+    if (message.guild.member(message.author).roles.find('name', 'Polls') ||
+        !message.channel.permissionsFor(message.author).has('ADMINISTRATOR'))
+        return `You don't have \`administrator\` permissions or a \`Polls\` role!`;
     else if (!args[1])
         return 'Please provide a poll question!';
     else if (args[0].endsWith('s') && parseInt(args[0].substring(0, args[0].length - 1)) < 30)
         return 'Please specfify a time higher than 29s';
     else if (!parseInt(args[0].substring(0, args[0].length - 1)))
         return message.author.send('Please provide a valid time!');
-    else return `Permission Granted`;
+    return `Permission Granted`;
 }
+/**@param {Message} message @param {MessageEmbed} Embed @param {Message} PollMessage @param {string} Poll*/
 function OnTimeOut(message, Embed, PollMessage, Poll) {
     //Creating variables
     const Yes = PollMessage.reactions.get('👍').count,
@@ -64,10 +68,9 @@ function OnTimeOut(message, Embed, PollMessage, Poll) {
     Verdict = Yes > No ? "Yes" :
               No > Yes ? "No" :
               "Undecided";
-    Verdict = `**${Verdict}**`;
 
     //Submitting Verdict
-    message.channel.send(`The poll of "**${Poll}**", voted ${Verdict}!`);
+    message.channel.send(`The poll of "**${Poll}**", voted **${Verdict}**!`);
     
     PollMessage.edit(Embed.setTitle(`FINISHED!: ${Poll}`).setDescription(`Voting done! Final answer: ${Verdict}`));
 }

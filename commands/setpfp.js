@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+const { Message, Message } = require('discord.js');
 
 module.exports = {
     name: 'setpfp',
@@ -6,6 +6,7 @@ module.exports = {
     description: 'Changes my profile picture',
     usage: ' [preview] <1k | AFools | Cool | Green | Hollywood | Blogger | Sithlord | Wiking>',
     id: 4,
+    /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         let PFP = args[0].toLowerCase() == "preview" ? args[1] : args[0];
 
@@ -28,13 +29,15 @@ module.exports = {
 
         message.client.user.setAvatar(`./pfps/${PFP}`);
 
-        if (message.channel.type !== 'dm' && !message.channel.memberPermissions(message.guild.client.user).has('SEND_MESSAGES'))
+        if (message.channel.type != 'dm' && !message.channel.permissionsFor(message.guild.client.user).has('SEND_MESSAGES'))
             return message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!\nBut I have updated my PFP!`);
 
         return message.channel.send(`Successfully changed my profile picture!`);
     },
 };
 
+/**@param {Message} message @param {string} imageToPreview
+ */
 function HandlePreview(message, imageToPreview) {
     if (imageToPreview == null)
         return message.channel.send(`Preview image not specified.`);
@@ -47,5 +50,5 @@ function HandlePreview(message, imageToPreview) {
             }]
         }).catch(e => { message.channel.send(e) });
     }
-    catch (e) { message.channel.send(`Unable to find ${imageToPreview} in my available PFPs!\n` + e); }
+    catch (e) { message.channel.send(`Unable to find ${imageToPreview} in my available PFPs!\n` + e.message); }
 }

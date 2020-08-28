@@ -1,14 +1,17 @@
 ﻿//const { TellArray } = require('../index');
 
+const { Message } = require("discord.js");
+
 module.exports = {
     name: 'tell',
     cooldown: 5,
     description: 'Messages a user from Pingu :eyes:',
     usage: '<user | username | unset> <message>',
     id: 2,
+    /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         CheckResponse = ArgumentCheck(message, args);
-        if (CheckResponse != `Arguments met`)
+        if (CheckResponse != `Permission Granted`)
             return message.channel.send(CheckResponse);
 
         let UserMention = args.shift();
@@ -31,13 +34,12 @@ module.exports = {
             //    Reciever: Mention.user,
             //    Message: Message
             //});
-        }).catch(error => {
-            message.channel.send(`Attempted to message ${Mention.user.username} but couldn't due to ${error}`);
-        });
+        }).catch(error => message.channel.send(`Attempted to message ${Mention.user.username} but couldn't due to ${error}`));
     },
 };
 
-/// <summary> Checks if arguments are correct </summary>
+/**Checks if arguments are correct
+ * @param {Message} message @param {string[]} args*/
 function ArgumentCheck(message, args) {
     if (!args[0] && !args[1])
         return `Not enough arguments provided`;
@@ -49,13 +51,13 @@ function ArgumentCheck(message, args) {
         for (var Guild of message.client.guilds.array()) 
             for (var Member of Guild.members.array()) 
                 if (Member.user.username == Mention || Member.nickname == Mention)
-                    return `Arguments met`;
+                    return `Permission Granted`;
         return `No mention provided`;
     }
-    return `Arguments met`;
+    return `Permission Granted`;
 }
-
-/// <summary> Returns Mention whether it's @Mentioned, username or nickname </summary>
+/**Returns Mention whether it's @Mentioned, username or nickname
+ * @param {Message} message @param {string} UserMention*/
 function GetMention(message, UserMention) {
     if (message.mentions.users.first() == null) {
         for (var Guild of message.client.guilds.array())

@@ -1,8 +1,11 @@
-﻿module.exports = {
+﻿const { Message } = require("discord.js");
+
+module.exports = {
     name: 'update',
     description: 'Reloads a command',
     usage: '<script/command>',
     id: 4,
+    /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         if (!args.length)
             return message.channel.send(`You didn't pass any command to update, ${message.author}!`);
@@ -11,8 +14,7 @@
             command = message.client.commands.get(commandName) ||
                 message.client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
 
-        if (!command)
-            return message.channel.send(`There is no command with name or alias \`${commandName}\`, ${message.author}!`);
+        if (!command) return message.channel.send(`There is no command with name or alias \`${commandName}\`, ${message.author}!`);
 
         delete require.cache[require.resolve(`./${commandName}.js`)];
 

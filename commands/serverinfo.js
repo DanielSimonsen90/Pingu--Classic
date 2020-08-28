@@ -1,20 +1,22 @@
-const Discord = require('discord.js');
+const { MessageEmbed, Message, Guild } = require('discord.js');
 module.exports = {
     name: 'serverinfo',
     description: 'Sends server information.',
     usage: '[Server ID]',
     guildOnly: true,
     id: 1,
+    /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         if (args[0] == null)
-            return SendInfo(message.guild);
-        //return SendInfo(new Discord.Guild(message.client, message.client.fetchGuildPreview(args[0])));
+            return SendInfo(message, message.guild);
+        //return SendInfo(message, new Discord.Guild(message.client, message.client.fetchGuildPreview(args[0])));
 
     },
 };
 
-function SendInfo(guild) {
-    const Embed = new Discord.RichEmbed()
+/**@param {Message} message @param {Guild} guild*/
+function SendInfo(message, guild) {
+    const Embed = new MessageEmbed()
         .setTitle(`Server Information: ${guild.name}`)
         .setThumbnail(guild.iconURL)
         .setColor(0xfb8927)
@@ -25,10 +27,7 @@ function SendInfo(guild) {
         .addBlankField(true)
         .addField(`Creation Date`, guild.createdAt, false);
 
-    if (!message.channel.memberPermissions(message.guild.client.user).has('SEND_MESSAGES')) {
-        message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!\nBut here's your information:`)
-        return message.author.send(Embed);
-    }
-
-    return message.channel.send(Embed);
+    return !message.channel.permissionsFor(message.guild.client.user).has('SEND_MESSAGES') ?
+        message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!\nBut here's your information:`).then(() => message.author.send(Embed)) :
+    message.channel.send(Embed);
 }

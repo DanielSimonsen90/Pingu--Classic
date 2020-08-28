@@ -1,11 +1,11 @@
-const Discord = require('discord.js')
+const { Message, MessageEmbed, GuildMember} = require('discord.js')
 module.exports = {
     name: 'uinfo',
     cooldown: 5,
     description: 'Gets the info of a specified user',
     usage: '<ID> | <Mention>',
     id: 1,
-    /**@param {Discord.Message} message @param {string[]} args*/
+    /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         //Permission check
         const PermCheck = CheckPermissions(message);
@@ -34,10 +34,10 @@ module.exports = {
     },
 };
 
-/**@param {Discord.Message} message*/
+/**@param {Message} message*/
 function CheckPermissions(message) {
     if (message.channel.type !== 'dm') {
-        const PermissionCheck = message.channel.permissionsFor(message.guild.client.user),
+        const PermissionCheck = message.channel.permissionsFor(message.client.user),
             PermArr = ["SEND_MESSAGES"], PermArrMsg = ["send messages"];
 
         for (var Perm = 0; Perm < PermArr.length; Perm++)
@@ -46,7 +46,7 @@ function CheckPermissions(message) {
         return `Permission Granted`;
     }
 }
-/**@param {Discord.Message} message @param {Discord.GuildMember} GuildMember*/
+/**@param {Message} message @param {GuildMember} GuildMember*/
 function HandleGuildMember(message, GuildMember) {
     var GuildArray = GuildMember.client.guilds.array(),
         SharedServers = GuildArray[0] + `\n`;
@@ -56,9 +56,9 @@ function HandleGuildMember(message, GuildMember) {
 
     SendGuildMessage(message, GuildMember, SharedServers);
 }
-/**@param {Discord.Message} message @param {Discord.GuildMember} GuildMember @param {any} SharedServers*/
+/**@param {Message} message @param {GuildMember} GuildMember @param {any} SharedServers*/
 function SendGuildMessage(message, GuildMember, SharedServers) {
-    message.channel.send(new Discord.RichEmbed()
+    message.channel.send(new MessageEmbed()
         .setTitle(`"${GuildMember.displayName}" (${GuildMember.user.username})`)
         .setThumbnail(GuildMember.user.avatarURL)
         .setColor(0xfb8927)
@@ -70,7 +70,7 @@ function SendGuildMessage(message, GuildMember, SharedServers) {
 }
 /**@param {Discord.Message} message @param {Discord.User} User*/
 function SendNonGuildMessage(message, User) {
-    message.channel.send(new Discord.MessageEmbed()
+    message.channel.send(new MessageEmbed()
         .setTitle(User.username)
         .setThumbnail(User.avatarURL)
         .setColor(0xfb8927)
