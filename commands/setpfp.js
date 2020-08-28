@@ -1,23 +1,30 @@
+const Discord = require('discord.js');
+
 module.exports = {
     name: 'setpfp',
     cooldown: 5,
     description: 'Changes my profile picture',
-    usage: '<1k | AFools | Cool | Green | Hollywood | Blogger | Sithlord | Wiking>',
+    usage: ' [preview] <1k | AFools | Cool | Green | Hollywood | Blogger | Sithlord | Wiking>',
     id: 4,
     execute(message, args) {
-        let PFP;
-        switch (args[0]) {
+        let PFP = args[0].toLowerCase() == "preview" ? args[1] : args[0];
+
+        switch (PFP.toLowerCase()) {
+            case 'preview': break;
             case '1k': PFP = '1k days celebration hype.png'; break;
-            case 'AFools': PFP = 'April Fools.png'; break;
-            case 'Cool': PFP = 'FeelsCoolMan.png'; break;
-            case 'Green': PFP = 'Greeny_Boi.png'; break;
-            case 'Hollywood': PFP = 'Hollywood Party.png'; break;
-            case 'Blogger': PFP = 'The Blogger.png'; break;
-            case 'Sithlord': PFP = 'The Sithlord.png'; break;
-            case 'Wiking': PFP = 'Wiking.png'; break;
-            case 'Winter': PFP = 'Winter.png'; break;
+            case 'afools': PFP = 'April Fools.png'; break;
+            case 'cool': PFP = 'FeelsCoolMan.png'; break;
+            case 'green': PFP = 'Greeny_Boi.png'; break;
+            case 'hollywood': PFP = 'Hollywood Party.png'; break;
+            case 'blogger': PFP = 'The Blogger.png'; break;
+            case 'sithlord': PFP = 'The Sithlord.png'; break;
+            case 'wiking': PFP = 'Wiking.png'; break;
+            case 'winter': PFP = 'Winter.png'; break;
             default: return message.channel.send(`I couldn't find that PFP in my folder!`);
         }
+
+        if (args[0].toLowerCase() == "preview")
+            return HandlePreview(message, PFP);
 
         message.client.user.setAvatar(`./pfps/${PFP}`);
 
@@ -27,3 +34,18 @@ module.exports = {
         return message.channel.send(`Successfully changed my profile picture!`);
     },
 };
+
+function HandlePreview(message, imageToPreview) {
+    if (imageToPreview == null)
+        return message.channel.send(`Preview image not specified.`);
+    try {
+        message.channel.send(`Preview image for: **${imageToPreview}**`);
+        message.channel.send({
+            files: [{
+                attachment: `./pfps/${imageToPreview}`,
+                name: `${imageToPreview}.png`
+            }]
+        }).catch(e => { message.channel.send(e) });
+    }
+    catch (e) { message.channel.send(`Unable to find ${imageToPreview} in my available PFPs!\n` + e); }
+}

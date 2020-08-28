@@ -30,3 +30,17 @@ module.exports = {
         message.channel.send(`OK Boomer ${Mention}`);
     },
 };
+<<<<<<< Updated upstream
+=======
+
+function PermissionCheck(message) {
+    if (message.channel.type === 'dm')
+        return `I can't execute that command in DMs!`;
+
+    if (!message.channel.memberPermissions(message.guild.client.user).has('SEND_MESSAGES'))
+        return `Hey! I don't have permission to **send messages** in #${message.channel.name}!`;
+    else if (!message.channel.memberPermissions(message.guild.client.user).has('MANAGE_MESSAGES'))
+        return `Hey! I don't have permission to **manage messages**!`;
+    return `Permission Granted`;
+}
+>>>>>>> Stashed changes

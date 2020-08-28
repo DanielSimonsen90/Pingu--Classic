@@ -22,17 +22,16 @@ module.exports = {
             //Edit embed to default help menu
             embed.setTitle('Pingu Help Menu!')
                 .setDescription('Use these arguments to see what commands I have in a specific category!')
-                .setFooter(`Developed by Simonsen Techs || Requested by ${message.author.tag}`);
+                .setFooter(`Developed by Simonsen Techs`);
 
             //Insert data for help menu
             for (var x = 1; x < 4; x++)
-                embed.addField(`**__*${ScriptsCategorized[x]}__**`, `\`${prefix}help ${ScriptsCategorized[x]}\``, true)
+                embed.addField(`**__${prefix}${ScriptsCategorized[x]}__**`, `\`${prefix}help ${ScriptsCategorized[x]}\``, true);
 
             //Return embed
             return message.author.send(embed)
                 .then(() => {
-                    if (message.channel.type === 'dm')
-                        return;
+                    if (message.channel.type === 'dm') return;
                     message.reply(`I've sent you a DM with all my commands!`);
                 })
                 .catch(error => {

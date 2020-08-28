@@ -82,6 +82,7 @@ module.exports = {
 
             //Return the whole thing LuL
             //React with F if the user uses *activity on themselves
+<<<<<<< Updated upstream
             if (Person === User)
                 message.channel.send(embed)
                     .then((NewMessage) => {
@@ -92,3 +93,40 @@ module.exports = {
         });
     },
 };
+=======
+            if (Person == User)
+                message.channel.send(embed).then((NewMessage) => { NewMessage.react('🇫'); });
+            else message.channel.send(embed);
+        });
+    },
+};
+
+function PermissionCheck(message, args) {
+    if (message.channel.type !== 'dm') {
+        if (!message.channel.memberPermissions(message.guild.client.user).has('SEND_MESSAGES'))
+            return `Hey! I don't have permission to **send messages** in #${message.channel.name}!`;
+        else if (!message.channel.memberPermissions(message.guild.client.user).has('EMBED_LINKS'))
+            return `Hey! I don't have permission to **use embed links** in #${message.channel.name}!`;
+        else if (!args[0])
+            return `Provide me with proper arguments please UwU`;
+    }
+    else return `I can't execute that command in DMs!`;
+    return `Permission Granted`;
+}
+function DefinePerson(message) {
+    let Person = message.mentions.users.first().username || message.author.username;
+
+    return Person.includes('!') ? Person.replace('!', '') : Person;
+}
+function DefineActivity(message, args) {
+    if (args[0].toLowerCase() === 'fuck' && !message.channel.nsfw)
+        return `nono`;
+
+    //Grammarly fix Activity
+    args[0] += args[0].endsWith('s') || args[0].endsWith('h') ? 'es' :
+               args[0].endsWith('y') ? args[0].substring(0, args[0].length - 1) + 'ies' :
+               's';
+
+    return args.slice(0, args.length - 1).join(' ') || args[0];
+}
+>>>>>>> Stashed changes

@@ -23,9 +23,8 @@
             console.log(error);
             message.channel.send(`There was an error while updating \`${commandName}\`!\n\`${error.message}\``);
         }
-        if (message.channel.type !== 'dm')
-            if (!message.channel.memberPermissions(message.guild.client.user).has('SEND_MESSAGES'))
-                return message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!\nBut I have reloaded your command!`);
+        if (message.channel.type !== 'dm' && !message.channel.permissionsFor(message.guild.client.user).has('SEND_MESSAGES'))
+            return message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!\nBut I have reloaded your command!`);
 
         message.channel.send(`Command \`${commandName}\` was updated!`);
     },

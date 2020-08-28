@@ -9,21 +9,8 @@ module.exports = {
     id: 1,
     execute(message, args) {
         //Permission check
-        if (!message.channel.memberPermissions(message.guild.client.user).has('SEND_MESSAGES'))
-            return message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!`)
-        else if (!message.channel.memberPermissions(message.guild.client.user).has('MANAGE_MESSAGES'))
-            return message.author.send(`Hey! I don't have permission to **manage messages**!`);
-        else if (message.guild.member(message.author).roles.find('name', 'Polls') ||
-            !message.channel.memberPermissions(message.author).has('ADMINISTRATOR'))
-            return message.author.send(`You don't have \`administrator\` permissions or a \`Polls\` role!`)
-        else if (!args[1])
-            return message.author.send('Please provide a poll question!');
-        else if (args[0].endsWith('s')) {
-            if (parseInt(args[0].substring(0, args[0].length - 1)) < 30)
-                return message.author.send('Please specfify a time higher than 29s');
-        }
-        else if (!parseInt(args[0].substring(0, args[0].length - 1)))
-            return message.author.send('Please provide a valid time!');
+        const PermResponse = PermissionCheck(message, args);
+        if (PermResponse != `Permission Granted`) return message.channel.send(PermResponse);
 
         //Create scrubby variables
         const Time = args[0] || '10m';
@@ -46,31 +33,41 @@ module.exports = {
             })
         })
 
-        try {
-            setTimeout(function () {
-                //Creating variables
-                const Yes = PollMessage.reactions.get('👍').count,
-                    No = PollMessage.reactions.get('👎').count;
-                let Verdict;
-
-                //Defining Verdict
-                if (Yes > No)
-                    Verdict = "Yes";
-                else if (No > Yes)
-                    Verdict = "No";
-                else
-                    Verdict = "Undecided";
-                Verdict = `**${Verdict}**`;
-
-                //Submitting Verdict
-                message.channel.send(`The poll of "**${Poll}**", voted **${Verdict}**!`);
-
-                Embed.setTitle(`FINISHED!: ${Poll}`).setDescription(`Voting done! Final answer: ${Verdict}`)
-                PollMessage.edit(Embed);
-            }, ms(Time));
-        }
-        catch{
-            return message.author.send(`Please specify a time!`);
-        }
+        try { setTimeout(OnTimeOut(message, Embed, PollMessage, Poll), ms(Time)); }
+        catch{ return message.author.send(`Please specify a time!`); }
     },
 };
+
+function PermissionCheck(message, args) {
+    if (!message.channel.memberPermissions(message.guild.client.user).has('SEND_MESSAGES'))
+        return `Hey! I don't have permission to **send messages** in #${message.channel.name}!`;
+    else if (!message.channel.memberPermissions(message.guild.client.user).has('MANAGE_MESSAGES'))
+        return `Hey! I don't have permission to **manage messages**!`;
+    else if (message.guild.member(message.author).roles.find('name', 'Polls') ||
+        !message.channel.memberPermissions(message.author).has('ADMINISTRATOR'))
+        return `You don't have \`administrator\` permissions or a \`Polls\` role!`
+    else if (!args[1])
+        return 'Please provide a poll question!';
+    else if (args[0].endsWith('s') && parseInt(args[0].substring(0, args[0].length - 1)) < 30)
+        return 'Please specfify a time higher than 29s';
+    else if (!parseInt(args[0].substring(0, args[0].length - 1)))
+        return message.author.send('Please provide a valid time!');
+    else return `Permission Granted`;
+}
+function OnTimeOut(message, Embed, PollMessage, Poll) {
+    //Creating variables
+    const Yes = PollMessage.reactions.get('👍').count,
+          No = PollMessage.reactions.get('👎').count;
+    let Verdict;
+
+    //Defining Verdict
+    Verdict = Yes > No ? "Yes" :
+              No > Yes ? "No" :
+              "Undecided";
+    Verdict = `**${Verdict}**`;
+
+    //Submitting Verdict
+    message.channel.send(`The poll of "**${Poll}**", voted ${Verdict}!`);
+    
+    PollMessage.edit(Embed.setTitle(`FINISHED!: ${Poll}`).setDescription(`Voting done! Final answer: ${Verdict}`));
+}

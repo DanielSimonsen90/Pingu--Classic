@@ -1,7 +1,7 @@
 //Construction variables
 const fs = require('fs'),
     Discord = require('discord.js'),
-    { token } = require('./config.json'),
+    { token, Prefix } = require('./config.json'),
     SecondaryPrefix = '<@562176550674366464>',
     client = new Discord.Client(),
     commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
@@ -12,7 +12,6 @@ for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
     client.commands.set(command.name, command);
 }
-
 
 //Am I ready to launch?
 client.once('ready', () => {
@@ -25,7 +24,6 @@ let PreviousMessages = [],
 
 //Message response
 client.on('message', message => {
-    let Prefix = '*';
     const args = message.content.slice(Prefix.length).split(/ +/) ||
                  message.content.slice('@562176550674366464').split(/ +/);
     let commandName = args.shift().toLowerCase();
@@ -37,6 +35,17 @@ client.on('message', message => {
     //If interacted via @
     TestTagInteraction(commandName, args);
 
+<<<<<<< Updated upstream
+=======
+    //If I'm not interacted with don't do anything
+    
+    if (!message.content.startsWith(Prefix) && !message.author.bot)
+        if (!message.content.startsWith(SecondaryPrefix))
+            return (message.channel.type == 'dm') ? ExecuteTellReply(message) : null;
+
+    
+
+>>>>>>> Stashed changes
     //Attempt "command" assignment
     let command = AssignCommand(commandName, args, client);
     if (command == null) return;
@@ -164,6 +173,25 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
 
     //Attempt execution of command
     try {
+<<<<<<< Updated upstream
+=======
+        if (commandName == "tell") {
+            if (args[0] == 'unset') {
+                LastToUseTell = null;
+                LastToBeTold = null;
+
+                ConsoleLog += `successfully unset LastToUseTell & LastToBeTold.`;
+                console.log(ConsoleLog);
+                message.author.send(`Successfully unset LastToUseTell & LastToBeTold.`);
+                return;
+            }
+            let Mention = args[0];
+            while (Mention.includes('_')) Mention = Mention.replace('_', ' ');
+            LastToBeTold = GetMention(message, Mention).user;
+            LastToUseTell = message.author;
+        }
+
+>>>>>>> Stashed changes
         command.execute(message, args);
         ConsoleLog += `succeeded!`;
     } catch (error) {
@@ -171,4 +199,51 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
         message.author.send(`There was an error trying to execute that command! \n Error being: ${error}`);
     }
     console.log(ConsoleLog);
+<<<<<<< Updated upstream
 }
+=======
+}
+/// #endregion
+
+/// #region Tell command related
+function ExecuteTellReply(message) {
+    console.log(`${message.author.username} sent "${message.content}" to me in PMs. Assumingly sent to ${LastToBeTold}`);
+
+    /*try {
+        for (var x = 0; x < TellArray.length; x++) {
+            if (TellArray[x].Message == GetMessageContent(message))
+                return TellArray[x].Giver.dmChannel.send(`${TellArray[x].Reciever.username} replied: \n"${message.content}"`)
+        }
+    } catch (error) {
+        console.log(`Attempted to run ExecuteTellReply(message), but ran into an error:\n ${error}`)
+    }*/
+
+    if (message.author == LastToUseTell) {
+        LastToBeTold.dmChannel.send(message.content);
+        message.react('✅');
+    }
+    else if (LastToUseTell != null)
+        LastToUseTell.dmChannel.send(`${message.author} replied: \n"${message.content}"`);
+    else return;
+}
+function GetMessageContent(message) {
+    message.channel.fetchMessages({ limit: 20 }).then(MessageCollection => {
+        for (var x = 0; x < MessageCollection.array().length; x++) {
+            if (MessageCollection.array()[x].author == message.client.user)
+                return MessageContent = MessageCollection.array()[x].content;
+        }
+    });
+    return `Unable to find message content`;
+}
+function GetMention(message, UserMention) {
+    if (message.mentions.users.first() == null) {
+        for (var Guild of message.client.guilds.array())
+            for (var Member of Guild.members.array())
+                if (Member.user.username == UserMention || Member.nickname == UserMention)
+                    return Member;
+        return null;
+    }
+    return message.mentions.users.first();
+}
+/// #endregion
+>>>>>>> Stashed changes

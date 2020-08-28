@@ -8,7 +8,7 @@ module.exports = {
         if (message.channel.type === 'dm')
             return message.author.send(`I execute this command in DMs.`);
         else {
-            const PermissionCheck = message.channel.memberPermissions(message.guild.client.user),
+            const PermissionCheck = message.channel.permissionsFor(message.guild.client.user),
                 PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES"];
             for (var Perm = 0; Perm < PermArr.length; Perm++)
                 if (!PermissionCheck.has(PermArr[Perm]))

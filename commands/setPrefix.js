@@ -16,10 +16,8 @@ module.exports = {
 
         GuildCon.query(`SELECT * FROM GuildPrefix WHERE id = '${message.guild.id}'`, (err, rows) => {
 
-            if (err)
-                throw err;
-            if (rows[0])
-                return console.log(`Prefix in ${message.guild.name} has been changed to ${args[0]}`);
+            if (err) throw err;
+            if (rows[0]) return console.log(`Prefix in ${message.guild.name} has been changed to ${args[0]}`);
 
             let sql, Prefix;
 
