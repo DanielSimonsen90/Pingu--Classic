@@ -35,12 +35,12 @@ function PermissionCheck(message, args) {
             PermArrMsg = ["send messages", "manage messages"];
 
         for (var x = 0; x < PermArr.length; x++)
-            if (message.channel.permissionsFor(message.client.user).has(PermArr[x]))
-                return `Hey! I don't have permission to **${PermArrMsg}** in #${message.channel.name}!`
+            if (!message.channel.permissionsFor(message.client.user).has(PermArr[x]))
+                return `Hey! I don't have permission to **${PermArrMsg[x]}** in #${message.channel.name}!`
     }
     else if (args[0].toLowerCase() !== "log")
         return `I can't execute that command in DMs!`;
-    return `Permission granted`;
+    return `Permission Granted`;
 }
 /**@param {Message} message*/
 function ClearAll(message) {

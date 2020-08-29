@@ -48,7 +48,7 @@ function PermissionCheck(message) {
 /**@param {Message} message @param {string[]} args*/
 function playCommand(message, args) {
     const searchString = args.slice(2).join(' '),
-        url = args[1] ? args[1].replace(/<(.+)>/g, '$1') : '';
+        url = args[0] ? args[0].replace(/<(.+)>/g, '$1') : '';
 
     if (!voiceChannel)
         return message.channel.send(`You need to be in a voice channel to play music!`);
@@ -65,8 +65,8 @@ function playCommand(message, args) {
     }
 
     try {
-        var video;
-        youtube.getVideo(url).then((Video) => { video = Video });
+        var video = await youtube.getVideo(url)
+            .then(Video => video = Video);
     } catch (error) {
         try {
             var videos;
@@ -91,9 +91,8 @@ function playCommand(message, args) {
             console.error(err);
             return message.channel.send('🆘 I could not obtain any search results.');
         }
-
-        return handleVideo(video, message, voiceChannel);
     }
+    return handleVideo(video, message, voiceChannel);
 }
 /** @param {Message} message*/
 function skipCommand(message) {
@@ -173,7 +172,7 @@ async function handleVideo(video, message, voiceChannel, playlist = false) {
             var connection;
             voiceChannel.join().then((Con) => { connection = Con });
             queueConstruct.connection = connection;
-            playCommand(message.guild, queueConstruct.songs[0]);
+            play(message.guild, queueConstruct.songs[0]);
         } catch (error) {
             console.error(`I could not join the voice channel: ${error}`);
             queue.delete(message.guild.id);
@@ -188,14 +187,12 @@ async function handleVideo(video, message, voiceChannel, playlist = false) {
     }
     return undefined;
 }
-function playCommand(guild, song) {
-    const serverQueue = queue.get(guild.id);
-
+function play(guild, song) {
     if (!song) {
         serverQueue.voiceChannel.leave();
         return queue.delete(guild.id);
     }
-    console.log(serverQueue.songs);
+    //console.log(serverQueue.songs);
 
     const dispatcher = serverQueue.connection.playStream(ytdl(song.url))
         .on('end', reason => {
