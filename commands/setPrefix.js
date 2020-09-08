@@ -1,6 +1,13 @@
-const mysql = require('mysql');
-const { Message } = require('discord.js');
+const //mongoose = require('mongoose'),
+    //{ mongoPass } = require('../config.json'),
+    { Message } = require('discord.js');
 
+//mongoose.connect(mongoPass, {
+//    useNewUrlParser: true,
+//    useUnifiedTopology: true
+//});
+
+//const GuildData = require('../models/data.js');
 module.exports = {
     name: 'setprefix',
     description: 'set the prefix of server',
@@ -9,30 +16,27 @@ module.exports = {
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         return message.channel.send(`This doesn't work`);
+        //GuildData.findOne({
+        //    guildID: message.guild.id
+        //}, (err, data) => {
+        //        if (err) console.log(err);
+        //        if (!data) {
+        //            const newData = new GuildData({
+        //                name: message.guild.name,
+        //                guildID: message.guild.id,
+        //                prefix: args[0]
+        //            });
+        //            newData.save().catch(err => console.log(err));
+        //        }
+        //        else data.prefix = args[0];
+        //        return message.channel.send(`Prefix has been changed to **${args[0]}**!`);
 
-        var GuildCon = mysql.createConnection({
-            host: "localhost",
-            user: "root",
-            password: "1234",
-            database: "PinguGuilds"
-        });
+        //})
 
-        GuildCon.query(`SELECT * FROM GuildPrefix WHERE id = '${message.guild.id}'`, (err, rows) => {
 
-            if (err) throw err;
-            if (rows[0]) return console.log(`Prefix in ${message.guild.name} has been changed to ${args[0]}`);
+        //Source: https://www.youtube.com/watch?v=M6QPcuGmGNw&t=715s
+        //MongooseDB: https://cloud.mongodb.com/v2/5f57d37c523b020a20b98f86#clusters/connect?clusterId=PinguData
 
-            let sql, Prefix;
-
-            if (!rows[0]) {
-                Prefix = '*';
-                sql = `INSERT INTO GuildPrefix (id, Prefix, GuildName) VALUES ('${message.guild.id}', '*', ${message.guild.name})`;
-            } else {
-                Prefix = rows[0].Prefix;
-                sql = `UPDATE GuildPrefix SET Prefix = ${Prefix === args[0]} WHERE id = ${message.guild.id}`;
-            }
-            GuildCon.query(sql, console.log)
-            message.channel.send(`Prefix has been changed to **${args[0]}**!`)
-        })
+        message.channel.send(`Prefix has been changed to **${args[0]}**!`)
     },
 };

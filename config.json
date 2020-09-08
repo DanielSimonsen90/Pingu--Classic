@@ -1,6 +1,7 @@
 {
-  "Prefix":  "*",
+  "Prefix": "*",
   "token": "NTYyMTc2NTUwNjc0MzY2NDY0.Xc6B7g.SUrC7k1rMOyTNrVtyw--tReFENo",
-  "api_key": "AIzaSyAeAr2Dv1umzuLes_zhlY0lON4Pf_uAKeM",
-  "google_custom_search": "013524999991164939702:z24cpkwx9nz"
+  "api_key": "AIzaSyCYt2-w4knZTFswSECkNOV_79HMXyQXeWw",
+  "google_custom_search": "013524999991164939702:z24cpkwx9nz",
+  "mongoPass": "mongodb://dbPingu:Danho006@pingudata-shard-00-00.x1ocs.mongodb.net:27017,pingudata-shard-00-01.x1ocs.mongodb.net:27017,pingudata-shard-00-02.x1ocs.mongodb.net:27017/<dbname>?ssl=true&replicaSet=atlas-c2lrnh-shard-0&authSource=admin&retryWrites=true&w=majority"
 }

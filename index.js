@@ -26,7 +26,7 @@ client.once('ready', () => {
 //Message response
 client.on('message', message => {
     const args = message.content.slice(Prefix.length).split(/ +/) ||
-                 message.content.slice('@562176550674366464').split(/ +/);
+        message.content.slice('@562176550674366464').split(/ +/);
     let commandName = args.shift().toLowerCase();
 
     //If mentioned without prefix
@@ -37,7 +37,7 @@ client.on('message', message => {
     TestTagInteraction(commandName, args);
 
     //If I'm not interacted with don't do anything
-    
+
     if (!message.content.startsWith(Prefix) && !message.author.bot)
         if (!message.content.startsWith(SecondaryPrefix))
             return (message.channel.type == 'dm') ? ExecuteTellReply(message) : null;
@@ -46,7 +46,7 @@ client.on('message', message => {
     let command = AssignCommand(commandName, args, client);
     if (command == null) return;
 
-    
+
 
     //If I'm not interacted with don't do anything
     if (!message.content.startsWith(Prefix) || message.author.bot)
@@ -80,7 +80,7 @@ client.on('message', message => {
     //Execute command and log it
     ExecuteAndLogCommand(message, args, Prefix, commandName, command);
 
-})
+});
 
 client.login(token);
 

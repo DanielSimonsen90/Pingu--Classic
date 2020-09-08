@@ -1,6 +1,6 @@
 ﻿const request = require('request'),
-    Config = require('../config.json'),
-    Discord = require('discord.js');
+    config = require('../config.json'),
+    { MessageEmbed } = require('discord.js');
 
 module.exports = {
     name: 'activity',
@@ -20,14 +20,14 @@ module.exports = {
             Person = DefinePerson(message);
 
         //ActivityLink Function
-        if (!Config || !Config.api_key || !Config.google_custom_search)
+        if (!config || !config.api_key || !config.google_custom_search)
             return message.channel.send('Image search requires both a YouTube API key and a Google Custom Search key!');
 
         //Gets us a random result in first 5 pages
         const page = 1 + Math.floor(Math.random() * 5) * 10;
 
         //We request 10 items
-        request('https://www.googleapis.com/customsearch/v1?key=' + Config.api_key + '&cx=' + Config.google_custom_search + '&q=' + (`"anime" "${args[0]}" person "gif"`) + '&searchType=image&alt=json&num=10&start=' + page, function (err, res, body) {
+        request('https://www.googleapis.com/customsearch/v1?key=' + config.api_key + '&cx=' + config.google_custom_search + '&q=' + (`"anime" "${args[0]}" person "gif"`) + '&searchType=image&alt=json&num=10&start=' + page, function (err, res, body) {
             let data;
             try { data = JSON.parse(body); }
             catch (error) { return console.log(error); }
@@ -41,7 +41,7 @@ module.exports = {
                 return message.channel.send('I failed to find that!');
             }
 
-            const embed = new Discord.MessageEmbed()
+            const embed = new MessageEmbed()
                     .setTitle(`${User} ${Activity} ${Person}`)
                     .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
                     .setColor(0xfb8927);
