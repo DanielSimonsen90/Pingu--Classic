@@ -48,8 +48,8 @@ function ArgumentCheck(message, args) {
     while (Mention.includes('_')) Mention = Mention.replace('_', ' ');
 
     if (message.mentions.users.first() == null) {
-        for (var Guild of message.client.guilds.array()) 
-            for (var Member of Guild.members.array()) 
+        for (var Guild of message.client.guilds.cache.array())
+            for (var Member of Guild.members.cache.array()) 
                 if (Member.user.username == Mention || Member.nickname == Mention)
                     return `Permission Granted`;
         return `No mention provided`;
@@ -61,7 +61,7 @@ function ArgumentCheck(message, args) {
 function GetMention(message, UserMention) {
     if (message.mentions.users.first() == null) {
         for (var Guild of message.client.guilds.cache.array())
-            for (var Member of Guild.members.array())
+            for (var Member of Guild.members.cache.array())
                 if (Member.user.username == UserMention || Member.nickname == UserMention)
                     return Member;
         return null;

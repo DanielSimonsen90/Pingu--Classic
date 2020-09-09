@@ -2,8 +2,9 @@
 //#region Variables
 const fs = require('fs'),
     Discord = require('discord.js'),
-    { token, Prefix } = require('./config.json'),
+    { token } = require('./config.json'),
     SecondaryPrefix = '<@562176550674366464>',
+    ScriptsCategorized = ["", "Utility", "Fun", "Support", "DevOnly"],
     client = new Discord.Client();
 client.commands = new Discord.Collection();
 
@@ -12,10 +13,8 @@ let PreviousMessages = [],
 //#endregion
 
 //Does individual command work?
-SetCommand('1 Utility');
-SetCommand('2 Fun');
-SetCommand('3 Support');
-SetCommand('4 DevOnly');
+for (var x = 1; x < ScriptsCategorized.length; x++)
+    SetCommand(`${x} ${ScriptsCategorized[x]}`);
 
 //Am I ready to launch?
 client.once('ready', () => {
@@ -25,6 +24,7 @@ client.once('ready', () => {
 
 //Message response
 client.on('message', message => {
+    const { Prefix } = require('./config.json');
     const args = message.content.slice(Prefix.length).split(/ +/) ||
         message.content.slice('@562176550674366464').split(/ +/);
     let commandName = args.shift().toLowerCase();
@@ -43,7 +43,7 @@ client.on('message', message => {
             return (message.channel.type == 'dm') ? ExecuteTellReply(message) : null;
 
     //Attempt "command" assignment
-    let command = AssignCommand(commandName, args, client);
+    let command = AssignCommand(commandName, args);
     if (command == null) return;
 
 
@@ -85,6 +85,7 @@ client.on('message', message => {
 client.login(token);
 
 //#region OnMessage Methods
+/**@param {string} commandName @param {string[]} args*/
 function TestTagInteraction(commandName, args) {
     if (commandName === '@562176550674366464>') {
         commandName = args[0].toLowerCase();
@@ -99,7 +100,8 @@ function TestTagInteraction(commandName, args) {
         } catch { }
     }
 }
-function AssignCommand(commandName, args, client) {
+/**@param {string} commandName @param {string[]} args*/
+function AssignCommand(commandName, args) {
     command = client.commands.get(commandName);
 
     //If command assignment failed, assign command
@@ -109,12 +111,13 @@ function AssignCommand(commandName, args, client) {
             do {
                 number += 1;
                 commandName = args[number].toLowerCase();
-                command = client.command.get(commandName);
+                command = client.commands.get(commandName);
             } while (!command);
         } catch { return; }
     }
     return command;
 }
+/**@param {Discord.Message} message @param {string} commandName*/
 function TestForPrefixChange(message, commandName) {
     if (commandName === 'prefix')
         return message.channel.send(`Successfully changed my prefix to \`${prefix = args[0]}\`!`);
@@ -139,6 +142,7 @@ function TestForPrefixChange(message, commandName) {
         PreMsgCount++;
     }
 }
+/**@param {Discord.Message} message @param {any} command*/
 function TestForCooldown(message, command) {
     const cooldowns = new Discord.Collection();
 
@@ -161,12 +165,10 @@ function TestForCooldown(message, command) {
         setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
     }
 }
+/**@param {Discord.Message} message @param {string[]} args @param {string} Prefix @param {string} commandName @param {any} command*/
 function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
-    //if (commandName === 'giveaway') console.clear();
-
     let ConsoleLog = `User "${message.author.username}" executed command "${Prefix}${commandName}", from `;
-    if (!message.guild) ConsoleLog += `DMs and `;
-    else ConsoleLog += `"${message.guild}", #${message.channel.name}, and `;
+    ConsoleLog += !message.guild ? `DMs and ` : `"${message.guild}", #${message.channel.name}, and `;
 
     //Attempt execution of command
     try {
@@ -197,6 +199,7 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
 // #endregion
 
 // #region Tell command related
+/**@param {Discord.Message} message*/
 function ExecuteTellReply(message) {
     console.log(`${message.author.username} sent "${message.content}" to me in PMs. Assumingly sent to ${LastToBeTold}`);
 
@@ -217,6 +220,7 @@ function ExecuteTellReply(message) {
         LastToUseTell.dmChannel.send(`${message.author} replied: \n"${message.content}"`);
     else return;
 }
+/**@param {Discord.Message} message*/
 function GetMessageContent(message) {
     message.channel.fetchMessages({ limit: 20 }).then(MessageCollection => {
         for (var x = 0; x < MessageCollection.array().length; x++) {
@@ -226,10 +230,11 @@ function GetMessageContent(message) {
     });
     return `Unable to find message content`;
 }
+/**@param {Discord.Message} message @param {string} UserMention*/
 function GetMention(message, UserMention) {
     if (message.mentions.users.first() == null) {
-        for (var Guild of message.client.guilds.array())
-            for (var Member of Guild.members.array())
+        for (var Guild of message.client.guilds.cache.array())
+            for (var Member of Guild.members.cache.array())
                 if (Member.user.username == UserMention || Member.nickname == UserMention)
                     return Member;
         return null;
