@@ -1,5 +1,5 @@
 ﻿const { Util, Message, VoiceConnection } = require('discord.js'),
-    { api_key } = require('../config.json'),
+    { api_key } = require('../../config.json'),
     YouTube = require('simple-youtube-api'),
     ytdl = require('ytdl-core'),
     youtube = new YouTube(api_key);

@@ -4,18 +4,18 @@ const fs = require('fs'),
     Discord = require('discord.js'),
     { token, Prefix } = require('./config.json'),
     SecondaryPrefix = '<@562176550674366464>',
-    client = new Discord.Client(),
-    commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+    client = new Discord.Client();
 client.commands = new Discord.Collection();
+
 let PreviousMessages = [],
     PreMsgCount = 0;
 //#endregion
 
 //Does individual command work?
-for (const file of commandFiles) {
-    const command = require(`./commands/${file}`);
-    client.commands.set(command.name, command);
-}
+SetCommand('1 Utility');
+SetCommand('2 Fun');
+SetCommand('3 Support');
+SetCommand('4 DevOnly');
 
 //Am I ready to launch?
 client.once('ready', () => {
@@ -163,7 +163,7 @@ function TestForCooldown(message, command) {
 }
 function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
     //if (commandName === 'giveaway') console.clear();
-   
+
     let ConsoleLog = `User "${message.author.username}" executed command "${Prefix}${commandName}", from `;
     if (!message.guild) ConsoleLog += `DMs and `;
     else ConsoleLog += `"${message.guild}", #${message.channel.name}, and `;
@@ -237,3 +237,19 @@ function GetMention(message, UserMention) {
     return message.mentions.users.first();
 }
 // #endregion
+
+//#region Set client.commands
+/**@param {string} path*/
+function SetCommand(path) {
+    const ScriptCollection = fs.readdirSync(`./commands/${path}/`).filter(file => file.endsWith('.js'));
+
+    for (const file of ScriptCollection) {
+        try {
+            const command = require(`./commands/${path}/${file}`);
+            client.commands.set(command.name, command);
+        } catch (error) {
+            console.log(`"${file}" threw an exception:\n${error.message}\n`);
+        }
+    }
+}
+//#endregion

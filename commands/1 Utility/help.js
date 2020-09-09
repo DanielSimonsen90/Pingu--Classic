@@ -1,12 +1,10 @@
-const { prefix } = require('../config.json'),
+const { Prefix } = require('../../config.json'),
     { MessageEmbed, Message } = require('discord.js');
 
 module.exports = {
     name: 'help',
     description: 'List all of my commands or info about a specific command.',
-    aliases: ['commands'],
     usage: '[command]',
-    cooldown: 5,
     id: 1,
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
@@ -27,7 +25,7 @@ module.exports = {
 
             //Insert data for help menu
             for (var x = 1; x < 4; x++)
-                embed.addField(`**__${prefix}${ScriptsCategorized[x]}__**`, `\`${prefix}help ${ScriptsCategorized[x]}\``, true);
+                embed.addField(`**__${Prefix}${ScriptsCategorized[x]}__**`, `\`${Prefix}help ${ScriptsCategorized[x]}\``, true);
 
             //Return embed
             return message.author.send(embed)
@@ -77,9 +75,9 @@ module.exports = {
                 //Write all data into embed, if id matches the index of args[0] in ScriptsCategorized
                 data.push(commands.map((command) => {
                     if (command.id === ScriptsCategorized.indexOf(args[0])) {
-                        let FieldContent = `"${command.description}" \n\`${prefix}${command.name}`;
+                        let FieldContent = `"${command.description}" \n\`${Prefix}${command.name}`;
                         if (command.usage) FieldContent += ` ${command.usage}`;
-                        embed.addField(`**__*${command.name}__**`,`${FieldContent}\``);
+                        embed.addField(`**__${prefi}${command.name}__**`,`${FieldContent}\``);
                     }
                 }));
 
@@ -88,7 +86,7 @@ module.exports = {
                 //If message.author is viewing page 3 (*help Support)
                 if (ScriptsCategorized.indexOf(args[0]) <= 3)
                     //Update Footer
-                    Footer += `Try my other help commands!\n${prefix}help to view them!`;
+                    Footer += `Try my other help commands!\n${Prefix}help to view them!`;
                 //Update embed's Footer with Footer
                 embed.setFooter(Footer)
                     .setDescription(`All of my nooty commands in **${args[0]}** (")>`)
@@ -109,12 +107,13 @@ module.exports = {
 
         //Create variables to find the specific command message.author is looking for
         const commandName = args[0].toLowerCase(),
-            command = message.client.commands.get(commandName) || commands.find(c => c.aliases && c.aliases.includes(commandName));
+            command = message.client.commands.get(commandName);
+                //|| commands.find(c => c.aliases && c.aliases.includes(commandName));
 
         //Update embed
-        embed.setTitle(prefix + command.name)
+        embed.setTitle(Prefix + command.name)
             .addField('Description', `"${command.description}"`)
-            .addField('Usage', `${prefix}${command.name} ${command.usage}`)
+            .addField('Usage', `${Prefix}${command.name} ${command.usage}`)
             .setColor(0xfb8927)
             .setFooter('Developed by Simonsen Techs');
 

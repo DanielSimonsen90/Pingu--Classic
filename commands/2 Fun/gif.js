@@ -1,6 +1,6 @@
 const { Message, MessageEmbed } = require('discord.js');
 const request = require('request');
-const Config = require('../config.json');
+const Config = require('../../config.json');
 
 module.exports = {
     name: 'gif',

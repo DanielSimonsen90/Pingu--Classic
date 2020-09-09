@@ -1,5 +1,5 @@
 const request = require('request'),
-    Config = require('../config.json'),
+    Config = require('../../config.json'),
     { Message, MessageEmbed } = require('discord.js');
 
 module.exports = {

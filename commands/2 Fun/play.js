@@ -1,5 +1,5 @@
 const { Message, MessageEmbed, VoiceChannel } = require('discord.js'),
-    { prefix } = require('../config.json'),
+    { prefix } = require('../../config.json'),
     fs = require('fs');
 
 module.exports = {

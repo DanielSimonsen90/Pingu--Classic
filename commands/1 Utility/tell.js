@@ -60,7 +60,7 @@ function ArgumentCheck(message, args) {
  * @param {Message} message @param {string} UserMention*/
 function GetMention(message, UserMention) {
     if (message.mentions.users.first() == null) {
-        for (var Guild of message.client.guilds.array())
+        for (var Guild of message.client.guilds.cache.array())
             for (var Member of Guild.members.array())
                 if (Member.user.username == UserMention || Member.nickname == UserMention)
                     return Member;

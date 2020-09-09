@@ -12,14 +12,15 @@ module.exports = {
 
         const commandName = args[0].toLowerCase(),
             command = message.client.commands.get(commandName) ||
-                message.client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+                message.client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName)),
+            CategoryNames = ["", "Utility", "Fun", "Support", "DevOnly"];
 
         if (!command) return message.channel.send(`There is no command with name or alias \`${commandName}\`, ${message.author}!`);
 
-        delete require.cache[require.resolve(`./${commandName}.js`)];
+        delete require.cache[require.resolve(`../${command.id} ${CategoryNames[command.id]}/${commandName}.js`)];
 
         try {
-            const newCommand = require(`./${commandName}.js`);
+            const newCommand = require(`../${command.id} ${CategoryNames[command.id]}/${commandName}.js`);
             message.client.commands.set(newCommand.name, newCommand);
         } catch (error) {
             console.log(error);
