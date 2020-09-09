@@ -12,7 +12,7 @@ module.exports = {
         if (PermCheck != `Permission Granted`) return message.channel.send(PermCheck);
 
         let LastMessage = message.channel.messages.size - 2,
-            Mention = (args.length >= 1) ? args.join(" ") : message.channel.messages.array()[LastMessage].author;
+            Mention = (args.length >= 1) ? args.join(" ") : message.channel.messages.cache.array()[LastMessage].author;
 
         if (!message.channel.permissionsFor(message.client.user).has('READ_MESSAGE_HISTORY'))
             return message.author.send(`Hey! I couldn't boomer that person, because I can't **read the message history**!`);

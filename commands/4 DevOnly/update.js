@@ -24,7 +24,7 @@ module.exports = {
             message.client.commands.set(newCommand.name, newCommand);
         } catch (error) {
             console.log(error);
-            message.channel.send(`There was an error while updating \`${commandName}\`!\n\`${error.message}\``);
+            return message.channel.send(`There was an error while updating \`${commandName}\`!\n\`${error.message}\``);
         }
         if (message.channel.type !== 'dm' && !message.channel.permissionsFor(message.guild.client.user).has('SEND_MESSAGES'))
             return message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!\nBut I have reloaded your command!`);
