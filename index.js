@@ -201,7 +201,10 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
 // #region Tell command related
 /**@param {Discord.Message} message*/
 function ExecuteTellReply(message) {
-    console.log(`${message.author.username} sent "${message.content}" to me in PMs. Assumingly sent to ${LastToBeTold}`);
+    let ConsoleLog = `${message.author.username} sent "${message.content}" to me in PMs.`
+    if (LastToBeTold)
+        ConsoleLog += ` Forwarded message to ${LastToBeTold}.`;
+    console.log(ConsoleLog);
 
     /*try {
         for (var x = 0; x < TellArray.length; x++) {
@@ -243,7 +246,6 @@ function GetMention(message, UserMention) {
 }
 // #endregion
 
-//#region Set client.commands
 /**@param {string} path*/
 function SetCommand(path) {
     const ScriptCollection = fs.readdirSync(`./commands/${path}/`).filter(file => file.endsWith('.js'));
@@ -257,4 +259,3 @@ function SetCommand(path) {
         }
     }
 }
-//#endregion

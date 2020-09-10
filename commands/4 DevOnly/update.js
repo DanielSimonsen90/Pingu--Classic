@@ -8,7 +8,7 @@ module.exports = {
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         if (!args.length)
-            return message.channel.send(`You didn't pass any command to update, ${message.author}!`);
+            return message.channel.send(`What am I supposed to update, ${message.author}?`);
 
         const commandName = args[0].toLowerCase(),
             command = message.client.commands.get(commandName) ||

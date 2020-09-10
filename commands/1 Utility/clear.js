@@ -20,9 +20,10 @@ module.exports = {
             return message.channel.send(SpecificClear(message, args, message.mentions.users.first()));
 
         message.delete().then(() => {
-            message.reply((args[0] !== '1') ?
+            ClearMessages(message, parseInt(args[0]));
+            const DeleteReply = args[0] !== '1' ?
                 `I've deleted ${args[0]} messages for you!` :
-                `I've deleted ${args[0]} message for you!`);
+                `I've deleted ${args[0]} message for you!`;
 
             message.reply(DeleteReply).then(NewMessage => NewMessage.delete(1500));
         });
@@ -42,6 +43,17 @@ function PermissionCheck(message, args) {
         return `I can't execute that command in DMs!`;
     return `Permission Granted`;
 }
+/**@param {Message} message @param {number} amount*/
+function ClearMessages(message, amount) {
+    let MessagesRemoved = 0,
+        MsgArrIndex = message.channel.messages.cache.size - 1,
+        MessageArray = message.channel.messages.cache.array();
+
+    while (MessagesRemoved != amount)
+        MessageArray[MsgArrIndex].delete()
+            .then(MessagesRemoved++)
+            .catch(error => message.author.send(error));
+}
 /**@param {Message} message*/
 function ClearAll(message) {
     if (!message.channel.permissionsFor(message.guild.client.user).has('MANAGE_CHANNELS'))
@@ -54,8 +66,8 @@ function ClearAll(message) {
 /**@param {Message} message @param {string[]} args @param {User} SpecificUser*/
 function SpecificClear(message, args, SpecificUser) {
     let MessagesRemoved = 0,
-        MsgArrIndex = message.channel.messages.size - 1,
-        MessageArray = message.channel.messages.array();
+        MsgArrIndex = message.channel.messages.cache.size - 1,
+        MessageArray = message.channel.messages.cache.array();
     try {
         message.delete().then(() => {
             while (MessagesRemoved !== parseInt(args[0])) {

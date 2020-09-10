@@ -1,8 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\commands"
+    "\\commands",
+    "\\commands\\4 DevOnly"
   ],
-  "SelectedNode": "\\prefixes.json",
+  "SelectedNode": "\\commands\\4 DevOnly\\update.js",
   "PreviewInSolutionExplorer": false
 }

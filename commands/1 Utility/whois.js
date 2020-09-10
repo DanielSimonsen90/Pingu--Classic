@@ -1,6 +1,6 @@
 const { Message, MessageEmbed, GuildMember} = require('discord.js')
 module.exports = {
-    name: 'uinfo',
+    name: 'whois',
     cooldown: 5,
     description: 'Gets the info of a specified user',
     usage: '<ID> | <Mention>',
