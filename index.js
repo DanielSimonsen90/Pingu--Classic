@@ -3,13 +3,15 @@
 const fs = require('fs'),
     Discord = require('discord.js'),
     { token } = require('./config.json'),
-    SecondaryPrefix = '<@562176550674366464>',
+    SecondaryPrefix = '562176550674366464',
     ScriptsCategorized = ["", "Utility", "Fun", "Support", "DevOnly"],
     client = new Discord.Client();
 client.commands = new Discord.Collection();
 
 let PreviousMessages = [],
-    PreMsgCount = 0;
+    PreMsgCount = 0,
+    LastToUseTell,
+    LastToBeTold;
 //#endregion
 
 //Does individual command work?
@@ -26,20 +28,20 @@ client.once('ready', () => {
 client.on('message', message => {
     const { Prefix } = require('./config.json');
     const args = message.content.slice(Prefix.length).split(/ +/) ||
-        message.content.slice('@562176550674366464').split(/ +/);
+        message.content.slice(SecondaryPrefix).split(/ +/);
     let commandName = args.shift().toLowerCase();
 
     //If mentioned without prefix
-    if (message.content === SecondaryPrefix)
+    if (message.content.includes(SecondaryPrefix) && args.length == 0 && !message.author.bot)
         return message.channel.send(`My prefix is \`${Prefix}\``);
 
     //If interacted via @
-    TestTagInteraction(commandName, args);
+    commandName = TestTagInteraction(commandName, args);
 
     //If I'm not interacted with don't do anything
 
     if (!message.content.startsWith(Prefix) && !message.author.bot)
-        if (!message.content.startsWith(SecondaryPrefix))
+        if (!message.content.includes(SecondaryPrefix))
             return (message.channel.type == 'dm') ? ExecuteTellReply(message) : null;
 
     //Attempt "command" assignment
@@ -50,7 +52,7 @@ client.on('message', message => {
 
     //If I'm not interacted with don't do anything
     if (!message.content.startsWith(Prefix) || message.author.bot)
-        if (!message.content.startsWith(SecondaryPrefix))
+        if (!message.content.includes(SecondaryPrefix))
             return;
 
     //If guildOnly
@@ -87,18 +89,9 @@ client.login(token);
 //#region OnMessage Methods
 /**@param {string} commandName @param {string[]} args*/
 function TestTagInteraction(commandName, args) {
-    if (commandName === '@562176550674366464>') {
-        commandName = args[0].toLowerCase();
-        args[0] = null;
-
-        try {
-            for (var i = 0; i < args.length; i++) {
-                var j = i + 1;
-                if (!args[j])
-                    args[i] = args[j];
-            }
-        } catch { }
-    }
+    if (commandName.includes(SecondaryPrefix))
+        commandName = args.shift();
+    return commandName;
 }
 /**@param {string} commandName @param {string[]} args*/
 function AssignCommand(commandName, args) {

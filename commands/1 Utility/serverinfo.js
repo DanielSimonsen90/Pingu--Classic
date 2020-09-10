@@ -2,12 +2,12 @@ const { MessageEmbed, Message, Guild } = require('discord.js');
 module.exports = {
     name: 'serverinfo',
     description: 'Sends server information.',
-    usage: '[BigBoiInfo: true] [emotes [emote name]| features]',
+    usage: '[BigBoiInfo: all] [emotes [emote name]| features]',
     guildOnly: true,
     id: 1,
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        const bigboiinfo = args[0] && args[0] == 'true',
+        const bigboiinfo = args[0] && args[0] == 'all',
             serverGuild = message.guild,
             emote = serverGuild.emojis.cache.find(e => args.includes(e.name));
 
@@ -47,11 +47,14 @@ function SendCallerInfo(guild, bigboiinfo) {
             .addField(`Region`, guild.region.charAt(0).toUpperCase() + guild.region.substring(1, guild.region.length), true)
             .addField(`Creation Date`, guild.createdAt, true)
             .addField(`Description`, Description, true)
+            .addField(`Boost level`, guild.premiumTier, true)
+            .addField(`Boosts`, guild.premiumSubscriptionCount, true)
             .addField(`Total members`, guild.memberCount, true)
             .addField(`Roles`, guild.roles.cache.size, true)
             .addField(`Emotes`, guild.emojis.cache.size, true)
             .addField(`Features`, guild.features.length, true)
             .addField(`Server ID`, guild.id, true)
+            .addField("\u200B", "\u200B", true)
     ];
     if (bigboiinfo) {
 

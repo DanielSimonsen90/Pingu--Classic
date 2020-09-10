@@ -17,9 +17,9 @@ module.exports = {
         }
 
         //Variables
-        var GuildMember = message.guild.members.array().find(GuildUser => GuildUser.user.username === args[0]) || //Username
-                          message.guild.members.array().find(GuildUser => GuildUser.displayName === args[0]) || //Nickname
-                          message.guild.members.find(Member => Member.id == args[0]) ||
+        var GuildMember = message.guild.members.cache.array().find(GuildUser => GuildUser.user.username === args[0]) || //Username
+                          message.guild.members.cache.array().find(GuildUser => GuildUser.displayName === args[0]) || //Nickname
+                          message.guild.members.cache.find(Member => Member.id == args[0]) ||
                           message.mentions.members.first() || 
                           message.guild.member(message.author), //No arguments provided || No member found
             Promise = args[0] == null ? GuildMember.user : message.client.users.fetch(args[0]);
@@ -48,7 +48,7 @@ function CheckPermissions(message) {
 }
 /**@param {Message} message @param {GuildMember} GuildMember*/
 function HandleGuildMember(message, GuildMember) {
-    var GuildArray = GuildMember.client.guilds.array(),
+    var GuildArray = GuildMember.client.guilds.cache.array(),
         SharedServers = GuildArray[0] + `\n`;
 
     for (var x = 1; x < GuildArray.length; x++)
@@ -60,11 +60,11 @@ function HandleGuildMember(message, GuildMember) {
 function SendGuildMessage(message, GuildMember, SharedServers) {
     message.channel.send(new MessageEmbed()
         .setTitle(`"${GuildMember.displayName}" (${GuildMember.user.username})`)
-        .setThumbnail(GuildMember.user.avatarURL)
+        .setThumbnail(GuildMember.user.avatarURL())
         .setColor(0xfb8927)
         .addField(`UUID`, GuildMember.id, true)
         .addField(`Created at`, GuildMember.user.createdAt, true)
-        .addBlankField(true)
+        .addField("\u200B", "\u200B", true)
         //.addField(`Shared Servers`, SharedServers)
     );
 }
