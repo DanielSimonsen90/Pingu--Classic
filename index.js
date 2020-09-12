@@ -6,29 +6,109 @@ const fs = require('fs'),
     SecondaryPrefix = '562176550674366464',
     ScriptsCategorized = ["", "Utility", "Fun", "Support", "DevOnly"],
     client = new Discord.Client();
+const { PinguGuilds } = require('./PinguPackage');
 client.commands = new Discord.Collection();
 
 let PreviousMessages = [],
     PreMsgCount = 0,
     LastToUseTell,
-    LastToBeTold;
+    LastToBeTold,
+    updatingPGuilds = false;
 //#endregion
 
 //Does individual command work?
 for (var x = 1; x < ScriptsCategorized.length; x++)
     SetCommand(`${x} ${ScriptsCategorized[x]}`);
 
+//#region client.once()
 //Am I ready to launch?
 client.once('ready', () => {
     console.log(`\nIt's alive!\n`);
     client.user.setActivity('your screams for *help', { type: 'LISTENING' });
 })
+//First time joining a guild
+client.once('guildCreate', guild => {
+    //Get Pingu Guilds from guilds.json
+    const pGuilds = require('./guilds.json');
+
+    //Insert new PinguGuild into pGuilds
+    pGuilds[pGuilds.length] = new PinguGuilds(guild);
+
+    //Update guilds.json
+    fs.writeFile('guilds.json', '', err => {
+        if (err) console.log(err);
+        else fs.appendFile('guilds.json', JSON.stringify(pGuilds, null, 2), err => {
+            client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
+                if (err) DanhoDM.send(`I encountered and error while joining ${guild.name}:\n\n${err}`);
+                else DanhoDM.send(`Successfully joined "**${guild.name}**", owned by <@${guild.owner.user.id}>`)
+            });
+
+        });
+    })
+
+    //Thank guild owner for adding Pingu
+    guild.owner.user.createDM().then(OwnerDM =>
+        OwnerDM.send(
+            `Hi, <@${guild.owner.user.id}>!\n` +
+            `I've successfully joined your server, "**${guild.name}**"!\n\n` +
+
+            `Thank you for adding me!\n` +
+            `Use \`*help\`, if you don't know how I work!`));
+});
+//Leaving a guild
+client.once('guildDelete', guild => {
+    const pGuilds = require('./guilds.json');
+    const pGuild = pGuilds.find(pg => pg.guildID == guild.id);
+    let arr = [];
+    pGuilds.forEach(pg => {
+        if (pg != pGuild)
+            arr.push(pg);
+    });
+
+    //Update guilds.json
+    fs.writeFile('guilds.json', '', err => {
+        if (err) console.log(err);
+        else fs.appendFile('guilds.json', JSON.stringify(arr, null, 2), err => {
+            client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
+                if (err) DanhoDM.send(`I encountered and error while updating guild.json from leaving ${guild.name}:\n\n${err}`);
+                else DanhoDM.send(`Successfully left "**${guild.name}**", owned by <@${guild.owner.user.id}>`)
+            });
+
+        });
+    })
+})
+//#endregion
 
 //Message response
 client.on('message', message => {
-    const { Prefix } = require('./config.json');
+    //Find pGuilds in guilds.json
+    let pGuilds;
+    try {
+        pGuilds = require('./guilds.json');
+        if (updatingPGuilds)
+            updatingPGuilds = false;
+    }
+    catch {
+        if (updatingPGuilds)
+            return;
+        updatingPGuilds = true;
+        console.log(`guilds.json was empty! Running updatepguilds.js...`);
+        AssignCommand('updatepguilds', null).execute(message, null);
+        pGuilds = require('./guilds.json');
+    } 
+
+    //Find prefix in pGuild
+    let Prefix;
+    try {
+        Prefix = pGuilds.find(pguild => pguild.guildID == message.guild.id).BotPrefix;
+        CheckRoleChange(message);
+    } catch (error) { Prefix = '*'; }
+
+    //Split prefix from message content
     const args = message.content.slice(Prefix.length).split(/ +/) ||
         message.content.slice(SecondaryPrefix).split(/ +/);
+
+    //Get commandName
     let commandName = args.shift().toLowerCase();
 
     //If mentioned without prefix
@@ -251,4 +331,39 @@ function SetCommand(path) {
             console.log(`"${file}" threw an exception:\n${error.message}\n`);
         }
     }
+}
+
+/**Checks if role color was changed, to update embed colors 
+ * @param {Discord.Message} message*/
+function CheckRoleChange(message) {
+    //Get pGuild for message.guild
+    const pGuilds = require('./guilds.json');
+    const pGuild = pGuilds.find(pguild => pguild.guildID == message.guild.id);
+
+    //Get the color of the Pingu role in message.guild
+    const guildRoleColor = message.guild.me.roles.cache.find(botRoles => botRoles.managed).color;
+
+
+    if (guildRoleColor == pGuild.EmbedColor)
+        return;
+
+    //Save Index of pGuild & log the change
+    const pGuildIndex = pGuilds.indexOf(pGuild);
+    console.log(`Embedcolor updated from ${pGuild.EmbedColor} to ${guildRoleColor}`);
+
+    //Update pGuild.EmbedColor with guild's Pingu role color & put pGuild back into pGuilds
+    pGuild.EmbedColor = guildRoleColor;
+    pGuilds[pGuildIndex] = pGuild;
+
+    //Update guilds.json
+    fs.writeFile('guilds.json', '', err => {
+        if (err) console.log(err);
+        else fs.appendFile('guilds.json', JSON.stringify(pGuilds, null, 2), err => {
+            client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
+                if (err) DanhoDM.send(`I encountered and error while updating my role color in "${message.guild.name}":\n\n${err}`);
+                else console.log(`Successfully updated role color from "${message.guild.name}"`);
+            });
+        });
+    })
+
 }

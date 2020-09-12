@@ -19,10 +19,13 @@ module.exports = {
             PollMessage;
         message.delete();
 
+        const pGuilds = require('../../guilds.json');
+        const color = pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
+
         //Create Embed
         let Embed = new MessageEmbed()
             .setTitle(Poll)
-            .setColor(0xfb8927)
+            .setColor(color)
             .setDescription(`Time set: ${Time}`)
             .setFooter(`Poll created by @${message.author.tag}.`);
 
@@ -33,7 +36,7 @@ module.exports = {
         })
 
         try { setTimeout(OnTimeOut(message, Embed, PollMessage, Poll), ms(Time)); }
-        catch{ return message.author.send(`Please specify a time!`); }
+        catch (error) { return console.log(error); }
     },
 };
 /**@param {Message} message @param {string[]} args*/
@@ -44,7 +47,7 @@ function PermissionCheck(message, args) {
         if (!message.channel.permissionsFor(message.client.user).has(PermArr[x]))
             return `Hey! I don't have permission to **${PermArrMsg}** in #${message.channel.name}!`;
 
-    if (message.guild.member(message.author).roles.cache.find('name', 'Polls') ||
+    if (message.guild.member(message.author).roles.cache.find(role => role.name == 'Polls') ||
         !message.channel.permissionsFor(message.author).has('ADMINISTRATOR'))
         return `You don't have \`administrator\` permissions or a \`Polls\` role!`;
     else if (!args[1])
@@ -59,16 +62,16 @@ function PermissionCheck(message, args) {
 function OnTimeOut(message, Embed, PollMessage, Poll) {
     //Creating variables
     const Yes = PollMessage.reactions.cache.get('👍').count,
-          No = PollMessage.reactions.cache.get('👎').count;
+        No = PollMessage.reactions.cache.get('👎').count;
     let Verdict;
 
     //Defining Verdict
     Verdict = Yes > No ? "Yes" :
-              No > Yes ? "No" :
-              "Undecided";
+        No > Yes ? "No" :
+            "Undecided";
 
     //Submitting Verdict
     message.channel.send(`The poll of "**${Poll}**", voted **${Verdict}**!`);
-    
+
     PollMessage.edit(Embed.setTitle(`FINISHED!: ${Poll}`).setDescription(`Voting done! Final answer: ${Verdict}`));
 }

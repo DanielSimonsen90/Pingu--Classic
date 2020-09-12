@@ -25,7 +25,7 @@ module.exports = {
             let data;
             try { data = JSON.parse(body); }
             catch (error) { return console.log(error); }
-            if (!data) { 
+            if (!data) {
                 console.log(data);
                 return message.channel.send('Error:\n' + JSON.stringify(data));
             }
@@ -33,10 +33,16 @@ module.exports = {
                 console.log(data);
                 return message.channel.send('No result for \'' + 'penguins :(' + '\'');
             }
+            let color;
+            if (message.channel.type != 'dm') {
+                const pGuilds = require('../../guilds.json');
+                color = pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
+            }
+            else color = 15527148;
 
             message.channel.send(new MessageEmbed()
                 .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
-                .setColor(0xfb8927)
+                .setColor(color)
             );
         });
     },

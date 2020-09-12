@@ -35,14 +35,16 @@ module.exports = {
 
 /**@param {Guild} guild @param {boolean} bigboiinfo*/
 function SendCallerInfo(guild, bigboiinfo) {
+        const pGuilds = require('../../guilds.json');
+        const color = pGuilds.find(pguild => pguild.guildID == guild.id).EmbedColor;
+
     const DefaultThumbnail = guild.iconURL(),
-        DefaultEmbedColor = 0xfb8927,
         Description = guild.description ? guild.description : 'None';
     let EmbedArray = [
         new MessageEmbed()
             .setTitle(`Server Information: ${guild.name}`)
             .setThumbnail(DefaultThumbnail)
-            .setColor(DefaultEmbedColor)
+            .setColor(color)
             .addField(`Owner`, guild.owner, true)
             .addField(`Region`, guild.region.charAt(0).toUpperCase() + guild.region.substring(1, guild.region.length), true)
             .addField(`Creation Date`, guild.createdAt, true)
@@ -73,7 +75,7 @@ function SendCallerInfo(guild, bigboiinfo) {
         EmbedArray[1] = new MessageEmbed()
             .setTitle(`Special Information`)
             .setThumbnail(DefaultThumbnail)
-            .setColor(DefaultEmbedColor)
+            .setColor(color)
             .addField(`Default Notifications`, guild.defaultMessageNotifications, true)
             .addField(`Banner Hash`, guild.banner, true)
             .addField(`Banned Members`, Bans, true)
@@ -94,7 +96,7 @@ function SendCallerInfo(guild, bigboiinfo) {
         EmbedArray[2] = new MessageEmbed()
             .setTitle(`Channel Information`)
             .setThumbnail(DefaultThumbnail)
-            .setColor(DefaultEmbedColor)
+            .setColor(color)
             .addField('Categories', GetChannelCount('category'), true)
             .addField(`Channel count`, guild.channels.cache.size, true)
             .addField(`AFK Channel`, AFKChannel, true)
@@ -111,7 +113,7 @@ function SendCallerInfo(guild, bigboiinfo) {
         EmbedArray[3] = new MessageEmbed()
             .setTitle(`Widget Information`)
             .setThumbnail(DefaultThumbnail)
-            .setColor(DefaultEmbedColor)
+            .setColor(color)
             .addField(`Widgets enabled`, WidgetEnabled, true);
         if (guild.widgetEnabled)
             Embed[3].addField(`Widget channel`, guild.widgetChannel, true);

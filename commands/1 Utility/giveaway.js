@@ -26,13 +26,16 @@ module.exports = {
             Mention = message.mentions.members.first();
         GiveawayWinnerRole = message.guild.roles.cache.find(role => role.name === 'Giveaway Winners' || role.name === 'Giveaway Winner');
 
-        if (Prize.includes(`<@`)) 
-            Prize = Prize.replace(/(<@!*[\d]{18}>)/, Mention.nickname || Mention.user.username || 
+        if (Prize.includes(`<@`))
+            Prize = Prize.replace(/(<@!*[\d]{18}>)/, Mention.nickname || Mention.user.username ||
                                                      Mention.displayName || Mention.user.username);
+
+        const pGuilds = require('../../guilds.json');
+        const color = pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
 
         let embed = new MessageEmbed()
             .setTitle(Prize = Prize.substring(0, Prize.length))
-            .setColor(0xfeff00)
+            .setColor(color)
             .setDescription(`React with :fingers_crossed: to enter!\nHosted by ${GiveawayCreator}\n`)
             .setFooter(`Giveaway time set to ${Time}`);
 
@@ -63,7 +66,7 @@ module.exports = {
 /**@param {Message} message @param {string[]} args*/
 function PermissionCheck(message, args) {
     if (message.channel.type === 'dm') return `I execute this command in DMs.`;
-        
+
     const PermissionCheck = message.channel.permissionsFor(message.client.user),
         PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES", "ADD_REACTIONS", "MENTION_EVERYONE"];
     for (var Perm = 0; Perm < PermArr.length; Perm++)
@@ -94,7 +97,7 @@ function PermissionCheck(message, args) {
 function ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator) {
     let Winner;
     GiveawayWinnerRole = message.guild.roles.cache.find(role => role.name === 'Giveaway Winners' || role.name === 'Giveaway Winner') ||
-                         CreateGiveawayWinnerRole(message.guild); //Recreate role incase it was just made
+        CreateGiveawayWinnerRole(message.guild); //Recreate role incase it was just made
 
     // While there's no winner
     while (!Winner) Winner = FindWinner(message, GiveawayMessage);
@@ -113,8 +116,8 @@ function ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator)
     message.channel.send(`**The winner of "${Prize.substring(1, Prize.length)}" has been found!**\nCongratulations ${Winner}\n\nContact ${GiveawayMessage.embeds[0].description.substring(41, GiveawayMessage.embeds[0].description.length)} to redeem your prize!`);
 
     RemovePreviousWinners(message.guild.members.cache.array()
-                        .filter(Member => Member.roles.cache
-                        .find(role => role === GiveawayWinnerRole)));
+        .filter(Member => Member.roles.cache
+            .find(role => role === GiveawayWinnerRole)));
 
     message.guild.member(Winner).roles.add(GiveawayWinnerRole)
         .then(() => {
@@ -168,14 +171,15 @@ function SelectWinner(message, peopleReacted) {
 /**@param {Guild} Guild @returns {string}*/
 function CreateGiveawayWinnerRole(Guild) {
     Guild.createRole(new Role(Guild, {
-            name: 'Giveaway Winner',
-            color: 14264160,
-            hoist: true,
-            mentionable: true
-        }))
+        name: 'Giveaway Winner',
+        color: 14264160,
+        hoist: true,
+        mentionable: true
+    }))
         .then(Role => {
             GiveawayWinnerRole = Role;
-            return ', and created a "Giveaway Winner" role.'; })
+            return ', and created a "Giveaway Winner" role.';
+        })
         .catch(error => { return `, but it ran catch(): ${error.message}`; });
     return `, I even waited man`;
 }

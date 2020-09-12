@@ -40,11 +40,18 @@ module.exports = {
             Fact = Math.floor(Math.random() * (Facts.length - 1)),
             Title = Fact <= 8 ? "Penguin Facts" : Fact <= 16 ? "Club Penguin Facts" : "Pingu (TV) Facts";
 
+        let color;
+        if (message.channel.type != 'dm') {
+            const pGuilds = require('../../guilds.json');
+            color = pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
+        }
+        else color = 15527148;
+
         message.channel.send(new MessageEmbed()
             .setTitle(Title)
             .setDescription(Facts[Fact])
-            .setColor(0xfb8927)
-            .attachFiles([`./pfps/Greeny_Boi.png`])
+            .setColor(color)
+            .attachFiles([`./commands/4 DevOnly/pfps/Greeny_Boi.png`])
             .setThumbnail(`attachment://Greeny_Boi.png`)
             .setFooter('For more facts, use *fact again!')
         );
@@ -58,5 +65,5 @@ function PermissionCheck(message) {
     for (var x = 0; x < PermArr.length; x++)
         if (!message.channel.permissionsFor(message.client.user).has(PermArr[x]))
             return `Hey! I don't have permission to ${PermArrMsg[x]} in #${message.channel.name}!`;
-    return `Permision Granted`;
+    return `Permission Granted`;
 }

@@ -7,6 +7,7 @@ module.exports = {
     cooldown: 5,
     description: 'You <activity> <person>',
     usage: '<activity> <@person>',
+    guildOnly: true,
     id: 2,
     /**@param {Discord.Message} message @param {string[]} args */
     execute(message, args) {
@@ -41,10 +42,13 @@ module.exports = {
                 return message.channel.send('I failed to find that!');
             }
 
+            const pGuilds = require('../../guilds.json');
+            const color = pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
+
             const embed = new MessageEmbed()
-                    .setTitle(`${User} ${Activity} ${Person}`)
-                    .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
-                    .setColor(0xfb8927);
+                .setTitle(`${User} ${Activity} ${Person}`)
+                .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
+                .setColor(color);
 
             //Return the whole thing LuL
             //React with F if the user uses *activity on themselves

@@ -35,7 +35,14 @@ module.exports = {
             }
             const randResult = data.items[Math.floor(Math.random() * data.items.length)];
 
-            message.channel.send(new MessageEmbed().setImage(randResult.link).setColor(0xfb8927));
+            let color;
+            if (message.channel.type != 'dm') {
+                const pGuilds = require('../../guilds.json');
+                color = pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
+            }
+            else color = 15527148;
+
+            message.channel.send(new MessageEmbed().setImage(randResult.link).setColor(color));
         });
     },
 };

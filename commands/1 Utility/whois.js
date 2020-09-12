@@ -58,10 +58,13 @@ function HandleGuildMember(message, GuildMember) {
 }
 /**@param {Message} message @param {GuildMember} GuildMember @param {any} SharedServers*/
 function SendGuildMessage(message, GuildMember, SharedServers) {
+        const pGuilds = require('../../guilds.json');
+        const color = pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
+
     message.channel.send(new MessageEmbed()
         .setTitle(`"${GuildMember.displayName}" (${GuildMember.user.username})`)
         .setThumbnail(GuildMember.user.avatarURL())
-        .setColor(0xfb8927)
+        .setColor(color)
         .addField(`UUID`, GuildMember.id, true)
         .addField(`Created at`, GuildMember.user.createdAt, true)
         .addField("\u200B", "\u200B", true)
@@ -70,10 +73,17 @@ function SendGuildMessage(message, GuildMember, SharedServers) {
 }
 /**@param {Discord.Message} message @param {Discord.User} User*/
 function SendNonGuildMessage(message, User) {
+    let color;
+    if (message.channel.type != 'dm') {
+        const pGuilds = require('../../guilds.json');
+        color = pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
+    }
+    else color = 15527148;
+
     message.channel.send(new MessageEmbed()
         .setTitle(User.username)
         .setThumbnail(User.avatarURL)
-        .setColor(0xfb8927)
+        .setColor(color)
         .addField(`UUID`, User.id, true)
         .addField(`Created at`, User.createdAt, true)
         .addBlankField(true)

@@ -11,7 +11,7 @@ module.exports = {
         const PermCheck = PermissionCheck(message);
         if (PermCheck != `Permission Granted`) return message.channel.send(PermCheck);
 
-        let LastMessage = message.channel.messages.size - 2,
+        let LastMessage = message.channel.messages.cache.size - 2,
             Mention = (args.length >= 1) ? args.join(" ") : message.channel.messages.cache.array()[LastMessage].author;
 
         if (!message.channel.permissionsFor(message.client.user).has('READ_MESSAGE_HISTORY'))

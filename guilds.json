@@ -1,0 +1,54 @@
+[
+  {
+    "guildOwner": {
+      "id": "405331883157880846",
+      "user": "Synthy Sytro#5637"
+    },
+    "guildID": "248104299534614528",
+    "guildName": "The Danho Discord",
+    "EmbedColor": 0,
+    "BotPrefix": "*",
+    "ThemeWinners": [],
+    "GiveawayWinners": [],
+    "Suggestions": []
+  },
+  {
+    "guildOwner": {
+      "id": "245572699894710272",
+      "user": "Danho#2105"
+    },
+    "guildID": "405763731079823380",
+    "guildName": "AppleJuice",
+    "EmbedColor": 15105570,
+    "BotPrefix": "*",
+    "ThemeWinners": [],
+    "GiveawayWinners": [],
+    "Suggestions": []
+  },
+  {
+    "guildOwner": {
+      "id": "245572699894710272",
+      "user": "Danho#2105"
+    },
+    "guildID": "460926327269359626",
+    "guildName": "Danho's Misc",
+    "EmbedColor": 15105570,
+    "BotPrefix": "*",
+    "ThemeWinners": [],
+    "GiveawayWinners": [],
+    "Suggestions": []
+  },
+  {
+    "guildOwner": {
+      "id": "245572699894710272",
+      "user": "Danho#2105"
+    },
+    "guildID": "644823098260062221",
+    "guildName": "Discurd Butts",
+    "EmbedColor": 3447003,
+    "BotPrefix": "*",
+    "ThemeWinners": [],
+    "GiveawayWinners": [],
+    "Suggestions": []
+  }
+]

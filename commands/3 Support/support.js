@@ -8,15 +8,22 @@ module.exports = {
     id: 3,
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
+        let color;
+        if (message.channel.type != 'dm') {
+            const pGuilds = require('../../guilds.json');
+            color = pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
+        }
+        else color = 15527148;
+
         var Embed = new MessageEmbed()
             .setTitle('Support of Pingu')
             .setDescription('Contact information & socials about my owner')
-            .setColor(0xfb8927)
+            .setColor(color)
             .setThumbnail(message.client.user.avatarURL)
             .setFooter('Please don\'t send him pointless stuff to waste his time :)')
-            .addField('Discord', '@Daddy Danneko#2105', true)
+            .addField('Discord', '@Danho#2105', true)
             .addField('GMail', 'pingulevel1@gmail.com', true)
-            .addBlankField(true)
+            .addField("\u200B", "\u200B", true)
             .addField('Spotify', 'https://open.spotify.com/artist/2Ya69OwtcUqvAMPaE8vXdg', false)
             .addField('YouTube', 'https://www.youtube.com/channel/UCNy01Kv9gpTLeKGHzdMbb0w?', false)
             .addField('SoundCloud', 'https://soundcloud.com/daniel-simonsen-705578407', false)

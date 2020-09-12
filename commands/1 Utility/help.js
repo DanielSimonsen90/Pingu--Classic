@@ -9,10 +9,17 @@ module.exports = {
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         //Create variables
+        let color;
+        if (message.channel.type != 'dm') {
+            const pGuilds = require('../../guilds.json');
+            color = pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
+        }
+        else color = 15527148;
+
         const data = [], //data for embed
             { commands } = message.client; //Bot's commands
         let embed = new MessageEmbed() //embed 
-            .setColor(0xfb8927)
+            .setColor(color)
             .setThumbnail(message.client.user.avatarURL),
             ScriptsCategorized = ["", "Utility", "Fun", "Support", "DevOnly"];
 
@@ -114,7 +121,7 @@ module.exports = {
         embed.setTitle(Prefix + command.name)
             .addField('Description', `"${command.description}"`)
             .addField('Usage', `${Prefix}${command.name} ${command.usage}`)
-            .setColor(0xfb8927)
+            .setColor(color)
             .setFooter('Developed by Simonsen Techs');
 
         //Send embed
