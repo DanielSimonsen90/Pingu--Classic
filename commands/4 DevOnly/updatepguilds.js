@@ -1,6 +1,5 @@
 ﻿const { Message, Guild, MessageEmbed } = require("discord.js");
-const { PinguGuilds } = require('../../PinguPackage');
-const { Prefix } = require('../../config.json');
+const { PinguGuild } = require('../../PinguPackage');
 const fs = require('fs');
 
 module.exports = {
@@ -41,8 +40,8 @@ module.exports = {
 }
 /**@param {Guild} guild*/
 function SetGuild(guild) {
-    const PinguGuild = new PinguGuilds(guild);
-    PinguGuild.EmbedColor = guild.member(guild.client.user).roles.cache.find(role => role.name.includes('Pingu')).color;
-    PinguGuild.BotPrefix = Prefix;
-    return PinguGuild;
+    const pGuild = new PinguGuild(guild);
+    pGuild.embedColor = guild.member(guild.client.user).roles.cache.find(role => role.name.includes('Pingu')).color;
+    pGuild.giveaways = new Array();
+    return pGuild;
 }

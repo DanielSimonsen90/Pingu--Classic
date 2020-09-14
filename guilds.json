@@ -7,11 +7,11 @@
     "guildID": "248104299534614528",
     "guildName": "The Danho Discord",
     "EmbedColor": 0,
-    "BotPrefix": "*",
     "Giveaways": [],
     "Polls": [],
     "Suggestions": [],
-    "ThemeWinners": []
+    "ThemeWinners": [],
+    "BotPrefix": "*"
   },
   {
     "guildOwner": {
@@ -21,11 +21,27 @@
     "guildID": "405763731079823380",
     "guildName": "AppleJuice",
     "EmbedColor": 11342935,
-    "BotPrefix": "*",
-    "Giveaways": [],
+    "Giveaways": [
+      {
+        "Value": "yeet",
+        "ID": "755016236508774490",
+        "Author": {
+          "guildID": "405763731079823380",
+          "joinedTimestamp": 1544035171631,
+          "lastMessageChannelID": "474129152065273866",
+          "premiumSinceTimestamp": 1572466088188,
+          "deleted": false,
+          "nickname": null,
+          "userID": "245572699894710272",
+          "displayName": "Danho"
+        },
+        "Winners": []
+      }
+    ],
     "Polls": [],
     "Suggestions": [],
-    "ThemeWinners": []
+    "ThemeWinners": [],
+    "BotPrefix": "*"
   },
   {
     "guildOwner": {
@@ -35,68 +51,11 @@
     "guildID": "460926327269359626",
     "guildName": "Danho's Misc",
     "EmbedColor": 15105570,
-    "BotPrefix": "*",
-    "Giveaways": [
-      {
-        "Value": "I am once against testing for pguild",
-        "ID": "754928520983216178",
-        "Author": {
-          "guildID": "460926327269359626",
-          "joinedTimestamp": 1529963800064,
-          "lastMessageChannelID": "654612286778114060",
-          "premiumSinceTimestamp": null,
-          "deleted": false,
-          "nickname": null,
-          "userID": "245572699894710272",
-          "displayName": "Danho"
-        }
-      },
-      {
-        "Value": "yes",
-        "ID": "754928769487339522",
-        "Author": {
-          "guildID": "460926327269359626",
-          "joinedTimestamp": 1529963800064,
-          "lastMessageChannelID": "654612286778114060",
-          "premiumSinceTimestamp": null,
-          "deleted": false,
-          "nickname": null,
-          "userID": "245572699894710272",
-          "displayName": "Danho"
-        }
-      },
-      {
-        "Value": "how am i dis dumb",
-        "ID": "754928890316587079",
-        "Author": {
-          "guildID": "460926327269359626",
-          "joinedTimestamp": 1529963800064,
-          "lastMessageChannelID": "654612286778114060",
-          "premiumSinceTimestamp": null,
-          "deleted": false,
-          "nickname": null,
-          "userID": "245572699894710272",
-          "displayName": "Danho"
-        }
-      },
-      {
-        "Value": "i s2g",
-        "ID": "754929278214471829",
-        "Author": {
-          "guildID": "460926327269359626",
-          "joinedTimestamp": 1529963800064,
-          "lastMessageChannelID": "654612286778114060",
-          "premiumSinceTimestamp": null,
-          "deleted": false,
-          "nickname": null,
-          "userID": "245572699894710272",
-          "displayName": "Danho"
-        }
-      }
-    ],
+    "Giveaways": [],
     "Polls": [],
     "Suggestions": [],
-    "ThemeWinners": []
+    "ThemeWinners": [],
+    "BotPrefix": "*"
   },
   {
     "guildOwner": {
@@ -106,10 +65,10 @@
     "guildID": "644823098260062221",
     "guildName": "Discurd Butts",
     "EmbedColor": 3447003,
-    "BotPrefix": "*",
     "Giveaways": [],
     "Polls": [],
     "Suggestions": [],
-    "ThemeWinners": []
+    "ThemeWinners": [],
+    "BotPrefix": "*"
   }
 ]

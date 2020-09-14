@@ -94,15 +94,14 @@ client.on('message', message => {
         updatingPGuilds = true;
         console.log(`guilds.json was empty! Running updatepguilds.js...`);
         AssignCommand('updatepguilds', null).execute(message, null);
-        pGuilds = require('./guilds.json');
-    } 
+    }
 
     //Find prefix in pGuild
     let Prefix;
     try {
-        Prefix = pGuilds.find(pguild => pguild.guildID == message.guild.id).BotPrefix;
+        Prefix = pGuilds.find(pguild => pguild.guildID == message.guild.id).botPrefix;
         CheckRoleChange(message);
-    } catch (error) { Prefix = '*'; }
+    } catch { Prefix = '*'; }
 
     //Split prefix from message content
     const args = message.content.slice(Prefix.length).split(/ +/) ||

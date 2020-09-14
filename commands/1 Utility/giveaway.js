@@ -1,7 +1,7 @@
 ﻿const { Message, MessageEmbed, User, Guild, Role, GuildMember } = require('discord.js'),
     ms = require('ms'),
     fs = require('fs'),
-    { Giveaway } = require('../../PinguPackage');
+    { Giveaway, PGuildMember, PinguGuild } = require('../../PinguPackage');
 let GiveawayWinnerRole = new Role();
 
 module.exports = {
@@ -209,9 +209,8 @@ function Reroll(message, args, embed) {
 
 /**@param {Message} message @param {string} Prize @param {GuildMember} GiveawayCreator*/
 function SaveToPGuilds(message, Prize, GiveawayCreator) {
-    const pGuilds = require('../../guilds.json');
-    const pGuild = pGuilds.find(pg => pg.guildID == message.guild.id);
-    pGuild.Giveaways[pGuild.Giveaways.length] = new Giveaway(Prize, message.id, GiveawayCreator);
+    const pGuild = GetPGuild();
+    pGuild.giveaways[pGuild.giveaways.length] = new Giveaway(Prize, message.id, GiveawayCreator);
 
     //Update guilds.json
     fs.writeFile('guilds.json', '', err => {
@@ -227,9 +226,8 @@ function SaveToPGuilds(message, Prize, GiveawayCreator) {
 /**@param {Message} message @param {User} Winner
  */
 function UpdatePGuildWinner(message, Winner) {
-    const pGuilds = require('../../guilds.json');
-    const pGuild = pGuilds.find(pg => pg.guildID == message.guild.id);
-    pGuild.Giveaways.find(giveaway => giveaway.id == message.id).Winners[0] = message.guild.member(Winner);
+    const pGuild = GetPGuild();
+    pGuild.giveaways.find(giveaway => giveaway.id == message.id).winners[0] = new PGuildMember(message.guild.member(Winner));
 
     //Update guilds.json
     fs.writeFile('guilds.json', '', err => {
@@ -240,5 +238,11 @@ function UpdatePGuildWinner(message, Winner) {
                 else console.log(`pGuild.Giveaways for "${message.guild.name}" was successfully updated!`);
             });
         });
-    })
+    });
+}
+
+/**@returns {PinguGuild}*/
+function GetPGuild() {
+    const pGuilds = require('../../guilds.json');
+    return pGuilds.find(pg => pg.guildID == message.guild.id);
 }

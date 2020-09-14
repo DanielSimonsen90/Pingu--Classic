@@ -1,28 +1,37 @@
 import { GuildMember, Guild } from 'discord.js';
 
+/** Custom GuildMember */
+export class PGuildMember {
+    constructor(member: GuildMember) {
+        this.id = member.id;
+        this.user = member.user.tag;
+    }
+    public id: string
+    public user: string
+}
 
 //#region Decidables
 abstract class Decidable {
-    constructor(value: string, id: string, author: GuildMember) {
-        this.Value = value;
-        this.ID = id;
-        this.Author = author;
+    constructor(value: string, id: string, author: PGuildMember) {
+        this.value = value;
+        this.id = id;
+        this.author = author;
     }
-    public Value: string
-    public ID: string
-    public Author: GuildMember
+    public value: string
+    public id: string
+    public author: PGuildMember
 }
 abstract class DecidableApproved extends Decidable {
-    public Approved: boolean
+    public approved: boolean
 }
 //#endregion
 
 //#region extends Decideables
 export class Suggestion extends DecidableApproved{
-    public DecidedBy: GuildMember
-    public Decide(approved: boolean, decidedBy: GuildMember) {
-        this.Approved = approved;
-        this.DecidedBy = decidedBy;
+    public decidedBy: PGuildMember
+    public Decide(approved: boolean, decidedBy: PGuildMember) {
+        this.approved = approved;
+        this.decidedBy = decidedBy;
     }
 }
 export class Poll extends DecidableApproved{
@@ -32,39 +41,40 @@ export class Poll extends DecidableApproved{
         this.YesVotes = yesVotes;
         this.NoVotes = noVotes;
         if (this.YesVotes == this.NoVotes) return;
-        this.Approved = this.YesVotes > this.NoVotes; 
+        this.approved = this.YesVotes > this.NoVotes; 
     }
 }
 export class Giveaway extends Decidable{
-    public Winners: GuildMember[]
+    constructor(value: string, id: string, author: PGuildMember) {
+        super(value, id, author);
+        this.winners = new Array<PGuildMember>();
+    }
+    public winners: PGuildMember[]
 }
 //#endregion
 
 //Insert custom GuildMember here
 
-export class PinguGuilds {
+export class PinguGuild {
     constructor(guild: Guild) {
-        this.guildOwner = {
-            id: guild.owner.user.id,
-            user: guild.owner.user.tag
-        };
-        this.guildID = guild.id;
         this.guildName = guild.name;
-        this.EmbedColor = 0;
-        const { Prefix } = require('./config');
-        this.BotPrefix = Prefix;
-        this.Giveaways = new Array<Giveaway>();
-        this.Polls = new Array<Poll>();
-        this.Suggestions = new Array<Suggestion>();
-        this.ThemeWinners = new Array<GuildMember>();
+        this.guildID = guild.id;
+        this.guildOwner = new PGuildMember(guild.owner);
+        const { Prefix } = require('./config.json');
+        this.botPrefix = Prefix;
+        this.embedColor = 0;
+        this.giveaways = new Array<Giveaway>();
+        this.polls = new Array<Poll>();
+        this.suggestions = new Array<Suggestion>();
+        this.themeWinners = new Array<PGuildMember>();
     }
-    public guildOwner: object
-    public guildID: string
     public guildName: string
-    public EmbedColor: number
-    public BotPrefix: string
+    public guildID: string
+    public guildOwner: PGuildMember
+    public embedColor: number
+    public botPrefix: string
 
-    public Giveaways: Giveaway[] 
+    public giveaways: Giveaway[] 
     /*^^ Include first-time using *giveaway:
             - Giveaway Host:
                 (Do you have a Giveaway Host role?) {
@@ -90,7 +100,7 @@ export class PinguGuilds {
                     Save Giveaway winner role in guilds.json
                 }
     */
-    public Polls: Poll[]
-    public Suggestions: Suggestion[]
-    public ThemeWinners: GuildMember[]
+    public polls: Poll[]
+    public suggestions: Suggestion[]
+    public themeWinners: PGuildMember[]
 }

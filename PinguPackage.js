@@ -13,13 +13,21 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PinguGuilds = exports.Giveaway = exports.Poll = exports.Suggestion = void 0;
+/** Custom GuildMember */
+var PGuildMember = /** @class */ (function () {
+    function PGuildMember(member) {
+        this.id = member.id;
+        this.user = member.user.tag;
+    }
+    return PGuildMember;
+}());
+exports.PGuildMember = PGuildMember;
 //#region Decidables
 var Decidable = /** @class */ (function () {
     function Decidable(value, id, author) {
-        this.Value = value;
-        this.ID = id;
-        this.Author = author;
+        this.value = value;
+        this.id = id;
+        this.author = author;
     }
     return Decidable;
 }());
@@ -38,8 +46,8 @@ var Suggestion = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     Suggestion.prototype.Decide = function (approved, decidedBy) {
-        this.Approved = approved;
-        this.DecidedBy = decidedBy;
+        this.approved = approved;
+        this.decidedBy = decidedBy;
     };
     return Suggestion;
 }(DecidableApproved));
@@ -54,38 +62,37 @@ var Poll = /** @class */ (function (_super) {
         this.NoVotes = noVotes;
         if (this.YesVotes == this.NoVotes)
             return;
-        this.Approved = this.YesVotes > this.NoVotes;
+        this.approved = this.YesVotes > this.NoVotes;
     };
     return Poll;
 }(DecidableApproved));
 exports.Poll = Poll;
 var Giveaway = /** @class */ (function (_super) {
     __extends(Giveaway, _super);
-    function Giveaway() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    function Giveaway(value, id, author) {
+        var _this = _super.call(this, value, id, author) || this;
+        _this.winners = new Array();
+        return _this;
     }
     return Giveaway;
 }(Decidable));
 exports.Giveaway = Giveaway;
 //#endregion
 //Insert custom GuildMember here
-var PinguGuilds = /** @class */ (function () {
-    function PinguGuilds(guild) {
-        this.guildOwner = {
-            id: guild.owner.user.id,
-            user: guild.owner.user.tag
-        };
-        this.guildID = guild.id;
+var PinguGuild = /** @class */ (function () {
+    function PinguGuild(guild) {
         this.guildName = guild.name;
-        this.EmbedColor = 0;
-        var Prefix = require('./config').Prefix;
-        this.BotPrefix = Prefix;
-        this.Giveaways = new Array();
-        this.Polls = new Array();
-        this.Suggestions = new Array();
-        this.ThemeWinners = new Array();
+        this.guildID = guild.id;
+        this.guildOwner = new PGuildMember(guild.owner);
+        var Prefix = require('./config.json').Prefix;
+        this.botPrefix = Prefix;
+        this.embedColor = 0;
+        this.giveaways = new Array();
+        this.polls = new Array();
+        this.suggestions = new Array();
+        this.themeWinners = new Array();
     }
-    return PinguGuilds;
+    return PinguGuild;
 }());
-exports.PinguGuilds = PinguGuilds;
+exports.PinguGuild = PinguGuild;
 //# sourceMappingURL=PinguPackage.js.map
