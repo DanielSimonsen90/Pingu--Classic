@@ -1,3 +1,5 @@
+const { PinguGuild } = require('../../PinguPackage');
+
 const { MessageEmbed, Message, Collection } = require('discord.js'),
     ScriptsCategorized = ["", "Utility", "Fun", "Support", "DevOnly"];
 
@@ -13,10 +15,9 @@ module.exports = {
         //#region Get data from guilds.json
         let color, Prefix;
         if (message.channel.type != 'dm') {
-            const pGuilds = require('../../guilds.json');
-            const pGuild = pGuilds.find(pguild => pguild.guildID == message.guild.id);
-            color = pGuild.EmbedColor;
-            Prefix = pGuild.BotPrefix;
+            const pGuild = GetPGuild(message);
+            color = pGuild.embedColor;
+            Prefix = pGuild.botPrefix;
         }
         else {
             color = 15527148;
@@ -30,7 +31,7 @@ module.exports = {
         //#endregion
 
         switch (args.length) {
-            case 0: return DefaultHelp(embed, message, Prefix); //If no argument was provided, send default help menu
+            case 0: return DefaultHelp(message, embed, Prefix); //If no argument was provided, send default help menu
             case 1: return CategoryOrSpecificHelp(message, args, message.client.commands, [], embed, Prefix); //If 1 argument is provided || if args[0] exists
             default: return message.channel.send(`Help arguments not recognized!`);
         }
@@ -41,7 +42,7 @@ module.exports = {
  * @param {Message} message
  * @param {MessageEmbed} embed
  * @param {string} Prefix*/
-function DefaultHelp(embed, message, Prefix) {
+function DefaultHelp(message, embed, Prefix) {
     embed.setTitle('Pingu Help Menu!')
         .setDescription('Use these arguments to see what commands I have in a specific category!')
         .setFooter(`Developed by Simonsen Techs`);
@@ -149,4 +150,11 @@ function SpecificHelp(message, args, embed, Prefix) {
 
     //Send embed
     return message.channel.send(embed);
+}
+
+/**@returns {PinguGuild} */
+function GetPGuild(message) {
+    const pGuilds = require('../../guilds.json');
+    const pGuild = pGuilds.find(pguild => pguild.guildID == message.guild.id);
+    return pGuild;
 }

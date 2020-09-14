@@ -6,7 +6,7 @@ const fs = require('fs'),
     SecondaryPrefix = '562176550674366464',
     ScriptsCategorized = ["", "Utility", "Fun", "Support", "DevOnly"],
     client = new Discord.Client();
-const { PinguGuilds } = require('./PinguPackage');
+const { PinguGuilds, PinguGuild } = require('./PinguPackage');
 client.commands = new Discord.Collection();
 
 let PreviousMessages = [],
@@ -29,7 +29,7 @@ client.once('ready', () => {
 //First time joining a guild
 client.once('guildCreate', guild => {
     //Get Pingu Guilds from guilds.json
-    const pGuilds = require('./guilds.json');
+    const pGuilds = GetPGuilds();
 
     //Insert new PinguGuild into pGuilds
     pGuilds[pGuilds.length] = new PinguGuilds(guild);
@@ -57,7 +57,7 @@ client.once('guildCreate', guild => {
 });
 //Leaving a guild
 client.once('guildDelete', guild => {
-    const pGuilds = require('./guilds.json');
+    const pGuilds = GetPGuilds();
     const pGuild = pGuilds.find(pg => pg.guildID == guild.id);
     let arr = [];
     pGuilds.forEach(pg => {
@@ -84,7 +84,7 @@ client.on('message', message => {
     //Find pGuilds in guilds.json
     let pGuilds;
     try {
-        pGuilds = require('./guilds.json');
+        pGuilds = GetPGuilds()
         if (updatingPGuilds)
             updatingPGuilds = false;
     }
@@ -318,6 +318,7 @@ function GetMention(message, UserMention) {
 }
 // #endregion
 
+//#region Misc Methods
 /**@param {string} path*/
 function SetCommand(path) {
     const ScriptCollection = fs.readdirSync(`./commands/${path}/`).filter(file => file.endsWith('.js'));
@@ -331,7 +332,6 @@ function SetCommand(path) {
         }
     }
 }
-
 /**Checks if role color was changed, to update embed colors 
  * @param {Discord.Message} message*/
 function CheckRoleChange(message) {
@@ -343,15 +343,15 @@ function CheckRoleChange(message) {
     const guildRoleColor = message.guild.me.roles.cache.find(botRoles => botRoles.managed).color;
 
 
-    if (guildRoleColor == pGuild.EmbedColor)
+    if (guildRoleColor == pGuild.embedColor)
         return;
 
     //Save Index of pGuild & log the change
     const pGuildIndex = pGuilds.indexOf(pGuild);
-    console.log(`Embedcolor updated from ${pGuild.EmbedColor} to ${guildRoleColor}`);
+    console.log(`Embedcolor updated from ${pGuild.embedColor} to ${guildRoleColor}`);
 
     //Update pGuild.EmbedColor with guild's Pingu role color & put pGuild back into pGuilds
-    pGuild.EmbedColor = guildRoleColor;
+    pGuild.embedColor = guildRoleColor;
     pGuilds[pGuildIndex] = pGuild;
 
     //Update guilds.json
@@ -366,3 +366,9 @@ function CheckRoleChange(message) {
     })
 
 }
+/**@returns {PinguGuild[]} */
+function GetPGuilds() {
+    const pGuilds = require('./guilds.json');
+    return pGuilds;
+}
+//#endregion

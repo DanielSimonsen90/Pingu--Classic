@@ -16,6 +16,7 @@ module.exports = {
             case 'fish': Reply = `MMmmmMm! Yes please! Gimme!!`; break;
             case 'leaf': Reply = `What am I a fucking sloth?`; break;
             case 'monster': Reply = `What am I a fucking Billet?`; break;
+            case 'sand': Reply = `Am I *that* black??`; break;
             default: Reply = `Uhm.. I don't think I should eat that..`; break;
         }
         message.channel.send(Reply);

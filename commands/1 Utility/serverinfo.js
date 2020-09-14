@@ -20,7 +20,7 @@ module.exports = {
                 return message.channel.send(new MessageEmbed()
                     .setTitle(`${emote.name}`)
                     .setThumbnail(emote.url)
-                    .setColor(0xfb8927)
+                    .setColor(GetPGuildColor())
                     //.addField(`Created by`, author, true)
                     .addField(`Created at`, emote.createdAt, true))
             }
@@ -35,16 +35,13 @@ module.exports = {
 
 /**@param {Guild} guild @param {boolean} bigboiinfo*/
 function SendCallerInfo(guild, bigboiinfo) {
-        const pGuilds = require('../../guilds.json');
-        const color = pGuilds.find(pguild => pguild.guildID == guild.id).EmbedColor;
-
     const DefaultThumbnail = guild.iconURL(),
         Description = guild.description ? guild.description : 'None';
     let EmbedArray = [
         new MessageEmbed()
             .setTitle(`Server Information: ${guild.name}`)
             .setThumbnail(DefaultThumbnail)
-            .setColor(color)
+            .setColor(GetPGuildColor())
             .addField(`Owner`, guild.owner, true)
             .addField(`Region`, guild.region.charAt(0).toUpperCase() + guild.region.substring(1, guild.region.length), true)
             .addField(`Creation Date`, guild.createdAt, true)
@@ -159,3 +156,9 @@ function SendFeatures(message, serverGuild) {
         message.channel.send(`**${serverGuild.name}'s Features**` + '```' + FeatureList + '```')
 }
 //#endregion
+
+/**@returns {number} */
+function GetPGuildColor() {
+    const pGuilds = require('../../guilds.json');
+    return pGuilds.find(pguild => pguild.guildID == guild.id).embedColor;
+}

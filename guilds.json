@@ -1,74 +1,73 @@
 [
   {
+    "guildName": "The Danho Discord",
+    "guildID": "248104299534614528",
     "guildOwner": {
       "id": "405331883157880846",
       "user": "Synthy Sytro#5637"
     },
-    "guildID": "248104299534614528",
-    "guildName": "The Danho Discord",
-    "EmbedColor": 0,
-    "Giveaways": [],
-    "Polls": [],
-    "Suggestions": [],
-    "ThemeWinners": [],
-    "BotPrefix": "*"
+    "botPrefix": "*",
+    "embedColor": 0,
+    "giveaways": [],
+    "polls": [],
+    "suggestions": [],
+    "themeWinners": []
   },
   {
+    "guildName": "AppleJuice",
+    "guildID": "405763731079823380",
     "guildOwner": {
       "id": "245572699894710272",
       "user": "Danho#2105"
     },
-    "guildID": "405763731079823380",
-    "guildName": "AppleJuice",
-    "EmbedColor": 11342935,
-    "Giveaways": [
+    "botPrefix": "*",
+    "embedColor": 11342935,
+    "giveaways": [
       {
-        "Value": "yeet",
-        "ID": "755016236508774490",
-        "Author": {
-          "guildID": "405763731079823380",
-          "joinedTimestamp": 1544035171631,
-          "lastMessageChannelID": "474129152065273866",
-          "premiumSinceTimestamp": 1572466088188,
-          "deleted": false,
-          "nickname": null,
-          "userID": "245572699894710272",
-          "displayName": "Danho"
+        "value": "I have faith in this one",
+        "id": "755118672317513750",
+        "author": {
+          "id": "245572699894710272",
+          "user": "Danho#2105"
         },
-        "Winners": []
+        "winners": [
+          {
+            "id": "245572699894710272",
+            "user": "Danho#2105"
+          }
+        ]
       }
     ],
-    "Polls": [],
-    "Suggestions": [],
-    "ThemeWinners": [],
-    "BotPrefix": "*"
+    "polls": [],
+    "suggestions": [],
+    "themeWinners": []
   },
   {
-    "guildOwner": {
-      "id": "245572699894710272",
-      "user": "Danho#2105"
-    },
-    "guildID": "460926327269359626",
     "guildName": "Danho's Misc",
-    "EmbedColor": 15105570,
-    "Giveaways": [],
-    "Polls": [],
-    "Suggestions": [],
-    "ThemeWinners": [],
-    "BotPrefix": "*"
-  },
-  {
+    "guildID": "460926327269359626",
     "guildOwner": {
       "id": "245572699894710272",
       "user": "Danho#2105"
     },
-    "guildID": "644823098260062221",
+    "botPrefix": "*",
+    "embedColor": 15105570,
+    "giveaways": [],
+    "polls": [],
+    "suggestions": [],
+    "themeWinners": []
+  },
+  {
     "guildName": "Discurd Butts",
-    "EmbedColor": 3447003,
-    "Giveaways": [],
-    "Polls": [],
-    "Suggestions": [],
-    "ThemeWinners": [],
-    "BotPrefix": "*"
+    "guildID": "644823098260062221",
+    "guildOwner": {
+      "id": "245572699894710272",
+      "user": "Danho#2105"
+    },
+    "botPrefix": "*",
+    "embedColor": 3447003,
+    "giveaways": [],
+    "polls": [],
+    "suggestions": [],
+    "themeWinners": []
   }
 ]

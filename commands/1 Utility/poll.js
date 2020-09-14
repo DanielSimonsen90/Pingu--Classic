@@ -19,8 +19,7 @@ module.exports = {
             PollMessage;
         message.delete();
 
-        const pGuilds = require('../../guilds.json');
-        const color = pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
+        const color = GetPGuildColor();
         const EndsAt = new Date(Date.now() + ms(Time));
         //Create Embed
         let Embed = new MessageEmbed()
@@ -77,4 +76,9 @@ function OnTimeOut(Embed, PollMessage, Poll) {
     PollMessage.channel.send(`The poll of "**${Poll}**", voted **${Verdict}**!`);
 
     PollMessage.edit(Embed.setTitle(`FINISHED!: ${Poll}`).setDescription(`Voting done! Final answer: ${Verdict}`));
+}
+
+function GetPGuildColor() {
+    const pGuilds = require('../../guilds.json');
+    return pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
 }

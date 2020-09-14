@@ -33,8 +33,7 @@ module.exports = {
             Prize = Prize.replace(/(<@!*[\d]{18}>)/, Mention.nickname || Mention.user.username ||
                 Mention.displayName || Mention.user.username);
 
-        const pGuilds = require('../../guilds.json');
-        const color = pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
+        const color = GetPGuild(message).embedColor;
         const EndsAt = new Date(Date.now() + ms(Time));
 
         let embed = new MessageEmbed()
@@ -84,11 +83,13 @@ function PermissionCheck(message, args) {
         return 'Please provide a valid time!';
     return `Permission Granted`;
 }
+
+//#region After waiting methods
 /**@param {Message} message
  * @param {Message} GiveawayMessage
  * @param {string} Prize
  * @param {MessageEmbed} embed
- * @param {User} GiveawayCreator*/
+ * @param {GuildMember} GiveawayCreator*/
 function ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator) {
     let Winner;
     GiveawayWinnerRole = message.guild.roles.cache.find(role => role.name === 'Giveaway Winners' || role.name === 'Giveaway Winner') ||
@@ -206,11 +207,14 @@ function Reroll(message, args, embed) {
     const GiveawayCreator = PreviousGiveaway.embeds[0].description.substring(41, PreviousGiveaway.embeds[0].description.length)
     return ExecuteTimeOut(message, PreviousGiveaway, Prize, embed, GiveawayCreator);
 }
+//#endregion
 
+//#region pGuild Methods
 /**@param {Message} message @param {string} Prize @param {GuildMember} GiveawayCreator*/
 function SaveToPGuilds(message, Prize, GiveawayCreator) {
-    const pGuild = GetPGuild();
-    pGuild.giveaways[pGuild.giveaways.length] = new Giveaway(Prize, message.id, GiveawayCreator);
+    const pGuilds = GetPGuilds();
+    const pGuild = GetPGuild(message);
+    pGuild.giveaways[pGuild.giveaways.length] = new Giveaway(Prize, message.id, new PGuildMember(GiveawayCreator));
 
     //Update guilds.json
     fs.writeFile('guilds.json', '', err => {
@@ -218,15 +222,15 @@ function SaveToPGuilds(message, Prize, GiveawayCreator) {
         else fs.appendFile('guilds.json', JSON.stringify(pGuilds, null, 2), err => {
             message.client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
                 if (err) DanhoDM.send(`I encountered and error while saving a giveaway in ${message.guild.name}:\n\n${err}`);
-                else console.log(`pGuild.Giveaways for "${message.guild.name}" was successfully updated!`);
+                else console.log(`pGuild.Giveaways for "${message.guild.name}" was successfully updated with the new giveaway!`);
             });
         });
     })
 }
-/**@param {Message} message @param {User} Winner
- */
+/**@param {Message} message @param {User} Winner*/
 function UpdatePGuildWinner(message, Winner) {
-    const pGuild = GetPGuild();
+    const pGuilds = GetPGuilds();
+    const pGuild = GetPGuild(message);
     pGuild.giveaways.find(giveaway => giveaway.id == message.id).winners[0] = new PGuildMember(message.guild.member(Winner));
 
     //Update guilds.json
@@ -235,14 +239,19 @@ function UpdatePGuildWinner(message, Winner) {
         else fs.appendFile('guilds.json', JSON.stringify(pGuilds, null, 2), err => {
             message.client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
                 if (err) DanhoDM.send(`I encountered and error while saving a giveaway in ${message.guild.name}:\n\n${err}`);
-                else console.log(`pGuild.Giveaways for "${message.guild.name}" was successfully updated!`);
+                else console.log(`pGuild.Giveaways for "${message.guild.name}" was successfully updated with ${Winner.tag} as winner!`);
             });
         });
     });
 }
 
-/**@returns {PinguGuild}*/
-function GetPGuild() {
+/**@param {Message} message @returns {PinguGuild[]}*/
+function GetPGuilds() {
     const pGuilds = require('../../guilds.json');
-    return pGuilds.find(pg => pg.guildID == message.guild.id);
+    return pGuilds;
 }
+/**@param {Message} message*/
+function GetPGuild(message) {
+    return GetPGuilds().find(pg => pg.guildID == message.guild.id);
+}
+//#endregion

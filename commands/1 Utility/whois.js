@@ -59,7 +59,7 @@ function HandleGuildMember(message, GuildMember) {
 /**@param {Message} message @param {GuildMember} GuildMember @param {any} SharedServers*/
 function SendGuildMessage(message, GuildMember, SharedServers) {
         const pGuilds = require('../../guilds.json');
-        const color = pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
+        const color = pGuilds.find(pguild => pguild.guildID == message.guild.id).embedColor;
 
     message.channel.send(new MessageEmbed()
         .setTitle(`"${GuildMember.displayName}" (${GuildMember.user.username})`)
@@ -76,7 +76,7 @@ function SendNonGuildMessage(message, User) {
     let color;
     if (message.channel.type != 'dm') {
         const pGuilds = require('../../guilds.json');
-        color = pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
+        color = pGuilds.find(pguild => pguild.guildID == message.guild.id).embedColor;
     }
     else color = 15527148;
 

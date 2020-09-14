@@ -43,7 +43,7 @@ module.exports = {
             }
 
             const pGuilds = require('../../guilds.json');
-            const color = pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
+            const color = pGuilds.find(pguild => pguild.guildID == message.guild.id).embedColor;
 
             const embed = new MessageEmbed()
                 .setTitle(`${User} ${Activity} ${Person}`)

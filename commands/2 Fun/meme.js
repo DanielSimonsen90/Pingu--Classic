@@ -38,7 +38,7 @@ module.exports = {
             let color;
             if (message.channel.type != 'dm') {
                 const pGuilds = require('../../guilds.json');
-                color = pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
+                color = pGuilds.find(pguild => pguild.guildID == message.guild.id).embedColor;
             }
             else color = 15527148;
 

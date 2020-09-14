@@ -31,7 +31,6 @@ module.exports = {
                     if (err) console.log(`ERROR while saving to guilds.json:\n${err}`);
                     else {
                         console.log('Finihsed! guilds.json was successfully updated with new PinguGuilds elements.\n');
-                        message.react('✅');
                     }
                 });
             })
