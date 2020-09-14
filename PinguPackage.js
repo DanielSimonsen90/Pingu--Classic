@@ -13,7 +13,8 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PinguGuilds = exports.Poll = exports.Suggestion = void 0;
+exports.PinguGuilds = exports.Giveaway = exports.Poll = exports.Suggestion = void 0;
+//#region Decidables
 var Decidable = /** @class */ (function () {
     function Decidable(value, id, author) {
         this.Value = value;
@@ -22,6 +23,15 @@ var Decidable = /** @class */ (function () {
     }
     return Decidable;
 }());
+var DecidableApproved = /** @class */ (function (_super) {
+    __extends(DecidableApproved, _super);
+    function DecidableApproved() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return DecidableApproved;
+}(Decidable));
+//#endregion
+//#region extends Decideables
 var Suggestion = /** @class */ (function (_super) {
     __extends(Suggestion, _super);
     function Suggestion() {
@@ -32,7 +42,7 @@ var Suggestion = /** @class */ (function (_super) {
         this.DecidedBy = decidedBy;
     };
     return Suggestion;
-}(Decidable));
+}(DecidableApproved));
 exports.Suggestion = Suggestion;
 var Poll = /** @class */ (function (_super) {
     __extends(Poll, _super);
@@ -47,8 +57,18 @@ var Poll = /** @class */ (function (_super) {
         this.Approved = this.YesVotes > this.NoVotes;
     };
     return Poll;
-}(Decidable));
+}(DecidableApproved));
 exports.Poll = Poll;
+var Giveaway = /** @class */ (function (_super) {
+    __extends(Giveaway, _super);
+    function Giveaway() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return Giveaway;
+}(Decidable));
+exports.Giveaway = Giveaway;
+//#endregion
+//Insert custom GuildMember here
 var PinguGuilds = /** @class */ (function () {
     function PinguGuilds(guild) {
         this.guildOwner = {
@@ -60,7 +80,7 @@ var PinguGuilds = /** @class */ (function () {
         this.EmbedColor = 0;
         var Prefix = require('./config').Prefix;
         this.BotPrefix = Prefix;
-        this.GiveawayWinners = new Array();
+        this.Giveaways = new Array();
         this.Polls = new Array();
         this.Suggestions = new Array();
         this.ThemeWinners = new Array();

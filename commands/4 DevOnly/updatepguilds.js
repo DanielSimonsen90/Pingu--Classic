@@ -1,4 +1,4 @@
-const { Message, Guild, MessageEmbed } = require("discord.js");
+﻿const { Message, Guild, MessageEmbed } = require("discord.js");
 const { PinguGuilds } = require('../../PinguPackage');
 const { Prefix } = require('../../config.json');
 const fs = require('fs');
@@ -30,7 +30,10 @@ module.exports = {
                 if (err) console.log(err);
                 else fs.appendFile('guilds.json', data, err => {
                     if (err) console.log(`ERROR while saving to guilds.json:\n${err}`);
-                    else console.log('Finihsed! guilds.json was successfully updated with new PinguGuilds elements.\n');
+                    else {
+                        console.log('Finihsed! guilds.json was successfully updated with new PinguGuilds elements.\n');
+                        message.react('✅');
+                    }
                 });
             })
         } catch (error) { message.channel.send('Try/Catch error: ' + error); }

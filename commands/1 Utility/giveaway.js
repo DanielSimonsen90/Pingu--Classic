@@ -1,5 +1,7 @@
 ﻿const { Message, MessageEmbed, User, Guild, Role, GuildMember } = require('discord.js'),
-    ms = require('ms');
+    ms = require('ms'),
+    fs = require('fs'),
+    { Giveaway } = require('../../PinguPackage');
 let GiveawayWinnerRole = new Role();
 
 module.exports = {
@@ -22,7 +24,7 @@ module.exports = {
         if (args[0] != `reroll`) args[0] = null;
 
         let Prize = args.join(' '),
-            GiveawayCreator = message.author,
+            GiveawayCreator = message.guild.member(message.author),
             Mention = message.mentions.members.first();
         Prize = Prize.substring(1, Prize.length);
         GiveawayWinnerRole = message.guild.roles.cache.find(role => role.name == 'Giveaway Winners' || role.name === 'Giveaway Winner');
@@ -38,7 +40,7 @@ module.exports = {
         let embed = new MessageEmbed()
             .setTitle(Prize)
             .setColor(color)
-            .setDescription(`React with :fingers_crossed: to enter!\nHosted by ${GiveawayCreator}\n`)
+            .setDescription(`React with :fingers_crossed: to enter!\nHosted by ${GiveawayCreator.user}\n`)
             .setFooter(`Ends at: ${EndsAt.toTimeString()}, ${EndsAt.toDateString()}`);
 
         //reroll
@@ -49,7 +51,8 @@ module.exports = {
         message.channel.send(embed)
             .then(GiveawayMessage => {
                 GiveawayMessage.react('🤞');
-                console.log(`${GiveawayCreator.username} hosted a giveaway in ${message.guild.name}, #${message.channel.name}, giving "${Prize}" away`);
+                console.log(`${GiveawayCreator.user.username} hosted a giveaway in ${message.guild.name}, #${message.channel.name}, giving "${Prize}" away`);
+                SaveToPGuilds(message, Prize, GiveawayCreator);
 
                 setTimeout(() => ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator), ms(Time));
             });
@@ -92,7 +95,7 @@ function ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator)
         CreateGiveawayWinnerRole(message.guild); //Recreate role incase it was just made
 
     // While there's no winner
-    while (!Winner) Winner = FindWinner(message, GiveawayMessage, GiveawayWinnerRole);
+    while (!Winner) Winner = FindWinner(message, GiveawayMessage);
 
     //Winner not found
     if (Winner == `A winner couldn't be found!`) {
@@ -111,8 +114,8 @@ function ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator)
         .filter(Member => Member.roles.cache.has(GiveawayWinnerRole)));
 
     message.guild.member(Winner).roles.add(GiveawayWinnerRole)
-        .then(() => GiveawayCreator.send(`<@${Winner.id}> won your giveaway, "**${Prize}**" in **${message.guild.name}**!`))
-        .catch(() => GiveawayCreator.send(
+        .then(() => GiveawayCreator.user.send(`<@${Winner.id}> won your giveaway, "**${Prize}**" in **${message.guild.name}**!`))
+        .catch(() => GiveawayCreator.user.send(
             `I couldn't give <@${Winner.id}> a Giveaway Winner role!\n` +
             `Please give me a role above the Giveaway Winner role, or move my role above it!`
         ));
@@ -120,13 +123,14 @@ function ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator)
     //Edit embed to winner
     GiveawayMessage.edit(embed
         .setTitle(`Winner of "${Prize}"!`)
-        .setDescription(`Winner: ${Winner}\nHosted by: ${GiveawayCreator}`)
+        .setDescription(`Winner: ${Winner}\nHosted by: ${GiveawayCreator.user}`)
         .setFooter('Giveaway ended.')
     ).catch(error => message.channel.send(error));
-    console.log(`Winner of "${Prize}" (hosted by ${GiveawayCreator.username}) was won by ${Winner.username}`);
+    UpdatePGuildWinner(message, Winner);
+    console.log(`Winner of "${Prize}" (hosted by ${GiveawayCreator.user.username}) was won by ${Winner.username}`);
 }
-/**@param {Message} message @param {Message} GiveawayMessage @param {Role} GiveawayWinnerRole*/
-function FindWinner(message, GiveawayMessage, GiveawayWinnerRole) {
+/**@param {Message} message @param {Message} GiveawayMessage*/
+function FindWinner(message, GiveawayMessage) {
     let peopleReacted;
     try {
         peopleReacted = GiveawayMessage.reactions.cache.get('🤞').users.cache.array()
@@ -186,7 +190,7 @@ function RemovePreviousWinners(WinnerArray) {
     for (var x = 0; x < WinnerArray.length; x++)
         WinnerArray[x].roles.remove(GiveawayWinnerRole);
 }
-
+/**@param {Message} message @param {string[]} args  @param {MessageEmbed} embed*/
 function Reroll(message, args, embed) {
     if (!args[1]) return message.channel.send(`Giveaway message not found - please provide with a message ID`)
     let PreviousGiveaway;
@@ -201,4 +205,40 @@ function Reroll(message, args, embed) {
     const Prize = PreviousGiveaway.embeds[0].title.substring(11, PreviousGiveaway.embeds[0].title.length - 2);
     const GiveawayCreator = PreviousGiveaway.embeds[0].description.substring(41, PreviousGiveaway.embeds[0].description.length)
     return ExecuteTimeOut(message, PreviousGiveaway, Prize, embed, GiveawayCreator);
+}
+
+/**@param {Message} message @param {string} Prize @param {GuildMember} GiveawayCreator*/
+function SaveToPGuilds(message, Prize, GiveawayCreator) {
+    const pGuilds = require('../../guilds.json');
+    const pGuild = pGuilds.find(pg => pg.guildID == message.guild.id);
+    pGuild.Giveaways[pGuild.Giveaways.length] = new Giveaway(Prize, message.id, GiveawayCreator);
+
+    //Update guilds.json
+    fs.writeFile('guilds.json', '', err => {
+        if (err) console.log(err);
+        else fs.appendFile('guilds.json', JSON.stringify(pGuilds, null, 2), err => {
+            message.client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
+                if (err) DanhoDM.send(`I encountered and error while saving a giveaway in ${message.guild.name}:\n\n${err}`);
+                else console.log(`pGuild.Giveaways for "${message.guild.name}" was successfully updated!`);
+            });
+        });
+    })
+}
+/**@param {Message} message @param {User} Winner
+ */
+function UpdatePGuildWinner(message, Winner) {
+    const pGuilds = require('../../guilds.json');
+    const pGuild = pGuilds.find(pg => pg.guildID == message.guild.id);
+    pGuild.Giveaways.find(giveaway => giveaway.id == message.id).Winners[0] = message.guild.member(Winner);
+
+    //Update guilds.json
+    fs.writeFile('guilds.json', '', err => {
+        if (err) console.log(err);
+        else fs.appendFile('guilds.json', JSON.stringify(pGuilds, null, 2), err => {
+            message.client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
+                if (err) DanhoDM.send(`I encountered and error while saving a giveaway in ${message.guild.name}:\n\n${err}`);
+                else console.log(`pGuild.Giveaways for "${message.guild.name}" was successfully updated!`);
+            });
+        });
+    })
 }

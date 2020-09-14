@@ -1,27 +1,31 @@
-import { GuildMember, User, Guild } from 'discord.js';
+import { GuildMember, Guild } from 'discord.js';
 
 
+//#region Decidables
 abstract class Decidable {
-    constructor(value: string, id: number, author: User | GuildMember) {
+    constructor(value: string, id: string, author: GuildMember) {
         this.Value = value;
         this.ID = id;
         this.Author = author;
     }
     public Value: string
-    public ID: number
-    public Approved: boolean
-    public Author: User | GuildMember
+    public ID: string
+    public Author: GuildMember
 }
+abstract class DecidableApproved extends Decidable {
+    public Approved: boolean
+}
+//#endregion
 
-export class Suggestion extends Decidable{
-    public DecidedBy: User | GuildMember
-    public Decide(approved: boolean, decidedBy: User | GuildMember) {
+//#region extends Decideables
+export class Suggestion extends DecidableApproved{
+    public DecidedBy: GuildMember
+    public Decide(approved: boolean, decidedBy: GuildMember) {
         this.Approved = approved;
         this.DecidedBy = decidedBy;
     }
 }
-
-export class Poll extends Decidable{
+export class Poll extends DecidableApproved{
     public YesVotes: number
     public NoVotes: number
     public Decide(yesVotes: number, noVotes: number) {
@@ -31,6 +35,12 @@ export class Poll extends Decidable{
         this.Approved = this.YesVotes > this.NoVotes; 
     }
 }
+export class Giveaway extends Decidable{
+    public Winners: GuildMember[]
+}
+//#endregion
+
+//Insert custom GuildMember here
 
 export class PinguGuilds {
     constructor(guild: Guild) {
@@ -43,7 +53,7 @@ export class PinguGuilds {
         this.EmbedColor = 0;
         const { Prefix } = require('./config');
         this.BotPrefix = Prefix;
-        this.GiveawayWinners = new Array<GuildMember>();
+        this.Giveaways = new Array<Giveaway>();
         this.Polls = new Array<Poll>();
         this.Suggestions = new Array<Suggestion>();
         this.ThemeWinners = new Array<GuildMember>();
@@ -54,7 +64,7 @@ export class PinguGuilds {
     public EmbedColor: number
     public BotPrefix: string
 
-    public GiveawayWinners: GuildMember[] 
+    public Giveaways: Giveaway[] 
     /*^^ Include first-time using *giveaway:
             - Giveaway Host:
                 (Do you have a Giveaway Host role?) {
