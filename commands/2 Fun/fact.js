@@ -60,10 +60,13 @@ module.exports = {
 
 /**@param {Message} message*/
 function PermissionCheck(message) {
+    if (message.channel.type == 'dm')
+        return `Permission Granted`;
+
     const PermArr = ["SEND_MESSAGES", "EMBED_LINKS"],
         PermArrMsg = ["send messages", "send embed links"];
     for (var x = 0; x < PermArr.length; x++)
-        if (!message.channel.permissionsFor(message.client.user).has(PermArr[x]))
+        if (!message.channel.permissionsFor(message.guild.me).has(PermArr[x]))
             return `Hey! I don't have permission to ${PermArrMsg[x]} in #${message.channel.name}!`;
     return `Permission Granted`;
 }

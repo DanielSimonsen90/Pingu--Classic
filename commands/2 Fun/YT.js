@@ -10,6 +10,8 @@ module.exports = {
     cooldown: 5,
     description: 'Plays stuff from Youtube',
     usage: '<action> [args[1]]',
+    //id: 2,
+    guildOnly: true,
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         const PermCheck = PermissionCheck(message);

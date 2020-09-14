@@ -24,32 +24,25 @@ module.exports = {
         let Prize = args.join(' '),
             GiveawayCreator = message.author,
             Mention = message.mentions.members.first();
-        GiveawayWinnerRole = message.guild.roles.cache.find(role => role.name === 'Giveaway Winners' || role.name === 'Giveaway Winner');
+        Prize = Prize.substring(1, Prize.length);
+        GiveawayWinnerRole = message.guild.roles.cache.find(role => role.name == 'Giveaway Winners' || role.name === 'Giveaway Winner');
 
         if (Prize.includes(`<@`))
             Prize = Prize.replace(/(<@!*[\d]{18}>)/, Mention.nickname || Mention.user.username ||
-                                                     Mention.displayName || Mention.user.username);
+                Mention.displayName || Mention.user.username);
 
         const pGuilds = require('../../guilds.json');
         const color = pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
+        const EndsAt = new Date(Date.now() + ms(Time));
 
         let embed = new MessageEmbed()
-            .setTitle(Prize = Prize.substring(0, Prize.length))
+            .setTitle(Prize)
             .setColor(color)
             .setDescription(`React with :fingers_crossed: to enter!\nHosted by ${GiveawayCreator}\n`)
-            .setFooter(`Giveaway time set to ${Time}`);
+            .setFooter(`Ends at: ${EndsAt.toTimeString()}, ${EndsAt.toDateString()}`);
 
         //reroll
-        if (args[0] == `reroll`) {
-            if (!args[1]) return message.channel.send(`Giveaway message not found - please provide with a message ID`)
-            let PreviousGiveaway;
-            PreviousGiveaway = message.channel.messages.find(premsg => premsg.id == Number.parseInt(args[1]));
-            if (PreviousGiveaway == null)
-                return message.channel.send(`Unable to parse ${args[1]} as ID, or message can't be found!`);
-            Prize = PreviousGiveaway.embeds[0].title.substring(11, PreviousGiveaway.embeds[0].title.length - 2);
-            GiveawayCreator = PreviousGiveaway.embeds[0].description.substring(41, PreviousGiveaway.embeds[0].description.length)
-            return ExecuteTimeOut(message, PreviousGiveaway, Prize, embed, GiveawayCreator);
-        }
+        if (args[0] == `reroll`) return Reroll(message, args, embed);
 
         // Create Embed
         message.channel.send(`**Giveawayy woo**`);
@@ -68,12 +61,12 @@ function PermissionCheck(message, args) {
     if (message.channel.type === 'dm') return `I execute this command in DMs.`;
 
     const PermissionCheck = message.channel.permissionsFor(message.client.user),
-        PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES", "ADD_REACTIONS", "MENTION_EVERYONE"];
+        PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES", "ADD_REACTIONS"];
     for (var Perm = 0; Perm < PermArr.length; Perm++)
         if (!PermissionCheck.has(PermArr[Perm]))
             return `Sorry, ${message.author}. It seems like I don't have the **${PermArr[Perm]}** permission.`;
 
-    if (!args[0] || !args[1]) return 'Hey! You didn\'t give me enough arguments!';
+    if (!args[0] || args[0] != `reroll` && !args[1]) return 'Hey! You didn\'t give me enough arguments!';
     else if (args[0] == `reroll`) return `Permission Granted`;
 
     if (!message.guild.member(message.author).roles.cache.find(role => role.name == 'Giveaways')) {
@@ -88,7 +81,6 @@ function PermissionCheck(message, args) {
         return 'Please provide a valid time!';
     return `Permission Granted`;
 }
-
 /**@param {Message} message
  * @param {Message} GiveawayMessage
  * @param {string} Prize
@@ -100,7 +92,7 @@ function ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator)
         CreateGiveawayWinnerRole(message.guild); //Recreate role incase it was just made
 
     // While there's no winner
-    while (!Winner) Winner = FindWinner(message, GiveawayMessage);
+    while (!Winner) Winner = FindWinner(message, GiveawayMessage, GiveawayWinnerRole);
 
     //Winner not found
     if (Winner == `A winner couldn't be found!`) {
@@ -113,17 +105,17 @@ function ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator)
     }
 
     //Announce Winner
-    message.channel.send(`**The winner of "${Prize.substring(1, Prize.length)}" has been found!**\nCongratulations ${Winner}\n\nContact ${GiveawayMessage.embeds[0].description.substring(41, GiveawayMessage.embeds[0].description.length)} to redeem your prize!`);
+    GiveawayMessage.channel.send(`**The winner of "${Prize}" has been found!**\nCongratulations ${Winner}\n\nContact ${GiveawayMessage.embeds[0].description.substring(41, GiveawayMessage.embeds[0].description.length)} to redeem your prize!`);
 
     RemovePreviousWinners(message.guild.members.cache.array()
-        .filter(Member => Member.roles.cache
-            .find(role => role === GiveawayWinnerRole)));
+        .filter(Member => Member.roles.cache.has(GiveawayWinnerRole)));
 
     message.guild.member(Winner).roles.add(GiveawayWinnerRole)
-        .then(() => {
-            if (!message.guild.member(Winner).roles.cache.find(role => role === GiveawayWinnerRole))
-                GiveawayCreator.send(`I couldn't give ${Winner.username} (${Winner.tag}) a Giveaway Winner role!`);
-        });
+        .then(() => GiveawayCreator.send(`<@${Winner.id}> won your giveaway, "**${Prize}**" in **${message.guild.name}**!`))
+        .catch(() => GiveawayCreator.send(
+            `I couldn't give <@${Winner.id}> a Giveaway Winner role!\n` +
+            `Please give me a role above the Giveaway Winner role, or move my role above it!`
+        ));
 
     //Edit embed to winner
     GiveawayMessage.edit(embed
@@ -133,10 +125,16 @@ function ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator)
     ).catch(error => message.channel.send(error));
     console.log(`Winner of "${Prize}" (hosted by ${GiveawayCreator.username}) was won by ${Winner.username}`);
 }
-/**@param {Message} message @param {Message} GiveawayMessage*/
-function FindWinner(message, GiveawayMessage) {
-    let Winner = SelectWinner(message, GiveawayMessage.reactions.cache.get('🤞').users.cache.array()
-        .filter(User => User.id != message.client.user.id && message.guild.member(User).roles.cache.find(GiveawayWinnerRole) == null));
+/**@param {Message} message @param {Message} GiveawayMessage @param {Role} GiveawayWinnerRole*/
+function FindWinner(message, GiveawayMessage, GiveawayWinnerRole) {
+    let peopleReacted;
+    try {
+        peopleReacted = GiveawayMessage.reactions.cache.get('🤞').users.cache.array()
+            .filter(User => !message.guild.member(User).roles.cache.has(GiveawayWinnerRole));
+    } catch (error) {
+        message.channel.send(error);
+    }
+    let Winner = SelectWinner(message, peopleReacted);
 
     if (Winner == `A winner couldn't be found!`) return Winner;
 
@@ -148,7 +146,7 @@ function FindWinner(message, GiveawayMessage) {
             `, and coudn't create one ;-;`; // Tell author, bot couldn't create GiveawayWinnerRole
         message.author.send(ReturnMessage); // Return whole message
     }
-    else if (message.guild.member(Winner).roles.cache.find(GiveawayWinnerRole)) // If Winner is PreviousWinner
+    else if (message.guild.member(Winner).roles.cache.has(GiveawayWinnerRole)) // If Winner is PreviousWinner
         Winner = null;
     return Winner;
 }
@@ -162,20 +160,20 @@ function SelectWinner(message, peopleReacted) {
         else while (Winner.id == message.client.user.id)
             Winner = peopleReacted[Math.floor(Math.random() * peopleReacted.length)];
     }
-    if (message.guild.members.cache.find(Winner).roles.cache.find(Role => Role == GiveawayWinnerRole) != null)
-        if (peopleReacted.length > 2)
+    if (!message.guild.member(Winner).roles.cache.has(Role => Role == GiveawayWinnerRole))
+        if (peopleReacted.length > 1)
             return Winner;
         else return `A winner couldn't be found!`;
     return null;
 }
 /**@param {Guild} Guild @returns {string}*/
 function CreateGiveawayWinnerRole(Guild) {
-    Guild.createRole(new Role(Guild, {
+    Guild.roles.create({
         name: 'Giveaway Winner',
         color: 14264160,
         hoist: true,
         mentionable: true
-    }))
+    })
         .then(Role => {
             GiveawayWinnerRole = Role;
             return ', and created a "Giveaway Winner" role.';
@@ -187,4 +185,20 @@ function CreateGiveawayWinnerRole(Guild) {
 function RemovePreviousWinners(WinnerArray) {
     for (var x = 0; x < WinnerArray.length; x++)
         WinnerArray[x].roles.remove(GiveawayWinnerRole);
+}
+
+function Reroll(message, args, embed) {
+    if (!args[1]) return message.channel.send(`Giveaway message not found - please provide with a message ID`)
+    let PreviousGiveaway;
+    PreviousGiveaway = message.channel.messages.cache.find(premsg => premsg.id == parseInt(args[1]));
+    if (!PreviousGiveaway) {
+        PreviousGiveaway = message.channel.messages.cache.find(premsg => premsg.id == parseInt(args[1].split('/')[6]));
+        if (!PreviousGiveaway)
+            return message.channel.send(`Unable to parse ${args[1]} as ID, or message can't be found!`);
+        else if (!PreviousGiveaway.embeds[0])
+            return message.channel.send(`I couldn't find the giveaway embed from that message link!`);
+    }
+    const Prize = PreviousGiveaway.embeds[0].title.substring(11, PreviousGiveaway.embeds[0].title.length - 2);
+    const GiveawayCreator = PreviousGiveaway.embeds[0].description.substring(41, PreviousGiveaway.embeds[0].description.length)
+    return ExecuteTimeOut(message, PreviousGiveaway, Prize, embed, GiveawayCreator);
 }

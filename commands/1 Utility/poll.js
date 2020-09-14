@@ -21,13 +21,15 @@ module.exports = {
 
         const pGuilds = require('../../guilds.json');
         const color = pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
-
+        const EndsAt = new Date(Date.now() + ms(Time));
         //Create Embed
         let Embed = new MessageEmbed()
             .setTitle(Poll)
             .setColor(color)
-            .setDescription(`Time set: ${Time}`)
-            .setFooter(`Poll created by @${message.author.tag}.`);
+            .setDescription(`Brought to you by @${message.author.tag}`)
+            .addField('Time set', Time)
+            .setFooter(`Poll ends at: ${EndsAt.toTimeString()}, ${EndsAt.toDateString()}`)
+            //.setFooter(`Poll ends at: ${new Date(Date.now() + ms(Time)).toLocaleTimeString()}`)
 
         //Send Embed and react.
         message.channel.send(Embed).then(NewMessage => {
@@ -35,8 +37,8 @@ module.exports = {
             PollMessage.react('👍').then(() => PollMessage.react('👎'));
         })
 
-        try { setTimeout(OnTimeOut(message, Embed, PollMessage, Poll), ms(Time)); }
-        catch (error) { return console.log(error); }
+        try { return setTimeout(() => OnTimeOut(Embed, PollMessage, Poll), ms(Time)); }
+        catch (error) { return message.channel.send(`ERROR:\n\n${error}`); }
     },
 };
 /**@param {Message} message @param {string[]} args*/
@@ -58,9 +60,10 @@ function PermissionCheck(message, args) {
         return 'Please provide a valid time!';
     return `Permission Granted`;
 }
-/**@param {Message} message @param {MessageEmbed} Embed @param {Message} PollMessage @param {string} Poll*/
-function OnTimeOut(message, Embed, PollMessage, Poll) {
+/**@param {MessageEmbed} Embed @param {Message} PollMessage @param {string} Poll*/
+function OnTimeOut(Embed, PollMessage, Poll) {
     //Creating variables
+
     const Yes = PollMessage.reactions.cache.get('👍').count,
         No = PollMessage.reactions.cache.get('👎').count;
     let Verdict;
@@ -71,7 +74,7 @@ function OnTimeOut(message, Embed, PollMessage, Poll) {
             "Undecided";
 
     //Submitting Verdict
-    message.channel.send(`The poll of "**${Poll}**", voted **${Verdict}**!`);
+    PollMessage.channel.send(`The poll of "**${Poll}**", voted **${Verdict}**!`);
 
     PollMessage.edit(Embed.setTitle(`FINISHED!: ${Poll}`).setDescription(`Voting done! Final answer: ${Verdict}`));
 }

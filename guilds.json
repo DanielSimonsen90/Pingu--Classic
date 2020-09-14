@@ -8,9 +8,10 @@
     "guildName": "The Danho Discord",
     "EmbedColor": 0,
     "BotPrefix": "*",
-    "ThemeWinners": [],
     "GiveawayWinners": [],
-    "Suggestions": []
+    "Polls": [],
+    "Suggestions": [],
+    "ThemeWinners": []
   },
   {
     "guildOwner": {
@@ -19,11 +20,12 @@
     },
     "guildID": "405763731079823380",
     "guildName": "AppleJuice",
-    "EmbedColor": 15105570,
+    "EmbedColor": 11342935,
     "BotPrefix": "*",
-    "ThemeWinners": [],
     "GiveawayWinners": [],
-    "Suggestions": []
+    "Polls": [],
+    "Suggestions": [],
+    "ThemeWinners": []
   },
   {
     "guildOwner": {
@@ -34,9 +36,10 @@
     "guildName": "Danho's Misc",
     "EmbedColor": 15105570,
     "BotPrefix": "*",
-    "ThemeWinners": [],
     "GiveawayWinners": [],
-    "Suggestions": []
+    "Polls": [],
+    "Suggestions": [],
+    "ThemeWinners": []
   },
   {
     "guildOwner": {
@@ -47,8 +50,9 @@
     "guildName": "Discurd Butts",
     "EmbedColor": 3447003,
     "BotPrefix": "*",
-    "ThemeWinners": [],
     "GiveawayWinners": [],
-    "Suggestions": []
+    "Polls": [],
+    "Suggestions": [],
+    "ThemeWinners": []
   }
 ]

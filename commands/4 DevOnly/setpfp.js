@@ -8,6 +8,7 @@ module.exports = {
     id: 4,
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
+        if (!args[0]) return message.channel.send(`Tell me which picture to set!`);
         let PFP = args[0].toLowerCase() == "preview" ? args[1] : args[0];
 
         switch (PFP.toLowerCase()) {
@@ -27,12 +28,13 @@ module.exports = {
         if (args[0].toLowerCase() == "preview")
             return HandlePreview(message, PFP);
 
-        message.client.user.setAvatar(`./pfps/${PFP}`);
+        message.client.user.setAvatar(`./commands/4 DevOnly/pfps/${PFP}`).then(() => {
+            if (message.channel.type != 'dm' && !message.channel.permissionsFor(message.client.user).has('SEND_MESSAGES'))
+                return message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!\nBut I have updated my PFP!`);
 
-        if (message.channel.type != 'dm' && !message.channel.permissionsFor(message.client.user).has('SEND_MESSAGES'))
-            return message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!\nBut I have updated my PFP!`);
+            return message.channel.send(`Successfully changed my profile picture!`);
+        }).catch(err => message.channel.send(`ERROR!\n\n${err}`));
 
-        return message.channel.send(`Successfully changed my profile picture!`);
     },
 };
 
