@@ -1,8 +1,6 @@
 ﻿const { Message, MessageEmbed, User, Guild, GuildMember, Role } = require('discord.js'),
-    ms = require('ms'),
-    fs = require('fs'),
-    { Giveaway, PGuildMember, PinguGuild, PRole, TimeLeftObject, GiveawayConfig } = require('../../PinguPackage'),
-    { isString } = require('util');
+    { PinguGuild, PGuildMember, PRole, GiveawayConfig, Giveaway, TimeLeftObject } = require('../../PinguPackage'),
+    { isString } = require('util'), ms = require('ms'), fs = require('fs');
 //const { GiveawaysManager } = require('discord-giveaways')
 
 module.exports = {
@@ -19,11 +17,11 @@ module.exports = {
         // Test if all permissions are available & if all arguments are met
         let ReturnMessage = PermissionCheck(message, args);
         if (ReturnMessage != `Permission Granted`) return message.author.send(ReturnMessage);
+
         const pGuild = GetPGuild(message);
         if (pGuild.giveawayConfig.firstTimeExecuted || args[0] == `setup`)
             return FirstTimeExecuted(message, args);
-        else if (args[0] == "list")
-            return ListGiveaways(message);
+        else if (args[0] == "list") return ListGiveaways(message);
 
         // Create variables
         const Time = args[0];
@@ -72,10 +70,7 @@ module.exports = {
                         `Ends in: ${new TimeLeftObject(new Date(Date.now()), EndsAt).toString()}\n` +
                         `Hosted by ${GiveawayCreator.user}`
                     ));
-
-            } catch (e) {
-                console.log(e);
-            }
+            } catch (e) { console.log(e); }
         }
     },
 };
@@ -102,7 +97,7 @@ function PermissionCheck(message, args) {
     }
     else if (args[0].endsWith('s') && parseInt(args[0].substring(0, args[0].length - 1)) < 30)
         return 'Please specfify a time higher than 29s';
-    else if (!ms(args[0])) 
+    else if (!ms(args[0]))
         return 'Please provide a valid time!';
     return `Permission Granted`;
 
@@ -199,23 +194,108 @@ function FirstTimeExecuted(message, args) {
 }
 /**@param {Message} message*/
 function ListGiveaways(message) {
-    const Giveaways = GetPGuild(message).giveawayConfig.giveaways, Embeds = [], ToRemove = [];
-    if (Giveaways.length == 0)
-        return message.channel.send(`There are no giveaway saved!`);
+    var Giveaways = GetPGuild(message).giveawayConfig.giveaways;
+    let Embeds = CreateEmbeds(false), EmbedIndex = 0;
 
-    for (var i = 0; i < Giveaways.length; i++)
-        try {
-            Embeds[i] = new MessageEmbed()
-                .setTitle(Giveaways[i].id)
-                .setDescription(Giveaways[i].value)
-                .setColor(GetPGuild(message).embedColor)
-                .addField(`Winner(s)`, Giveaways[i].winners.join(", "), true)
-                .addField(`Host`, Giveaways[i].author.toString(), true);
-        } catch { ToRemove.push(Giveaway[i]); }
-    if (ToRemove.length != 0)
-        RemoveGiveaway(message, ToRemove);
+    message.channel.send(Embeds[EmbedIndex]).then(sent => {
+        const Reactions = ['⬅️', '🗑️', '➡️'];
+        sent.react('⬅️').then(() =>
+            sent.react('🗑️').then(() =>
+                sent.react('➡️')));
 
-    message.channel.send(Embeds);
+        const reactionCollector = sent.createReactionCollector((reaction, user) =>
+            Reactions.includes(reaction.emoji.name) && user.id == message.author.id, { time: ms('1200s') });
+
+        reactionCollector.on('end', () => sent.delete().then(() =>
+            message.channel.send("I suppose we're done viewing your giveaways then...")));
+
+        reactionCollector.on('collect', reaction => {
+            reactionCollector.resetTimer({ time: ms('1200s') });
+            let embedToSend;
+
+            switch (reaction.emoji.name) {
+                case '⬅️': embedToSend = ReturnEmbed(EmbedIndex -= 1); break;
+                case '🗑️': embedToSend = ReturnEmbed(0); break;
+                case '➡️': embedToSend = ReturnEmbed(EmbedIndex += 1); break;
+                default: break;
+            }
+
+            if (Giveaways.length == 0) {
+                sent.delete().then(() => message.channel.send(`No more giveaways to find!`));
+                reactionCollector.stop();
+            }
+
+            //Send new embed
+            sent.edit(sent.embeds[0] = embedToSend.setFooter(`Now viewing: ${EmbedIndex + 1}/${Giveaways.length}`)).then(() => {
+                sent.reactions.cache.forEach(reaction => {
+                    if (reaction.users.cache.size > 1)
+                        reaction.users.cache.forEach(user => {
+                            if (user.id != message.client.user.id)
+                                reaction.users.remove(user)
+                        })
+                })
+            })
+
+            /**@param {number} index @returns {MessageEmbed}*/
+            function ReturnEmbed(index) {
+                if (EmbedIndex <= -1) {
+                    EmbedIndex = EmbedIndex.length;
+                    index = -1;
+                }
+                else if (EmbedIndex >= Embeds.length) {
+                    EmbedIndex = -1;
+                    index = 1
+                }
+                switch (index) {
+                    case -1: return Embeds[EmbedIndex -= 1];
+                    default: DeleteGiveaway(Embeds[EmbedIndex]);
+                    case 1: return Embeds[EmbedIndex += 1];
+                }
+            }
+
+            /**@param {MessageEmbed} embed @returns {MessageEmbed} */
+            async function DeleteGiveaway(embed) {
+                const deletingGiveaway = Giveaways.find(giveaway => giveaway.id == embed.title);
+                const arr = [deletingGiveaway];
+                RemoveGiveaways(message, arr);
+                Giveaways = GetPGuild(message).giveawayConfig.giveaways;
+                Embeds = await CreateEmbeds(true);
+                if (!Giveaways.includes(deletingGiveaway)) {
+                    await sent.react('✅');
+                    setTimeout(async () => {
+                        await sent.reactions.cache.find(r => r.emoji.name == '✅').remove();
+                        return ReturnEmbed(1);
+                    }, 1500)
+                }
+            }
+        })
+
+    })
+
+    /**@param {boolean} autocalled*/
+    function CreateEmbeds(autocalled) {
+        let Embeds = [], ToRemove = [];
+
+        if (Giveaways.length == 0)
+            return message.channel.send(`There's no giveaway saved!`);
+
+        for (var i = 0; i < Giveaways.length; i++) {
+            try {
+                const Winners = Giveaways[i].winners.join(", "),
+                    Host = Giveaways[i].author.toString();
+                Embeds[i] = new MessageEmbed()
+                    .setTitle(Giveaways[i].id)
+                    .setDescription(Giveaways[i].value)
+                    .setColor(GetPGuild(message).embedColor)
+                    .addField(`Winner(s)`, Winners, true)
+                    .addField(`Host`, Host, true)
+                    .setFooter(`Now viewing: ${i + 1}/${Giveaways.length}`);
+            } catch { ToRemove.push(Giveaway[i]); }
+        }
+        if (ToRemove.length != 0) RemoveGiveaways(message, ToRemove);
+        if (!Embeds && !autocalled) return message.channel.send(`There's no giveaway saved!`)
+        return Embeds;
+    }
 }
 //#endregion
 
@@ -234,7 +314,7 @@ function ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator,
     let Winner;
 
     // While there's no winner
-    while (!Winner || PreviousWinner && PreviousWinner == Winner) Winner = FindWinner(message, GiveawayMessage);
+    while (!Winner || PreviousWinner && PreviousWinner.id == Winner.id) Winner = FindWinner(message, GiveawayMessage);
 
     //Winner not found
     if (Winner == `A winner couldn't be found!`) {
@@ -393,15 +473,21 @@ async function SaveGiveawayRolesToPGuilds(message, GiveawayHostRole, GiveawayWin
     }
 }
 /**@param {Message} message @param {Giveaway[]} giveaways*/
-function RemoveGiveaway(message, giveaways) {
-    const pGuilds = GetPGuilds(), Indexes = [];
-    let pGuildGiveaways = GetPGuild(message).giveawayConfig.giveaways;
+function RemoveGiveaways(message, giveaways) {
+    const pGuilds = GetPGuilds(), newGiveaways = [];
+    const pGuild = GetPGuild(message);
+    var pGuildGiveaways = pGuild.giveawayConfig.giveaways;
 
-    giveaways.forEach(ga => Indexes.push(pGuildGiveaways.indexOf(ga)))
-    Indexes.forEach(index => pGuildGiveaways.splice(index));
+    pGuildGiveaways.forEach(ga => {
+        if (!giveaways.includes(ga))
+            newGiveaways.push(ga);
+    });
+    pGuild.giveawayConfig.giveaways = newGiveaways;
+
+    console.log('Giveaway Removed');
 
     UpdatePGuildsJSON(message, pGuilds,
-        `Removed ${giveaways.id} (${giveaways.value}) from ${message.guild.name}'s giveaways list.`,
+        `Removed ${giveaways.length} giveaways from ${message.guild.name}'s giveaway list.`,
         `I encounted an error, while removing ${giveaways.id} (${giveaways.value}) from ${message.guild.name}'s giveaways list`
     );
 }
@@ -420,7 +506,7 @@ function GetPGuild(message) {
 function UpdatePGuildsJSON(message, pGuilds, SuccMsg, ErrMsg) {
     fs.writeFile('guilds.json', '', err => {
         if (err) console.log(err);
-        else fs.appendFile('guilds.json', JSON.stringify(pGuilds, null, 3), err => {
+        else fs.appendFile('guilds.json', JSON.stringify(pGuilds, null, 4), err => {
             message.client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
                 if (err) DanhoDM.send(`${ErrMsg}:\n\n${err}`);
                 else console.log(SuccMsg);
