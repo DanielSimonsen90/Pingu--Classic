@@ -31,6 +31,8 @@ module.exports = {
                     if (err) console.log(`ERROR while saving to guilds.json:\n${err}`);
                     else {
                         console.log('Finihsed! guilds.json was successfully updated with new PinguGuilds elements.\n');
+                        if (message.content.includes('updatepguilds'))
+                            message.react('✅')
                     }
                 });
             })
@@ -41,6 +43,5 @@ module.exports = {
 function SetGuild(guild) {
     const pGuild = new PinguGuild(guild);
     pGuild.embedColor = guild.member(guild.client.user).roles.cache.find(role => role.name.includes('Pingu')).color;
-    pGuild.giveaways = new Array();
     return pGuild;
 }

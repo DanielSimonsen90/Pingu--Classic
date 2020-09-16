@@ -1,4 +1,4 @@
-import { GuildMember, Guild } from 'discord.js';
+import { GuildMember, Guild, Role } from 'discord.js';
 
 /** Custom GuildMember */
 export class PGuildMember {
@@ -8,6 +8,9 @@ export class PGuildMember {
     }
     public id: string
     public user: string
+    public toString() {
+        return `<@${this.id}>`;
+    }
 }
 
 //#region Decidables
@@ -53,7 +56,20 @@ export class Giveaway extends Decidable{
 }
 //#endregion
 
-//Insert custom GuildMember here
+export class GiveawayConfig {
+    constructor() {
+        this.firstTimeExecuted = true;
+        this.hostRole = undefined;
+        this.winnerRole = undefined;
+    }
+    public firstTimeExecuted: boolean;
+    public hostRole: Role;
+    public winnerRole: Role;
+    public giveaways: Giveaway[] 
+    public SetGiveawaysArray() { 
+        this.giveaways = new Array<Giveaway>();
+    }
+}
 
 export class PinguGuild {
     constructor(guild: Guild) {
@@ -63,43 +79,18 @@ export class PinguGuild {
         const { Prefix } = require('./config.json');
         this.botPrefix = Prefix;
         this.embedColor = 0;
-        this.giveaways = new Array<Giveaway>();
+        this.giveawayConfig = new GiveawayConfig();
         this.polls = new Array<Poll>();
         this.suggestions = new Array<Suggestion>();
-        this.themeWinners = new Array<PGuildMember>();
+        if (guild.id == '405763731079823380')
+            this.themeWinners = new Array<PGuildMember>();
     }
     public guildName: string
     public guildID: string
     public guildOwner: PGuildMember
     public embedColor: number
     public botPrefix: string
-
-    public giveaways: Giveaway[] 
-    /*^^ Include first-time using *giveaway:
-            - Giveaway Host:
-                (Do you have a Giveaway Host role?) {
-                    Please tag the role: [Find role in guild]   
-                }
-                else {
-                    (Do you want one?)  {
-                        Create Giveaways role
-                    }
-                    else {
-                        return; (Set to roles with Administrator permission)
-                    }
-                }
-                Save Giveaway Host role in guilds.json
-            - Giveaway Winner role:
-                (Would you like a giveaway winner role?) {
-                    (Do you have one?) {
-                        Please tag the role: [Find role in guild]   
-                    }
-                    else {
-                        Create Giveaway Winner role
-                    }
-                    Save Giveaway winner role in guilds.json
-                }
-    */
+    public giveawayConfig: GiveawayConfig
     public polls: Poll[]
     public suggestions: Suggestion[]
     public themeWinners: PGuildMember[]

@@ -13,12 +13,16 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.PinguGuild = exports.GiveawayConfig = exports.Giveaway = exports.Poll = exports.Suggestion = exports.PGuildMember = void 0;
 /** Custom GuildMember */
 var PGuildMember = /** @class */ (function () {
     function PGuildMember(member) {
         this.id = member.id;
         this.user = member.user.tag;
     }
+    PGuildMember.prototype.toString = function () {
+        return "<@" + this.id + ">";
+    };
     return PGuildMember;
 }());
 exports.PGuildMember = PGuildMember;
@@ -78,7 +82,18 @@ var Giveaway = /** @class */ (function (_super) {
 }(Decidable));
 exports.Giveaway = Giveaway;
 //#endregion
-//Insert custom GuildMember here
+var GiveawayConfig = /** @class */ (function () {
+    function GiveawayConfig() {
+        this.firstTimeExecuted = true;
+        this.hostRole = undefined;
+        this.winnerRole = undefined;
+    }
+    GiveawayConfig.prototype.SetGiveawaysArray = function () {
+        this.giveaways = new Array();
+    };
+    return GiveawayConfig;
+}());
+exports.GiveawayConfig = GiveawayConfig;
 var PinguGuild = /** @class */ (function () {
     function PinguGuild(guild) {
         this.guildName = guild.name;
@@ -87,10 +102,11 @@ var PinguGuild = /** @class */ (function () {
         var Prefix = require('./config.json').Prefix;
         this.botPrefix = Prefix;
         this.embedColor = 0;
-        this.giveaways = new Array();
+        this.giveawayConfig = new GiveawayConfig();
         this.polls = new Array();
         this.suggestions = new Array();
-        this.themeWinners = new Array();
+        if (guild.id == '405763731079823380')
+            this.themeWinners = new Array();
     }
     return PinguGuild;
 }());
