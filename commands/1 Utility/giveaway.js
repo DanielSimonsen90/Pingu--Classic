@@ -1,7 +1,7 @@
 ﻿const { Message, MessageEmbed, User, Guild, GuildMember, Role } = require('discord.js'),
     ms = require('ms'),
     fs = require('fs'),
-    { Giveaway, PGuildMember, PinguGuild, GiveawayConfig } = require('../../PinguPackage'),
+    { Giveaway, PGuildMember, PinguGuild, PRole, TimeLeftObject, GiveawayConfig } = require('../../PinguPackage'),
     { isString } = require('util');
 //const { GiveawaysManager } = require('discord-giveaways')
 
@@ -38,36 +38,44 @@ module.exports = {
                 Mention.displayName || Mention.user.username);
 
         const color = pGuild.embedColor;
-        const EndsAt = new Date(Date.now() - (Date.now() + ms(Time)));
+        const EndsAt = new Date(Date.now() + ms(Time));
 
         let embed = new MessageEmbed()
             .setTitle(Prize)
             .setColor(color)
-            .setDescription(`React with :fingers_crossed: to enter!\nHosted by ${GiveawayCreator.user}\n`)
-            .setFooter(`Ends in: ${EndsAt.toTimeString()}, ${EndsAt.toDateString()}`);
+            .setDescription(
+                `React with :fingers_crossed: to enter!\n` +
+                `Ends in: ${new TimeLeftObject(new Date(Date.now()), EndsAt).toString()}\n` +
+                `Hosted by ${GiveawayCreator.user}`)
+            .setFooter(`Ends at: ${EndsAt}`);
 
         //reroll
         if (args[0] == `reroll`) return Reroll(message, args, embed);
 
         // Create Embed
-        message.channel.send(`**Giveawayy woo**`);
-        message.channel.send(embed)
+        message.channel.send(`**Giveawayy woo**`, embed)
             .then(GiveawayMessage => {
                 GiveawayMessage.react('🤞');
                 console.log(`${GiveawayCreator.user.username} hosted a giveaway in ${message.guild.name}, #${message.channel.name}, giving "${Prize}" away`);
                 SaveGiveawayToPGuilds(GiveawayMessage, Prize, GiveawayCreator);
 
-                setTimeout(() => ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator), ms(Time));
-                setInterval(() => UpdateTimer(GiveawayMessage, EndsAt), 5000);
+                const interval = setInterval(() => UpdateTimer(GiveawayMessage, EndsAt, GiveawayCreator), 5000);
+                setTimeout(() => ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator, interval, null), ms(Time));
             });
 
         /**@param {Message} GiveawayMessage @param {Date} EndsAt*/
         function UpdateTimer(GiveawayMessage, EndsAt) {
-            const Now = new Date(Date.now());
-            const TimeLeft = Now;
-            TimeLeft = TimeLeft.setFullYear(Now.getFullYear(), Now.getMonth(), Now.getDate());
-            TimeLeft = TimeLeft.setHours(Now.getHours() - 1, Now.getMinutes(), Now.getSeconds());
-            GiveawayMessage.edit(GiveawayMessage.embeds[0].setFooter(`Ends at: ${TimeLeft.toTimeString()}, ${TimeLeft.toDateString()}`));
+            try {
+                GiveawayMessage.edit(GiveawayMessage.embeds[0]
+                    .setDescription(
+                        `React with :fingers_crossed: to enter!\n` +
+                        `Ends in: ${new TimeLeftObject(new Date(Date.now()), EndsAt).toString()}\n` +
+                        `Hosted by ${GiveawayCreator.user}`
+                    ));
+
+            } catch (e) {
+                console.log(e);
+            }
         }
     },
 };
@@ -84,7 +92,7 @@ function PermissionCheck(message, args) {
     const OtherArguments = ["reroll", "setup", "list"];
     if (OtherArguments.includes(args[0]) || pGuildConf.firstTimeExecuted)
         return "Permission Granted";
-    else if (!args[0] && !args[1]) return 'Hey! You didn\'t give me enough arguments!';
+    else if (!args[0] && !args[1]) return `Hey! You didn't give me enough arguments!`;
 
     CheckRoleUpdates(message);
 
@@ -94,7 +102,7 @@ function PermissionCheck(message, args) {
     }
     else if (args[0].endsWith('s') && parseInt(args[0].substring(0, args[0].length - 1)) < 30)
         return 'Please specfify a time higher than 29s';
-    else if (!args[0].endsWith('s') || !parseInt(args[0].substring(0, args[0].length - 1)))
+    else if (!ms(args[0])) 
         return 'Please provide a valid time!';
     return `Permission Granted`;
 
@@ -115,7 +123,7 @@ function PermissionCheck(message, args) {
 
         /**@param {Role} Role*/
         function CheckRole(Role) {
-            if (!Role) return undefined;
+            if (!Role) return "undefined";
             const guildRole = message.guild.roles.cache.find(r => r.id == Role.id);
             return guildRole;
         }
@@ -216,15 +224,17 @@ function ListGiveaways(message) {
  * @param {Message} GiveawayMessage
  * @param {string} Prize
  * @param {MessageEmbed} embed
- * @param {GuildMember} GiveawayCreator*/
-function ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator) {
-    clearInterval();
+ * @param {GuildMember} GiveawayCreator
+ * @param {NodeJS.Timeout} interval
+ * @param {GuildMember} PreviousWinner*/
+function ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator, interval, PreviousWinner) {
+    clearInterval(interval);
     const pGuildGiveaway = GetPGuild(message).giveawayConfig,
         GiveawayWinnerRole = pGuildGiveaway.winnerRole;
     let Winner;
 
     // While there's no winner
-    while (!Winner) Winner = FindWinner(message, GiveawayMessage);
+    while (!Winner || PreviousWinner && PreviousWinner == Winner) Winner = FindWinner(message, GiveawayMessage);
 
     //Winner not found
     if (Winner == `A winner couldn't be found!`) {
@@ -238,15 +248,19 @@ function ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator)
 
     //Announce Winner
     //GiveawayMessage.channel.send(`**The winner of "${Prize}" has been found!**\nCongratulations ${Winner}\n\nContact ${GiveawayMessage.embeds[0].description.substring(41, GiveawayMessage.embeds[0].description.length)} to redeem your prize!`);
-    GiveawayMessage.channel.send(`**The winner of "${Prize}" has been found!**\nCongratulations ${Winner}\n\nContact ${GiveawayCreator.user} to redeem your prize!`);
+    GiveawayMessage.channel.send(
+        `**The winner of "${Prize}" has been found!**\n` +
+        `Congratulations ${Winner}!\n\n` +
 
-    RemovePreviousWinners(message.guild.members.cache.filter(Member => Member.roles.cache.has(GiveawayWinnerRole)).array());
+        `Contact ${GiveawayCreator.user} to redeem your prize!`
+    );
 
-    message.guild.member(Winner).roles.add(GiveawayWinnerRole)
+    RemovePreviousWinners(message.guild.members.cache.filter(Member => Member.roles.cache.has(GiveawayWinnerRole.id)).array());
+
+    message.guild.member(Winner).roles.add(GiveawayWinnerRole.id)
         .then(() => GiveawayCreator.user.send(`<@${Winner.id}> won your giveaway, "**${Prize}**" in **${message.guild.name}**!`))
-        .catch(() => GiveawayCreator.user.send(
-            `I couldn't give <@${Winner.id}> a Giveaway Winner role!\n` +
-            `Please give me a role above the Giveaway Winner role, or move my role above it!`
+        .catch(e => GiveawayCreator.user.send(`I couldn't give <@${Winner.id}> a Giveaway Winner role!\n` + e
+            //`Please give me a role above the Giveaway Winner role, or move my role above it!`
         ));
 
     //Edit embed to winner
@@ -297,7 +311,7 @@ function ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator)
     /**@param {GuildMember[]} WinnerArray*/
     function RemovePreviousWinners(WinnerArray) {
         for (var x = 0; x < WinnerArray.length; x++)
-            WinnerArray[x].roles.remove(GiveawayWinnerRole);
+            WinnerArray[x].roles.remove(GiveawayWinnerRole.id);
     }
 }
 /**@param {Message} message @param {string[]} args  @param {MessageEmbed} embed*/
@@ -314,7 +328,7 @@ function Reroll(message, args, embed) {
     }
 
     const Giveaway = GetPGuild(message).giveawayConfig.giveaways.find(ga => ga.id == PreviousGiveaway.id);
-    return ExecuteTimeOut(message, PreviousGiveaway, Giveaway.value, embed, message.guild.members.cache.find(GM => GM.id == Giveaway.author.id));
+    return ExecuteTimeOut(message, PreviousGiveaway, Giveaway.value, embed, message.guild.members.cache.find(GM => GM.id == Giveaway.author.id), null, Giveaway.winners[0].toGuildMember());
 }
 //#endregion
 
@@ -345,20 +359,25 @@ function UpdatePGuildWinner(message, Winner) {
     );
 
 }
-/**@param {Message} message @param {Role | string} GiveawayHostRole @param {Role | string} GiveawayWinnerRole*/
+/**@param {Message} message @param {string} GiveawayHostRole @param {Role | string} GiveawayWinnerRole*/
 async function SaveGiveawayRolesToPGuilds(message, GiveawayHostRole, GiveawayWinnerRole) {
     const pGuilds = GetPGuilds();
     const pGuild = GetPGuild(message);
 
     if (isString(GiveawayHostRole))
-        GiveawayHostRole = CreateGiveawayRole(message.guild, GiveawayHostRole);
+        GiveawayHostRole = await CreateGiveawayRole(message.guild, GiveawayHostRole);
     if (isString(GiveawayWinnerRole))
-        GiveawayWinnerRole = CreateGiveawayRole(message.guild, GiveawayWinnerRole);
+        GiveawayWinnerRole = await CreateGiveawayRole(message.guild, GiveawayWinnerRole);
 
-    pGuild.giveawayConfig.firstTimeExecuted = false;
-    pGuild.giveawayConfig.giveaways = new Array();
-    pGuild.giveawayConfig.hostRole = await GiveawayHostRole;
-    pGuild.giveawayConfig.winnerRole = await GiveawayWinnerRole;
+    if (!GiveawayHostRole) GiveawayHostRole = "undefined";
+    if (!GiveawayWinnerRole) GiveawayWinnerRole = "undefined";
+
+    pGuild.giveawayConfig = new GiveawayConfig({
+        firstTimeExecuted: false,
+        giveaways: new Array(),
+        hostRole: new PRole(GiveawayHostRole),
+        winnerRole: new PRole(GiveawayWinnerRole)
+    });
 
     UpdatePGuildsJSON(message, pGuilds,
         `Successfully saved "${message.guild.name}"'s Giveaway Host & Giveaway Winner to guild.json!`,

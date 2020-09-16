@@ -13,19 +13,57 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PinguGuild = exports.GiveawayConfig = exports.Giveaway = exports.Poll = exports.Suggestion = exports.PGuildMember = void 0;
-/** Custom GuildMember */
+exports.TimeLeftObject = exports.GiveawayConfig = exports.Giveaway = exports.Poll = exports.Suggestion = exports.PinguGuild = exports.PRole = exports.PGuildMember = void 0;
+/** Custom Pingu classes */
 var PGuildMember = /** @class */ (function () {
     function PGuildMember(member) {
         this.id = member.id;
         this.user = member.user.tag;
+        this.DiscordGuildMember = member;
     }
     PGuildMember.prototype.toString = function () {
         return "<@" + this.id + ">";
     };
+    PGuildMember.prototype.toGuildMember = function () {
+        return this.DiscordGuildMember;
+    };
     return PGuildMember;
 }());
 exports.PGuildMember = PGuildMember;
+var PRole = /** @class */ (function () {
+    function PRole(role) {
+        try {
+            this.name = role.name;
+            this.id = role.id;
+            this.DiscordRole = role;
+        }
+        catch (_a) {
+            return undefined;
+        }
+    }
+    PRole.prototype.toRole = function () {
+        return this.DiscordRole;
+    };
+    return PRole;
+}());
+exports.PRole = PRole;
+var PinguGuild = /** @class */ (function () {
+    function PinguGuild(guild) {
+        this.guildName = guild.name;
+        this.guildID = guild.id;
+        this.guildOwner = new PGuildMember(guild.owner);
+        var Prefix = require('./config.json').Prefix;
+        this.botPrefix = Prefix;
+        this.embedColor = 0;
+        this.giveawayConfig = new GiveawayConfig();
+        this.polls = new Array();
+        this.suggestions = new Array();
+        if (guild.id == '405763731079823380')
+            this.themeWinners = new Array();
+    }
+    return PinguGuild;
+}());
+exports.PinguGuild = PinguGuild;
 //#region Decidables
 var Decidable = /** @class */ (function () {
     function Decidable(value, id, author) {
@@ -81,34 +119,64 @@ var Giveaway = /** @class */ (function (_super) {
     return Giveaway;
 }(Decidable));
 exports.Giveaway = Giveaway;
-//#endregion
 var GiveawayConfig = /** @class */ (function () {
-    function GiveawayConfig() {
-        this.firstTimeExecuted = true;
-        this.hostRole = undefined;
-        this.winnerRole = undefined;
+    function GiveawayConfig(options) {
+        this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
+        this.hostRole = options ? options.hostRole : undefined;
+        this.winnerRole = options ? options.winnerRole : undefined;
+        if (options)
+            this.giveaways = options.giveaways;
     }
-    GiveawayConfig.prototype.SetGiveawaysArray = function () {
-        this.giveaways = new Array();
-    };
     return GiveawayConfig;
 }());
 exports.GiveawayConfig = GiveawayConfig;
-var PinguGuild = /** @class */ (function () {
-    function PinguGuild(guild) {
-        this.guildName = guild.name;
-        this.guildID = guild.id;
-        this.guildOwner = new PGuildMember(guild.owner);
-        var Prefix = require('./config.json').Prefix;
-        this.botPrefix = Prefix;
-        this.embedColor = 0;
-        this.giveawayConfig = new GiveawayConfig();
-        this.polls = new Array();
-        this.suggestions = new Array();
-        if (guild.id == '405763731079823380')
-            this.themeWinners = new Array();
+//#endregion
+var TimeLeftObject = /** @class */ (function () {
+    function TimeLeftObject(Now, EndsAt) {
+        /*
+        console.clear();
+        console.log(`EndsAt: ${EndsAt.getDate()}d ${EndsAt.getHours()}h ${EndsAt.getMinutes()}m ${EndsAt.getSeconds()}s`)
+        console.log(`Now: ${Now.getDate()}d ${Now.getHours()}h ${Now.getMinutes()}m ${Now.getSeconds()}s`)
+        console.log(`this.days = Math.round(${EndsAt.getDate()} - ${Now.getDate()})`)
+        console.log(`this.hours = Math.round(${EndsAt.getHours()} - ${Now.getHours()})`)
+        console.log(`this.minutes = Math.round(${EndsAt.getMinutes()} - ${Now.getMinutes()})`)
+        console.log(`this.seconds = Math.round(${EndsAt.getSeconds()} - ${Now.getSeconds()})`)
+        */
+        var Minutes = this.includesMinus(Math.round(EndsAt.getSeconds() - Now.getSeconds()), 60, EndsAt.getMinutes(), Now.getMinutes());
+        var Hours = this.includesMinus(Minutes[0], 60, EndsAt.getHours(), Now.getHours());
+        var Days = this.includesMinus(Hours[0], 24, EndsAt.getDate(), Now.getDate());
+        this.seconds = Minutes[1];
+        this.minutes = Hours[1];
+        this.hours = Days[1];
+        this.days = Days[0];
     }
-    return PinguGuild;
+    /**Minus check, cus sometimes preprop goes to minus, while preprop isn't being subtracted
+     * @param preprop Previous property, for this.minutes, this would be this.seconds
+     * @param maxPreProp Max number preprop can be, everything is 60 but this.hours is 24
+     * @param EndsAt EndsAt variable
+     * @param Now Now variable*/
+    TimeLeftObject.prototype.includesMinus = function (preprop, maxPreProp, EndsAt, Now) {
+        var returnValue = Math.round(EndsAt - Now);
+        if (preprop.toString().includes('-')) {
+            preprop = maxPreProp + preprop;
+            return [returnValue - 1, preprop];
+        }
+        return [returnValue, preprop];
+    };
+    TimeLeftObject.prototype.toString = function () {
+        //console.log(`${this.days}d ${this.hours}h ${this.minutes}m ${this.seconds}s`);
+        var returnMsg = '';
+        var times = [this.days, this.hours, this.minutes, this.seconds], timeMsg = ["day", "hour", "minute", "second"];
+        for (var i = 0; i < times.length; i++)
+            if (times[i] > 0) {
+                returnMsg += "**" + times[i] + "** " + timeMsg[i];
+                if (times[i] != 1)
+                    returnMsg += 's';
+                returnMsg += ", ";
+            }
+        return returnMsg.substring(0, returnMsg.length - 2);
+    };
+    return TimeLeftObject;
 }());
-exports.PinguGuild = PinguGuild;
+exports.TimeLeftObject = TimeLeftObject;
 //# sourceMappingURL=PinguPackage.js.map
