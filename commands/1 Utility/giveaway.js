@@ -194,7 +194,7 @@ function FirstTimeExecuted(message, args) {
 }
 /**@param {Message} message*/
 function ListGiveaways(message) {
-    var Giveaways = GetPGuild(message).giveawayConfig.giveaways;
+    let Giveaways = GetPGuild(message).giveawayConfig.giveaways;
     let Embeds = CreateEmbeds(false), EmbedIndex = 0;
 
     message.channel.send(Embeds[EmbedIndex]).then(sent => {
@@ -211,13 +211,13 @@ function ListGiveaways(message) {
 
         reactionCollector.on('collect', reaction => {
             reactionCollector.resetTimer({ time: ms('1200s') });
-            let embedToSend;
+            var embedToSend;
 
             switch (reaction.emoji.name) {
                 case '⬅️': embedToSend = ReturnEmbed(-1); break;
                 case '🗑️': embedToSend = ReturnEmbed(0); break;
                 case '➡️': embedToSend = ReturnEmbed(1); break;
-                default: break;
+                default: message.channel.send(`reactionCollector.on() default case`); break;
             }
 
             if (Giveaways.length == 0) {
@@ -247,13 +247,15 @@ function ListGiveaways(message) {
                     EmbedIndex = 0;
                     index = 1
                 }
+                let Embed;
 
                 switch (index) {
-                    case -1: return Embeds[EmbedIndex];
-                    case 0: DeleteGiveaway(Embeds[EmbedIndex]).then(embedRecieved => { return embedRecieved } );
-                    case 1: return Embeds[EmbedIndex];
+                    case -1: Embed = Embeds[EmbedIndex]; break;
+                    case 0: DeleteGiveaway(Embeds[EmbedIndex]).then(embedRecieved => { Embed = embedRecieved }); break;
+                    case 1: Embed = Embeds[EmbedIndex]; break;
                     default: message.channel.send(`Ran default in ReturnEmbed()`); return Embeds[EmbedIndex = 0];
                 }
+                return Embed;
             }
 
             /**@param {MessageEmbed} embed*/

@@ -54,41 +54,7 @@
             "giveaways": [
                 {
                     "value": "test1",
-                    "id": "755876537600966707",
-                    "author": {
-                        "id": "245572699894710272",
-                        "user": "Danho#2105",
-                        "DiscordGuildMember": {
-                            "guildID": "405763731079823380",
-                            "joinedTimestamp": 1544035171631,
-                            "lastMessageChannelID": "474129152065273866",
-                            "premiumSinceTimestamp": 1572466088188,
-                            "deleted": false,
-                            "nickname": null,
-                            "userID": "245572699894710272",
-                            "displayName": "Danho"
-                        }
-                    },
-                    "winners": [
-                        {
-                            "id": "245572699894710272",
-                            "user": "Danho#2105",
-                            "DiscordGuildMember": {
-                                "guildID": "405763731079823380",
-                                "joinedTimestamp": 1544035171631,
-                                "lastMessageChannelID": "474129152065273866",
-                                "premiumSinceTimestamp": 1572466088188,
-                                "deleted": false,
-                                "nickname": null,
-                                "userID": "245572699894710272",
-                                "displayName": "Danho"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "value": "test2",
-                    "id": "755876572145123369",
+                    "id": "756042750717198397",
                     "author": {
                         "id": "245572699894710272",
                         "user": "Danho#2105",

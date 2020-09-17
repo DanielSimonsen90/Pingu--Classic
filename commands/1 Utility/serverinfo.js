@@ -36,12 +36,13 @@ module.exports = {
 /**@param {Guild} guild @param {boolean} bigboiinfo*/
 function SendCallerInfo(guild, bigboiinfo) {
     const DefaultThumbnail = guild.iconURL(),
-        Description = guild.description ? guild.description : 'None';
+        Description = guild.description ? guild.description : 'None',
+        color = GetPGuildColor(guild);
     let EmbedArray = [
         new MessageEmbed()
             .setTitle(`Server Information: ${guild.name}`)
             .setThumbnail(DefaultThumbnail)
-            .setColor(GetPGuildColor())
+            .setColor(color)
             .addField(`Owner`, guild.owner, true)
             .addField(`Region`, guild.region.charAt(0).toUpperCase() + guild.region.substring(1, guild.region.length), true)
             .addField(`Creation Date`, guild.createdAt, true)
@@ -157,8 +158,8 @@ function SendFeatures(message, serverGuild) {
 }
 //#endregion
 
-/**@returns {number} */
-function GetPGuildColor() {
+/**@param {Guild} guild*/
+function GetPGuildColor(guild) {
     const pGuilds = require('../../guilds.json');
     return pGuilds.find(pguild => pguild.guildID == guild.id).embedColor;
 }

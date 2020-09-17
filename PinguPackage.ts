@@ -1,6 +1,6 @@
 import { GuildMember, Guild, Role } from 'discord.js';
 
-/** Custom Pingu classes */
+/* Custom Pingu classes */
 export class PGuildMember {
     constructor(member: GuildMember) {
         this.id = member.id;
