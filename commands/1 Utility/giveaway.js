@@ -214,9 +214,9 @@ function ListGiveaways(message) {
             let embedToSend;
 
             switch (reaction.emoji.name) {
-                case '⬅️': embedToSend = ReturnEmbed(EmbedIndex -= 1); break;
+                case '⬅️': embedToSend = ReturnEmbed(-1); break;
                 case '🗑️': embedToSend = ReturnEmbed(0); break;
-                case '➡️': embedToSend = ReturnEmbed(EmbedIndex += 1); break;
+                case '➡️': embedToSend = ReturnEmbed(1); break;
                 default: break;
             }
 
@@ -236,36 +236,41 @@ function ListGiveaways(message) {
                 })
             })
 
-            /**@param {number} index @returns {MessageEmbed}*/
+            /**@param {number} index*/
             function ReturnEmbed(index) {
+                EmbedIndex += index;
                 if (EmbedIndex <= -1) {
-                    EmbedIndex = EmbedIndex.length;
+                    EmbedIndex = Embeds.length - 1;
                     index = -1;
                 }
                 else if (EmbedIndex >= Embeds.length) {
-                    EmbedIndex = -1;
+                    EmbedIndex = 0;
                     index = 1
                 }
+
                 switch (index) {
-                    case -1: return Embeds[EmbedIndex -= 1];
-                    default: DeleteGiveaway(Embeds[EmbedIndex]);
-                    case 1: return Embeds[EmbedIndex += 1];
+                    case -1: return Embeds[EmbedIndex];
+                    case 0: DeleteGiveaway(Embeds[EmbedIndex]).then(embedRecieved => { return embedRecieved } );
+                    case 1: return Embeds[EmbedIndex];
+                    default: message.channel.send(`Ran default in ReturnEmbed()`); return Embeds[EmbedIndex = 0];
                 }
             }
 
-            /**@param {MessageEmbed} embed @returns {MessageEmbed} */
+            /**@param {MessageEmbed} embed*/
             async function DeleteGiveaway(embed) {
-                const deletingGiveaway = Giveaways.find(giveaway => giveaway.id == embed.title);
-                const arr = [deletingGiveaway];
-                RemoveGiveaways(message, arr);
+                RemoveGiveaways(message, [Giveaways.find(giveaway => giveaway.id == embed.title)]);
                 Giveaways = GetPGuild(message).giveawayConfig.giveaways;
-                Embeds = await CreateEmbeds(true);
+                Embeds = CreateEmbeds(true);
+
                 if (!Giveaways.includes(deletingGiveaway)) {
                     await sent.react('✅');
-                    setTimeout(async () => {
-                        await sent.reactions.cache.find(r => r.emoji.name == '✅').remove();
-                        return ReturnEmbed(1);
-                    }, 1500)
+                    await setTimeout(async () => await sent.reactions.cache.find(r => r.emoji.name == '✅').remove(), 1500);
+                    return ReturnEmbed(1);
+                }
+                else {
+                    await sent.react('❌');
+                    await setTimeout(async () => await sent.reactions.cache.find(r => r.emoji.name == '❌').remove(), 1500);
+                    return ReturnEmbed(-1);
                 }
             }
         })
@@ -277,7 +282,7 @@ function ListGiveaways(message) {
         let Embeds = [], ToRemove = [];
 
         if (Giveaways.length == 0)
-            return message.channel.send(`There's no giveaway saved!`);
+            return null;
 
         for (var i = 0; i < Giveaways.length; i++) {
             try {
@@ -293,7 +298,7 @@ function ListGiveaways(message) {
             } catch { ToRemove.push(Giveaway[i]); }
         }
         if (ToRemove.length != 0) RemoveGiveaways(message, ToRemove);
-        if (!Embeds && !autocalled) return message.channel.send(`There's no giveaway saved!`)
+        if (!Embeds && !autocalled) return null;
         return Embeds;
     }
 }
