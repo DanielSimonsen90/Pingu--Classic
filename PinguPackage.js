@@ -14,7 +14,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TimeLeftObject = exports.GiveawayConfig = exports.Giveaway = exports.Poll = exports.Suggestion = exports.PinguGuild = exports.PRole = exports.PGuildMember = void 0;
-/** Custom Pingu classes */
+/* Custom Pingu classes */
 var PGuildMember = /** @class */ (function () {
     function PGuildMember(member) {
         this.id = member.id;
@@ -122,6 +122,7 @@ exports.Giveaway = Giveaway;
 var GiveawayConfig = /** @class */ (function () {
     function GiveawayConfig(options) {
         this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
+        this.allowSameWinner = options ? options.allowSameWinner : undefined;
         this.hostRole = options ? options.hostRole : undefined;
         this.winnerRole = options ? options.winnerRole : undefined;
         if (options)

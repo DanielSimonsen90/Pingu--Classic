@@ -32,7 +32,7 @@ client.once('guildCreate', guild => {
     const pGuilds = GetPGuilds();
 
     //Insert new PinguGuild into pGuilds
-    pGuilds[pGuilds.length] = new PinguGuilds(guild);
+    pGuilds[pGuilds.length] = new PinguGuild(guild);
 
     //Update guilds.json
     fs.writeFile('guilds.json', '', err => {
@@ -261,10 +261,10 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
         }
 
         command.execute(message, args);
-        ConsoleLog += `succeeded!`;
+        ConsoleLog += `succeeded!\n`;
     } catch (error) {
         ConsoleLog += `failed! Error: ${error}`;
-        message.author.send(`There was an error trying to execute that command! \n Error being: ${error}`);
+        message.author.send(`There was an error trying to execute that command! \n Error being: ${error}\n`);
     }
     console.log(ConsoleLog);
 }

@@ -12,8 +12,6 @@ module.exports = {
     id: 1,
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        message.delete();
-
         // Test if all permissions are available & if all arguments are met
         let ReturnMessage = PermissionCheck(message, args);
         if (ReturnMessage != `Permission Granted`) return message.author.send(ReturnMessage);
@@ -23,7 +21,7 @@ module.exports = {
             return FirstTimeExecuted(message, args);
         else if (args[0] == "list") return ListGiveaways(message);
 
-        // Create variables
+        //#region Variables creation
         const Time = args[0];
         if (args[0] != `reroll`) args.shift();
 
@@ -46,11 +44,14 @@ module.exports = {
                 `Ends in: ${new TimeLeftObject(new Date(Date.now()), EndsAt).toString()}\n` +
                 `Hosted by ${GiveawayCreator.user}`)
             .setFooter(`Ends at: ${EndsAt}`);
+        //#endregion
+
+        message.delete();
 
         //reroll
         if (args[0] == `reroll`) return Reroll(message, args, embed);
 
-        // Create Embed
+        //Announce giveaway
         message.channel.send(`**Giveawayy woo**`, embed)
             .then(GiveawayMessage => {
                 GiveawayMessage.react('🤞');
@@ -167,11 +168,19 @@ function FirstTimeExecuted(message, args) {
                     collectorCount = -1;
                 }
                 else if (HostDone) {
-                    WinnerDone = true;
-                    SaveGiveawayRolesToPGuilds(message, GiveawayHostRole, GiveawayWinnerRole);
-                    Reply = `Alright then you're all set!`;
-                    collector.stop();
+                    if (!GiveawayHostRole) {
+                        SaveGiveawayRolesToPGuilds(message, GiveawayHostRole, GiveawayWinnerRole, true);
+                        Reply = `Alright then you're all set!`;
+                        collector.stop();
+                        break;
+                    }
+                    Reply = `Alright last thing, should I allow repeated winners?`;
                 }
+                break;
+            case 2:
+                SaveGiveawayRolesToPGuilds(message, GiveawayHostRole, GiveawayWinnerRole, userInput.content.toLowerCase() == "yes");
+                Reply = `Alright then you're all set!`;
+                collector.stop();
                 break;
             default:
                 collector.stop("Ran default switch-case");
@@ -197,26 +206,37 @@ function ListGiveaways(message) {
     let Giveaways = GetPGuild(message).giveawayConfig.giveaways;
     let Embeds = CreateEmbeds(false), EmbedIndex = 0;
 
+    if (!Embeds) return message.channel.send(`There are no giveaways saved!`);
+
     message.channel.send(Embeds[EmbedIndex]).then(sent => {
-        const Reactions = ['⬅️', '🗑️', '➡️'];
+        const Reactions = ['⬅️', '🗑️', '➡️', '🛑'];
         sent.react('⬅️').then(() =>
             sent.react('🗑️').then(() =>
-                sent.react('➡️')));
+                sent.react('➡️').then(() =>
+                    sent.react('🛑')
+                )
+            )
+        );
 
         const reactionCollector = sent.createReactionCollector((reaction, user) =>
-            Reactions.includes(reaction.emoji.name) && user.id == message.author.id, { time: ms('1200s') });
+            Reactions.includes(reaction.emoji.name) && user.id == message.author.id, { time: ms('20s') });
 
-        reactionCollector.on('end', () => sent.delete().then(() =>
-            message.channel.send("I suppose we're done viewing your giveaways then...")));
-
+        reactionCollector.on('end', reactionsCollected => {
+            if (!reactionsCollected.array().includes('🛑'))
+                sent.delete().then(() => message.channel.send(`Stopped showing giveaways.`));
+        })
         reactionCollector.on('collect', reaction => {
-            reactionCollector.resetTimer({ time: ms('1200s') });
+            reactionCollector.resetTimer({ time: ms('20s') });
             var embedToSend;
 
             switch (reaction.emoji.name) {
                 case '⬅️': embedToSend = ReturnEmbed(-1); break;
                 case '🗑️': embedToSend = ReturnEmbed(0); break;
                 case '➡️': embedToSend = ReturnEmbed(1); break;
+                case '🛑':
+                    sent.edit(`Stopped showing giveaways.`);
+                    reactionCollector.stop();
+                    return;
                 default: message.channel.send(`reactionCollector.on() default case`); break;
             }
 
@@ -226,18 +246,20 @@ function ListGiveaways(message) {
             }
 
             //Send new embed
-            sent.edit(sent.embeds[0] = embedToSend.setFooter(`Now viewing: ${EmbedIndex + 1}/${Giveaways.length}`)).then(() => {
-                sent.reactions.cache.forEach(reaction => {
-                    if (reaction.users.cache.size > 1)
-                        reaction.users.cache.forEach(user => {
-                            if (user.id != message.client.user.id)
-                                reaction.users.remove(user)
-                        })
+            embedToSend.then(embed => {
+                sent.edit(sent.embeds[0] = embed.setFooter(`Now viewing: ${EmbedIndex + 1}/${Giveaways.length}`)).then(() => {
+                    sent.reactions.cache.forEach(reaction => {
+                        if (reaction.users.cache.size > 1)
+                            reaction.users.cache.forEach(user => {
+                                if (user.id != message.client.user.id)
+                                    reaction.users.remove(user)
+                            })
+                    })
                 })
             })
 
             /**@param {number} index*/
-            function ReturnEmbed(index) {
+            async function ReturnEmbed(index) {
                 EmbedIndex += index;
                 if (EmbedIndex <= -1) {
                     EmbedIndex = Embeds.length - 1;
@@ -251,7 +273,7 @@ function ListGiveaways(message) {
 
                 switch (index) {
                     case -1: Embed = Embeds[EmbedIndex]; break;
-                    case 0: DeleteGiveaway(Embeds[EmbedIndex]).then(embedRecieved => { Embed = embedRecieved }); break;
+                    case 0: Embed = await DeleteGiveaway(Embeds[EmbedIndex]); break;
                     case 1: Embed = Embeds[EmbedIndex]; break;
                     default: message.channel.send(`Ran default in ReturnEmbed()`); return Embeds[EmbedIndex = 0];
                 }
@@ -260,7 +282,8 @@ function ListGiveaways(message) {
 
             /**@param {MessageEmbed} embed*/
             async function DeleteGiveaway(embed) {
-                RemoveGiveaways(message, [Giveaways.find(giveaway => giveaway.id == embed.title)]);
+                const deletingGiveaway = Giveaways.find(giveaway => giveaway.id == embed.title);
+                RemoveGiveaways(message, [deletingGiveaway]);
                 Giveaways = GetPGuild(message).giveawayConfig.giveaways;
                 Embeds = CreateEmbeds(true);
 
@@ -321,7 +344,8 @@ function ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator,
     let Winner;
 
     // While there's no winner
-    while (!Winner || PreviousWinner && PreviousWinner.id == Winner.id) Winner = FindWinner(message, GiveawayMessage);
+    while (!Winner || PreviousWinner && isString(Winner) && PreviousWinner.id == Winner.id)
+        Winner = FindWinner(message, GiveawayMessage);
 
     //Winner not found
     if (Winner == `A winner couldn't be found!`) {
@@ -334,21 +358,21 @@ function ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator,
     }
 
     //Announce Winner
-    //GiveawayMessage.channel.send(`**The winner of "${Prize}" has been found!**\nCongratulations ${Winner}\n\nContact ${GiveawayMessage.embeds[0].description.substring(41, GiveawayMessage.embeds[0].description.length)} to redeem your prize!`);
-    GiveawayMessage.channel.send(
-        `**The winner of "${Prize}" has been found!**\n` +
-        `Congratulations ${Winner}!\n\n` +
-
-        `Contact ${GiveawayCreator.user} to redeem your prize!`
-    );
+    GiveawayMessage.channel.send(`The winner of "**${Prize}**" is no other than ${Winner}! Congratulations!`)
+        .then(sent => sent.react(sent.client.guilds.cache
+            .find(guild => guild.id == '756383096646926376').emojis.cache
+            .find(emote => emote.name == 'hypers')
+        ));
 
     RemovePreviousWinners(message.guild.members.cache.filter(Member => Member.roles.cache.has(GiveawayWinnerRole.id)).array());
 
     message.guild.member(Winner).roles.add(GiveawayWinnerRole.id)
         .then(() => GiveawayCreator.user.send(`<@${Winner.id}> won your giveaway, "**${Prize}**" in **${message.guild.name}**!`))
-        .catch(e => GiveawayCreator.user.send(`I couldn't give <@${Winner.id}> a Giveaway Winner role!\n` + e
+        .catch(e => {
+            if (e != `TypeError [INVALID_TYPE]: Supplied roles is not a Role, Snowflake or Array or Collection of Roles or Snowflakes.`)
+                GiveawayCreator.user.send(`I couldn't give <@${Winner.id}> a Giveaway Winner role!\n` + e);
             //`Please give me a role above the Giveaway Winner role, or move my role above it!`
-        ));
+        });
 
     //Edit embed to winner
     GiveawayMessage.edit(embed
@@ -382,17 +406,13 @@ function ExecuteTimeOut(message, GiveawayMessage, Prize, embed, GiveawayCreator,
         function SelectWinner(message, peopleReacted, GiveawayWinnerRole) {
             let Winner = peopleReacted[Math.floor(Math.random() * peopleReacted.length)];
 
-            if (Winner.id == message.client.user.id) {
-                if (peopleReacted.length == 1) // Are there other winners?
-                    return `A winner couldn't be found!`;
-                else while (Winner.id == message.client.user.id)
-                    Winner = peopleReacted[Math.floor(Math.random() * peopleReacted.length)];
-            }
-            if (!message.guild.member(Winner).roles.cache.has(Role => Role == GiveawayWinnerRole))
-                if (peopleReacted.length > 1)
-                    return Winner;
-                else return `A winner couldn't be found!`;
-            return null;
+            if (Winner.id == message.client.user.id)
+                return peopleReacted.length == 1 ? `A winner couldn't be found!` : null; // Are there other winners?
+            else if (!GiveawayWinnerRole)
+                return Winner;
+            else if (message.guild.member(Winner).roles.cache.has(GiveawayWinnerRole))
+                return pGuildGiveaway.allowSameWinner ? Winner : null;
+            return Winner;
         }
     }
     /**@param {GuildMember[]} WinnerArray*/
@@ -446,8 +466,8 @@ function UpdatePGuildWinner(message, Winner) {
     );
 
 }
-/**@param {Message} message @param {string} GiveawayHostRole @param {Role | string} GiveawayWinnerRole*/
-async function SaveGiveawayRolesToPGuilds(message, GiveawayHostRole, GiveawayWinnerRole) {
+/**@param {Message} message @param {string} GiveawayHostRole @param {Role | string} GiveawayWinnerRole @param {boolean} allowRepeatedWinners*/
+async function SaveGiveawayRolesToPGuilds(message, GiveawayHostRole, GiveawayWinnerRole, allowRepeatedWinners) {
     const pGuilds = GetPGuilds();
     const pGuild = GetPGuild(message);
 
@@ -461,6 +481,7 @@ async function SaveGiveawayRolesToPGuilds(message, GiveawayHostRole, GiveawayWin
 
     pGuild.giveawayConfig = new GiveawayConfig({
         firstTimeExecuted: false,
+        allowSameWinner = allowRepeatedWinners,
         giveaways: new Array(),
         hostRole: new PRole(GiveawayHostRole),
         winnerRole: new PRole(GiveawayWinnerRole)

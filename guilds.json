@@ -46,15 +46,43 @@
         "giveawayConfig": {
             "firstTimeExecuted": false,
             "hostRole": {
-                "DiscordRole": "undefined"
+                "name": "Giveaways",
+                "id": "719521607189790790",
+                "DiscordRole": {
+                    "guild": "405763731079823380",
+                    "id": "719521607189790790",
+                    "name": "Giveaways",
+                    "color": 0,
+                    "hoist": false,
+                    "rawPosition": 57,
+                    "permissions": 1178070592,
+                    "managed": false,
+                    "mentionable": false,
+                    "deleted": false,
+                    "createdTimestamp": 1591617719219
+                }
             },
             "winnerRole": {
-                "DiscordRole": "undefined"
+                "name": "Giveaway Winner",
+                "id": "719882559562973195",
+                "DiscordRole": {
+                    "guild": "405763731079823380",
+                    "id": "719882559562973195",
+                    "name": "Giveaway Winner",
+                    "color": 14264160,
+                    "hoist": true,
+                    "rawPosition": 55,
+                    "permissions": 104197696,
+                    "managed": false,
+                    "mentionable": true,
+                    "deleted": false,
+                    "createdTimestamp": 1591703776971
+                }
             },
             "giveaways": [
                 {
-                    "value": "test1",
-                    "id": "756042750717198397",
+                    "value": "test",
+                    "id": "756524118639247433",
                     "author": {
                         "id": "245572699894710272",
                         "user": "Danho#2105",
@@ -85,6 +113,97 @@
                             }
                         }
                     ]
+                },
+                {
+                    "value": "test",
+                    "id": "756528419612786749",
+                    "author": {
+                        "id": "245572699894710272",
+                        "user": "Danho#2105",
+                        "DiscordGuildMember": {
+                            "guildID": "405763731079823380",
+                            "joinedTimestamp": 1544035171631,
+                            "lastMessageChannelID": "474129152065273866",
+                            "premiumSinceTimestamp": 1572466088188,
+                            "deleted": false,
+                            "nickname": null,
+                            "userID": "245572699894710272",
+                            "displayName": "Danho"
+                        }
+                    },
+                    "winners": [
+                        {
+                            "id": "245572699894710272",
+                            "user": "Danho#2105",
+                            "DiscordGuildMember": {
+                                "guildID": "405763731079823380",
+                                "joinedTimestamp": 1544035171631,
+                                "lastMessageChannelID": "474129152065273866",
+                                "premiumSinceTimestamp": 1572466088188,
+                                "deleted": false,
+                                "nickname": null,
+                                "userID": "245572699894710272",
+                                "displayName": "Danho"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "value": "test",
+                    "id": "756529928299610152",
+                    "author": {
+                        "id": "245572699894710272",
+                        "user": "Danho#2105",
+                        "DiscordGuildMember": {
+                            "guildID": "405763731079823380",
+                            "joinedTimestamp": 1544035171631,
+                            "lastMessageChannelID": "474129152065273866",
+                            "premiumSinceTimestamp": 1572466088188,
+                            "deleted": false,
+                            "nickname": null,
+                            "userID": "245572699894710272",
+                            "displayName": "Danho"
+                        }
+                    },
+                    "winners": []
+                },
+                {
+                    "value": "test",
+                    "id": "756530002656493658",
+                    "author": {
+                        "id": "245572699894710272",
+                        "user": "Danho#2105",
+                        "DiscordGuildMember": {
+                            "guildID": "405763731079823380",
+                            "joinedTimestamp": 1544035171631,
+                            "lastMessageChannelID": "474129152065273866",
+                            "premiumSinceTimestamp": 1572466088188,
+                            "deleted": false,
+                            "nickname": null,
+                            "userID": "245572699894710272",
+                            "displayName": "Danho"
+                        }
+                    },
+                    "winners": []
+                },
+                {
+                    "value": "test",
+                    "id": "756530137717276846",
+                    "author": {
+                        "id": "245572699894710272",
+                        "user": "Danho#2105",
+                        "DiscordGuildMember": {
+                            "guildID": "405763731079823380",
+                            "joinedTimestamp": 1544035171631,
+                            "lastMessageChannelID": "474129152065273866",
+                            "premiumSinceTimestamp": 1572466088188,
+                            "deleted": false,
+                            "nickname": null,
+                            "userID": "245572699894710272",
+                            "displayName": "Danho"
+                        }
+                    },
+                    "winners": []
                 }
             ]
         },
@@ -136,6 +255,31 @@
         },
         "botPrefix": "*",
         "embedColor": 3447003,
+        "giveawayConfig": {
+            "firstTimeExecuted": true
+        },
+        "polls": [],
+        "suggestions": []
+    },
+    {
+        "guildName": "Pingu Support",
+        "guildID": "756383096646926376",
+        "guildOwner": {
+            "id": "245572699894710272",
+            "user": "Danho#2105",
+            "DiscordGuildMember": {
+                "guildID": "756383096646926376",
+                "joinedTimestamp": 1600406183163,
+                "lastMessageChannelID": null,
+                "premiumSinceTimestamp": null,
+                "deleted": false,
+                "nickname": null,
+                "userID": "245572699894710272",
+                "displayName": "Danho"
+            }
+        },
+        "botPrefix": "*",
+        "embedColor": 0,
         "giveawayConfig": {
             "firstTimeExecuted": true
         },

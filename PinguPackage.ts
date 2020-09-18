@@ -105,21 +105,24 @@ export class Giveaway extends Decidable {
 //#region GiveawayConfig
 interface GiveawayConfigOptions {
     firstTimeExecuted: boolean;
+    allowSameWinner: boolean;
     hostRole: PRole;
     winnerRole: PRole;
     giveaways: Giveaway[];
 }
-export class GiveawayConfig {
+export class GiveawayConfig implements GiveawayConfigOptions{
     constructor(options?: GiveawayConfigOptions) {
         this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
+        this.allowSameWinner = options ? options.allowSameWinner : undefined;
         this.hostRole = options ? options.hostRole : undefined;
         this.winnerRole = options ? options.winnerRole : undefined;
         if (options) this.giveaways = options.giveaways;
     }
-    public firstTimeExecuted: boolean;
-    public hostRole: PRole;
-    public winnerRole: PRole;
-    public giveaways: Giveaway[];
+    firstTimeExecuted: boolean;
+    allowSameWinner: boolean;
+    hostRole: PRole;
+    winnerRole: PRole;
+    giveaways: Giveaway[];
 }
 //#endregion
 
