@@ -1,6 +1,6 @@
 import { GuildMember, Guild, Role } from 'discord.js';
 
-/* Custom Pingu classes */
+//#region Custom Pingu classes
 export class PGuildMember {
     constructor(member: GuildMember) {
         this.id = member.id;
@@ -58,6 +58,7 @@ export class PinguGuild {
     public suggestions: Suggestion[]
     public themeWinners: PGuildMember[]
 }
+//#endregion
 
 //#region Decidables
 abstract class Decidable {
@@ -124,8 +125,6 @@ export class GiveawayConfig implements GiveawayConfigOptions{
     winnerRole: PRole;
     giveaways: Giveaway[];
 }
-//#endregion
-
 export class TimeLeftObject {
     constructor(Now: Date, EndsAt: Date) {
         /*
@@ -180,3 +179,4 @@ export class TimeLeftObject {
         return returnMsg.substring(0, returnMsg.length - 2);
     }
 }
+//#endregion

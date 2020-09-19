@@ -1,12 +1,8 @@
 {
   "ExpandedNodes": [
     "",
-    "\\commands",
-    "\\commands\\1 Utility",
-    "\\commands\\2 Fun",
-    "\\commands\\3 Support",
-    "\\commands\\4 DevOnly"
+    "\\commands"
   ],
-  "SelectedNode": "\\PinguPackage.js",
-  "PreviewInSolutionExplorer": false
+  "SelectedNode": "\\PinguPackage.ts",
+  "PreviewInSolutionExplorer": true
 }
