@@ -8,7 +8,7 @@ module.exports = {
     name: 'giveaway',
     cooldown: 5,
     description: 'Giveaway time!',
-    usage: '<time> [<winners>] <prize>',
+    usage: 'setup | list | <time> [winners] <prize>',
     guildOnly: true,
     id: 1,
     /**@param {Message} message @param {string[]} args*/
@@ -330,10 +330,10 @@ function ListGiveaways(message) {
                     Host = Giveaways[i].author.toString();
                 if (Winners == "") throw exception();
                 Embeds[i] = new MessageEmbed()
-                    .setTitle(Giveaways[i].id)
-                    .setDescription(Giveaways[i].value)
+                    .setTitle(Giveaways[i].value)
+                    .setDescription(`Winner(s)`, Winners)
                     .setColor(GetPGuild(message).embedColor)
-                    .addField(`Winner(s)`, Winners, true)
+                    .addField(`ID`, Giveaways[i].id, true)
                     .addField(`Host`, Host, true)
                     .setFooter(`Now viewing: ${i + 1}/${Giveaways.length}`);
             } catch { ToRemove.push(Giveaways[i]); }
@@ -534,8 +534,7 @@ async function SaveGiveawayRolesToPGuilds(message, GiveawayHostRole, GiveawayWin
     function CreateGiveawayRole(Guild, RoleName) {
         return Guild.roles.create({
             data: { name: RoleName }
-        })
-            .catch(err => { return err; });
+        }).catch(err => { return err; });
     }
 }
 /**@param {Message} message @param {Giveaway[]} giveaways*/

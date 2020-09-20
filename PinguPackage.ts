@@ -43,7 +43,7 @@ export class PinguGuild {
         this.botPrefix = Prefix;
         this.embedColor = 0;
         this.giveawayConfig = new GiveawayConfig();
-        this.polls = new Array<Poll>();
+        this.pollConfig = new PollConfig;
         this.suggestions = new Array<Suggestion>();
         if (guild.id == '405763731079823380')
             this.themeWinners = new Array<PGuildMember>();
@@ -54,13 +54,12 @@ export class PinguGuild {
     public embedColor: number
     public botPrefix: string
     public giveawayConfig: GiveawayConfig
-    public polls: Poll[]
+    public pollConfig: PollConfig
     public suggestions: Suggestion[]
     public themeWinners: PGuildMember[]
 }
 //#endregion
 
-//#region Decidables
 abstract class Decidable {
     constructor(value: string, id: string, author: PGuildMember) {
         this.value = value;
@@ -71,27 +70,25 @@ abstract class Decidable {
     public id: string
     public author: PGuildMember
 }
-abstract class DecidableApproved extends Decidable {
-    public approved: boolean
-}
-//#endregion
 
 //#region extends Decideables
-export class Suggestion extends DecidableApproved {
-    public decidedBy: PGuildMember
+export class Suggestion extends Decidable {
     public Decide(approved: boolean, decidedBy: PGuildMember) {
         this.approved = approved;
         this.decidedBy = decidedBy;
     }
+    public decidedBy: PGuildMember
+    public approved: boolean
 }
-export class Poll extends DecidableApproved {
+export class Poll extends Decidable{
     public YesVotes: number
     public NoVotes: number
-    public Decide(yesVotes: number, noVotes: number) {
+    public approved: string
+    public Decide(yesVotes: number, noVotes: number, approved: string) {
         this.YesVotes = yesVotes;
         this.NoVotes = noVotes;
         if (this.YesVotes == this.NoVotes) return;
-        this.approved = this.YesVotes > this.NoVotes;
+        this.approved = approved;
     }
 }
 export class Giveaway extends Decidable {
@@ -100,6 +97,24 @@ export class Giveaway extends Decidable {
         this.winners = new Array<PGuildMember>();
     }
     public winners: PGuildMember[]
+}
+//#endregion
+
+//#region PollConfig
+interface PollConfigOptions {
+    firstTimeExecuted: boolean;
+    pollRole: PRole;
+    polls: Poll[];
+}
+export class PollConfig implements PollConfigOptions {
+    constructor(options?: PollConfigOptions) {
+        this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
+        this.pollRole = options ? options.pollRole : undefined;
+        if (options) this.polls = options.polls;
+    }
+    firstTimeExecuted: boolean;
+    pollRole: PRole;
+    polls: Poll[];
 }
 //#endregion
 

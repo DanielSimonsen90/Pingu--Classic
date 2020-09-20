@@ -1,8 +1,10 @@
 {
   "ExpandedNodes": [
     "",
-    "\\commands"
+    "\\commands",
+    "\\commands\\1 Utility",
+    "\\commands\\4 DevOnly"
   ],
-  "SelectedNode": "\\PinguPackage.ts",
+  "SelectedNode": "\\commands\\4 DevOnly\\updatepguilds.js",
   "PreviewInSolutionExplorer": true
 }

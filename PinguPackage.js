@@ -13,8 +13,8 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TimeLeftObject = exports.GiveawayConfig = exports.Giveaway = exports.Poll = exports.Suggestion = exports.PinguGuild = exports.PRole = exports.PGuildMember = void 0;
-/* Custom Pingu classes */
+exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Giveaway = exports.Poll = exports.Suggestion = exports.PinguGuild = exports.PRole = exports.PGuildMember = void 0;
+//#region Custom Pingu classes
 var PGuildMember = /** @class */ (function () {
     function PGuildMember(member) {
         this.id = member.id;
@@ -56,7 +56,7 @@ var PinguGuild = /** @class */ (function () {
         this.botPrefix = Prefix;
         this.embedColor = 0;
         this.giveawayConfig = new GiveawayConfig();
-        this.polls = new Array();
+        this.pollConfig = new PollConfig;
         this.suggestions = new Array();
         if (guild.id == '405763731079823380')
             this.themeWinners = new Array();
@@ -64,7 +64,7 @@ var PinguGuild = /** @class */ (function () {
     return PinguGuild;
 }());
 exports.PinguGuild = PinguGuild;
-//#region Decidables
+//#endregion
 var Decidable = /** @class */ (function () {
     function Decidable(value, id, author) {
         this.value = value;
@@ -73,14 +73,6 @@ var Decidable = /** @class */ (function () {
     }
     return Decidable;
 }());
-var DecidableApproved = /** @class */ (function (_super) {
-    __extends(DecidableApproved, _super);
-    function DecidableApproved() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    return DecidableApproved;
-}(Decidable));
-//#endregion
 //#region extends Decideables
 var Suggestion = /** @class */ (function (_super) {
     __extends(Suggestion, _super);
@@ -92,22 +84,22 @@ var Suggestion = /** @class */ (function (_super) {
         this.decidedBy = decidedBy;
     };
     return Suggestion;
-}(DecidableApproved));
+}(Decidable));
 exports.Suggestion = Suggestion;
 var Poll = /** @class */ (function (_super) {
     __extends(Poll, _super);
     function Poll() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    Poll.prototype.Decide = function (yesVotes, noVotes) {
+    Poll.prototype.Decide = function (yesVotes, noVotes, approved) {
         this.YesVotes = yesVotes;
         this.NoVotes = noVotes;
         if (this.YesVotes == this.NoVotes)
             return;
-        this.approved = this.YesVotes > this.NoVotes;
+        this.approved = approved;
     };
     return Poll;
-}(DecidableApproved));
+}(Decidable));
 exports.Poll = Poll;
 var Giveaway = /** @class */ (function (_super) {
     __extends(Giveaway, _super);
@@ -119,6 +111,16 @@ var Giveaway = /** @class */ (function (_super) {
     return Giveaway;
 }(Decidable));
 exports.Giveaway = Giveaway;
+var PollConfig = /** @class */ (function () {
+    function PollConfig(options) {
+        this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
+        this.pollRole = options ? options.pollRole : undefined;
+        if (options)
+            this.polls = options.polls;
+    }
+    return PollConfig;
+}());
+exports.PollConfig = PollConfig;
 var GiveawayConfig = /** @class */ (function () {
     function GiveawayConfig(options) {
         this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
@@ -131,7 +133,6 @@ var GiveawayConfig = /** @class */ (function () {
     return GiveawayConfig;
 }());
 exports.GiveawayConfig = GiveawayConfig;
-//#endregion
 var TimeLeftObject = /** @class */ (function () {
     function TimeLeftObject(Now, EndsAt) {
         /*
@@ -180,4 +181,5 @@ var TimeLeftObject = /** @class */ (function () {
     return TimeLeftObject;
 }());
 exports.TimeLeftObject = TimeLeftObject;
+//#endregion
 //# sourceMappingURL=PinguPackage.js.map
