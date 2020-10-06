@@ -3,16 +3,17 @@ const { Message, User } = require('discord.js');
 module.exports = {
     name: 'clear',
     description: 'Clears specified messages.',
-    usage: '<messages | all> [from @User]',
+    usage: '<messages [from @User] | all>',
     id: 1,
+    examples: ["5", "10 @Danho#2105", "all"],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         const PermCheck = PermissionCheck(message, args);
         if (PermCheck != `Permission Granted`) return message.channel.send(PermCheck);
 
-        if (args[0].toLowerCase() === "all")
+        if (args[0].toLowerCase() == "all")
             return message.author.send(ClearAll(message));
-        else if (args[0].toLowerCase() === "log" && message.author.id === '245572699894710272') {
+        else if (args[0].toLowerCase() == "log" && message.author.id == '245572699894710272') {
             console.clear();
             return message.channel.send('I have cleared the log!');
         }
@@ -21,7 +22,7 @@ module.exports = {
 
         message.delete().then(() => {
             ClearMessages(message, parseInt(args[0]));
-            const DeleteReply = args[0] !== '1' ?
+            const DeleteReply = args[0] != '1' ?
                 `I've deleted ${args[0]} messages for you!` :
                 `I've deleted ${args[0]} message for you!`;
 
@@ -81,4 +82,3 @@ function SpecificClear(message, args, SpecificUser) {
     }
     catch (error) { return `I attempted to delete the messages, but couldn't finish! \n${error.message}`; }
 }
-

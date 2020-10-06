@@ -8,6 +8,7 @@ module.exports = {
     description: 'Messages a user from Pingu :eyes:',
     usage: '<user | username | unset> <message>',
     id: 2,
+    example: ["Danho Hello!", "Danho's_Super_Cool_Nickname_With_Spaces why is this so long??", "unset"],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         CheckResponse = ArgumentCheck(message, args);

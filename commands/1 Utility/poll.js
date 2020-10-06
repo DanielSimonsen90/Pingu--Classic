@@ -6,9 +6,10 @@ module.exports = {
     name: 'poll',
     cooldown: 5,
     description: 'Create a poll for users to react',
-    usage: 'setup | list | <time> <question>',
+    usage: '<setup> | <list> | <time> <question>',
     guildOnly: true,
     id: 1,
+    example: ["setup", "list", "10m Am I asking a question?"],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         //Permission check

@@ -6,6 +6,7 @@ module.exports = {
     description: 'Sets the status of the bot',
     usage: '<status type> <status message>',
     id: 4,
+    example: ["listening my jam"],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         if (!args[0] || !args[1])

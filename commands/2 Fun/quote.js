@@ -7,6 +7,7 @@ module.exports = {
     usage: '<message> [@Quotee]',
     guildOnly: true,
     id: 2,
+    example: ["This is a quote by me!", "Idk why he wanna quote me?? @Danho#2105"],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         const PermCheck = CheckPermissions(message);

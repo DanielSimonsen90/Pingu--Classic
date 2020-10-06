@@ -5,6 +5,7 @@ module.exports = {
     description: 'Is this you, Slothman?',
     usage: '<food>',
     id: 2,
+    example: ["fish"],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         if (message.channel.type !== 'dm')

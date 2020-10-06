@@ -2,9 +2,10 @@ const { MessageEmbed, Message, Guild } = require('discord.js');
 module.exports = {
     name: 'serverinfo',
     description: 'Sends server information.',
-    usage: '[BigBoiInfo: all] [emotes [emote name]| features]',
+    usage: '[BigBoiInfo: all] [emotes [emote name] | features]',
     guildOnly: true,
     id: 1,
+    example: ["", "all", "emotes", "emotes FeelsBadMan", "features"],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         const bigboiinfo = args[0] && args[0] == 'all',

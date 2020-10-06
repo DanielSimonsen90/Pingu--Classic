@@ -9,6 +9,7 @@ module.exports = {
     description: 'List all of my commands or info about a specific command.',
     usage: '[command]',
     id: 1,
+    examples: ["", "giveaway", "activity"],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         //#region Create variables

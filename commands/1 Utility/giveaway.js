@@ -11,6 +11,7 @@ module.exports = {
     usage: 'setup | list | <time> [winners] <prize>',
     guildOnly: true,
     id: 1,
+    examples: ["setup", "list", "10m Discord Nitro", "24h 2w Movie tickets for 2!"],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         // Test if all permissions are available & if all arguments are met

@@ -6,6 +6,7 @@ module.exports = {
     description: 'OK Boomer',
     usage: '[person]',
     id: 2,
+    example: ["", "@Danho#1205"],
     /**@param { Message } message @param {string[]} args*/
     execute(message, args) {
         const PermCheck = PermissionCheck(message);

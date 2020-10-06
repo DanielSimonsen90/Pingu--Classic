@@ -5,6 +5,7 @@ module.exports = {
     description: 'Gets the info of a specified user',
     usage: '<ID> | <Mention>',
     id: 1,
+    example: ['245572699894710272', '@Danho#2105'],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         //Permission check

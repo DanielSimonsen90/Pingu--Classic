@@ -8,6 +8,7 @@ module.exports = {
     usage: '<new prefix>',
     id: 1,
     guildOnly: true,
+    example: ['!'],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         const pGuilds = GetPGuilds();

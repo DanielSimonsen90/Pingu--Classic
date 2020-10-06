@@ -9,6 +9,7 @@ module.exports = {
     usage: '<activity> <@person>',
     guildOnly: true,
     id: 2,
+    example: ["hug @Danho#2105"],
     /**@param {Discord.Message} message @param {string[]} args */
     execute(message, args) {
         //Permission check

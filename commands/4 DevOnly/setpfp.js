@@ -6,6 +6,7 @@ module.exports = {
     description: 'Changes my profile picture',
     usage: ' [preview] <1k | AFools | Cool | Green | Hollywood | Blogger | Sithlord | Wiking>',
     id: 4,
+    example: ["AFools", "preview Green"],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         if (!args[0]) return message.channel.send(`Tell me which picture to set!`);

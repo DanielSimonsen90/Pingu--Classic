@@ -6,6 +6,7 @@ module.exports = {
     description: 'Speak through my beak',
     usage: '<message>',
     id: 2,
+    example: ["Pingu said this message!"],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         if (message.channel.type == 'dm')
