@@ -240,7 +240,7 @@ function ListPolls(message) {
             }
             /**@param {MessageEmbed} embed*/
             async function DeletePoll(embed) {
-                const deletingPolls = Polls.find(poll => poll.id == embed.title);
+                const deletingPolls = Polls.find(poll => poll.id == embed.description.substring(4, embed.description.length));
                 RemovePolls(message, [deletingPolls]);
                 Polls = GetPGuild(message).pollConfig.polls;
                 Embeds = CreateEmbeds(true);
@@ -283,20 +283,18 @@ function ListPolls(message) {
         return Embeds;
     }
     /**@param {Message} message @param {Poll[]} polls*/
-    function RemovePolls(message, polls) {
-        const pGuild = GetPGuild(message);
+    async function RemovePolls(message, polls) {
+        if (polls.length == 0 || polls[0] == undefined) return;
 
+        const pGuild = GetPGuild(message);
         pGuild.pollConfig.polls = pGuild.pollConfig.polls.filter(p => !polls.includes(p));
 
-        console.log('Polls Removed');
-
-        UpdatePGuildsJSON(message, GetPGuilds(),
-            `Removed ${polls.length} polls from ${message.guild.name}'s polls list.`,
+        await UpdatePGuildsJSON(message, GetPGuilds(),
+            `Removed "${polls[0].value}" from ${message.guild.name}'s polls list.`,
             `I encounted an error, while removing ${polls.id} (${polls.value}) from ${message.guild.name}'s polls list`
         );
     }
 }
-
 
 //#region pGuild Methods
 /**@param {Message} message @param {Poll} poll*/
@@ -329,15 +327,22 @@ function GetPGuild(message) {
     return pGuilds.find(pguild => pguild.guildID == message.guild.id);
 }
 /**@param {Message} message @param {PinguGuild[]} pGuilds @param {string} SuccMsg @param {string} ErrMsg*/
-function UpdatePGuildsJSON(message, pGuilds, SuccMsg, ErrMsg) {
-    fs.writeFile('guilds.json', '', err => {
-        if (err) console.log(err);
-        else fs.appendFile('guilds.json', JSON.stringify(pGuilds, null, 2), err => {
-            message.client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
-                if (err) DanhoDM.send(`${ErrMsg}:\n\n${err}`);
-                else console.log(SuccMsg);
-            });
+async function UpdatePGuildsJSON(message, pGuilds, SuccMsg, ErrMsg) {
+    fs.writeFile('guilds.json', JSON.stringify(pGuilds, null, 2), err => {
+        message.client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
+            if (err) DanhoDM.send(`${ErrMsg}:\n\n${err}`);
+            else console.log(SuccMsg);
         });
     });
+
+    //fs.writeFile('guilds.json', '', err => {
+    //    if (err) console.log(err);
+    //    else fs.appendFile('guilds.json', JSON.stringify(pGuilds, null, 2), err => {
+    //        message.client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
+    //            if (err) DanhoDM.send(`${ErrMsg}:\n\n${err}`);
+    //            else console.log(SuccMsg);
+    //        });
+    //    });
+    //});
 }
 //#endregion
