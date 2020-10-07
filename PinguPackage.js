@@ -24,9 +24,7 @@ var PGuildMember = /** @class */ (function () {
     PGuildMember.prototype.toString = function () {
         return "<@" + this.id + ">";
     };
-    PGuildMember.prototype.toGuildMember = function () {
-        return this.DiscordGuildMember;
-    };
+    PGuildMember.prototype.toGuildMember = function () { return this.DiscordGuildMember; };
     return PGuildMember;
 }());
 exports.PGuildMember = PGuildMember;
@@ -41,9 +39,7 @@ var PRole = /** @class */ (function () {
             return undefined;
         }
     }
-    PRole.prototype.toRole = function () {
-        return this.DiscordRole;
-    };
+    PRole.prototype.toRole = function () { return this.DiscordRole; };
     return PRole;
 }());
 exports.PRole = PRole;

@@ -87,70 +87,7 @@
     "pollConfig": {
       "firstTimeExecuted": false,
       "pollRole": "undefined",
-      "polls": [
-        {
-          "value": "test1",
-          "id": "757017166565605468",
-          "author": {
-            "id": "245572699894710272",
-            "user": "Danho#2105",
-            "DiscordGuildMember": {
-              "guildID": "405763731079823380",
-              "joinedTimestamp": 1544035171631,
-              "lastMessageChannelID": "474129152065273866",
-              "premiumSinceTimestamp": 1572466088188,
-              "deleted": false,
-              "nickname": null,
-              "userID": "245572699894710272",
-              "displayName": "Danho"
-            }
-          },
-          "YesVotes": 2,
-          "NoVotes": 1,
-          "approved": "Yes"
-        },
-        {
-          "value": "test2",
-          "id": "757017183325913108",
-          "author": {
-            "id": "245572699894710272",
-            "user": "Danho#2105",
-            "DiscordGuildMember": {
-              "guildID": "405763731079823380",
-              "joinedTimestamp": 1544035171631,
-              "lastMessageChannelID": "474129152065273866",
-              "premiumSinceTimestamp": 1572466088188,
-              "deleted": false,
-              "nickname": null,
-              "userID": "245572699894710272",
-              "displayName": "Danho"
-            }
-          },
-          "YesVotes": 1,
-          "NoVotes": 2,
-          "approved": "No"
-        },
-        {
-          "value": "test4",
-          "id": "757017197712375878",
-          "author": {
-            "id": "245572699894710272",
-            "user": "Danho#2105",
-            "DiscordGuildMember": {
-              "guildID": "405763731079823380",
-              "joinedTimestamp": 1544035171631,
-              "lastMessageChannelID": "474129152065273866",
-              "premiumSinceTimestamp": 1572466088188,
-              "deleted": false,
-              "nickname": null,
-              "userID": "245572699894710272",
-              "displayName": "Danho"
-            }
-          },
-          "YesVotes": 2,
-          "NoVotes": 2
-        }
-      ]
+      "polls": []
     },
     "suggestions": [],
     "themeWinners": []

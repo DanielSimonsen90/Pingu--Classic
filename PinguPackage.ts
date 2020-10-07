@@ -10,12 +10,10 @@ export class PGuildMember {
     private DiscordGuildMember: GuildMember
     public id: string
     public user: string
-    public toString() {
+    public toString() { 
         return `<@${this.id}>`;
     }
-    public toGuildMember() {
-        return this.DiscordGuildMember;
-    }
+    public toGuildMember() { return this.DiscordGuildMember; }
 }
 export class PRole {
     constructor(role: Role) {
@@ -23,16 +21,12 @@ export class PRole {
             this.name = role.name;
             this.id = role.id;
             this.DiscordRole = role;
-        } catch {
-            return undefined;
-        }
+        } catch { return undefined; }
     }
     private DiscordRole: Role;
     public name: string;
     public id: string;
-    public toRole() {
-        return this.DiscordRole;
-    }
+    public toRole() { return this.DiscordRole; }
 }
 export class PinguGuild {
     constructor(guild: Guild) {
