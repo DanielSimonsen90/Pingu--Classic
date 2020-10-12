@@ -368,7 +368,6 @@ function CheckRoleChange(message) {
 }
 /**@returns {PinguGuild[]} */
 function GetPGuilds() {
-    const pGuilds = require('./guilds.json');
-    return pGuilds;
+    return require('./guilds.json');
 }
 //#endregion

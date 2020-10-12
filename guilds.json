@@ -22,7 +22,46 @@
       "firstTimeExecuted": true
     },
     "pollConfig": {
-      "firstTimeExecuted": true
+      "firstTimeExecuted": false,
+      "pollRole": {
+        "name": "Polls",
+        "id": "765100756645838848",
+        "DiscordRole": {
+          "guild": "248104299534614528",
+          "id": "765100756645838848",
+          "name": "Polls",
+          "color": 0,
+          "hoist": false,
+          "rawPosition": 1,
+          "permissions": 0,
+          "managed": false,
+          "mentionable": false,
+          "deleted": false,
+          "createdTimestamp": 1602484635269
+        }
+      },
+      "polls": [
+        {
+          "value": "test",
+          "id": "765101129851207711",
+          "author": {
+            "id": "245572699894710272",
+            "user": "Danho#2105",
+            "DiscordGuildMember": {
+              "guildID": "248104299534614528",
+              "joinedTimestamp": 1517773674130,
+              "lastMessageChannelID": "405387633435475969",
+              "premiumSinceTimestamp": 0,
+              "deleted": false,
+              "nickname": null,
+              "userID": "245572699894710272",
+              "displayName": "Danho"
+            }
+          },
+          "YesVotes": 1,
+          "NoVotes": 1
+        }
+      ]
     },
     "suggestions": []
   },
@@ -142,7 +181,47 @@
       "firstTimeExecuted": true
     },
     "pollConfig": {
-      "firstTimeExecuted": true
+      "firstTimeExecuted": false,
+      "pollRole": {
+        "name": "Polls",
+        "id": "765102572327403520",
+        "DiscordRole": {
+          "guild": "644823098260062221",
+          "id": "765102572327403520",
+          "name": "Polls",
+          "color": 0,
+          "hoist": false,
+          "rawPosition": 1,
+          "permissions": 104324673,
+          "managed": false,
+          "mentionable": false,
+          "deleted": false,
+          "createdTimestamp": 1602485068161
+        }
+      },
+      "polls": [
+        {
+          "value": "test",
+          "id": "765109296962469918",
+          "author": {
+            "id": "245572699894710272",
+            "user": "Danho#2105",
+            "DiscordGuildMember": {
+              "guildID": "644823098260062221",
+              "joinedTimestamp": 1573808206916,
+              "lastMessageChannelID": "644823098260062232",
+              "premiumSinceTimestamp": 0,
+              "deleted": false,
+              "nickname": null,
+              "userID": "245572699894710272",
+              "displayName": "Danho"
+            }
+          },
+          "YesVotes": 1,
+          "NoVotes": 1,
+          "approved": "Undecided"
+        }
+      ]
     },
     "suggestions": []
   },

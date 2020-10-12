@@ -78,11 +78,12 @@ export class Poll extends Decidable{
     public YesVotes: number
     public NoVotes: number
     public approved: string
-    public Decide(yesVotes: number, noVotes: number, approved: string) {
+    public Decide(yesVotes: number, noVotes: number) {
         this.YesVotes = yesVotes;
         this.NoVotes = noVotes;
-        if (this.YesVotes == this.NoVotes) return;
-        this.approved = approved;
+        this.approved =
+            this.YesVotes > this.NoVotes ? 'Yes' :
+                this.NoVotes > this.YesVotes ? 'No' : 'Undecided';
     }
 }
 export class Giveaway extends Decidable {

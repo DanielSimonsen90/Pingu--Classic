@@ -87,12 +87,12 @@ var Poll = /** @class */ (function (_super) {
     function Poll() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    Poll.prototype.Decide = function (yesVotes, noVotes, approved) {
+    Poll.prototype.Decide = function (yesVotes, noVotes) {
         this.YesVotes = yesVotes;
         this.NoVotes = noVotes;
-        if (this.YesVotes == this.NoVotes)
-            return;
-        this.approved = approved;
+        this.approved =
+            this.YesVotes > this.NoVotes ? 'Yes' :
+                this.NoVotes > this.YesVotes ? 'No' : 'Undecided';
     };
     return Poll;
 }(Decidable));

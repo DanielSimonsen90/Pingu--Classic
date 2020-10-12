@@ -69,9 +69,11 @@ function PermissionCheck(message, args) {
     if (pGuild.pollConfig.firstTimeExecuted || args[0] == 'setup' || args[0] == "list")
         return `Permission Granted`;
 
-    if (message.guild.member(message.author).roles.cache.has(role => role.name == 'Polls') &&
-        !message.channel.permissionsFor(message.author).has('ADMINISTRATOR'))
-        return `You don't have \`administrator\` permissions or a \`Polls\` role!`;
+    if (pGuild.pollConfig.pollRole && !message.guild.member(message.author).roles.cache.has(pGuild.pollConfig.pollRole.id) && //pollRole exists and author doesn't have it
+        !message.channel.permissionsFor(message.author).has('ADMINISTRATOR')) //author doesn't have Administrator
+        return `You don't have \`ADMINISTRATOR\` permissions or a \`Polls\` role!`;
+    else if (!pGuild.pollConfig.pollRole && message.channel.permissionsFor(message.author).has('ADMINISTRATOR'))  //pollRole doesn't exist && author has Administrator
+        return "You don't have `ADMINISTRATOR` permission!";
     else if (!args[1]) return 'Please provide a poll question!';
     else if (args[0].endsWith('s') && parseInt(args[0].substring(0, args[0].length - 1)) < 30)
         return 'Please specfify a time higher than 29s';
@@ -149,7 +151,7 @@ function OnTimeOut(Embed, PollMessage, interval) {
         Yes = PollMessage.reactions.cache.get('👍').count,
         No = PollMessage.reactions.cache.get('👎').count;
 
-    poll.Decide(Yes, No, Yes > No ? "Yes" : No > Yes ? "No" : "Undecided");
+    poll.Decide(Yes, No);
 
     //Submitting Verdict
     PollMessage.channel.send(`The poll of "**${poll.value}**", voted **${poll.approved}**!`);
