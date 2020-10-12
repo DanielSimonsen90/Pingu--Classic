@@ -1,255 +1,179 @@
 [
-  {
-    "guildName": "The Danho Discord",
-    "guildID": "248104299534614528",
-    "guildOwner": {
-      "id": "405331883157880846",
-      "user": "Synthy Sytro#5637",
-      "DiscordGuildMember": {
+    {
+        "guildName": "The Danho Discord",
         "guildID": "248104299534614528",
-        "joinedTimestamp": 1516709295616,
-        "lastMessageChannelID": null,
-        "premiumSinceTimestamp": null,
-        "deleted": false,
-        "nickname": null,
-        "userID": "405331883157880846",
-        "displayName": "Synthy Sytro"
-      }
-    },
-    "botPrefix": "*",
-    "embedColor": 0,
-    "giveawayConfig": {
-      "firstTimeExecuted": true
-    },
-    "pollConfig": {
-      "firstTimeExecuted": false,
-      "pollRole": {
-        "name": "Polls",
-        "id": "765100756645838848",
-        "DiscordRole": {
-          "guild": "248104299534614528",
-          "id": "765100756645838848",
-          "name": "Polls",
-          "color": 0,
-          "hoist": false,
-          "rawPosition": 1,
-          "permissions": 0,
-          "managed": false,
-          "mentionable": false,
-          "deleted": false,
-          "createdTimestamp": 1602484635269
-        }
-      },
-      "polls": [
-        {
-          "value": "test",
-          "id": "765101129851207711",
-          "author": {
-            "id": "245572699894710272",
-            "user": "Danho#2105",
+        "guildOwner": {
+            "id": "405331883157880846",
+            "user": "Synthy Sytro#5637",
             "DiscordGuildMember": {
-              "guildID": "248104299534614528",
-              "joinedTimestamp": 1517773674130,
-              "lastMessageChannelID": "405387633435475969",
-              "premiumSinceTimestamp": 0,
-              "deleted": false,
-              "nickname": null,
-              "userID": "245572699894710272",
-              "displayName": "Danho"
+                "guildID": "248104299534614528",
+                "joinedTimestamp": 1516709295616,
+                "lastMessageChannelID": null,
+                "premiumSinceTimestamp": null,
+                "deleted": false,
+                "nickname": null,
+                "userID": "405331883157880846",
+                "displayName": "Synthy Sytro"
             }
-          },
-          "YesVotes": 1,
-          "NoVotes": 1
-        }
-      ]
+        },
+        "botPrefix": "*",
+        "embedColor": 0,
+        "musicQueue": null,
+        "giveawayConfig": {
+            "firstTimeExecuted": true
+        },
+        "pollConfig": {
+            "firstTimeExecuted": true
+        },
+        "suggestions": []
     },
-    "suggestions": []
-  },
-  {
-    "guildName": "Chalmun's Spaceport Cantina",
-    "guildID": "405763731079823380",
-    "guildOwner": {
-      "id": "245572699894710272",
-      "user": "Danho#2105",
-      "DiscordGuildMember": {
+    {
+        "guildName": "Bitch factory returns",
         "guildID": "405763731079823380",
-        "joinedTimestamp": 1544035171631,
-        "lastMessageChannelID": "474129152065273866",
-        "premiumSinceTimestamp": 1572466088188,
-        "deleted": false,
-        "nickname": null,
-        "userID": "245572699894710272",
-        "displayName": "Danho"
-      }
-    },
-    "botPrefix": "*",
-    "embedColor": 11342935,
-    "giveawayConfig": {
-      "firstTimeExecuted": false,
-      "allowSameWinner": true,
-      "hostRole": {
-        "name": "Giveaways",
-        "id": "719521607189790790",
-        "DiscordRole": {
-          "guild": "405763731079823380",
-          "id": "719521607189790790",
-          "name": "Giveaways",
-          "color": 0,
-          "hoist": false,
-          "rawPosition": 61,
-          "permissions": 1178070592,
-          "managed": false,
-          "mentionable": false,
-          "deleted": false,
-          "createdTimestamp": 1591617719219
-        }
-      },
-      "winnerRole": {
-        "name": "Giveaway Winner",
-        "id": "719882559562973195",
-        "DiscordRole": {
-          "guild": "405763731079823380",
-          "id": "719882559562973195",
-          "name": "Giveaway Winner",
-          "color": 14264160,
-          "hoist": true,
-          "rawPosition": 59,
-          "permissions": 104197696,
-          "managed": false,
-          "mentionable": true,
-          "deleted": false,
-          "createdTimestamp": 1591703776971
-        }
-      },
-      "giveaways": []
-    },
-    "pollConfig": {
-      "firstTimeExecuted": false,
-      "pollRole": "undefined",
-      "polls": []
-    },
-    "suggestions": [],
-    "themeWinners": []
-  },
-  {
-    "guildName": "Danho's Misc",
-    "guildID": "460926327269359626",
-    "guildOwner": {
-      "id": "245572699894710272",
-      "user": "Danho#2105",
-      "DiscordGuildMember": {
-        "guildID": "460926327269359626",
-        "joinedTimestamp": 1529963800064,
-        "lastMessageChannelID": null,
-        "premiumSinceTimestamp": null,
-        "deleted": false,
-        "nickname": null,
-        "userID": "245572699894710272",
-        "displayName": "Danho"
-      }
-    },
-    "botPrefix": "*",
-    "embedColor": 15105570,
-    "giveawayConfig": {
-      "firstTimeExecuted": true
-    },
-    "pollConfig": {
-      "firstTimeExecuted": true
-    },
-    "suggestions": []
-  },
-  {
-    "guildName": "Discurd Butts",
-    "guildID": "644823098260062221",
-    "guildOwner": {
-      "id": "245572699894710272",
-      "user": "Danho#2105",
-      "DiscordGuildMember": {
-        "guildID": "644823098260062221",
-        "joinedTimestamp": 1573808206916,
-        "lastMessageChannelID": null,
-        "premiumSinceTimestamp": null,
-        "deleted": false,
-        "nickname": null,
-        "userID": "245572699894710272",
-        "displayName": "Danho"
-      }
-    },
-    "botPrefix": "*",
-    "embedColor": 3447003,
-    "giveawayConfig": {
-      "firstTimeExecuted": true
-    },
-    "pollConfig": {
-      "firstTimeExecuted": false,
-      "pollRole": {
-        "name": "Polls",
-        "id": "765102572327403520",
-        "DiscordRole": {
-          "guild": "644823098260062221",
-          "id": "765102572327403520",
-          "name": "Polls",
-          "color": 0,
-          "hoist": false,
-          "rawPosition": 1,
-          "permissions": 104324673,
-          "managed": false,
-          "mentionable": false,
-          "deleted": false,
-          "createdTimestamp": 1602485068161
-        }
-      },
-      "polls": [
-        {
-          "value": "test",
-          "id": "765109296962469918",
-          "author": {
+        "guildOwner": {
             "id": "245572699894710272",
             "user": "Danho#2105",
             "DiscordGuildMember": {
-              "guildID": "644823098260062221",
-              "joinedTimestamp": 1573808206916,
-              "lastMessageChannelID": "644823098260062232",
-              "premiumSinceTimestamp": 0,
-              "deleted": false,
-              "nickname": null,
-              "userID": "245572699894710272",
-              "displayName": "Danho"
+                "guildID": "405763731079823380",
+                "joinedTimestamp": 1544035171631,
+                "lastMessageChannelID": "474129152065273866",
+                "premiumSinceTimestamp": 1572466088188,
+                "deleted": false,
+                "nickname": null,
+                "userID": "245572699894710272",
+                "displayName": "Danho"
             }
-          },
-          "YesVotes": 1,
-          "NoVotes": 1,
-          "approved": "Undecided"
-        }
-      ]
+        },
+        "botPrefix": "*",
+        "embedColor": 11342935,
+        "musicQueue": null,
+        "giveawayConfig": {
+            "firstTimeExecuted": false,
+            "allowSameWinner": true,
+            "hostRole": {
+                "name": "Giveaways",
+                "id": "719521607189790790",
+                "DiscordRole": {
+                    "guild": "405763731079823380",
+                    "id": "719521607189790790",
+                    "name": "Giveaways",
+                    "color": 0,
+                    "hoist": false,
+                    "rawPosition": 69,
+                    "permissions": 1178070592,
+                    "managed": false,
+                    "mentionable": false,
+                    "deleted": false,
+                    "createdTimestamp": 1591617719219
+                }
+            },
+            "winnerRole": {
+                "name": "Giveaway Winner",
+                "id": "719882559562973195",
+                "DiscordRole": {
+                    "guild": "405763731079823380",
+                    "id": "719882559562973195",
+                    "name": "Giveaway Winner",
+                    "color": 14264160,
+                    "hoist": true,
+                    "rawPosition": 67,
+                    "permissions": 104197696,
+                    "managed": false,
+                    "mentionable": true,
+                    "deleted": false,
+                    "createdTimestamp": 1591703776971
+                }
+            },
+            "giveaways": []
+        },
+        "pollConfig": {
+            "firstTimeExecuted": true
+        },
+        "suggestions": [],
+        "themeWinners": []
     },
-    "suggestions": []
-  },
-  {
-    "guildName": "Pingu Support",
-    "guildID": "756383096646926376",
-    "guildOwner": {
-      "id": "245572699894710272",
-      "user": "Danho#2105",
-      "DiscordGuildMember": {
+    {
+        "guildName": "Danho's Misc",
+        "guildID": "460926327269359626",
+        "guildOwner": {
+            "id": "245572699894710272",
+            "user": "Danho#2105",
+            "DiscordGuildMember": {
+                "guildID": "460926327269359626",
+                "joinedTimestamp": 1529963800064,
+                "lastMessageChannelID": null,
+                "premiumSinceTimestamp": null,
+                "deleted": false,
+                "nickname": null,
+                "userID": "245572699894710272",
+                "displayName": "Danho"
+            }
+        },
+        "botPrefix": "*",
+        "embedColor": 15105570,
+        "musicQueue": null,
+        "giveawayConfig": {
+            "firstTimeExecuted": true
+        },
+        "pollConfig": {
+            "firstTimeExecuted": true
+        },
+        "suggestions": []
+    },
+    {
+        "guildName": "Discurd Butts",
+        "guildID": "644823098260062221",
+        "guildOwner": {
+            "id": "405331883157880846",
+            "user": "Synthy Sytro#5637",
+            "DiscordGuildMember": {
+                "guildID": "644823098260062221",
+                "joinedTimestamp": 1574086194576,
+                "lastMessageChannelID": null,
+                "premiumSinceTimestamp": null,
+                "deleted": false,
+                "nickname": null,
+                "userID": "405331883157880846",
+                "displayName": "Synthy Sytro"
+            }
+        },
+        "botPrefix": "*",
+        "embedColor": 3447003,
+        "musicQueue": null,
+        "giveawayConfig": {
+            "firstTimeExecuted": true
+        },
+        "pollConfig": {
+            "firstTimeExecuted": true
+        },
+        "suggestions": []
+    },
+    {
+        "guildName": "Pingu Support",
         "guildID": "756383096646926376",
-        "joinedTimestamp": 1600406183163,
-        "lastMessageChannelID": null,
-        "premiumSinceTimestamp": null,
-        "deleted": false,
-        "nickname": null,
-        "userID": "245572699894710272",
-        "displayName": "Danho"
-      }
-    },
-    "botPrefix": "*",
-    "embedColor": 3447003,
-    "giveawayConfig": {
-      "firstTimeExecuted": true
-    },
-    "pollConfig": {
-      "firstTimeExecuted": true
-    },
-    "suggestions": []
-  }
+        "guildOwner": {
+            "id": "245572699894710272",
+            "user": "Danho#2105",
+            "DiscordGuildMember": {
+                "guildID": "756383096646926376",
+                "joinedTimestamp": 1600406183163,
+                "lastMessageChannelID": null,
+                "premiumSinceTimestamp": null,
+                "deleted": false,
+                "nickname": null,
+                "userID": "245572699894710272",
+                "displayName": "Danho"
+            }
+        },
+        "botPrefix": "*",
+        "embedColor": 3447003,
+        "musicQueue": null,
+        "giveawayConfig": {
+            "firstTimeExecuted": true
+        },
+        "pollConfig": {
+            "firstTimeExecuted": true
+        },
+        "suggestions": []
+    }
 ]

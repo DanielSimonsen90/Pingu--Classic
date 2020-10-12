@@ -1,6 +1,6 @@
 ﻿const { Message, MessageEmbed, Role } = require('discord.js'),
-    ms = require('ms'), { isString } = require('util'), fs = require('fs'),
     { PinguGuild, Poll, PollConfig, PRole, TimeLeftObject, PGuildMember } = require('../../PinguPackage');
+    ms = require('ms'), { isString } = require('util'),
 
 module.exports = {
     name: 'poll',
@@ -65,7 +65,7 @@ function PermissionCheck(message, args) {
         if (!message.channel.permissionsFor(message.client.user).has(PermArr[x]))
             return `Hey! I don't have permission to **${PermArrMsg}** in #${message.channel.name}!`;
 
-    const pGuild = GetPGuild(message);
+    const pGuild = PinguGuild.GetPGuild(message);
     if (pGuild.pollConfig.firstTimeExecuted || args[0] == 'setup' || args[0] == "list")
         return `Permission Granted`;
 
@@ -130,13 +130,13 @@ function FirstTimeExecuted(message, args) {
             PollsRole = await MakePollsRole(message);
         PollsRole = PollsRole ? new PRole(PollsRole) : "undefined";
 
-        GetPGuild(message).pollConfig = new PollConfig({
+        PinguGuild.GetPGuild(message).pollConfig = new PollConfig({
             firstTimeExecuted: false,
             pollRole: PollsRole,
             polls: new Array()
         });
 
-        UpdatePGuildsJSON(message, GetPGuilds(),
+        PinguGuild.UpdatePGuildsJSON(message, GetPGuilds(),
             `Successfully updated guilds.json with ${message.guild.name}'s pollConfig.`,
             `I encountered an error, while saving ${message.guild.name}'s pollConfig to guilds.json`
         );
@@ -165,7 +165,7 @@ function OnTimeOut(Embed, PollMessage, interval) {
 }
 /**@param {Message} message*/
 function ListPolls(message) {
-    let Polls = GetPGuild(message).pollConfig.polls,
+    let Polls = PinguGuild.GetPGuild(message).pollConfig.polls,
         Embeds = CreateEmbeds(false), EmbedIndex = 0;
 
     if (!Embeds || Embeds.length == 0) return message.channel.send(`There are no polls saved!`);
@@ -289,10 +289,10 @@ function ListPolls(message) {
     async function RemovePolls(message, polls) {
         if (polls.length == 0 || polls[0] == undefined) return;
 
-        const pGuild = GetPGuild(message);
+        const pGuild = PinguGuild.GetPGuild(message);
         pGuild.pollConfig.polls = pGuild.pollConfig.polls.filter(p => !polls.includes(p));
 
-        await UpdatePGuildsJSON(message, GetPGuilds(),
+        await PinguGuild.UpdatePGuildsJSONAsync(message,
             `Removed "${polls[0].value}" from ${message.guild.name}'s polls list.`,
             `I encounted an error, while removing ${polls.id} (${polls.value}) from ${message.guild.name}'s polls list`
         );
@@ -302,50 +302,22 @@ function ListPolls(message) {
 //#region pGuild Methods
 /**@param {Message} message @param {Poll} poll*/
 function AddPollToPGuilds(message, poll) {
-    GetPGuild(message).pollConfig.polls.push(poll);
-    UpdatePGuildsJSON(message, GetPGuilds(),
+    PinguGuild.GetPGuild(message).pollConfig.polls.push(poll);
+    PinguGuild.UpdatePGuildsJSON(message,
         `Added "${poll.value}" to "${message.guild.name}" in guilds.json`,
         `I encountered an error, while adding ${poll.value} to guilds.json`
     );
 }
 /**@param {Message} message @param {Poll} poll*/
 function SaveVerdictToPGuilds(message, poll) {
-    const pGuildPolls = GetPGuild(message).pollConfig.polls;
+    const pGuildPolls = PinguGuild.GetPGuild(message).pollConfig.polls;
 
     const thispollman = pGuildPolls.find(p => p.id == poll.id);
     pGuildPolls[pGuildPolls.indexOf(thispollman)] = poll;
 
-    UpdatePGuildsJSON(message, GetPGuilds(),
+    PinguGuild.UpdatePGuildsJSON(message,
         `Successfully saved the verdict for "${poll.value}" in guilds.json`,
         `I encountered an error, while saving the verdict for "${poll.value}"`
     );
-}
-/**@param {Message} message @returns {PinguGuild[]}*/
-function GetPGuilds() {
-    return require('../../guilds.json');
-}
-/**@param {Message} message @returns {PinguGuild} */
-function GetPGuild(message) {
-    const pGuilds = require('../../guilds.json');
-    return pGuilds.find(pguild => pguild.guildID == message.guild.id);
-}
-/**@param {Message} message @param {PinguGuild[]} pGuilds @param {string} SuccMsg @param {string} ErrMsg*/
-async function UpdatePGuildsJSON(message, pGuilds, SuccMsg, ErrMsg) {
-    fs.writeFile('guilds.json', JSON.stringify(pGuilds, null, 2), err => {
-        message.client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
-            if (err) DanhoDM.send(`${ErrMsg}:\n\n${err}`);
-            else console.log(SuccMsg);
-        });
-    });
-
-    //fs.writeFile('guilds.json', '', err => {
-    //    if (err) console.log(err);
-    //    else fs.appendFile('guilds.json', JSON.stringify(pGuilds, null, 2), err => {
-    //        message.client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
-    //            if (err) DanhoDM.send(`${ErrMsg}:\n\n${err}`);
-    //            else console.log(SuccMsg);
-    //        });
-    //    });
-    //});
 }
 //#endregion

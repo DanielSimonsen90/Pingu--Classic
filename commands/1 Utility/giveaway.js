@@ -1,8 +1,6 @@
 ﻿const { Message, MessageEmbed, User, Guild, GuildMember, Role } = require('discord.js'),
     { PinguGuild, PGuildMember, PRole, GiveawayConfig, Giveaway, TimeLeftObject } = require('../../PinguPackage'),
-    { isString, isNumber } = require('util'), ms = require('ms'), fs = require('fs');
-const { exception } = require('console');
-//const { GiveawaysManager } = require('discord-giveaways')
+    { isString, isNumber } = require('util'), ms = require('ms');
 
 module.exports = {
     name: 'giveaway',
@@ -18,7 +16,7 @@ module.exports = {
         let ReturnMessage = PermissionCheck(message, args);
         if (ReturnMessage != `Permission Granted`) return message.author.send(ReturnMessage);
 
-        const pGuild = GetPGuild(message);
+        const pGuild = PinguGuild.GetPGuild(message);
         if (pGuild.giveawayConfig.firstTimeExecuted || args[0] == `setup`)
             return FirstTimeExecuted(message, args);
         else if (args[0] == "list") return ListGiveaways(message);
@@ -92,7 +90,7 @@ module.exports = {
 /**@param {Message} message @param {string[]} args*/
 function PermissionCheck(message, args) {
     const PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES", "ADD_REACTIONS"],
-        pGuildConf = GetPGuild(message).giveawayConfig;
+        pGuildConf = PinguGuild.GetPGuild(message).giveawayConfig;
     for (var Perm = 0; Perm < PermArr.length; Perm++)
         if (!message.channel.permissionsFor(message.client.user).has(PermArr[Perm]))
             return `Sorry, ${message.author}. It seems like I don't have the **${PermArr[Perm]}** permission.`;
@@ -120,15 +118,14 @@ function PermissionCheck(message, args) {
 
     /**@param {Message} message*/
     function CheckRoleUpdates(message) {
-        const pGuilds = GetPGuilds(),
-            pGuild = GetPGuild(message);
+        pGuild = PinguGuild.GetPGuild(message);
         let WinnerRole = pGuild.giveawayConfig.winnerRole,
             HostRole = pGuild.giveawayConfig.hostRole;
 
         WinnerRole = CheckRole(WinnerRole);
         HostRole = CheckRole(HostRole);
 
-        UpdatePGuildsJSON(message, pGuilds,
+        PinguGuild.UpdatePGuildsJSON(message,
             `Updated giveaway roles`,
             `I encountered and error while updating giveaway roles`
         );
@@ -219,10 +216,10 @@ function FirstTimeExecuted(message, args) {
 }
 /**@param {Message} message*/
 function ListGiveaways(message) {
-    let Giveaways = GetPGuild(message).giveawayConfig.giveaways;
+    let Giveaways = PinguGuild.GetPGuild(message).giveawayConfig.giveaways;
     let Embeds = CreateEmbeds(false), EmbedIndex = 0;
 
-    if (Embeds.length == 0) return message.channel.send(`There are no giveaways saved!`);
+    if (Giveaways.length == 0 || Embeds.length == 0) return message.channel.send(`There are no giveaways saved!`);
 
     message.channel.send(Embeds[EmbedIndex]).then(sent => {
         const Reactions = ['⬅️', '🗑️', '➡️', '🛑'];
@@ -249,20 +246,18 @@ function ListGiveaways(message) {
                 case '⬅️': embedToSend = ReturnEmbed(-1); break;
                 case '🗑️': embedToSend = ReturnEmbed(0); break;
                 case '➡️': embedToSend = ReturnEmbed(1); break;
-                case '🛑':
-                    sent.edit(`Stopped showing giveaways.`);
-                    reactionCollector.stop();
-                    return;
+                case '🛑': reactionCollector.stop(); return;
                 default: message.channel.send(`reactionCollector.on() default case`); break;
             }
 
-            if (Giveaways.length == 0) {
+            if (Giveaways.length == 0 || !embedToSend) {
                 sent.delete().then(() => message.channel.send(`No more giveaways to find!`));
                 reactionCollector.stop();
             }
 
             //Send new embed
             embedToSend.then(embed => {
+                if (!embedToSend) reactionCollector.stop();
                 sent.edit(sent.embeds[0] = embed.setFooter(`Now viewing: ${EmbedIndex + 1}/${Giveaways.length}`)).then(() => {
                     sent.reactions.cache.forEach(reaction => {
                         if (reaction.users.cache.size > 1)
@@ -276,6 +271,8 @@ function ListGiveaways(message) {
 
             /**@param {number} index*/
             async function ReturnEmbed(index) {
+                if (!Embeds) return null;
+
                 EmbedIndex += index;
                 if (EmbedIndex <= -1) {
                     EmbedIndex = Embeds.length - 1;
@@ -295,12 +292,11 @@ function ListGiveaways(message) {
                 }
                 return Embed;
             }
-
             /**@param {MessageEmbed} embed*/
             async function DeleteGiveaway(embed) {
-                const deletingGiveaway = Giveaways.find(giveaway => giveaway.id == embed.title);
-                RemoveGiveaways(message, [deletingGiveaway]);
-                Giveaways = GetPGuild(message).giveawayConfig.giveaways;
+                const deletingGiveaway = Giveaways.find(giveaway => giveaway.id == embed.fields[0].value);
+                await RemoveGiveaways(message, [deletingGiveaway]);
+                Giveaways = PinguGuild.GetPGuild(message).giveawayConfig.giveaways;
                 Embeds = CreateEmbeds(true);
 
                 if (!Giveaways.includes(deletingGiveaway)) {
@@ -315,7 +311,6 @@ function ListGiveaways(message) {
                 }
             }
         })
-
     })
 
     /**@param {boolean} autocalled*/
@@ -333,11 +328,11 @@ function ListGiveaways(message) {
                 Embeds[i] = new MessageEmbed()
                     .setTitle(Giveaways[i].value)
                     .setDescription(`Winner(s)`, Winners)
-                    .setColor(GetPGuild(message).embedColor)
+                    .setColor(PinguGuild.GetPGuild(message).embedColor)
                     .addField(`ID`, Giveaways[i].id, true)
                     .addField(`Host`, Host, true)
                     .setFooter(`Now viewing: ${i + 1}/${Giveaways.length}`);
-            } catch { ToRemove.push(Giveaways[i]); }
+            } catch (e) { console.log(e); ToRemove.push(Giveaways[i]); }
         }
         RemoveGiveaways(message, ToRemove);
         if (!Embeds && !autocalled) return null;
@@ -357,7 +352,7 @@ function ListGiveaways(message) {
  * @param {GuildMember} PreviousWinner*/
 async function ExecuteTimeOut(message, GiveawayMessage, Prize, Winners, embed, GiveawayCreator, interval, PreviousWinner) {
     clearInterval(interval);
-    const pGuildGiveaway = GetPGuild(message).giveawayConfig,
+    const pGuildGiveaway = PinguGuild.GetPGuild(message).giveawayConfig,
         GiveawayWinnerRole = pGuildGiveaway.winnerRole;
     let WinnerArr = [];
 
@@ -471,35 +466,31 @@ function Reroll(message, args, embed) {
             return message.author.send(`I couldn't find the giveaway embed from that message link!`);
     }
 
-    const Giveaway = GetPGuild(message).giveawayConfig.giveaways.find(ga => ga.id == PreviousGiveaway.id);
+    const Giveaway = PinguGuild.GetPGuild(message).giveawayConfig.giveaways.find(ga => ga.id == PreviousGiveaway.id);
     return ExecuteTimeOut(message, PreviousGiveaway, Giveaway.value, embed, message.guild.members.cache.find(GM => GM.id == Giveaway.author.id), null, Giveaway.winners[0].toGuildMember());
 }
 //#endregion
 
 //#region pGuild Methods
-
-//#region Specific
 /**@param {Message} message @param {string} Prize @param {GuildMember} GiveawayCreator*/
 function SaveGiveawayToPGuilds(message, Prize, GiveawayCreator) {
-    const pGuilds = GetPGuilds();
-    const pGuild = GetPGuild(message);
+    const pGuild = PinguGuild.GetPGuild(message);
     pGuild.giveawayConfig.giveaways[pGuild.giveawayConfig.giveaways.length] = new Giveaway(Prize, message.id, new PGuildMember(GiveawayCreator));
 
-    UpdatePGuildsJSON(message, pGuilds,
+    PinguGuild.UpdatePGuildsJSON(message,
         `pGuild.Giveaways for "${message.guild.name}" was successfully updated with the new giveaway!`,
         `I encountered and error while saving a giveaway in ${message.guild.name}`
     );
 }
 /**@param {Message} GiveawayMessage @param {User[]} WinnerArr*/
 function UpdatePGuildWinner(GiveawayMessage, WinnerArr) {
-    const pGuilds = GetPGuilds(),
-        pGuild = GetPGuild(GiveawayMessage),
+    const pGuild = PinguGuild.GetPGuild(GiveawayMessage),
         Giveaway = pGuild.giveawayConfig.giveaways.find(giveaway => giveaway.id == GiveawayMessage.id);
 
     for (var i = 0; i < WinnerArr.length; i++)
         Giveaway.winners.push(new PGuildMember(GiveawayMessage.guild.member(WinnerArr[i])));
 
-    UpdatePGuildsJSON(GiveawayMessage, pGuilds,
+    PinguGuild.UpdatePGuildsJSON(GiveawayMessage,
         `Successfully updated "${GiveawayMessage.guild.name}"'s "${Giveaway.value}" giveaway winner in guilds.json!`,
         `I encountered an error while saving "${GiveawayMessage.guild.name}"'s "${Giveaway.value}" giveaway winner in guilds.json!`
     );
@@ -507,8 +498,7 @@ function UpdatePGuildWinner(GiveawayMessage, WinnerArr) {
 }
 /**@param {Message} message @param {string} GiveawayHostRole @param {Role | string} GiveawayWinnerRole @param {boolean} allowRepeatedWinners*/
 async function SaveGiveawayRolesToPGuilds(message, GiveawayHostRole, GiveawayWinnerRole, allowRepeatedWinners) {
-    const pGuilds = GetPGuilds();
-    const pGuild = GetPGuild(message);
+    const pGuild = PinguGuild.GetPGuild(message);
 
     if (isString(GiveawayHostRole))
         GiveawayHostRole = await CreateGiveawayRole(message.guild, GiveawayHostRole);
@@ -526,7 +516,7 @@ async function SaveGiveawayRolesToPGuilds(message, GiveawayHostRole, GiveawayWin
         winnerRole: new PRole(GiveawayWinnerRole)
     });
 
-    UpdatePGuildsJSON(message, pGuilds,
+    PinguGuild.UpdatePGuildsJSON(message,
         `Successfully saved "${message.guild.name}"'s Giveaway Host & Giveaway Winner to guild.json!`,
         `I encountered an error, while saving "${message.guild.name}"'s Giveaway Host & Giveaway Winner to guild.json!`
     );
@@ -539,42 +529,17 @@ async function SaveGiveawayRolesToPGuilds(message, GiveawayHostRole, GiveawayWin
     }
 }
 /**@param {Message} message @param {Giveaway[]} giveaways*/
-function RemoveGiveaways(message, giveaways) {
-    const pGuilds = GetPGuilds();
-    const pGuild = GetPGuild(message);
+async function RemoveGiveaways(message, giveaways) {
+    if (!giveaways || giveaways.length == 0 || !giveaways[0]) return;
+    const pGuild = PinguGuild.GetPGuild(message);
 
     pGuild.giveawayConfig.giveaways = pGuild.giveawayConfig.giveaways.filter(ga => !giveaways.includes(ga));
 
     console.log('Giveaway Removed');
 
-    UpdatePGuildsJSON(message, pGuilds,
+    await PinguGuild.UpdatePGuildsJSONAsync(message,
         `Removed ${giveaways.length} giveaways from ${message.guild.name}'s giveaway list.`,
-        `I encounted an error, while removing ${giveaways.id} (${giveaways.value}) from ${message.guild.name}'s giveaways list`
+        `I encounted an error, while removing ${giveaways[0].id} (${giveaways[0].value}) from ${message.guild.name}'s giveaways list`,
     );
 }
-//#endregion
-
-//#region General
-/**@param {Message} message @returns {PinguGuild[]}*/
-function GetPGuilds() {
-    return require('../../guilds.json');
-}
-/**@param {Message} message*/
-function GetPGuild(message) {
-    return GetPGuilds().find(pg => pg.guildID == message.guild.id);
-}
-/**@param {Message} message @param {PinguGuild[]} pGuilds @param {string} SuccMsg @param {string} ErrMsg*/
-function UpdatePGuildsJSON(message, pGuilds, SuccMsg, ErrMsg) {
-    fs.writeFile('guilds.json', '', err => {
-        if (err) console.log(err);
-        else fs.appendFile('guilds.json', JSON.stringify(pGuilds, null, 4), err => {
-            message.client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
-                if (err) DanhoDM.send(`${ErrMsg}:\n\n${err}`);
-                else console.log(SuccMsg);
-            });
-        });
-    });
-}
-//#endregion
-
 //#endregion
