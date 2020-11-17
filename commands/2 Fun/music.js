@@ -1,7 +1,7 @@
 const { Message, MessageEmbed, VoiceChannel } = require('discord.js'),
     ytdl = require('ytdl-core');
 const { PinguGuild, Queue, Song } = require('../../PinguPackage');
-var MainActivity;
+var MainActivity, MainNickname;
 
 module.exports = {
     name: 'music',
@@ -19,6 +19,13 @@ module.exports = {
         const command = args.shift().toLowerCase(),
             queue = PinguGuild.GetPGuild(message).musicQueue;
         MainActivity = message.client.user.presence;
+        if (message.channel.permissionsFor(message.client.user).has("CHANGE_NICKNAME")) {
+            MainNickname = message.guild.member(message.client.user).nickname || message.client.user.username;
+            message.guild.member(message.client.user).setNickname(`[Danho Radio] ${MainNickname}`).catch(() => {
+                message.guild.member(message.client.user).setNickname(MainNickname);
+            });
+        }
+
 
         if (command == 'play' || command == 'p')
             return HandlePlay(message, args, voiceChannel, queue);
@@ -26,7 +33,7 @@ module.exports = {
         if (!queue) return message.channel.send('Nothing is playing!');
 
         switch (command) {
-            case st: case stop: HandleStop(queue); break;
+            case st: case stop: HandleStop(message, queue); break;
             case sk: case skip: HandleSkip(message, queue); break;
             case np: case nowplaying: HandleNowPlaying(message, queue); break;
             case vol: case volume: HandleVolume(message, args[0], queue); break;
@@ -54,8 +61,13 @@ function PermissionCheck(message, voiceChannel) {
  * @param {Message} message 
  * @param {string[]} args 
  * @param {VoiceChannel} voiceChannel
- * @param {Queue} queue*/ async function HandlePlay(message, args, voiceChannel, queue) {
-    const song = new Song(await ytdl.getInfo(args[1]));
+ * @param {Queue} queue*/
+async function HandlePlay(message, args, voiceChannel, queue) {
+    var vInfo = await ytdl.getInfo(args[0].replace(/<(.+)>/g, '$1')).catch(err => {
+        console.log(err);
+        return null;
+    });
+    const song = new Song(vInfo);
 
     if (!queue) {
         queue = new Queue(message.channel, VoiceChannel);
@@ -70,13 +82,19 @@ function PermissionCheck(message, voiceChannel) {
     }
 }
 /**Executes when author sends *music stop
- * @param {Queue} queue*/ function HandleStop(queue) {
+ * @param {Message} message
+ * @param {Queue} queue*/
+function HandleStop(message, queue) {
     queue.songs = [];
     queue.connection.dispatcher.end();
+    if (message.channel.permissionsFor(message.client.user).has("CHANGE_NICKNAME"))
+        message.guild.member(message.client.user).setNickname(MainNickname);
+    message.client.user.setActivity(MainActivity);
 }
 /**Executes when author sends *music skip
  * @param {Message} message
- * @param {Queue} queue*/ function HandleSkip(message, queue) {
+ * @param {Queue} queue*/
+function HandleSkip(message, queue) {
     queue.connection.dispatcher.end();
     if (message.channel != queue.logChannel)
         queue.logChannel.send(`Skipped, requested by **${message.guild.member(message.author).nickname}**.`);
@@ -84,13 +102,15 @@ function PermissionCheck(message, voiceChannel) {
 }
 /**Executes when author sends *music np
  * @param {Message} message
- * @param {Queue} queue*/ function HandleNowPlaying(message, queue) {
+ * @param {Queue} queue*/
+function HandleNowPlaying(message, queue) {
     message.channel.send(`Currently playing: **${queue.songs[0].title}**`);
 }
 /**Executes when author sends *music volume
  * @param {Message} message 
  * @param {string} newVolume
- * @param {Queue} queue*/ function HandleVolume(message, newVolume, queue) {
+ * @param {Queue} queue*/
+function HandleVolume(message, newVolume, queue) {
     if (!newVolume)
         return message.channel.send(`Volume is currently **${queue.volume}**`);
     queue.connection.dispatcher.setVolumeLogarithmic(newVolume / 5);
@@ -100,7 +120,8 @@ function PermissionCheck(message, voiceChannel) {
 }
 /**Executes when author sends *music queue
  * @param {Message} message
- * @param {Queue} queue*/ function HandleQueue(message, queue) {
+ * @param {Queue} queue*/
+function HandleQueue(message, queue) {
     const embed = new MessageEmbed()
         .setTitle(`Queue for ${queue.voiceChannel.name}`)
         .setImage(message.client.user.avatarURL())
@@ -114,7 +135,8 @@ function PermissionCheck(message, voiceChannel) {
 /**Executes when author sends *music pause or *music resume
  * @param {Message} message
  * @param {Queue} queue
- * @param {boolean} pauseRequest*/ function HandlePauseResume(message, queue, pauseRequest) {
+ * @param {boolean} pauseRequest*/
+function HandlePauseResume(message, queue, pauseRequest) {
     if (!queue.playing && pauseRequest) return message.channel.send('Music is already paused!');
     else if (queue.playing && !pauseRequest) return message.channel.send(`I've already resumed the music again!`);
 
@@ -131,7 +153,8 @@ function PermissionCheck(message, voiceChannel) {
 /**Executes when author sends *music move
  * @param {Message} message
  * @param {Queue} queue
- * @param {string[]} args*/ function HandleMove(message, queue, args) {
+ * @param {string[]} args*/
+function HandleMove(message, queue, args) {
 
 }
 //#endregion

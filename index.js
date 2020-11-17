@@ -265,6 +265,9 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
     } catch (error) {
         ConsoleLog += `failed! Error: ${error}`;
         message.author.send(`There was an error trying to execute that command! \n Error being: ${error}\n`);
+        client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
+            if (error) DanhoDM.send(`I encountered and error while joining ${guild.name}:\n\n${err}`);
+        });
     }
     console.log(ConsoleLog);
 }
