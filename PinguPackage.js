@@ -49,7 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Giveaway = exports.Poll = exports.Suggestion = exports.PinguGuild = exports.PRole = exports.PGuildMember = void 0;
+exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Giveaway = exports.Poll = exports.Suggestion = exports.PinguLibrary = exports.PinguSupport = exports.PinguNotifier = exports.PinguGuild = exports.PRole = exports.PGuildMember = void 0;
 var discord_js_1 = require("discord.js");
 var fs = require('fs');
 //#region Custom Pingu classes
@@ -102,28 +102,27 @@ var PinguGuild = /** @class */ (function () {
         return require('./guilds.json');
     };
     PinguGuild.GetPGuild = function (message) {
+        var result = this.GetPGuilds().find(function (pg) { return pg.guildID == message.guild.id; });
+        if (!result)
+            console.error("Unable to find a guild in pGuilds with id " + message.guild.id);
         return this.GetPGuilds().find(function (pg) { return pg.guildID == message.guild.id; });
     };
-    PinguGuild.UpdatePGuildsJSON = function (message, succMsg, errMsg) {
+    PinguGuild.UpdatePGuildsJSON = function (client, succMsg, errMsg) {
         var _this = this;
         fs.writeFile('./guilds.json', '', function (err) {
             if (err)
-                console.log(err);
+                console.error(err);
             else
                 fs.appendFile('./guilds.json', JSON.stringify(_this.GetPGuilds(), null, 4), function (err) {
-                    message.client.guilds.cache.find(function (guild) { return guild.id == "460926327269359626"; }).owner.createDM().then(function (DanhoDM) {
-                        if (err)
-                            DanhoDM.send(errMsg + ":\n\n" + err);
-                        else
-                            console.log(succMsg);
-                    });
+                    if (err)
+                        PinguNotifier.DanhoDM(client, errMsg + ":\n\n" + err);
                 });
         });
     };
-    PinguGuild.UpdatePGuildsJSONAsync = function (message, succMsg, errMsg) {
+    PinguGuild.UpdatePGuildsJSONAsync = function (client, succMsg, errMsg) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                this.UpdatePGuildsJSON(message, succMsg, errMsg);
+                this.UpdatePGuildsJSON(client, succMsg, errMsg);
                 return [2 /*return*/];
             });
         });
@@ -131,6 +130,59 @@ var PinguGuild = /** @class */ (function () {
     return PinguGuild;
 }());
 exports.PinguGuild = PinguGuild;
+var PinguNotifier = /** @class */ (function () {
+    function PinguNotifier() {
+    }
+    PinguNotifier.DanhoDM = function (client, messageToDanho) {
+        var DanhoMisc = client.guilds.cache.find(function (guild) { return guild.id == '460926327269359626'; });
+        if (!DanhoMisc)
+            return console.error('Unable to find Danho Misc guild!');
+        DanhoMisc.owner.createDM()
+            .then(function (DanhoDM) { return DanhoDM.send(messageToDanho); })
+            .catch(function (err) { return console.error("Creating DM to Danho failed, " + err); });
+    };
+    return PinguNotifier;
+}());
+exports.PinguNotifier = PinguNotifier;
+var PinguSupport = /** @class */ (function () {
+    function PinguSupport() {
+    }
+    PinguSupport.errorLog = function (client, messageToChannel) {
+        var errorlogChannel = this.getChannel(client, '756383096646926376', '778685376692224080');
+        if (!errorlogChannel)
+            return PinguNotifier.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
+        console.error(messageToChannel);
+        return errorlogChannel.send(messageToChannel);
+    };
+    PinguSupport.outages = function (client, messageToChannel) {
+        var outageChannel = this.getChannel(client, '756383096646926376', '756386302684823602');
+        if (!outageChannel)
+            return PinguNotifier.DanhoDM(client, "Couldn't get #outage channel in Pingu Support, https://discord.gg/Mp4CH8eftv");
+        console.log(messageToChannel);
+        return outageChannel.send(messageToChannel);
+    };
+    PinguSupport.getChannel = function (client, guildID, channelID) {
+        var guild = client.guilds.cache.find(function (guild) { return guild.id == guildID; });
+        if (!guild) {
+            console.error("Unable to get guild from " + guildID);
+            return null;
+        }
+        var channel = guild.channels.cache.find(function (channel) { return channel.id == channelID; });
+        if (!channel) {
+            console.error("Unable to get channel from " + channelID);
+            return null;
+        }
+        return channel;
+    };
+    return PinguSupport;
+}());
+exports.PinguSupport = PinguSupport;
+var PinguLibrary = /** @class */ (function () {
+    function PinguLibrary() {
+    }
+    return PinguLibrary;
+}());
+exports.PinguLibrary = PinguLibrary;
 //#endregion
 var Decidable = /** @class */ (function () {
     function Decidable(value, id, author) {

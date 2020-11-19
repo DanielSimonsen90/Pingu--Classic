@@ -1,4 +1,5 @@
 const { Message, MessageEmbed } = require('discord.js');
+const { PinguGuild, PinguSupport } = require('../../PinguPackage');
 
 module.exports = {
     name: 'support',
@@ -10,8 +11,13 @@ module.exports = {
     execute(message, args) {
         let color;
         if (message.channel.type != 'dm') {
-            const pGuilds = require('../../guilds.json');
-            color = pGuilds.find(pguild => pguild.guildID == message.guild.id).embedColor;
+            const pGuild = PinguGuild.GetPGuild(message);
+            if (!pGuild) {
+                PinguSupport.errorLog(message.client, `Unable to get pGuild from ${message.guild.id}`);
+                return message.channel.send(`Something went wrong! I've notified my developers!`);
+            }
+
+            color = pGuild.embedColor;
         }
         else color = 15527148;
 
@@ -20,9 +26,10 @@ module.exports = {
             .setDescription('Contact information & socials about my owner')
             .setColor(color)
             .setThumbnail(message.client.user.avatarURL)
-            .setFooter('Please don\'t send him pointless stuff to waste his time :)')
+            .setFooter(`Please don't send him pointless stuff to waste his time :)`)
             .addField('Discord', '@Danho#2105', true)
             .addField('GMail', 'pingulevel1@gmail.com', true)
+            .addField('Support Server', 'https://discord.gg/Mp4CH8eftv', true)
             .addField("\u200B", "\u200B", true)
             .addField('Spotify', 'https://open.spotify.com/artist/2Ya69OwtcUqvAMPaE8vXdg', false)
             .addField('YouTube', 'https://www.youtube.com/channel/UCNy01Kv9gpTLeKGHzdMbb0w?', false)
@@ -34,7 +41,6 @@ module.exports = {
                 message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!\nBut here's your information:`)
                 return message.author.send(Embed);
             }
-
         message.channel.send(Embed);
     },
 };

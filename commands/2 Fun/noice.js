@@ -11,15 +11,17 @@ module.exports = {
         PermCheck = PermissionCheck(message);
         if (PermCheck != `Permission Granted`) return message.channel.send(PermCheck);
 
-        const { voiceChannel } = message.member;
+        const voiceChannel = message.member.voice.channel;
         message.delete();
         message.channel.send('https://tenor.com/LgPu.gif');
 
         if (!voiceChannel) return;
 
         voiceChannel.join().then(connection => {
-            const stream = ytdl('https://www.youtube.com/watch?v=Akwm2UZJ34o', { filter: 'audioonly' }),
-                dispatcher = connection.playStream(stream);
+            const stream = ytdl('https://www.youtube.com/watch?v=Akwm2UZJ34o', { filter: 'audioonly' });
+            const dispatcher = connection.play(stream);
+
+            dispatcher.on('error', err => message.channel.send(err));
 
             ytdl.getInfo('https://www.youtube.com/watch?v=Akwm2UZJ34o');
             dispatcher.setVolume(0.5);
@@ -36,6 +38,6 @@ function PermissionCheck(message) {
     const PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES", "CONNECT", "SPEAK"];
     for (var Perm = 0; Perm < PermArr.length; Perm++)
         if (!message.channel.permissionsFor(message.client.user).has(PermArr[Perm]))
-            return `Sorry, ${message.author}. It seems like I don't have the **${PermArr[Perm]}** permission.`
+            return `Sorry, ${message.author}. It seems like I don't have permission to **${PermArr[Perm].toLowerCase().replace('_',' ')}**!`
     return `Permission Granted`
 }

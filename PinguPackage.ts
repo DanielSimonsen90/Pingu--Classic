@@ -1,4 +1,4 @@
-import { GuildMember, Guild, Role, Message, TextChannel, VoiceChannel, VoiceConnection, Util } from 'discord.js';
+import { GuildMember, Guild, Role, Message, TextChannel, VoiceChannel, VoiceConnection, Util, Client, PermissionString, User } from 'discord.js';
 import { videoInfo } from 'ytdl-core';
 const fs = require('fs');
 
@@ -36,21 +36,20 @@ export class PinguGuild {
         return require('./guilds.json');
     }
     public static GetPGuild(message: Message): PinguGuild {
+        var result = this.GetPGuilds().find(pg => pg.guildID == message.guild.id);
+        if (!result) console.error(`Unable to find a guild in pGuilds with id ${message.guild.id}`);
         return this.GetPGuilds().find(pg => pg.guildID == message.guild.id);
     }
-    public static UpdatePGuildsJSON(message: Message, succMsg: string, errMsg: string) {
+    public static UpdatePGuildsJSON(client: Client, succMsg: string, errMsg: string) {
         fs.writeFile('./guilds.json', '', err => {
-            if (err) console.log(err);
+            if (err) console.error(err);
             else fs.appendFile('./guilds.json', JSON.stringify(this.GetPGuilds(), null, 4), err => {
-                message.client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
-                    if (err) DanhoDM.send(`${errMsg}:\n\n${err}`);
-                    else console.log(succMsg);
-                });
+                if (err) PinguNotifier.DanhoDM(client, `${errMsg}:\n\n${err}`);
             });
         });
     }
-    public static async UpdatePGuildsJSONAsync(message: Message, succMsg: string, errMsg: string) {
-        this.UpdatePGuildsJSON(message, succMsg, errMsg);
+    public static async UpdatePGuildsJSONAsync(client: Client, succMsg: string, errMsg: string) {
+        this.UpdatePGuildsJSON(client, succMsg, errMsg);
     }
     //#endregion
 
@@ -78,6 +77,48 @@ export class PinguGuild {
     public pollConfig: PollConfig
     public suggestions: Suggestion[]
     public themeWinners: PGuildMember[]
+}
+export class PinguLibrary {
+    public static errorLog(client: Client, messageToChannel: string) {
+        var errorlogChannel = this.getChannel(client, '756383096646926376', '778685376692224080');
+        if (!errorlogChannel) return PinguNotifier.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
+        console.error(messageToChannel);
+        return errorlogChannel.send(messageToChannel);
+    }
+    public static outages(client: Client, messageToChannel: string) {
+        var outageChannel = this.getChannel(client, '756383096646926376', '756386302684823602');
+        if (!outageChannel) return PinguNotifier.DanhoDM(client, `Couldn't get #outage channel in Pingu Support, https://discord.gg/Mp4CH8eftv`);
+        console.log(messageToChannel);
+        return outageChannel.send(messageToChannel);
+    }
+    private static getChannel(client: Client, guildID: string, channelID: string) {
+        var guild = client.guilds.cache.find(guild => guild.id == guildID);
+        if (!guild) {
+            console.error(`Unable to get guild from ${guildID}`);
+            return null;
+        }
+        var channel = guild.channels.cache.find(channel => channel.id == channelID);
+        if (!channel) {
+            console.error(`Unable to get channel from ${channelID}`);
+            return null;
+        }
+        return channel as TextChannel;
+    }
+    public static DanhoDM(client: Client, messageToDanho: string) {
+        var DanhoMisc = client.guilds.cache.find(guild => guild.id == '460926327269359626');
+        if (!DanhoMisc) return console.error('Unable to find Danho Misc guild!');
+        DanhoMisc.owner.createDM()
+            .then(DanhoDM => DanhoDM.send(messageToDanho))
+            .catch(err => console.error(`Creating DM to Danho failed, ${err}`));
+    }
+    public static PermissionCheck(message: Message, user: User, permissions: PermissionString[]) {
+        var textChannel = message.channel as TextChannel;
+        for (var x = 0; x < permissions.length; x++)
+            if (!textChannel.permissionsFor(user).has(permissions[x]))
+                return `Hey! ${(user == message.client.user ? `I don't have` : user == message.author ? `You don't have` : `${user.username} doesn't have`)} permission to **${permissions[x].toLowerCase().replace('_', ' ')}** in #${textChannel.name}!`;
+        return this.PermissionGranted;
+    }
+    public static readonly PermissionGranted: "Permission Granted";
 }
 //#endregion
 

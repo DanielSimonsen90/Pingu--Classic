@@ -1,69 +1,73 @@
 ﻿const { Message, MessageEmbed, Role } = require('discord.js'),
-    { PinguGuild, Poll, PollConfig, PRole, TimeLeftObject, PGuildMember } = require('../../PinguPackage');
-    ms = require('ms'), { isString } = require('util'),
+    { PinguGuild, Poll, PollConfig, PRole, TimeLeftObject, PGuildMember, PinguSupport } = require('../../PinguPackage');
+ms = require('ms'), { isString } = require('util'),
 
-module.exports = {
-    name: 'poll',
-    cooldown: 5,
-    description: 'Create a poll for users to react',
-    usage: '<setup> | <list> | <time> <question>',
-    guildOnly: true,
-    id: 1,
-    example: ["setup", "list", "10m Am I asking a question?"],
-    /**@param {Message} message @param {string[]} args*/
-    execute(message, args) {
-        //Permission check
-        const PermResponse = PermissionCheck(message, args), pGuild = GetPGuild(message);
-        if (PermResponse != `Permission Granted`) return message.channel.send(PermResponse);
-        else if (args[0] == 'setup' || pGuild.pollConfig.firstTimeExecuted)
-            return FirstTimeExecuted(message, args);
-        else if (args[0] == "list") return ListPolls(message);
+    module.exports = {
+        name: 'poll',
+        cooldown: 5,
+        description: 'Create a poll for users to react',
+        usage: '<setup> | <list> | <time> <question>',
+        guildOnly: true,
+        id: 1,
+        example: ["setup", "list", "10m Am I asking a question?"],
+        /**@param {Message} message @param {string[]} args*/
+        execute(message, args) {
+            //Permission check
+            const PermResponse = PermissionCheck(message, args), pGuild = GetPGuild(message);
+            if (PermResponse != `Permission Granted`) return message.channel.send(PermResponse);
+            else if (args[0] == 'setup' || pGuild.pollConfig.firstTimeExecuted) return FirstTimeExecuted(message, args);
+            else if (args[0] == "list") return ListPolls(message);
 
-        //Create scrubby variables
-        const Time = args.shift();
-        let Question = args.join(" ");
-        message.delete();
+            //Create scrubby variables
+            const Time = args.shift();
+            let Question = args.join(" ");
+            message.delete();
 
-        const color = GetPGuild(message).embedColor,
-            EndsAt = new Date(Date.now() + ms(Time));
+            var pGuild = PinguGuild.GetPGuild(message);
+            if (!pGuild) {
+                PinguSupport.errorLog(message.client, `Couldn't find pGuild for "${message.guild.name}" (${message.guild.id})`);
+                return message.channel.send(`I had an error trying to get ${message.guild.name}'s Pingu Guild! I've notified my developers.`);
+            }
+            const color = pGuild.embedColor,
+                EndsAt = new Date(Date.now() + ms(Time));
 
-        //Create Embed
-        let Embed = new MessageEmbed()
-            .setTitle(Question)
-            .setColor(color)
-            .setDescription(
-                `Brought to you by <@${message.author.id}>\n` +
-                `Time left: ${new TimeLeftObject(new Date(Date.now()), EndsAt).toString()}`)
-            .setFooter(`Ends at: ${EndsAt}`);
+            //Create Embed
+            let Embed = new MessageEmbed()
+                .setTitle(Question)
+                .setColor(color)
+                .setDescription(
+                    `Brought to you by <@${message.author.id}>\n` +
+                    `Time left: ${new TimeLeftObject(new Date(Date.now()), EndsAt).toString()}`)
+                .setFooter(`Ends at: ${EndsAt}`);
 
-        //Send Embed and react.
-        message.channel.send(Embed).then(PollMessage => {
-            PollMessage.react('👍').then(() => PollMessage.react('👎'));
-            console.log(`${message.author.tag} hosted a poll in "${message.guild.name}": ${Question}`);
-            AddPollToPGuilds(message, new Poll(Question, PollMessage.id, new PGuildMember(message.guild.member(message.author))));
+            //Send Embed and react.
+            message.channel.send(Embed).then(PollMessage => {
+                PollMessage.react('👍').then(() => PollMessage.react('👎'));
+                console.log(`${message.author.tag} hosted a poll in "${message.guild.name}": ${Question}`);
+                AddPollToPGuilds(message, new Poll(Question, PollMessage.id, new PGuildMember(message.guild.member(message.author))));
 
-            const interval = setInterval(() => UpdateTimer(PollMessage, EndsAt, new PGuildMember(message.guild.member(message.author))), 5000);
-            setTimeout(() => OnTimeOut(Embed, PollMessage, interval), ms(Time));
-        })
-        /**@param {Message} PollMessage @param {Date} EndsAt @param {PGuildMember} Host*/
-        function UpdateTimer(PollMessage, EndsAt, Host) {
-            try {
+                const interval = setInterval(() => UpdateTimer(PollMessage, EndsAt, new PGuildMember(message.guild.member(message.author))), 5000);
+                setTimeout(() => OnTimeOut(Embed, PollMessage, interval), ms(Time));
+            })
+            /**@param {Message} PollMessage @param {Date} EndsAt @param {PGuildMember} Host*/
+            function UpdateTimer(PollMessage, EndsAt, Host) {
                 PollMessage.edit(PollMessage.embeds[0]
                     .setDescription(
                         `Brought to you by <@${Host.id}>\n` +
                         `Time left: ${new TimeLeftObject(new Date(Date.now()), EndsAt).toString()}`
-                    ));
-            } catch (e) { console.log(e); }
-        }
-    },
-};
+                    )).catch(err => {
+                        PinguSupport.errorLog(message.client, `Error while updating poll timer\n${err}`);
+                        PollMessage.author.send(`I had an issue updating the poll message, so your poll might not finish! Don't worry though, I have already contacted my developers!`);
+                    });
+            }
+        },
+    };
 /**@param {Message} message @param {string[]} args*/
 function PermissionCheck(message, args) {
-    const PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES"],
-        PermArrMsg = ["send messages", "manage messages"];
+    const PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES"];;
     for (var x = 0; x < PermArr.length; x++)
         if (!message.channel.permissionsFor(message.client.user).has(PermArr[x]))
-            return `Hey! I don't have permission to **${PermArrMsg}** in #${message.channel.name}!`;
+            return `Hey! I don't have permission to **${PermArr[x].toLowerCase().replace('_', ' ')}** in #${message.channel.name}!`;
 
     const pGuild = PinguGuild.GetPGuild(message);
     if (pGuild.pollConfig.firstTimeExecuted || args[0] == 'setup' || args[0] == "list")

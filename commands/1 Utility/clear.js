@@ -1,4 +1,5 @@
-const { Message, User } = require('discord.js');
+const { Message, User, Permissions } = require('discord.js');
+const { PinguSupport, PinguLibrary } = require('../../PinguPackage');
 
 module.exports = {
     name: 'clear',
@@ -22,27 +23,23 @@ module.exports = {
 
         message.delete().then(() => {
             ClearMessages(message, parseInt(args[0]));
-            const DeleteReply = args[0] != '1' ?
-                `I've deleted ${args[0]} messages for you!` :
-                `I've deleted ${args[0]} message for you!`;
-
-            message.reply(DeleteReply).then(NewMessage => NewMessage.delete(1500));
+            message.reply(`I've deleted ${args[0]} ${(args[0] != '1' ? "messages" : "message")} for you!`)
+                .then(NewMessage => NewMessage.delete(1500));
         });
     },
 };
 /**@param {Message} message @param {string[]} args*/
 function PermissionCheck(message, args) {
-    if (message.channel.type !== 'dm') {
-        const PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES"],
-            PermArrMsg = ["send messages", "manage messages"];
-
-        for (var x = 0; x < PermArr.length; x++)
-            if (!message.channel.permissionsFor(message.client.user).has(PermArr[x]))
-                return `Hey! I don't have permission to **${PermArrMsg[x]}** in #${message.channel.name}!`
+    if (message.channel.type != 'dm') {
+        var perms = [Permissions.FLAGS.SEND_MESSAGES, Permissions.FLAGS.MANAGE_MESSAGES];
+        var permCheckClient = PinguLibrary.PermissionCheck(message, message.client.user, perms),
+            permCheckUser = PinguLibrary.PermissionCheck(message, message.author, perms);
+        if (permCheckClient != PinguLibrary.PermissionGranted) return permCheckClient;
+        else if (permCheckUser != PinguLibrary.PermissionGranted) return permCheckUser;
     }
-    else if (args[0].toLowerCase() !== "log")
+    else if (args[0].toLowerCase() != "log")
         return `I can't execute that command in DMs!`;
-    return `Permission Granted`;
+    return PinguLibrary.PermissionGranted;
 }
 /**@param {Message} message @param {number} amount*/
 function ClearMessages(message, amount) {
@@ -53,7 +50,7 @@ function ClearMessages(message, amount) {
     while (MessagesRemoved != amount)
         MessageArray[MsgArrIndex].delete()
             .then(MessagesRemoved++)
-            .catch(error => message.author.send(error));
+            .catch(err => PinguSupport.errorLog(`Error while deleting messages: ${err}`));
 }
 /**@param {Message} message*/
 function ClearAll(message) {
@@ -69,16 +66,17 @@ function SpecificClear(message, args, SpecificUser) {
     let MessagesRemoved = 0,
         MsgArrIndex = message.channel.messages.cache.size - 1,
         MessageArray = message.channel.messages.cache.array();
-    try {
-        message.delete().then(() => {
-            while (MessagesRemoved !== parseInt(args[0])) {
-                if (MessageArray[MsgArrIndex].author.id == SpecificUser.id)
-                    MessageArray[MsgArrIndex].delete().then(MessagesRemoved++);
-                MsgArrIndex--;
-            }
-            return `Removed ${args[0]} messages from ${SpecificUser.username}`
-                .then(NewMessage => NewMessage.delete(1500));
-        });
-    }
-    catch (error) { return `I attempted to delete the messages, but couldn't finish! \n${error.message}`; }
+
+    message.delete().then(() => {
+        while (MessagesRemoved !== parseInt(args[0])) {
+            if (MessageArray[MsgArrIndex].author.id == SpecificUser.id)
+                MessageArray[MsgArrIndex].delete().then(MessagesRemoved++);
+            MsgArrIndex--;
+        }
+        return `Removed ${args[0]} messages from ${SpecificUser.username}`
+            .then(NewMessage => NewMessage.delete(1500));
+    }).catch(err => {
+        PinguSupport.errorLog(message.client, `Error while clearing ${args[0]} messages from ${SpecificUser.username}\n${err}`);
+        return `I attempted to delete the messages, but couldn't finish!`;
+    })
 }

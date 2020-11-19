@@ -1,4 +1,4 @@
-const { PinguGuild } = require('../../PinguPackage');
+const { PinguGuild, PinguSupport } = require('../../PinguPackage');
 
 const { MessageEmbed, Message, Collection } = require('discord.js'),
     ScriptsCategorized = ["", "Utility", "Fun", "Support", "DevOnly"];
@@ -16,7 +16,7 @@ module.exports = {
         //#region Get data from guilds.json
         let color, Prefix;
         if (message.channel.type != 'dm') {
-            const pGuild = GetPGuild(message);
+            const pGuild = PinguGuild.GetPGuild(message);
             color = pGuild.embedColor;
             Prefix = pGuild.botPrefix;
         }
@@ -59,7 +59,7 @@ function DefaultHelp(message, embed, Prefix) {
             message.reply(`I've sent you a DM with all my commands!`);
         })
         .catch(error => {
-            console.error(`Could not send help DM to ${message.author.tag}.\n`, error);
+            PinguSupport.errorLog(message.client, `Unable to send help DM to ${message.author.tag}.\n`, error);
             message.reply(`It seems like I can't DM you! Do you have DMs disabled?`);
         });
 }
@@ -130,7 +130,7 @@ function CategoryOrSpecificHelp(message, args, commands, data, embed, Prefix) {
             message.reply(`I've sent you a DM with all my commands!`);
         })
         .catch(error => {
-            console.error(`Could not send help DM to ${message.author.tag}.\n`, error);
+            PinguSupport.errorLog(message.client, `Could not send help DM to ${message.author.tag}.\n`, error);
             message.reply(`It seems like I can't DM you! Do you have DMs disabled?`);
         });
 }
@@ -151,11 +151,4 @@ function SpecificHelp(message, args, embed, Prefix) {
 
     //Send embed
     return message.channel.send(embed);
-}
-
-/**@returns {PinguGuild} */
-function GetPGuild(message) {
-    const pGuilds = require('../../guilds.json');
-    const pGuild = pGuilds.find(pguild => pguild.guildID == message.guild.id);
-    return pGuild;
 }

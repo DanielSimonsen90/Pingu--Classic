@@ -1,5 +1,5 @@
 ﻿const { Message, MessageEmbed, User, Guild, GuildMember, Role } = require('discord.js'),
-    { PinguGuild, PGuildMember, PRole, GiveawayConfig, Giveaway, TimeLeftObject } = require('../../PinguPackage'),
+    { PinguGuild, PGuildMember, PRole, GiveawayConfig, Giveaway, TimeLeftObject, PinguSupport } = require('../../PinguPackage'),
     { isString, isNumber } = require('util'), ms = require('ms');
 
 module.exports = {
@@ -103,7 +103,7 @@ function PermissionCheck(message, args) {
     CheckRoleUpdates(message);
 
     if (!message.member.hasPermission('ADMINISTRATOR')) {
-        if (!message.member.roles.cache.has(pGuildConf.hostRole.id))
+        if (!message.member.roles.cache.has(pGuildConf.hostRole.id) && message.author.id != '245572699894710272')
             return `You don't have \`administrator\` permissions or the \`${pGuildConf.hostRole.name}\` role!`;
     }
 
@@ -477,7 +477,7 @@ function SaveGiveawayToPGuilds(message, Prize, GiveawayCreator) {
     const pGuild = PinguGuild.GetPGuild(message);
     pGuild.giveawayConfig.giveaways[pGuild.giveawayConfig.giveaways.length] = new Giveaway(Prize, message.id, new PGuildMember(GiveawayCreator));
 
-    PinguGuild.UpdatePGuildsJSON(message,
+    PinguGuild.UpdatePGuildsJSON(message.client,
         `pGuild.Giveaways for "${message.guild.name}" was successfully updated with the new giveaway!`,
         `I encountered and error while saving a giveaway in ${message.guild.name}`
     );
@@ -490,7 +490,7 @@ function UpdatePGuildWinner(GiveawayMessage, WinnerArr) {
     for (var i = 0; i < WinnerArr.length; i++)
         Giveaway.winners.push(new PGuildMember(GiveawayMessage.guild.member(WinnerArr[i])));
 
-    PinguGuild.UpdatePGuildsJSON(GiveawayMessage,
+    PinguGuild.UpdatePGuildsJSON(GiveawayMessage.client,
         `Successfully updated "${GiveawayMessage.guild.name}"'s "${Giveaway.value}" giveaway winner in guilds.json!`,
         `I encountered an error while saving "${GiveawayMessage.guild.name}"'s "${Giveaway.value}" giveaway winner in guilds.json!`
     );
@@ -516,7 +516,7 @@ async function SaveGiveawayRolesToPGuilds(message, GiveawayHostRole, GiveawayWin
         winnerRole: new PRole(GiveawayWinnerRole)
     });
 
-    PinguGuild.UpdatePGuildsJSON(message,
+    PinguGuild.UpdatePGuildsJSON(message.client,
         `Successfully saved "${message.guild.name}"'s Giveaway Host & Giveaway Winner to guild.json!`,
         `I encountered an error, while saving "${message.guild.name}"'s Giveaway Host & Giveaway Winner to guild.json!`
     );
@@ -525,7 +525,10 @@ async function SaveGiveawayRolesToPGuilds(message, GiveawayHostRole, GiveawayWin
     function CreateGiveawayRole(Guild, RoleName) {
         return Guild.roles.create({
             data: { name: RoleName }
-        }).catch(err => { return err; });
+        }).catch(err => {
+            PinguSupport.errorLog(message.client, `Error while creating Giveaway role\n${err}`);
+            return `I had an error when I tried to create ${RoleName}! I've contacted my developers.`;
+        });
     }
 }
 /**@param {Message} message @param {Giveaway[]} giveaways*/
@@ -537,7 +540,7 @@ async function RemoveGiveaways(message, giveaways) {
 
     console.log('Giveaway Removed');
 
-    await PinguGuild.UpdatePGuildsJSONAsync(message,
+    await PinguGuild.UpdatePGuildsJSONAsync(message.client,
         `Removed ${giveaways.length} giveaways from ${message.guild.name}'s giveaway list.`,
         `I encounted an error, while removing ${giveaways[0].id} (${giveaways[0].value}) from ${message.guild.name}'s giveaways list`,
     );

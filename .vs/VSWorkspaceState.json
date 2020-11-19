@@ -2,8 +2,11 @@
   "ExpandedNodes": [
     "",
     "\\commands",
-    "\\commands\\1 Utility"
+    "\\commands\\1 Utility",
+    "\\commands\\2 Fun",
+    "\\commands\\3 Support",
+    "\\commands\\4 DevOnly"
   ],
-  "SelectedNode": "\\commands\\1 Utility\\SetPrefix.js",
+  "SelectedNode": "\\commands\\1 Utility\\giveaway.js",
   "PreviewInSolutionExplorer": false
 }

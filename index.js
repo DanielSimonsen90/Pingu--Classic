@@ -6,7 +6,7 @@ const fs = require('fs'),
     SecondaryPrefix = '562176550674366464',
     ScriptsCategorized = ["", "Utility", "Fun", "Support", "DevOnly"],
     client = new Discord.Client();
-const { PinguGuilds, PinguGuild } = require('./PinguPackage');
+const { PinguGuild, PinguNotifier, PinguSupport } = require('./PinguPackage');
 client.commands = new Discord.Collection();
 
 let PreviousMessages = [],
@@ -23,7 +23,7 @@ for (var x = 1; x < ScriptsCategorized.length; x++)
 //#region client.once()
 //Am I ready to launch?
 client.once('ready', () => {
-    console.log(`\nIt's alive!\n`);
+    PinguSupport.outages(client, `\nIt's alive!\n`);
     client.user.setActivity('your screams for *help', { type: 'LISTENING' });
 })
 //First time joining a guild
@@ -36,24 +36,25 @@ client.once('guildCreate', guild => {
 
     //Update guilds.json
     fs.writeFile('guilds.json', '', err => {
-        if (err) console.log(err);
+        if (err) PinguGuild.ErrorLog(`Error while joining "${guild.name}" (Owned by <$${guild.owner.id}>)\n${err}`);
         else fs.appendFile('guilds.json', JSON.stringify(pGuilds, null, 2), err => {
-            client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
-                if (err) DanhoDM.send(`I encountered and error while joining ${guild.name}:\n\n${err}`);
-                else DanhoDM.send(`Successfully joined "**${guild.name}**", owned by <@${guild.owner.user.id}>`)
-            });
-
+            PinguGuild.ErrorLog(message, err ?
+                `I encountered and error while joining ${guild.name}:\n${err}` :
+                `Successfully joined "**${guild.name}**", owned by <@${guild.owner.user.id}>`
+            );
         });
     })
 
     //Thank guild owner for adding Pingu
-    guild.owner.user.createDM().then(OwnerDM =>
-        OwnerDM.send(
-            `Hi, <@${guild.owner.user.id}>!\n` +
-            `I've successfully joined your server, "**${guild.name}**"!\n\n` +
+    guild.owner.user.createDM()
+        .then(OwnerDM => OwnerDM.send(
+                `Hi, <@${guild.owner.user.id}>!\n` +
+                `I've successfully joined your server, "**${guild.name}**"!\n\n` +
 
-            `Thank you for adding me!\n` +
-            `Use \`*help\`, if you don't know how I work!`));
+                `Thank you for adding me!\n` +
+                `Use \`*help\`, if you don't know how I work!`
+            ))
+        .catch(err => PinguGuild.ErrorLog(message, `Error while creating DM to server owner for adding me:\n${err}`));
 });
 //Leaving a guild
 client.once('guildDelete', guild => {
@@ -66,16 +67,10 @@ client.once('guildDelete', guild => {
     });
 
     //Update guilds.json
-    fs.writeFile('guilds.json', '', err => {
-        if (err) console.log(err);
-        else fs.appendFile('guilds.json', JSON.stringify(arr, null, 2), err => {
-            client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
-                if (err) DanhoDM.send(`I encountered and error while updating guild.json from leaving ${guild.name}:\n\n${err}`);
-                else DanhoDM.send(`Successfully left "**${guild.name}**", owned by <@${guild.owner.user.id}>`)
-            });
-
-        });
-    })
+    PinguGuild.UpdatePGuildsJSON(client,
+        `Successfully left "**${guild.name}**", owned by <@${guild.owner.user.id}>`,
+        `I encountered and error while updating guild.json from leaving ${guild.name}:\n\n${err}`
+    );
 })
 //#endregion
 
@@ -89,10 +84,9 @@ client.on('message', message => {
             updatingPGuilds = false;
     }
     catch {
-        if (updatingPGuilds)
-            return;
+        if (updatingPGuilds) return;
         updatingPGuilds = true;
-        console.log(`guilds.json was empty! Running updatepguilds.js...`);
+        PinguSupport.errorLog(client, `guilds.json was empty! Running updatepguilds.js...`)
         AssignCommand('updatepguilds', null).execute(message, null);
     }
 
@@ -127,33 +121,21 @@ client.on('message', message => {
     let command = AssignCommand(commandName, args);
     if (command == null) return;
 
-
-
     //If I'm not interacted with don't do anything
     if (!message.content.startsWith(Prefix) || message.author.bot)
         if (!message.content.includes(SecondaryPrefix))
             return;
 
     //If guildOnly
-    if (command.guildOnly && message.channel.type !== 'text')
+    if (command.guildOnly && message.channel.type != 'text')
         return message.reply(`I can't execute that command inside DMs!`);
 
     //If DevOnly
-    if (command.id === 4 && message.author.id !== "245572699894710272")
+    if (command.id == 4 && message.author.id != "245572699894710272")
         return message.reply(`Who do you think you are exactly?`);
 
     //Is User trying to change my prefix?
     TestForPrefixChange(message, commandName);
-
-    //If not enough arguments are found
-    if (command.args && !args.length) {
-        let reply = `You didn't provide any arguments, ${message.author}!`;
-
-        if (command.usage)
-            reply += `\nThe proper usage would be: \`${Prefix}${command.name} ${command.usage}\``
-
-        return message.channel.send(reply);
-    }
 
     //If command on cooldown
     TestForCooldown(message, command);
@@ -191,10 +173,8 @@ function AssignCommand(commandName, args) {
 }
 /**@param {Discord.Message} message @param {string} commandName*/
 function TestForPrefixChange(message, commandName) {
-    if (commandName === 'prefix')
-        return message.channel.send(`Successfully changed my prefix to \`${prefix = args[0]}\`!`);
-    else if (commandName === 'chatlog' ||
-        commandName === 'cl') {
+    if (commandName == 'prefix') return message.channel.send(`Successfully changed my prefix to \`${prefix = args[0]}\`!`);
+    else if (commandName == 'chatlog' || commandName == 'cl') {
         var Embed = new Discord.RichEmbed()
             .setTitle('Previous logged messages')
             .setColor(0xfb8927)
@@ -263,11 +243,8 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
         command.execute(message, args);
         ConsoleLog += `succeeded!\n`;
     } catch (error) {
-        ConsoleLog += `failed! Error: ${error}`;
-        message.author.send(`There was an error trying to execute that command! \n Error being: ${error}\n`);
-        client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
-            if (error) DanhoDM.send(`I encountered and error while joining ${guild.name}:\n\n${err}`);
-        });
+        ConsoleLog += `failed!\nError: ${error}`;
+        PinguSupport.errorLog(client, `There was an error trying to execute "${commandName} ${args.join(' ')}"!\n Error being: ${error}\n`);
     }
     console.log(ConsoleLog);
 }
@@ -331,7 +308,7 @@ function SetCommand(path) {
             const command = require(`./commands/${path}/${file}`);
             client.commands.set(command.name, command);
         } catch (error) {
-            console.log(`"${file}" threw an exception:\n${error.message}\n`);
+            console.error(`"${file}" threw an exception:\n${error.message}\n`);
         }
     }
 }
@@ -339,15 +316,12 @@ function SetCommand(path) {
  * @param {Discord.Message} message*/
 function CheckRoleChange(message) {
     //Get pGuild for message.guild
-    const pGuilds = require('./guilds.json');
-    const pGuild = pGuilds.find(pguild => pguild.guildID == message.guild.id);
+    const pGuild = PinguGuild.GetPGuild(message);
 
     //Get the color of the Pingu role in message.guild
     const guildRoleColor = message.guild.me.roles.cache.find(botRoles => botRoles.managed).color;
 
-
-    if (guildRoleColor == pGuild.embedColor)
-        return;
+    if (guildRoleColor == pGuild.embedColor) return;
 
     //Save Index of pGuild & log the change
     const pGuildIndex = pGuilds.indexOf(pGuild);
@@ -358,19 +332,9 @@ function CheckRoleChange(message) {
     pGuilds[pGuildIndex] = pGuild;
 
     //Update guilds.json
-    fs.writeFile('guilds.json', '', err => {
-        if (err) console.log(err);
-        else fs.appendFile('guilds.json', JSON.stringify(pGuilds, null, 2), err => {
-            client.guilds.cache.find(guild => guild.id == `460926327269359626`).owner.createDM().then(DanhoDM => {
-                if (err) DanhoDM.send(`I encountered and error while updating my role color in "${message.guild.name}":\n\n${err}`);
-                else console.log(`Successfully updated role color from "${message.guild.name}"`);
-            });
-        });
-    })
-
-}
-/**@returns {PinguGuild[]} */
-function GetPGuilds() {
-    return require('./guilds.json');
+    PinguGuild.UpdatePGuildsJSON(client,
+        `Successfully updated role color from "${message.guild.name}"`,
+        `I encountered and error while updating my role color in "${message.guild.name}":\n\n${err}`
+    );
 }
 //#endregion
