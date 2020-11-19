@@ -79,20 +79,32 @@ export class PinguGuild {
     public suggestions: Suggestion[]
     public themeWinners: PGuildMember[]
 }
+
 export class PinguLibrary {
     public static readonly PermissionGranted: "Permission Granted";
     private static readonly PinguDevelopers: string[] = [
         '245572699894710272', //Danho#2105
         '405331883157880846' //Synthy Sytro
     ];
+    public static readonly SavedServers = {
+        DanhoMisc(client: Client) {
+            return PinguLibrary.getServer(client, '460926327269359626');
+        },
+        PinguSupport(client: Client) {
+            return PinguLibrary.getServer(client, '756383096646926376');
+        },
+    }
+    private static getServer(client: Client, id: string) {
+        return client.guilds.cache.find(g => g.id == id);
+    }
 
     public static isPinguDev(user: User) {
         return this.PinguDevelopers.includes(user.id);
     }
     public static errorLog(client: Client, messageToChannel: string) {
-        var errorlogChannel = this.getChannel(client, '756383096646926376', '778685376692224080');
+        var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, '778685376692224080');
         if (!errorlogChannel) return this.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
-        console.error(messageToChannel);
+        console.error(messageToChannel.includes('`') ? messageToChannel.replace('`',' ') : messageToChannel);
         return errorlogChannel.send(messageToChannel);
     }
     public static outages(client: Client, messageToChannel: string) {
@@ -117,8 +129,8 @@ export class PinguLibrary {
     public static async DanhoDM(client: Client, messageToDanho: string) {
         console.error(messageToDanho);
 
-        var DanhoMisc = client.guilds.cache.find(guild => guild.id == '460926327269359626');
-        if (!DanhoMisc) return console.error('Unable to find Danho Misc guild!');
+        var DanhoMisc = this.SavedServers.DanhoMisc(client);
+        if (!DanhoMisc) return console.error('Unable to find Danho Misc guild!', client.guilds.cache.array().forEach(g => console.log(`[${g.id}] ${g.name}`)));
         var DanhoDM = await DanhoMisc.owner.createDM();
         return DanhoDM.send(messageToDanho)
             .catch(err => console.error(`Creating DM to Danho failed, ${err}`));
@@ -126,9 +138,9 @@ export class PinguLibrary {
     public static PermissionCheck(message: Message, permissions: PermissionString[]) {
         var textChannel = message.channel as TextChannel;
         for (var x = 0; x < permissions.length; x++) {
-            var permString = permissions[x].toLowerCase().replace('_', ' ');
+            var permString = permissions[x].toString().toLowerCase().replace('_', ' ');
             if (!textChannel.permissionsFor(message.client.user).has(permissions[x]))
-                return `I don't have permission to **${permString}** in #${textChannel.name}.`;
+                return `I don't have permission to **${permString}** in ${textChannel.name}.`;
             else if (!textChannel.permissionsFor(message.author).has(permissions[x]))
                 return `${message.author} you don't have permission to **${permString}** in #${textChannel.name}.`;
         }
@@ -289,24 +301,29 @@ export class Queue {
     public playing: true
 
     /** Switches log channel from initate log channel (channel where play was executed) to newChannel
-     * @param newChannel New log channel*/ public switchLogChannel(newChannel: TextChannel) {
+     * @param newChannel New log channel*/
+    public switchLogChannel(newChannel: TextChannel) {
         this.logChannel = newChannel;
     }
     /**Sets the connection to the voice channel
-     * @param conn*/ public setConnection(conn: VoiceConnection) {
+     * @param conn*/
+    public setConnection(conn: VoiceConnection) {
         this.connection = conn;
     }
 
     /** Adds song to the start of the queue
-     * @param song song to add*/ public addFirst(song: Song) {
+     * @param song song to add*/
+    public addFirst(song: Song) {
         this.songs.unshift(song);
     }
     /** Adds song to queue
-     * @param song song to add*/ public add(song: Song) {
+     * @param song song to add*/
+    public add(song: Song) {
         this.songs.push(song);
     }
     /** Removes song from queue
-     * @param song song to remove*/ public remove(song: Song) {
+     * @param song song to remove*/
+    public remove(song: Song) {
         this.songs = this.songs.filter(s => s != song);
     }
 }

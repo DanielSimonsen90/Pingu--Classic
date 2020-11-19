@@ -1,4 +1,5 @@
-const { Message } = require('discord.js');
+const { Message, Permissions } = require('discord.js');
+const { PinguLibrary } = require('../../PinguPackage');
 
 module.exports = {
     name: 'mood',
@@ -8,14 +9,14 @@ module.exports = {
     id: 2,
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        if (message.channel.type != 'dm')
-            if (!message.channel.memberPermissions(message.guild.client.user).has('SEND_MESSAGES'))
-                return message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!`)
+        if (message.channel.type != 'dm') {
+            var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.SEND_MESSAGES])
+            if (permCheck != PinguLibrary.PermissionGranted) return message.channel.send(permCheck); 
+        }
 
-        let MoodNumber = Math.floor(Math.random() * Math.floor(5)),
-            Mood;
+        let Mood;
 
-        switch (MoodNumber) {
+        switch (Math.floor(Math.random() * Math.floor(5))) {
             case 1: Mood = `I'm not feeling so good...`; break;
             case 2: Mood = `I'm feeling kinda tired..`; break;
             case 3: Mood = `I'm hungry. Isn't it food time soon?`; break;

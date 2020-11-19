@@ -1,6 +1,7 @@
 ﻿const request = require('request'),
     config = require('../../config.json'),
-    { MessageEmbed } = require('discord.js');
+    { Message, MessageEmbed, Permissions } = require('discord.js');
+const { PinguLibrary, PinguGuild } = require('../../PinguPackage');
 
 module.exports = {
     name: 'activity',
@@ -10,11 +11,11 @@ module.exports = {
     guildOnly: true,
     id: 2,
     example: ["hug @Danho#2105"],
-    /**@param {Discord.Message} message @param {string[]} args */
+    /**@param {Message} message @param {string[]} args */
     execute(message, args) {
         //Permission check
         const PermCheck = PermissionCheck(message, args);
-        if (PermCheck != `Permission Granted`) return message.channel.send(PermCheck);
+        if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
 
         //Create Person variables
         const User = message.author.username,
@@ -22,8 +23,10 @@ module.exports = {
             Person = DefinePerson(message);
 
         //ActivityLink Function
-        if (!config || !config.api_key || !config.google_custom_search)
-            return message.channel.send('Image search requires both a YouTube API key and a Google Custom Search key!');
+        if (!config || !config.api_key || !config.google_custom_search) {
+            PinguLibrary.errorLog(message.client, 'Unable to send gif\nImage search requires both a YouTube API key and a Google Custom Search key!').then(() =>
+                message.channel.send(`I was unable to search for a gif! I have contacted my developers...`));
+        }
 
         //Gets us a random result in first 5 pages
         const page = 1 + Math.floor(Math.random() * 5) * 10;
@@ -32,59 +35,50 @@ module.exports = {
         request('https://www.googleapis.com/customsearch/v1?key=' + config.api_key + '&cx=' + config.google_custom_search + '&q=' + (`"anime" "${args[0]}" person "gif"`) + '&searchType=image&alt=json&num=10&start=' + page, function (err, res, body) {
             let data;
             try { data = JSON.parse(body); }
-            catch (error) { return console.log(error); }
+            catch (err) { PinguLibrary.errorLog(`I had an error while getting data in activity, request()\n${err}`); }
 
             if (!data) {
-                console.log(data);
-                return message.author.send('Error:\n' + JSON.stringify(data));
+                PinguLibrary.errorLog(`I had an error while getting data in activity, request()\n${JSON.stringify(data)}`).then(() =>
+                    message.channel.send(`I was unable to recieve a gif! I have contacted my developers...`));
             }
             else if (!data.items || data.items.length == 0) {
-                console.log(data);
-                return message.channel.send('I failed to find that!');
+                PinguLibrary.errorLog(`I was unable to get data for activity\n${data}`).then(() =>
+                    message.channel.send(`I was unable to find a gif! I have contacted my developers...`));
             }
-
-            const pGuilds = require('../../guilds.json');
-            const color = pGuilds.find(pguild => pguild.guildID == message.guild.id).embedColor;
 
             const embed = new MessageEmbed()
                 .setTitle(`${User} ${Activity} ${Person}`)
                 .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
-                .setColor(color);
+                .setColor(PinguGuild.GetPGuild(message.guild).embedColor);
 
             //Return the whole thing LuL
             //React with F if the user uses *activity on themselves
-            if (Person == User)
-                message.channel.send(embed).then((NewMessage) => { NewMessage.react('🇫'); });
+            if (Person == User) message.channel.send(embed).then((NewMessage) => { NewMessage.react('🇫'); });
             else message.channel.send(embed);
         });
     },
 };
 
-/**@param {Discord.Message} message @param {string[]} args*/
+/**@param {Message} message @param {string[]} args*/
 function PermissionCheck(message, args) {
-    if (message.channel.type == 'dm')
-        return `I can't execute that command in DMs!`;
-
-    const PermArr = ["SEND_MESSAGES", "EMBED_LINKS"],
-        PermArrMsg = ["send messages", "use embed links"];
-
-    for (var x = 0; x < PermArr.length; x++)
-        if (!message.channel.permissionsFor(message.client.user).has(PermArr[x]))
-            return `Hey! I don't have permission to **${PermArrMsg[x]}** in #${message.channel.name}!`;
-
+    var permCheck = PinguLibrary.PermissionCheck(message, [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS
+    ]);
+    if (permCheck != PinguLibrary.PermissionGranted) return permCheck;
     if (!args[0]) return `Provide me with proper arguments please UwU`;
 
-    return `Permission Granted`;
+    return PinguLibrary.PermissionGranted;
 }
-/**@param {Discord.Message} message*/
+/**@param {Message} message*/
 function DefinePerson(message) {
     let Person = message.mentions.users.first().username || message.author.username;
 
     return Person.includes('!') ? Person.replace('!', '') : Person;
 }
-/**@param {Discord.Message} message @param {string[]} args*/
+/**@param {Message} message @param {string[]} args*/
 function DefineActivity(message, args) {
-    if (args[0].toLowerCase() === 'fuck' && !message.channel.nsfw)
+    if (args[0].toLowerCase() == 'fuck' && !message.channel.nsfw)
         return `nono`;
 
     //Grammarly fix Activity

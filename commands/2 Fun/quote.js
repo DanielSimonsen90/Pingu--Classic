@@ -1,4 +1,5 @@
-const { Message } = require("discord.js");
+const { Message, Permissions } = require("discord.js");
+const { PinguLibrary } = require("../../PinguPackage");
 
 module.exports = {
     name: 'quote',
@@ -11,7 +12,7 @@ module.exports = {
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         const PermCheck = CheckPermissions(message);
-        if (PermCheck != `Permission Granted`) return message.channel.send(PermCheck);
+        if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
 
         let Quote = args.join(" "),
             quotee = message.mentions.users.size != 0 ?
@@ -21,23 +22,20 @@ module.exports = {
         if (message.mentions.users.size != 0)
             Quote = Quote.substring(0, Quote.length - args[args.length - 1].length - 1);
 
-        if (!Quote.endsWith('.') || !Quote.endsWith('!') || !Quote.endsWith('?') || !Quote.endsWith(':') || !Quote.endsWith('"'))
+        if (!Quote.endsWith('.') && !Quote.endsWith('!') && !Quote.endsWith('?') && !Quote.endsWith(':') && !Quote.endsWith('"'))
             Quote += '.';
 
         message.delete();
 
         message.channel.send(`\`"${Quote}"\`\Said by ${quotee}`, { tts: true })
-            .then(QuotedMessage => { QuotedMessage.edit(`\`"${Quote}"\`\n- ${quotee}`) });
+            .then(QuotedMessage => QuotedMessage.edit(`\`"${Quote}"\`\n- ${quotee}`));
     },
 };
 /**@param {Message} message*/
 function CheckPermissions(message) {
-    if (message.channel.type === 'dm')
-        return `I execute this command in DMs.`;
-
-    const PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES", "EMBED_LINKS"];
-    for (var Perm = 0; Perm < PermArr.length; Perm++)
-        if (!message.channel.permissionsFor(message.guild.client.user).has(PermArr[Perm]))
-            return `Sorry, ${message.author}. It seems like I don't have the **${PermArr[Perm]}** permission.`;
-    return `Permission Granted`;
+    return PinguLibrary.PermissionCheck(message, [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.MANAGE_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+    ]);
 }

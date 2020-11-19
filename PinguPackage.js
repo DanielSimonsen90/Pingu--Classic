@@ -135,11 +135,17 @@ exports.PinguGuild = PinguGuild;
 var PinguLibrary = /** @class */ (function () {
     function PinguLibrary() {
     }
+    PinguLibrary.getServer = function (client, id) {
+        return client.guilds.cache.find(function (g) { return g.id == id; });
+    };
+    PinguLibrary.isPinguDev = function (user) {
+        return this.PinguDevelopers.includes(user.id);
+    };
     PinguLibrary.errorLog = function (client, messageToChannel) {
-        var errorlogChannel = this.getChannel(client, '756383096646926376', '778685376692224080');
+        var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, '778685376692224080');
         if (!errorlogChannel)
             return this.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
-        console.error(messageToChannel);
+        console.error(messageToChannel.includes('`') ? messageToChannel.replace('`', ' ') : messageToChannel);
         return errorlogChannel.send(messageToChannel);
     };
     PinguLibrary.outages = function (client, messageToChannel) {
@@ -169,9 +175,9 @@ var PinguLibrary = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         console.error(messageToDanho);
-                        DanhoMisc = client.guilds.cache.find(function (guild) { return guild.id == '460926327269359626'; });
+                        DanhoMisc = this.SavedServers.DanhoMisc(client);
                         if (!DanhoMisc)
-                            return [2 /*return*/, console.error('Unable to find Danho Misc guild!')];
+                            return [2 /*return*/, console.error('Unable to find Danho Misc guild!', client.guilds.cache.array().forEach(function (g) { return console.log("[" + g.id + "] " + g.name); }))];
                         return [4 /*yield*/, DanhoMisc.owner.createDM()];
                     case 1:
                         DanhoDM = _a.sent();
@@ -181,16 +187,28 @@ var PinguLibrary = /** @class */ (function () {
             });
         });
     };
-    PinguLibrary.PermissionCheck = function (message, client, permissions) {
+    PinguLibrary.PermissionCheck = function (message, permissions) {
         var textChannel = message.channel;
         for (var x = 0; x < permissions.length; x++) {
-            var permString = permissions[x].toLowerCase().replace('_', ' ');
-            if (!textChannel.permissionsFor(client.user).has(permissions[x]))
-                return "I don't have permission to **" + permString + "** in #" + textChannel.name + ".";
+            var permString = permissions[x].toString().toLowerCase().replace('_', ' ');
+            if (!textChannel.permissionsFor(message.client.user).has(permissions[x]))
+                return "I don't have permission to **" + permString + "** in " + textChannel.name + ".";
             else if (!textChannel.permissionsFor(message.author).has(permissions[x]))
                 return message.author + " you don't have permission to **" + permString + "** in #" + textChannel.name + ".";
         }
         return this.PermissionGranted;
+    };
+    PinguLibrary.PinguDevelopers = [
+        '245572699894710272',
+        '405331883157880846' //Synthy Sytro
+    ];
+    PinguLibrary.SavedServers = {
+        DanhoMisc: function (client) {
+            return PinguLibrary.getServer(client, '460926327269359626');
+        },
+        PinguSupport: function (client) {
+            return PinguLibrary.getServer(client, '756383096646926376');
+        },
     };
     return PinguLibrary;
 }());
@@ -321,23 +339,28 @@ var Queue = /** @class */ (function () {
         this.volume = 5;
     }
     /** Switches log channel from initate log channel (channel where play was executed) to newChannel
-     * @param newChannel New log channel*/ Queue.prototype.switchLogChannel = function (newChannel) {
+     * @param newChannel New log channel*/
+    Queue.prototype.switchLogChannel = function (newChannel) {
         this.logChannel = newChannel;
     };
     /**Sets the connection to the voice channel
-     * @param conn*/ Queue.prototype.setConnection = function (conn) {
+     * @param conn*/
+    Queue.prototype.setConnection = function (conn) {
         this.connection = conn;
     };
     /** Adds song to the start of the queue
-     * @param song song to add*/ Queue.prototype.addFirst = function (song) {
+     * @param song song to add*/
+    Queue.prototype.addFirst = function (song) {
         this.songs.unshift(song);
     };
     /** Adds song to queue
-     * @param song song to add*/ Queue.prototype.add = function (song) {
+     * @param song song to add*/
+    Queue.prototype.add = function (song) {
         this.songs.push(song);
     };
     /** Removes song from queue
-     * @param song song to remove*/ Queue.prototype.remove = function (song) {
+     * @param song song to remove*/
+    Queue.prototype.remove = function (song) {
         this.songs = this.songs.filter(function (s) { return s != song; });
     };
     return Queue;

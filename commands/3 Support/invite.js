@@ -9,8 +9,6 @@ module.exports = {
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         const Permissions = 271711312;
-        const link = `https://discord.com/api/oauth2/authorize?client_id=562176550674366464&permissions=${Permissions}&scope=bot`;
-        message.channel.send(link)
-            .catch(error => message.author.send(link + `\n` + error))
+        message.channel.send(`https://discord.com/api/oauth2/authorize?client_id=562176550674366464&permissions=${Permissions}&scope=bot`);
     }
 }

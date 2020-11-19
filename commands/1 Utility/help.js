@@ -1,4 +1,4 @@
-const { PinguGuild, PinguSupport } = require('../../PinguPackage');
+const { PinguGuild, PinguLibrary } = require('../../PinguPackage');
 
 const { MessageEmbed, Message, Collection } = require('discord.js'),
     ScriptsCategorized = ["", "Utility", "Fun", "Support", "DevOnly"];
@@ -16,7 +16,7 @@ module.exports = {
         //#region Get data from guilds.json
         let color, Prefix;
         if (message.channel.type != 'dm') {
-            const pGuild = PinguGuild.GetPGuild(message);
+            const pGuild = PinguGuild.GetPGuild(message.guild);
             color = pGuild.embedColor;
             Prefix = pGuild.botPrefix;
         }
@@ -59,7 +59,7 @@ function DefaultHelp(message, embed, Prefix) {
             message.reply(`I've sent you a DM with all my commands!`);
         })
         .catch(error => {
-            PinguSupport.errorLog(message.client, `Unable to send help DM to ${message.author.tag}.\n`, error);
+            PinguLibrary.errorLog(message.client, `Unable to send help DM to ${message.author.tag}.\n`, error);
             message.reply(`It seems like I can't DM you! Do you have DMs disabled?`);
         });
 }
@@ -96,9 +96,9 @@ function CategoryOrSpecificHelp(message, args, commands, data, embed, Prefix) {
         return SpecificHelp(message, args, embed, Prefix);
 
     //If "DevOnly" / "Banned" was used
-    if (args[0] == "devonly" || args[0] == "banned")
+    if (["banned", "devonly"].includes(args[0]))
         //Is message.author Danho?
-        if (message.author.id != "245572699894710272")
+        if (!PinguLibrary.isPinguDev(message.author))
             //If not, user cannot perform this help
             return message.channel.send(`Sorry ${message.author}, but you're not cool enough to use that!`)
         else args[0] = 'devonly';
@@ -130,7 +130,7 @@ function CategoryOrSpecificHelp(message, args, commands, data, embed, Prefix) {
             message.reply(`I've sent you a DM with all my commands!`);
         })
         .catch(error => {
-            PinguSupport.errorLog(message.client, `Could not send help DM to ${message.author.tag}.\n`, error);
+            PinguLibrary.errorLog(message.client, `Could not send help DM to ${message.author.tag}.\n`, error);
             message.reply(`It seems like I can't DM you! Do you have DMs disabled?`);
         });
 }

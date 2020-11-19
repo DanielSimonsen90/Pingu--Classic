@@ -1,77 +1,81 @@
-﻿const { Message, MessageEmbed, Role } = require('discord.js'),
-    { PinguGuild, Poll, PollConfig, PRole, TimeLeftObject, PGuildMember, PinguSupport } = require('../../PinguPackage');
-ms = require('ms'), { isString } = require('util'),
+﻿const { Message, MessageEmbed, Role, Permissions } = require('discord.js'),
+    { PinguGuild, Poll, PollConfig, PRole, TimeLeftObject, PGuildMember, PinguLibrary } = require('../../PinguPackage');
+ms = require('ms');
 
-    module.exports = {
-        name: 'poll',
-        cooldown: 5,
-        description: 'Create a poll for users to react',
-        usage: '<setup> | <list> | <time> <question>',
-        guildOnly: true,
-        id: 1,
-        example: ["setup", "list", "10m Am I asking a question?"],
-        /**@param {Message} message @param {string[]} args*/
-        execute(message, args) {
-            //Permission check
-            const PermResponse = PermissionCheck(message, args), pGuild = GetPGuild(message);
-            if (PermResponse != `Permission Granted`) return message.channel.send(PermResponse);
-            else if (args[0] == 'setup' || pGuild.pollConfig.firstTimeExecuted) return FirstTimeExecuted(message, args);
-            else if (args[0] == "list") return ListPolls(message);
+module.exports = {
+    name: 'poll',
+    cooldown: 5,
+    description: 'Create a poll for users to react',
+    usage: '<setup> | <list> | <time> <question>',
+    guildOnly: true,
+    id: 1,
+    example: ["setup", "list", "10m Am I asking a question?"],
+    /**@param {Message} message @param {string[]} args*/
+    async execute(message, args) {
+        var pGuild = PinguGuild.GetPGuild(message.guild);
+        if (!pGuild) {
+            await PinguLibrary.errorLog(message.client, `Couldn't find pGuild for "${message.guild.name}" (${message.guild.id})`)
+            message.channel.send(`I had an error trying to get ${message.guild.name}'s Pingu Guild! I've notified my developers.`);
+        }
 
-            //Create scrubby variables
-            const Time = args.shift();
-            let Question = args.join(" ");
-            message.delete();
+        //Permission check
+        const PermResponse = PermissionCheck(message, args);
+        if (PermResponse != PinguLibrary.PermissionGranted) return message.channel.send(PermResponse);
+        else if (args[0] == 'setup' || pGuild.pollConfig.firstTimeExecuted) return FirstTimeExecuted(message, args);
+        else if (args[0] == "list") return ListPolls(message);
 
-            var pGuild = PinguGuild.GetPGuild(message);
-            if (!pGuild) {
-                PinguSupport.errorLog(message.client, `Couldn't find pGuild for "${message.guild.name}" (${message.guild.id})`);
-                return message.channel.send(`I had an error trying to get ${message.guild.name}'s Pingu Guild! I've notified my developers.`);
-            }
-            const color = pGuild.embedColor,
-                EndsAt = new Date(Date.now() + ms(Time));
+        //Create scrubby variables
+        const Time = args.shift();
+        let Question = args.join(" ");
+        message.delete();
 
-            //Create Embed
-            let Embed = new MessageEmbed()
-                .setTitle(Question)
-                .setColor(color)
+        const color = pGuild.embedColor,
+            EndsAt = new Date(Date.now() + ms(Time));
+
+        //Create Embed
+        let Embed = new MessageEmbed()
+            .setTitle(Question)
+            .setColor(color)
+            .setDescription(
+                `Brought to you by <@${message.author.id}>\n` +
+                `Time left: ${new TimeLeftObject(new Date(Date.now()), EndsAt).toString()}`)
+            .setFooter(`Ends at: ${EndsAt}`);
+
+        //Send Embed and react.
+        var PollMessage = await message.channel.send(Embed);
+        await PollMessage.react('👍')
+        PollMessage.react('👎');
+
+        console.log(`${message.author.tag} hosted a poll in "${message.guild.name}": ${Question}`);
+        AddPollToPGuilds(message, new Poll(Question, PollMessage.id, new PGuildMember(message.guild.member(message.author))));
+
+        const interval = setInterval(() => UpdateTimer(PollMessage, EndsAt, new PGuildMember(message.guild.member(message.author))), 5000);
+        setTimeout(() => OnTimeOut(Embed, PollMessage, interval), ms(Time));
+
+        /**@param {Message} PollMessage @param {Date} EndsAt @param {PGuildMember} Host*/
+        async function UpdateTimer(PollMessage, EndsAt, Host) {
+            PollMessage.edit(PollMessage.embeds[0]
                 .setDescription(
-                    `Brought to you by <@${message.author.id}>\n` +
-                    `Time left: ${new TimeLeftObject(new Date(Date.now()), EndsAt).toString()}`)
-                .setFooter(`Ends at: ${EndsAt}`);
-
-            //Send Embed and react.
-            message.channel.send(Embed).then(PollMessage => {
-                PollMessage.react('👍').then(() => PollMessage.react('👎'));
-                console.log(`${message.author.tag} hosted a poll in "${message.guild.name}": ${Question}`);
-                AddPollToPGuilds(message, new Poll(Question, PollMessage.id, new PGuildMember(message.guild.member(message.author))));
-
-                const interval = setInterval(() => UpdateTimer(PollMessage, EndsAt, new PGuildMember(message.guild.member(message.author))), 5000);
-                setTimeout(() => OnTimeOut(Embed, PollMessage, interval), ms(Time));
-            })
-            /**@param {Message} PollMessage @param {Date} EndsAt @param {PGuildMember} Host*/
-            function UpdateTimer(PollMessage, EndsAt, Host) {
-                PollMessage.edit(PollMessage.embeds[0]
-                    .setDescription(
-                        `Brought to you by <@${Host.id}>\n` +
-                        `Time left: ${new TimeLeftObject(new Date(Date.now()), EndsAt).toString()}`
-                    )).catch(err => {
-                        PinguSupport.errorLog(message.client, `Error while updating poll timer\n${err}`);
-                        PollMessage.author.send(`I had an issue updating the poll message, so your poll might not finish! Don't worry though, I have already contacted my developers!`);
-                    });
-            }
-        },
-    };
+                    `Brought to you by <@${Host.id}>\n` +
+                    `Time left: ${new TimeLeftObject(new Date(Date.now()), EndsAt).toString()}`
+                )).catch(async err => {
+                    await PinguLibrary.errorLog(message.client, `Error while updating poll timer\n${err}`);
+                    PollMessage.author.send(`I had an issue updating the poll message, so your poll might not finish! Don't worry though, I have already contacted my developers!`);
+                });
+        }
+    },
+};
 /**@param {Message} message @param {string[]} args*/
 function PermissionCheck(message, args) {
-    const PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES"];
-    for (var x = 0; x < PermArr.length; x++)
-        if (!message.channel.permissionsFor(message.client.user).has(PermArr[x]))
-            return `Hey! I don't have permission to **${PermArr[x].toLowerCase().replace('_', ' ')}** in #${message.channel.name}!`;
+    var permCheck = PinguLibrary.PermissionCheck(message, [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.MANAGE_MESSAGES
+    ]);
+    if (permCheck != PinguLibrary.PermissionGranted) return permCheck;
 
     const pGuild = PinguGuild.GetPGuild(message);
-    if (pGuild.pollConfig.firstTimeExecuted || args[0] == 'setup' || args[0] == "list")
-        return `Permission Granted`;
+    if (pGuild.pollConfig.firstTimeExecuted || ['setup', "list"].includes(args[0]))
+        return PinguLibrary.PermissionGranted;
 
     if (pGuild.pollConfig.pollRole && !message.guild.member(message.author).roles.cache.has(pGuild.pollConfig.pollRole.id) && //pollRole exists and author doesn't have it
         !message.channel.permissionsFor(message.author).has('ADMINISTRATOR')) //author doesn't have Administrator
@@ -82,11 +86,12 @@ function PermissionCheck(message, args) {
     else if (args[0].endsWith('s') && parseInt(args[0].substring(0, args[0].length - 1)) < 30)
         return 'Please specfify a time higher than 29s';
     else if (!ms(args[0])) return 'Please provide a valid time!';
-    return `Permission Granted`;
+    return PinguLibrary.PermissionGranted;
 }
 /**@param {Message} message @param {string[]} args*/
 function FirstTimeExecuted(message, args) {
     if (args[0] != `setup`) return message.channel.send(`**Hold on fella!**\nWe need to get ${message.guild.name} set up first!`);
+
     let collector = message.channel.createMessageCollector(m => m.author.id == message.author.id, { maxMatches: 1 }),
         collectorCount = 0, Reply, LastInput;
     message.channel.send('Firstly, I need to know if there is a Polls Host role?');
@@ -113,24 +118,30 @@ function FirstTimeExecuted(message, args) {
                 SaveSetupToPGuilds(message, PollsRole);
                 break;
             default: collector.stop("Ran default switch-case");
-                console.log(`Ran default in polls, collector.on`); return;
+                PinguLibrary.errorLog(message.client, `Ran default in polls, FirstTimeExecuted(), collector.on`); return;
         }
 
         collectorCount++;
         message.channel.send(Reply);
         if (collectorCount == 2) collector.stop();
     });
-    collector.on('end', () => message.channel.send(`Alright you're good to go!`));
+    collector.on('end', () => {
+        message.channel.send(`Alright you're good to go!`)
+        console.log(`"${message.guild.name}" was successfully sat up with *poll.`);
+    });
 
     /**@param {Message} message @returns {Promise<Role>}*/
     function MakePollsRole(message) {
         return message.guild.roles.create({
             data: { name: 'Polls' }
-        }).catch(err => { return err; });
+        }).catch(async err => {
+            await PinguLibrary.errorLog(`I encountered an error while trying to make a Polls role for "${message.guild.name}" (${message.guild.id})\n${err}`)
+            message.channel.send(`I had an error trying to create the polls role! I've contacted my developers.`);
+        });
     }
     /**@param {Message} message @param {Role | string | undefined} PollsRole*/
     async function SaveSetupToPGuilds(message, PollsRole) {
-        if (isString(PollsRole))
+        if (typeof (PollsRole) === 'string')
             PollsRole = await MakePollsRole(message);
         PollsRole = PollsRole ? new PRole(PollsRole) : "undefined";
 
@@ -140,7 +151,7 @@ function FirstTimeExecuted(message, args) {
             polls: new Array()
         });
 
-        PinguGuild.UpdatePGuildsJSON(message, GetPGuilds(),
+        PinguGuild.UpdatePGuildsJSON(message.client, PinguGuild.GetPGuilds(),
             `Successfully updated guilds.json with ${message.guild.name}'s pollConfig.`,
             `I encountered an error, while saving ${message.guild.name}'s pollConfig to guilds.json`
         );
@@ -151,7 +162,7 @@ function OnTimeOut(Embed, PollMessage, interval) {
     clearInterval(interval);
 
     //Defining Verdict
-    const poll = GetPGuild(PollMessage).pollConfig.polls.find(p => p.id == PollMessage.id),
+    const poll = PinguGuild.GetPGuild(PollMessage.guild).pollConfig.polls.find(p => p.id == PollMessage.id),
         Yes = PollMessage.reactions.cache.get('👍').count,
         No = PollMessage.reactions.cache.get('👎').count;
 
@@ -168,111 +179,106 @@ function OnTimeOut(Embed, PollMessage, interval) {
     SaveVerdictToPGuilds(PollMessage, poll);
 }
 /**@param {Message} message*/
-function ListPolls(message) {
+async function ListPolls(message) {
     let Polls = PinguGuild.GetPGuild(message).pollConfig.polls,
         Embeds = CreateEmbeds(false), EmbedIndex = 0;
 
     if (!Embeds || Embeds.length == 0) return message.channel.send(`There are no polls saved!`);
 
-    message.channel.send(Embeds[EmbedIndex]).then(sent => {
-        const Reactions = ['⬅️', '🗑️', '➡️', '🛑'];
-        sent.react('⬅️').then(() =>
-            sent.react('🗑️').then(() =>
-                sent.react('➡️').then(() =>
-                    sent.react('🛑')
-                )
-            )
-        );
+    var sent = await message.channel.send(Embeds[EmbedIndex])
+    const Reactions = ['⬅️', '🗑️', '➡️', '🛑'];
+    await sent.react('⬅️')
+    await sent.react('🗑️')
+    await sent.react('➡️')
+    await sent.react('🛑')
 
-        const reactionCollector = sent.createReactionCollector((reaction, user) =>
-            Reactions.includes(reaction.emoji.name) && user.id == message.author.id, { time: ms('20s') });
+    const reactionCollector = sent.createReactionCollector((reaction, user) =>
+        Reactions.includes(reaction.emoji.name) && user.id == message.author.id, { time: ms('20s') });
 
-        reactionCollector.on('end', reactionsCollected => {
-            if (!reactionsCollected.array().includes('🛑'))
-                sent.delete().then(() => message.channel.send(`Stopped showing pols.`));
-        })
-        reactionCollector.on('collect', reaction => {
-            reactionCollector.resetTimer({ time: ms('20s') });
-            var embedToSend;
+    reactionCollector.on('end', async reactionsCollected => {
+        if (!reactionsCollected.array().includes('🛑')) {
+            await sent.delete()
+            message.channel.send(`Stopped showing pols.`);
+        }
+    })
 
-            switch (reaction.emoji.name) {
-                case '⬅️': embedToSend = ReturnEmbed(-1); break;
-                case '🗑️': embedToSend = ReturnEmbed(0); break;
-                case '➡️': embedToSend = ReturnEmbed(1); break;
-                case '🛑':
-                    sent.edit(`Stopped showing polls.`);
-                    reactionCollector.stop();
-                    return;
-                default: message.channel.send(`reactionCollector.on() default case`); break;
-            }
+    reactionCollector.on('collect', async reaction => {
+        reactionCollector.resetTimer({ time: ms('20s') });
+        var embedToSend;
 
-            if (Polls.length == 0) {
-                sent.delete().then(() => message.channel.send(`No more polls to find!`));
+        switch (reaction.emoji.name) {
+            case '⬅️': embedToSend = ReturnEmbed(-1); break;
+            case '🗑️': embedToSend = ReturnEmbed(0); break;
+            case '➡️': embedToSend = ReturnEmbed(1); break;
+            case '🛑':
+                sent.edit(`Stopped showing polls.`);
                 reactionCollector.stop();
-            }
+                return;
+            default: PinguLibrary.errorLog(message.client, `polls, ListPolls(), reactionCollector.on() default case: ${reaction.emoji.name}`); break;
+        }
 
-            //Send new embed
-            embedToSend.then(embed => {
-                sent.edit(sent.embeds[0] = embed.setFooter(`Now viewing: ${EmbedIndex + 1}/${Polls.length}`)).then(() => {
-                    sent.reactions.cache.forEach(reaction => {
-                        if (reaction.users.cache.size > 1)
-                            reaction.users.cache.forEach(user => {
-                                if (user.id != message.client.user.id)
-                                    reaction.users.remove(user)
-                            })
-                    })
+        if (Polls.length == 0) {
+            await sent.delete()
+            message.channel.send(`No more polls to find!`);
+            reactionCollector.stop();
+        }
+
+        //Send new embed
+        await sent.edit(sent.embeds[0] = embedToSend.setFooter(`Now viewing: ${EmbedIndex + 1}/${Polls.length}`));
+        sent.reactions.cache.forEach(reaction => {
+            if (reaction.users.cache.size > 1)
+                reaction.users.cache.forEach(user => {
+                    if (user.id != message.client.user.id)
+                        reaction.users.remove(user)
                 })
-            })
-
-            /**@param {number} index*/
-            async function ReturnEmbed(index) {
-                EmbedIndex += index;
-                if (EmbedIndex <= -1) {
-                    EmbedIndex = Embeds.length - 1;
-                    index = -1;
-                }
-                else if (EmbedIndex >= Embeds.length) {
-                    EmbedIndex = 0;
-                    index = 1
-                }
-                let Embed;
-
-                switch (index) {
-                    case -1: Embed = Embeds[EmbedIndex]; break;
-                    case 0: Embed = await DeletePoll(Embeds[EmbedIndex]); break;
-                    case 1: Embed = Embeds[EmbedIndex]; break;
-                    default: message.channel.send(`Ran default in ReturnEmbed()`); return Embeds[EmbedIndex = 0];
-                }
-                return Embed;
-            }
-            /**@param {MessageEmbed} embed*/
-            async function DeletePoll(embed) {
-                const deletingPolls = Polls.find(poll => poll.id == embed.description.substring(4, embed.description.length));
-                RemovePolls(message, [deletingPolls]);
-                Polls = GetPGuild(message).pollConfig.polls;
-                Embeds = CreateEmbeds(true);
-
-                if (!Polls.includes(deletingPolls)) {
-                    await sent.react('✅');
-                    await setTimeout(async () => await sent.reactions.cache.find(r => r.emoji.name == '✅').remove(), 1500);
-                    return ReturnEmbed(1);
-                }
-                else {
-                    await sent.react('❌');
-                    await setTimeout(async () => await sent.reactions.cache.find(r => r.emoji.name == '❌').remove(), 1500);
-                    return ReturnEmbed(-1);
-                }
-            }
         })
 
+        /**@param {number} index  @returns {MessageEmbed}*/
+        async function ReturnEmbed(index) {
+            EmbedIndex += index;
+            if (EmbedIndex <= -1) {
+                EmbedIndex = Embeds.length - 1;
+                index = -1;
+            }
+            else if (EmbedIndex >= Embeds.length) {
+                EmbedIndex = 0;
+                index = 1
+            }
+            let Embed;
+
+            switch (index) {
+                case -1: Embed = Embeds[EmbedIndex]; break;
+                case 0: Embed = await DeletePoll(Embeds[EmbedIndex]); break;
+                case 1: Embed = Embeds[EmbedIndex]; break;
+                default: PinguLibrary.errorLog(message.client, `poll, ListPolls, reactionCollector.on(), ReturnEmbed() Ran default: ${index}`); return Embeds[EmbedIndex = 0];
+            }
+            return Embed;
+        }
+        /**@param {MessageEmbed} embed*/
+        async function DeletePoll(embed) {
+            const deletingPolls = Polls.find(poll => poll.id == embed.description.substring(4, embed.description.length));
+            RemovePolls(message, [deletingPolls]);
+            Polls = GetPGuild(message).pollConfig.polls;
+            Embeds = CreateEmbeds(true);
+
+            if (!Polls.includes(deletingPolls)) {
+                await sent.react('✅');
+                await setTimeout(async () => await sent.reactions.cache.find(r => r.emoji.name == '✅').remove(), 1500);
+                return ReturnEmbed(1);
+            }
+            else {
+                await sent.react('❌');
+                await setTimeout(async () => await sent.reactions.cache.find(r => r.emoji.name == '❌').remove(), 1500);
+                return ReturnEmbed(-1);
+            }
+        }
     })
 
     /**@param {boolean} autocalled*/
     function CreateEmbeds(autocalled) {
         let Embeds = [], ToRemove = [];
 
-        if (Polls.length == 0)
-            return null;
+        if (Polls.length == 0) return null;
 
         for (var i = 0; i < Polls.length; i++) {
             try {
@@ -283,43 +289,45 @@ function ListPolls(message) {
                     .addField(`Verdict`, Polls[i].approved, true)
                     .addField(`Host`, Polls[i].author.toString(), true)
                     .setFooter(`Now viewing: ${i + 1}/${Polls.length}`);
-            } catch { ToRemove.push(Polls[i]); }
+            } catch (err) { PinguLibrary.errorLog(message.client, `Error while adding poll to Embeds\n${err}`); ToRemove.push(Polls[i]); }
         }
         RemovePolls(message, ToRemove);
         if (!Embeds && !autocalled) return null;
         return Embeds;
     }
-    /**@param {Message} message @param {Poll[]} polls*/
-    async function RemovePolls(message, polls) {
-        if (polls.length == 0 || polls[0] == undefined) return;
-
-        const pGuild = PinguGuild.GetPGuild(message);
-        pGuild.pollConfig.polls = pGuild.pollConfig.polls.filter(p => !polls.includes(p));
-
-        await PinguGuild.UpdatePGuildsJSONAsync(message,
-            `Removed "${polls[0].value}" from ${message.guild.name}'s polls list.`,
-            `I encounted an error, while removing ${polls.id} (${polls.value}) from ${message.guild.name}'s polls list`
-        );
-    }
 }
+
+/**@param {Message} message @param {Poll[]} polls*/
+async function RemovePolls(message, polls) {
+    if (polls.length == 0 || polls[0] == undefined) return;
+
+    const pGuild = PinguGuild.GetPGuild(message.guild);
+    pGuild.pollConfig.polls = pGuild.pollConfig.polls.filter(p => !polls.includes(p));
+
+    await PinguGuild.UpdatePGuildsJSONAsync(message.client,
+        `Removed "${polls[0].value}" from ${message.guild.name}'s polls list.`,
+        `I encounted an error, while removing ${polls.id} (${polls.value}) from ${message.guild.name}'s polls list`
+    );
+}
+
 
 //#region pGuild Methods
 /**@param {Message} message @param {Poll} poll*/
 function AddPollToPGuilds(message, poll) {
-    PinguGuild.GetPGuild(message).pollConfig.polls.push(poll);
-    PinguGuild.UpdatePGuildsJSON(message,
+    PinguGuild.GetPGuild(message.guild).pollConfig.polls.push(poll);
+    PinguGuild.UpdatePGuildsJSON(message.client,
         `Added "${poll.value}" to "${message.guild.name}" in guilds.json`,
         `I encountered an error, while adding ${poll.value} to guilds.json`
     );
 }
 /**@param {Message} message @param {Poll} poll*/
 function SaveVerdictToPGuilds(message, poll) {
-    const pGuildPolls = PinguGuild.GetPGuild(message).pollConfig.polls;
+    const pGuildPolls = PinguGuild.GetPGuild(message.guild).pollConfig.polls;
 
     const thispollman = pGuildPolls.find(p => p.id == poll.id);
     pGuildPolls[pGuildPolls.indexOf(thispollman)] = poll;
 
-    PinguGuild.UpdatePGuildsJSON(message,
+    PinguGuild.UpdatePGuildsJSON(message.client,
         `Successfully saved the verdict for "${poll.value}" in guilds.json`,
         `I encountered an error, while saving the verdict for "${poll.value}"`
     );

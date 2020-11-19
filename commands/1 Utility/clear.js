@@ -1,10 +1,10 @@
-const { Message, User, Permissions } = require('discord.js');
+const { Message, User, Permissions, TextChannel } = require('discord.js');
 const { PinguLibrary } = require('../../PinguPackage');
 
 module.exports = {
     name: 'clear',
     description: 'Clears specified messages.',
-    usage: '<messages [from @User] | all>',
+    usage: '<messages [from @User] | all [channelID]> ',
     id: 1,
     examples: ["5", "10 @Danho#2105", "all"],
     /**@param {Message} message @param {string[]} args*/
@@ -13,7 +13,7 @@ module.exports = {
         if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
 
         if (args[0].toLowerCase() == "all")
-            return message.author.send(ClearAll(message));
+            return message.author.send(ClearAll(message, args[1]));
         else if (args[0].toLowerCase() == "log" && PinguLibrary.isPinguDev(message.author)) {
             console.clear();
             return message.channel.send('I have cleared the log!');
@@ -55,14 +55,23 @@ function ClearMessages(message, amount) {
                 .then(() => essage.channel.send(`I had an error trying to delete the messages! I've already notified my developers.`)
             ));
 }
-/**@param {Message} message*/
-function ClearAll(message) {
+/**@param {Message} message
+ @param {TextChannel} channel*/
+function ClearAll(message, channel) {
     var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.MANAGE_CHANNELS]);
     if (permCheck != PinguLibrary.PermissionGranted) return permCheck;
 
-    message.channel.clone();
-    message.channel.delete();
-    return `I've deleted the previous #${message.channel.name}, and replaced it with a new one!`;
+    if (!channel) channel = message.channel;
+    else channel = message.guild.channels.cache.find(c =>
+        c.id == channel ||
+        c.name == channel ||
+        c == channel ||
+        `<#${c.id}>` == channel
+    );
+
+    channel.clone();
+    channel.delete();
+    return `I've deleted the previous #${channel.name}, and replaced it with a new one!`;
 }
 /**@param {Message} message @param {string[]} args @param {User} SpecificUser*/
 function SpecificClear(message, args, SpecificUser) {

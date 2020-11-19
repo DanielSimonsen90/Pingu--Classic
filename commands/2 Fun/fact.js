@@ -1,4 +1,5 @@
-const { MessageEmbed, Message } = require('discord.js');
+const { MessageEmbed, Message, Permissions } = require('discord.js');
+const { PinguLibrary, PinguGuild } = require('../../PinguPackage');
 module.exports = {
     name: 'fact',
     cooldown: 5,
@@ -8,7 +9,7 @@ module.exports = {
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         const PermCheck = PermissionCheck(message);
-        if (PermCheck != `Permission Granted`) return message.author.send(PermCheck);
+        if (PermCheck != PinguLibrary.PermissionGranted) return message.author.send(PermCheck);
 
         const Facts = [
             //Literal Penguin facts
@@ -40,17 +41,10 @@ module.exports = {
             Fact = Math.floor(Math.random() * (Facts.length - 1)),
             Title = Fact <= 8 ? "Penguin Facts" : Fact <= 16 ? "Club Penguin Facts" : "Pingu (TV) Facts";
 
-        let color;
-        if (message.channel.type != 'dm') {
-            const pGuilds = require('../../guilds.json');
-            color = pGuilds.find(pguild => pguild.guildID == message.guild.id).EmbedColor;
-        }
-        else color = 15527148;
-
         message.channel.send(new MessageEmbed()
             .setTitle(Title)
             .setDescription(Facts[Fact])
-            .setColor(color)
+            .setColor(message.channel.type != 'dm' ? PinguGuild.GetPGuild(message.guild).embedColor : 15527148)
             .attachFiles([`./commands/4 DevOnly/pfps/Greeny_Boi.png`])
             .setThumbnail(`attachment://Greeny_Boi.png`)
             .setFooter('For more facts, use *fact again!')
@@ -60,13 +54,11 @@ module.exports = {
 
 /**@param {Message} message*/
 function PermissionCheck(message) {
-    if (message.channel.type == 'dm')
-        return `Permission Granted`;
+    if (message.channel.type != 'dm')
+        return PinguLibrary.PermissionCheck(message, [
+            Permissions.FLAGS.SEND_MESSAGES,
+            Permissions.FLAGS.EMBED_LINKS,
+        ]);
 
-    const PermArr = ["SEND_MESSAGES", "EMBED_LINKS"],
-        PermArrMsg = ["send messages", "send embed links"];
-    for (var x = 0; x < PermArr.length; x++)
-        if (!message.channel.permissionsFor(message.guild.me).has(PermArr[x]))
-            return `Hey! I don't have permission to ${PermArrMsg[x]} in #${message.channel.name}!`;
-    return `Permission Granted`;
+    return PinguLibrary.PermissionGranted;
 }

@@ -1,5 +1,5 @@
-const { Message, MessageEmbed } = require('discord.js');
-const { PinguGuild, PinguSupport } = require('../../PinguPackage');
+const { Message, MessageEmbed, Permissions } = require('discord.js');
+const { PinguGuild, PinguSupport, PinguLibrary } = require('../../PinguPackage');
 
 module.exports = {
     name: 'support',
@@ -9,22 +9,10 @@ module.exports = {
     id: 3,
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        let color;
-        if (message.channel.type != 'dm') {
-            const pGuild = PinguGuild.GetPGuild(message);
-            if (!pGuild) {
-                PinguSupport.errorLog(message.client, `Unable to get pGuild from ${message.guild.id}`);
-                return message.channel.send(`Something went wrong! I've notified my developers!`);
-            }
-
-            color = pGuild.embedColor;
-        }
-        else color = 15527148;
-
         var Embed = new MessageEmbed()
             .setTitle('Support of Pingu')
             .setDescription('Contact information & socials about my owner')
-            .setColor(color)
+            .setColor(message.channel.type != 'dm' ? PinguGuild.GetPGuild(message.guild).embedColor : 15527148)
             .setThumbnail(message.client.user.avatarURL)
             .setFooter(`Please don't send him pointless stuff to waste his time :)`)
             .addField('Discord', '@Danho#2105', true)
@@ -36,11 +24,10 @@ module.exports = {
             .addField('SoundCloud', 'https://soundcloud.com/daniel-simonsen-705578407', false)
             .addField('Instagram', 'https://www.instagram.com/danhoesaurus/', false);
 
-        if (message.channel.type != 'dm')
-            if (!message.channel.permissionsFor(message.client.user).has('SEND_MESSAGES')) {
-                message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!\nBut here's your information:`)
-                return message.author.send(Embed);
-            }
+        if (message.channel.type != 'dm') {
+            var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.SEND_MESSAGES]);
+            if (permCheck != PinguLibrary.PermissionGranted) return message.author.send(`${permCheck}\nBut here's your information:`, Embed);
+        }
         message.channel.send(Embed);
     },
 };

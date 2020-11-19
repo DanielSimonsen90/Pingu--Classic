@@ -11,10 +11,10 @@ module.exports = {
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         //Set new prefix
-        PinguGuild.GetPGuild(message).botPrefix = args[0];
+        PinguGuild.GetPGuild(message.guild).botPrefix = args[0];
 
         //Update guilds.json
-        PinguGuild.UpdatePGuildsJSON(message,
+        PinguGuild.UpdatePGuildsJSON(message.client,
             `Prefix has been changed to \`${args[0]}\`!`,
             `I encountered and error while changing my prefix in ${message.guild.name}:\n\n`
         )

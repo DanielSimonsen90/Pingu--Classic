@@ -1,4 +1,5 @@
-﻿const { Message } = require("discord.js");
+﻿const { Message, Permissions } = require("discord.js");
+const { PinguLibrary, PinguGuild } = require("../../PinguPackage");
 
 module.exports = {
     name: 'update',
@@ -7,8 +8,7 @@ module.exports = {
     id: 4,
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        if (!args.length)
-            return message.channel.send(`What am I supposed to update, ${message.author}?`);
+        if (!args.length) return message.channel.send(`What am I supposed to update, ${message.author}?`);
 
         const commandName = args[0].toLowerCase(),
             command = message.client.commands.get(commandName) ||
@@ -26,9 +26,10 @@ module.exports = {
             console.error(error);
             return message.channel.send(`There was an error while updating \`${commandName}\`!\n\`${error.message}\``);
         }
-        if (message.channel.type != 'dm' && !message.channel.permissionsFor(message.guild.client.user).has('SEND_MESSAGES'))
-            return message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!\nBut I have reloaded your command!`);
-
-        message.channel.send(`Command \`${commandName}\` was updated!`);
+        if (message.channel.type != 'dm') {
+            var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.SEND_MESSAGES]);
+            if (permCheck != PinguLibrary.PermissionGranted) return message.author.send(`${permCheck}\nBut I have updated my command!`)
+        }
+        message.channel.send(`\`${PinguGuild.GetPGuild(message.guild).botPrefix || '*'}${commandName}\` was updated!`);
     },
 };

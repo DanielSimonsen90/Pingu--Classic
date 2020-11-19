@@ -6,7 +6,7 @@ const fs = require('fs'),
     SecondaryPrefix = '562176550674366464',
     ScriptsCategorized = ["", "Utility", "Fun", "Support", "DevOnly"],
     client = new Discord.Client();
-const { PinguGuild, PinguLibrary, PinguGuild } = require('./PinguPackage');
+const { PinguGuild, PinguLibrary } = require('./PinguPackage');
 client.commands = new Discord.Collection();
 
 let PreviousMessages = [],
@@ -49,7 +49,7 @@ client.once('guildCreate', guild => {
             `Thank you for adding me!\n` +
             `Use \`*help\`, if you don't know how I work!`
         ).then(() => console.log(`Sent ${guild.owner.user.tag} my "thank you" message.`))
-        .catch(err => PinguLibrary.errorLog(client, `Error while creating DM to server owner for adding me:\n${err}`));
+        .catch(err => PinguLibrary.errorLog(client, `Error while creating DM to server owner for adding me:\n${err}`)));
 });
 //Leaving a guild
 client.once('guildDelete', guild => {
@@ -239,9 +239,9 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
 
         command.execute(message, args);
         ConsoleLog += `succeeded!\n`;
-    } catch (error) {
-        ConsoleLog += `failed!\nError: ${error}`;
-        PinguLibrary.errorLog(client, `There was an error trying to execute "${commandName} ${args.join(' ')}"!\n Error being: ${error}\n`);
+    } catch (err) {
+        ConsoleLog += `failed!\nError: ${err}`;
+        PinguLibrary.errorLog(client, `There was an error trying to execute "\`${(PinguGuild.GetPGuild(message.guild).botPrefix || '*')}${commandName} ${args.join(' ')}\`"!\n Error being: ${err}\nAt ${err.stack}\n\nError called in ${err.fileName} on line ${err.lineNumber}`);
     }
     console.log(ConsoleLog);
 }
@@ -305,7 +305,7 @@ function SetCommand(path) {
             const command = require(`./commands/${path}/${file}`);
             client.commands.set(command.name, command);
         } catch (error) {
-            PinguLibrary.DanhoDM(client, `"${file}" threw an exception:\n${error.message}\n`)
+            PinguLibrary.DanhoDM(client, `"${file}" threw an exception:\n${error.message}\n${error.stack}\n`)
         }
     }
 }

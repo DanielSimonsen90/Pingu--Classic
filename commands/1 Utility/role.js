@@ -1,5 +1,5 @@
-const { Message } = require('discord.js');
-const { PinguSupport } = require('../../PinguPackage');
+const { Message, Permissions } = require('discord.js');
+const { PinguLibrary } = require('../../PinguPackage');
 
 module.exports = {
     name: 'role',
@@ -10,14 +10,15 @@ module.exports = {
     example: ["add Admin", "remove SMod DiaGuy"],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        if (!message.channel.permissionsFor(message.client.user).has('MANAGE_ROLES'))
-            return message.author.send(`I don't permission to **manage roles**!`).then(() => message.delete());
-        else if (!message.channel.permissionsFor(message.author).has('MANAGE_ROLES') && message.author.id != '245572699894710272')
-            return message.channel.send(`You do not have permission to **manage roles**, so I will not do this for you.`)
+        var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.MANAGE_ROLES]);
+        if (permCheck != PinguLibrary.PermissionGranted) {
+            //if (!permCheck.includes("you") || !PinguLibrary.isPinguDev(message.author)) //Uncomment to abuse Pingu's Manage Roles permission
+                return permCheck;
+        }
 
-        var role = getRole(message);
-        var person = message.mentions.members.first() || message.guild.member(message.author);
-        var command = args.shift();
+        var role = getRole(message),
+            person = message.mentions.members.first() || message.guild.member(message.author),
+            command = args.shift();
 
         if (['give', 'add'].includes(command)) {
             message.guild.member(person).roles.add(role)
@@ -26,7 +27,7 @@ module.exports = {
                     return message.channel.send(`I have given ${messagePerson} ${role.name}.`);
                 })
                 .catch(err => {
-                    PinguSupport.errorLog(message.client, `Unable to give author a role: ${err}`)
+                    PinguLibrary.errorLog(message.client, `Unable to give author a role: ${err}`);
                     message.author.send(`I was unable to give you ${name}!`);
                 })
         }
@@ -37,9 +38,8 @@ module.exports = {
                     return message.channel.send(`I have removed ${role.name} from ${messagePerson}.`);
                 })
                 .catch(err => {
-                    PinguSupport.errorLog(message.client, `Unable to remove role: ${err}`)
+                    PinguLibrary.errorLog(message.client, `Unable to remove role: ${err}`)
                     message.author.send(`I was unable to remove ${name}!`);
-                    message.author.send()
                 });
         }
         else if (command == 'create') {
@@ -48,13 +48,13 @@ module.exports = {
             message.guild.roles.create({ data: { name: name } })
                 .then(role => message.channel.send(`${role.name} was created.`))
                 .catch(err => {
-                    PinguSupport.errorLog(message.client, `Unable to create role: ${err}`)
+                    PinguLibrary.errorLog(message.client, `Unable to create role: ${err}`)
                     message.author.send(`I was unable to create ${name}!`);
                 });
         }
         else if (command == 'delete') {
             if (!role) return message.channel.send(`I wasn't able to find that role!`);
-            message.guild.rolesw.cache.delete(role)
+            message.guild.roles.cache.delete(role);
             return message.channel.send(`Deleted ${role.name}.`);
         }
     }

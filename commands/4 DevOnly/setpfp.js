@@ -1,4 +1,5 @@
-const { Message } = require('discord.js');
+const { Message, Permissions } = require('discord.js');
+const { PinguLibrary } = require('../../PinguPackage');
 
 module.exports = {
     name: 'setpfp',
@@ -9,7 +10,7 @@ module.exports = {
     example: ["AFools", "preview Green"],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        if (!args[0]) return message.channel.send(`Tell me which picture to set!`);
+        if (!args[0]) args[0] = "preview";
         let PFP = args[0].toLowerCase() == "preview" ? args[1] : args[0];
 
         switch (PFP.toLowerCase()) {
@@ -30,11 +31,12 @@ module.exports = {
             return HandlePreview(message, PFP);
 
         message.client.user.setAvatar(`./commands/4 DevOnly/pfps/${PFP}`).then(() => {
-            if (message.channel.type != 'dm' && !message.channel.permissionsFor(message.client.user).has('SEND_MESSAGES'))
-                return message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!\nBut I have updated my PFP!`);
-
+            if (message.channel.type != 'dm') {
+                var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.SEND_MESSAGES]);
+                if (permCheck != PinguLibrary.PermissionGranted) return message.author.send(`${permCheck}\nBut I have updated my profile picture!`);
+            }
             return message.channel.send(`Successfully changed my profile picture!`);
-        }).catch(err => message.channel.send(`ERROR!\n\n${err}`));
+        }).catch(err => message.channel.send(`Error while changing picture\n${err}`));
 
     },
 };
@@ -42,16 +44,14 @@ module.exports = {
 /**@param {Message} message @param {string} imageToPreview
  */
 function HandlePreview(message, imageToPreview) {
-    if (imageToPreview == null)
-        return message.channel.send(`Preview image not specified.`);
+    if (!imageToPreview) return message.channel.send(`Preview image not specified!`);
     try {
-        message.channel.send(`Preview image for: **${imageToPreview}**`);
-        message.channel.send({
+        message.channel.send(`Preview image for: **${imageToPreview}**`, {
             files: [{
                 attachment: `./pfps/${imageToPreview}`,
                 name: `${imageToPreview}.png`
             }]
-        }).catch(e => message.channel.send(e));
+        }).catch(err => message.channel.send(`Error while sending preview!\n${err}`));
     }
     catch (e) { message.channel.send(`Unable to find ${imageToPreview} in my available PFPs!\n` + e.message); }
 }

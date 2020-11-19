@@ -1,6 +1,6 @@
 ﻿const { Message, MessageEmbed, User, Guild, GuildMember, Role, Permissions } = require('discord.js'),
     { PinguGuild, PGuildMember, PRole, GiveawayConfig, Giveaway, TimeLeftObject, PinguLibrary } = require('../../PinguPackage'),
-    { isString, isNumber } = require('util'), ms = require('ms');
+    ms = require('ms');
 
 module.exports = {
     name: 'giveaway',
@@ -16,7 +16,7 @@ module.exports = {
         let ReturnMessage = PermissionCheck(message, args);
         if (ReturnMessage != PinguLibrary.PermissionGranted) return message.author.send(ReturnMessage);
 
-        const pGuild = PinguGuild.GetPGuild(message);
+        const pGuild = PinguGuild.GetPGuild(message.guild);
         if (pGuild.giveawayConfig.firstTimeExecuted || args[0] == `setup`)
             return FirstTimeExecuted(message, args);
         else if (args[0] == "list") return ListGiveaways(message);
@@ -26,7 +26,7 @@ module.exports = {
         if (args[0] != `reroll`) args.shift();
 
         let Winners = 1;
-        if (args[0].endsWith('w') && isNumber(parseInt(args[0].substring(0, args[0].length - 1)))) {
+        if (args[0].endsWith('w') && !isNaN(args[0].substring(0, args[0].length - 1))) {
             Winners = args.shift();
             Winners = Winners.substring(0, Winners.length - 1);
         }
@@ -96,8 +96,8 @@ function PermissionCheck(message, args) {
     ]);
     if (permCheck != PinguLibrary.PermissionGranted) return permCheck;
 
-    const pGuildConf = PinguGuild.GetPGuild(message).giveawayConfig;
-    
+    const pGuildConf = PinguGuild.GetPGuild(message.guild).giveawayConfig;
+
     const OtherArguments = ["reroll", "setup", "list"];
     if (OtherArguments.includes(args[0]) || pGuildConf.firstTimeExecuted)
         return PinguLibrary.PermissionGranted;
@@ -106,18 +106,18 @@ function PermissionCheck(message, args) {
     CheckRoleUpdates(message);
 
     if (!message.member.hasPermission('ADMINISTRATOR')) {
-        if (!message.member.roles.cache.has(pGuildConf.hostRole.id) && message.author.id != '245572699894710272')
+        if (!message.member.roles.cache.has(pGuildConf.hostRole.id) && PinguLibrary.isPinguDev(message.author))
             return `You don't have \`administrator\` permissions or the \`${pGuildConf.hostRole.name}\` role!`;
     }
 
-    if (args[0].endsWith('w') && isNumber(args[0].substring(0, args[0].length - 1)))
+    if (args[0].endsWith('w') && !isNaN(args[0].substring(0, args[0].length - 1)))
         args.shift();
 
     if (args[0].endsWith('s') && parseInt(args[0].substring(0, args[0].length - 1)) < 30)
         return 'Please specfify a time higher than 29s';
     else if (!ms(args[0]))
         return 'Please provide a valid time!';
-    return `Permission Granted`;
+    return PinguLibrary.PermissionGranted;
 
     /**@param {Message} message*/
     function CheckRoleUpdates(message) {
@@ -128,7 +128,7 @@ function PermissionCheck(message, args) {
         WinnerRole = CheckRole(WinnerRole);
         HostRole = CheckRole(HostRole);
 
-        PinguGuild.UpdatePGuildsJSON(message,
+        PinguGuild.UpdatePGuildsJSON(message.client,
             `Updated giveaway roles`,
             `I encountered and error while updating giveaway roles`
         );
@@ -200,7 +200,7 @@ function FirstTimeExecuted(message, args) {
                 break;
             default:
                 collector.stop("Ran default switch-case");
-                console.log(`Ran default in giveaways, collector.on, ${RoleName}`); return;
+                PinguLibrary.errorLog(message.client, `Ran default in giveaways, collector.on, FirstTimeExecuted(), ${RoleName}, ${collectorCount}`); return;
         }
 
         collectorCount++;
@@ -218,116 +218,114 @@ function FirstTimeExecuted(message, args) {
     });
 }
 /**@param {Message} message*/
-function ListGiveaways(message) {
+async function ListGiveaways(message) {
     let Giveaways = PinguGuild.GetPGuild(message).giveawayConfig.giveaways;
     let Embeds = CreateEmbeds(false), EmbedIndex = 0;
 
     if (Giveaways.length == 0 || Embeds.length == 0) return message.channel.send(`There are no giveaways saved!`);
 
-    message.channel.send(Embeds[EmbedIndex]).then(sent => {
-        const Reactions = ['⬅️', '🗑️', '➡️', '🛑'];
-        sent.react('⬅️').then(() =>
-            sent.react('🗑️').then(() =>
-                sent.react('➡️').then(() =>
-                    sent.react('🛑')
-                )
-            )
-        );
+    var sent = await message.channel.send(Embeds[EmbedIndex])
+    const Reactions = ['⬅️', '🗑️', '➡️', '🛑'];
+    await sent.react('⬅️');
+    await sent.react('🗑️');
+    await sent.react('➡️');
+    await sent.react('🛑');
 
-        const reactionCollector = sent.createReactionCollector((reaction, user) =>
-            Reactions.includes(reaction.emoji.name) && user.id == message.author.id, { time: ms('20s') });
+    const reactionCollector = sent.createReactionCollector((reaction, user) =>
+        Reactions.includes(reaction.emoji.name) && user.id == message.author.id, { time: ms('20s') });
 
-        reactionCollector.on('end', reactionsCollected => {
-            if (!reactionsCollected.array().includes('🛑'))
-                sent.delete().then(() => message.channel.send(`Stopped showing giveaways.`));
-        })
-        reactionCollector.on('collect', reaction => {
-            reactionCollector.resetTimer({ time: ms('20s') });
-            var embedToSend;
+    reactionCollector.on('end', async reactionsCollected => {
+        if (!reactionsCollected.array().includes('🛑')) {
+            await sent.delete()
+            message.channel.send(`Stopped showing giveaways.`);
+        }
+    });
+    reactionCollector.on('collect', async reaction => {
+        reactionCollector.resetTimer({ time: ms('20s') });
+        var embedToSend;
 
-            switch (reaction.emoji.name) {
-                case '⬅️': embedToSend = ReturnEmbed(-1); break;
-                case '🗑️': embedToSend = ReturnEmbed(0); break;
-                case '➡️': embedToSend = ReturnEmbed(1); break;
-                case '🛑': reactionCollector.stop(); return;
-                default: message.channel.send(`reactionCollector.on() default case`); break;
-            }
+        switch (reaction.emoji.name) {
+            case '⬅️': embedToSend = ReturnEmbed(-1); break;
+            case '🗑️': embedToSend = ReturnEmbed(0); break;
+            case '➡️': embedToSend = ReturnEmbed(1); break;
+            case '🛑': reactionCollector.stop(); return;
+            default: PinguLibrary.errorLog(message.client, `ListGiveaways(), reactionCollector.on() default case`); break;
+        }
 
-            if (Giveaways.length == 0 || !embedToSend) {
-                sent.delete().then(() => message.channel.send(`No more giveaways to find!`));
-                reactionCollector.stop();
-            }
+        if (Giveaways.length == 0 || !embedToSend) {
+            await sent.delete()
+            message.channel.send(`No more giveaways to find!`);
+            reactionCollector.stop();
+        }
 
-            //Send new embed
-            embedToSend.then(embed => {
-                if (!embedToSend) reactionCollector.stop();
-                sent.edit(sent.embeds[0] = embed.setFooter(`Now viewing: ${EmbedIndex + 1}/${Giveaways.length}`)).then(() => {
-                    sent.reactions.cache.forEach(reaction => {
-                        if (reaction.users.cache.size > 1)
-                            reaction.users.cache.forEach(user => {
-                                if (user.id != message.client.user.id)
-                                    reaction.users.remove(user)
-                            })
-                    })
+        //Send new embed
+        embedToSend
+        if (!embedToSend) reactionCollector.stop();
+
+        await sent.edit(sent.embeds[0] = embed.setFooter(`Now viewing: ${EmbedIndex + 1}/${Giveaways.length}`))
+        sent.reactions.cache.forEach(reaction => {
+            if (reaction.users.cache.size > 1)
+                reaction.users.cache.forEach(user => {
+                    if (user.id != message.client.user.id)
+                        reaction.users.remove(user)
                 })
-            })
-
-            /**@param {number} index*/
-            async function ReturnEmbed(index) {
-                if (!Embeds) return null;
-
-                EmbedIndex += index;
-                if (EmbedIndex <= -1) {
-                    EmbedIndex = Embeds.length - 1;
-                    index = -1;
-                }
-                else if (EmbedIndex >= Embeds.length) {
-                    EmbedIndex = 0;
-                    index = 1
-                }
-                let Embed;
-
-                switch (index) {
-                    case -1: Embed = Embeds[EmbedIndex]; break;
-                    case 0: Embed = await DeleteGiveaway(Embeds[EmbedIndex]); break;
-                    case 1: Embed = Embeds[EmbedIndex]; break;
-                    default: message.channel.send(`Ran default in ReturnEmbed()`); return Embeds[EmbedIndex = 0];
-                }
-                return Embed;
-            }
-            /**@param {MessageEmbed} embed*/
-            async function DeleteGiveaway(embed) {
-                const deletingGiveaway = Giveaways.find(giveaway => giveaway.id == embed.fields[0].value);
-                await RemoveGiveaways(message, [deletingGiveaway]);
-                Giveaways = PinguGuild.GetPGuild(message).giveawayConfig.giveaways;
-                Embeds = CreateEmbeds(true);
-
-                if (!Giveaways.includes(deletingGiveaway)) {
-                    await sent.react('✅');
-                    await setTimeout(async () => await sent.reactions.cache.find(r => r.emoji.name == '✅').remove(), 1500);
-                    return ReturnEmbed(1);
-                }
-                else {
-                    await sent.react('❌');
-                    await setTimeout(async () => await sent.reactions.cache.find(r => r.emoji.name == '❌').remove(), 1500);
-                    return ReturnEmbed(-1);
-                }
-            }
         })
+
+
+
+        /**@param {number} index @returns {MessageEmbed}*/
+        async function ReturnEmbed(index) {
+            if (!Embeds) return null;
+
+            EmbedIndex += index;
+            if (EmbedIndex <= -1) {
+                EmbedIndex = Embeds.length - 1;
+                index = -1;
+            }
+            else if (EmbedIndex >= Embeds.length) {
+                EmbedIndex = 0;
+                index = 1
+            }
+
+            switch (index) {
+                case -1: return Embeds[EmbedIndex]; break;
+                case 0: return await DeleteGiveaway(Embeds[EmbedIndex]); break;
+                case 1: return Embeds[EmbedIndex]; break;
+                default: PinguLibrary.errorLog(message.client, `Ran default in ReturnEmbed()`); return Embeds[EmbedIndex = 0];
+            }
+        }
+        /**@param {MessageEmbed} embed*/
+        async function DeleteGiveaway(embed) {
+            const deletingGiveaway = Giveaways.find(giveaway => giveaway.id == embed.fields[0].value);
+            await RemoveGiveaways(message, [deletingGiveaway]);
+            Giveaways = PinguGuild.GetPGuild(message.guild).giveawayConfig.giveaways;
+            Embeds = CreateEmbeds(true);
+
+            if (!Giveaways.includes(deletingGiveaway)) {
+                await sent.react('✅');
+                await setTimeout(async () => await sent.reactions.cache.find(r => r.emoji.name == '✅').remove(), 1500);
+                return ReturnEmbed(1);
+            }
+            else {
+                await sent.react('❌');
+                await setTimeout(async () => await sent.reactions.cache.find(r => r.emoji.name == '❌').remove(), 1500);
+                return ReturnEmbed(-1);
+            }
+        }
     })
+    
 
     /**@param {boolean} autocalled*/
     function CreateEmbeds(autocalled) {
         let Embeds = [], ToRemove = [];
 
-        if (Giveaways.length == 0)
-            return null;
+        if (Giveaways.length == 0) return null;
 
         for (var i = 0; i < Giveaways.length; i++) {
             try {
                 const Winners = Giveaways[i].winners.join(", "),
                     Host = Giveaways[i].author.toString();
-                if (Winners == "") throw exception();
+                if (!Winners) PinguLibrary.errorLog(message.client, `Couldn't find a winner to ${Giveaways[i].id} from ${message.guild.name} (${message.guild.id})`);
                 Embeds[i] = new MessageEmbed()
                     .setTitle(Giveaways[i].value)
                     .setDescription(`Winner(s)`, Winners)
@@ -335,7 +333,7 @@ function ListGiveaways(message) {
                     .addField(`ID`, Giveaways[i].id, true)
                     .addField(`Host`, Host, true)
                     .setFooter(`Now viewing: ${i + 1}/${Giveaways.length}`);
-            } catch (e) { console.log(e); ToRemove.push(Giveaways[i]); }
+            } catch (err) { PinguLibrary.errorLog(message.client, `Error while adding giveaway to Embeds\n${err}`); ToRemove.push(Giveaways[i]); }
         }
         RemoveGiveaways(message, ToRemove);
         if (!Embeds && !autocalled) return null;
@@ -355,19 +353,19 @@ function ListGiveaways(message) {
  * @param {GuildMember} PreviousWinner*/
 async function ExecuteTimeOut(message, GiveawayMessage, Prize, Winners, embed, GiveawayCreator, interval, PreviousWinner) {
     clearInterval(interval);
-    const pGuildGiveaway = PinguGuild.GetPGuild(message).giveawayConfig,
+    const pGuildGiveaway = PinguGuild.GetPGuild(message.guild).giveawayConfig,
         GiveawayWinnerRole = pGuildGiveaway.winnerRole;
     let WinnerArr = [];
 
     let peopleReacted;
     try { peopleReacted = GiveawayMessage.reactions.cache.get('🤞').users.cache.array(); }
-    catch (error) { message.channel.send(error); }
+    catch (err) {
+        await PinguLibrary.errorLog(message.client, `Error while fetching 🤞 reactions from giveaway\n${err}`);
+        var GiveawayCreatorDM = await GiveawayCreator.createDM();
+        GiveawayCreatorDM.send(`Hi! I ran into an issue while finding a winner for your giveaway "${Prize}"... I've already contacted my developers!`);
+    }
 
-    peopleReacted = peopleReacted.filter(user =>
-        GiveawayWinnerRole ?
-            !user.bot && !message.guild.member(user).roles.cache.has(GiveawayWinnerRole.id) :
-            !user.bot
-    );
+    peopleReacted = peopleReacted.filter(user => GiveawayWinnerRole && !message.guild.member(user).roles.cache.has(GiveawayWinnerRole.id) && !user.bot);
 
     // While there's no winner
     for (var i = 0; i < parseInt(Winners); i++) {
@@ -384,8 +382,7 @@ async function ExecuteTimeOut(message, GiveawayMessage, Prize, Winners, embed, G
             );
             return message.channel.send(`A winner to "**${Prize}**" couldn't be found!`);
         }
-        else if (Winner == `A winner couldn't be found!`)
-            Winner = "no one";
+        else if (Winner == `A winner couldn't be found!`) Winner = "no one";
         WinnerArr[i] = Winner;
         peopleReacted.splice(peopleReacted.indexOf(Winner), 1);
     }
@@ -393,38 +390,36 @@ async function ExecuteTimeOut(message, GiveawayMessage, Prize, Winners, embed, G
     let WinnerArrStringed = WinnerArr.join(' & ');
 
     //Announce Winner
-    GiveawayMessage.channel.send(`The winner of "**${Prize}**" is no other than ${WinnerArrStringed}! Congratulations!`)
-        .then(sent => sent.react(sent.client.guilds.cache
-            .find(guild => guild.id == '756383096646926376').emojis.cache
-            .find(emote => emote.name == 'hypers')
-        ));
+    var WinnerMessage = await GiveawayMessage.channel.send(`The winner of "**${Prize}**" is no other than ${WinnerArrStringed}! Congratulations!`)
+    WinnerMessage.react(PinguLibrary.SavedServers.PinguSupport(message.client).emojis.cache.find(emote => emote.name == 'hypers'));
 
     RemovePreviousWinners(message.guild.members.cache.filter(Member => Member.roles.cache.has(GiveawayWinnerRole.id)).array());
 
     let gCreatorMessage = '';
     for (var i = 0; i < WinnerArr.length; i++) {
         await message.guild.member(WinnerArr[i]).roles.add(GiveawayWinnerRole.id)
-            .catch(e => {
-                if (e != `TypeError [INVALID_TYPE]: Supplied roles is not a Role, Snowflake or Array or Collection of Roles or Snowflakes.`)
-                    GiveawayCreator.user.send(`I couldn't give <@${Winner.id}> a Giveaway Winner role!\n` + e);
+            .catch(async err => {
+                if (err != `TypeError [INVALID_TYPE]: Supplied roles is not a Role, Snowflake or Array or Collection of Roles or Snowflakes.`) {
+                    await PinguLibrary.errorLog(message.client, `Unable to give <@${Winner.id}> "${message.guild.name}"'s Giveaway Winner Role, ${GiveawayWinnerRole.name} (${GiveawayWinnerRole.id})\n${err}`);
+                    GiveawayCreator.user.send(`I couldn't give <@${Winner.id}> a Giveaway Winner role! I have already notified my developers.`);
+                }
                 //`Please give me a role above the Giveaway Winner role, or move my role above it!`
             });
         gCreatorMessage += `<@${WinnerArr[i].id}> & `;
     }
     GiveawayCreator.user.send(gCreatorMessage.substring(0, gCreatorMessage.length - 2) + ` won your giveaway, "**${Prize}**" in **${message.guild.name}**!`)
 
-    const Description = Winners.length == 1 ?
-        `Winner: ${WinnerArrStringed}\nHosted by: ${GiveawayCreator.user}` :
-        `Winners: ${WinnerArrStringed}\nHosted by: ${GiveawayCreator.user}`;
-
     //Edit embed to winner
     GiveawayMessage.edit(embed
         .setTitle(`Winner of "${Prize}"!`)
-        .setDescription(Description)
+        .setDescription(`${(Winners.length == 1 ? `Winner` : `Winners`)}: ${WinnerArrStringed}\nHosted by: ${GiveawayCreator.user}`)
         .setFooter('Giveaway ended.')
-    ).catch(error => message.channel.send(error));
+    ).catch(err => PinguLibrary.errorLog(message.client, `I encounted an error trying to edit the Giveaway Message\n${err}`)
+        .then(() => GiveawayCreator.user.send(`I had an error while updating the original giveaway message... I've already notified my developers!`))
+    );
+
     UpdatePGuildWinner(GiveawayMessage, WinnerArr);
-    console.log(`Winner of "${Prize}" (hosted by ${GiveawayCreator.user.username}) was won by: ${WinnerArrStringed}`);
+    console.log(`Winner of "${Prize}" (hosted by ${GiveawayCreator.user.username}) was won by: ${WinnerArrStringed}.`);
 
     /**@param {Message} message @param {Message} GiveawayMessage*/
     function FindWinner(message) {
@@ -433,7 +428,7 @@ async function ExecuteTimeOut(message, GiveawayMessage, Prize, Winners, embed, G
         if (Winner == `A winner couldn't be found!`) return Winner;
 
         // If PreviousWinner roles don't exist
-        if (!GiveawayWinnerRole) message.author.send(`I couldn't find a "Giveaway Winner(s)" role!\nI have selected a random winner from everyone`);
+        if (!GiveawayWinnerRole) message.author.send(`I couldn't find a "Giveaway Winner(s)" role!\nI have selected a random winner from everyone.`);
 
         return WinnerArr.includes(Winner) ? null : Winner;
 
@@ -443,9 +438,8 @@ async function ExecuteTimeOut(message, GiveawayMessage, Prize, Winners, embed, G
 
             let Winner = peopleReacted[Math.floor(Math.random() * peopleReacted.length)];
 
-            if (!GiveawayWinnerRole)
-                return Winner;
-            else if (message.guild.member(Winner).roles.cache.has(GiveawayWinnerRole.id))
+            if (!GiveawayWinnerRole) return Winner;
+            else if (message.guild.member(Winner).roles.cache.has(GiveawayWinnerRole.id)) 
                 return pGuildGiveaway.allowSameWinner ? Winner : null;
             return Winner;
         }
@@ -458,9 +452,9 @@ async function ExecuteTimeOut(message, GiveawayMessage, Prize, Winners, embed, G
 }
 /**@param {Message} message @param {string[]} args  @param {MessageEmbed} embed*/
 function Reroll(message, args, embed) {
-    if (!args[1]) return message.author.send(`Giveaway message not found - please provide with a message ID`)
-    let PreviousGiveaway;
-    PreviousGiveaway = message.channel.messages.cache.find(premsg => premsg.id == parseInt(args[1]));
+    if (!args[1]) return message.author.send(`Giveaway message not found - please provide with a message ID`);
+
+    let PreviousGiveaway = message.channel.messages.cache.find(premsg => premsg.id == parseInt(args[1]));
     if (!PreviousGiveaway) {
         PreviousGiveaway = message.channel.messages.cache.find(premsg => premsg.id == parseInt(args[1].split('/')[6]));
         if (!PreviousGiveaway)
@@ -469,7 +463,7 @@ function Reroll(message, args, embed) {
             return message.author.send(`I couldn't find the giveaway embed from that message link!`);
     }
 
-    const Giveaway = PinguGuild.GetPGuild(message).giveawayConfig.giveaways.find(ga => ga.id == PreviousGiveaway.id);
+    const Giveaway = PinguGuild.GetPGuild(message.guild).giveawayConfig.giveaways.find(ga => ga.id == PreviousGiveaway.id);
     return ExecuteTimeOut(message, PreviousGiveaway, Giveaway.value, embed, message.guild.members.cache.find(GM => GM.id == Giveaway.author.id), null, Giveaway.winners[0].toGuildMember());
 }
 //#endregion
@@ -477,7 +471,7 @@ function Reroll(message, args, embed) {
 //#region pGuild Methods
 /**@param {Message} message @param {string} Prize @param {GuildMember} GiveawayCreator*/
 function SaveGiveawayToPGuilds(message, Prize, GiveawayCreator) {
-    const pGuild = PinguGuild.GetPGuild(message);
+    const pGuild = PinguGuild.GetPGuild(message.guild);
     pGuild.giveawayConfig.giveaways[pGuild.giveawayConfig.giveaways.length] = new Giveaway(Prize, message.id, new PGuildMember(GiveawayCreator));
 
     PinguGuild.UpdatePGuildsJSON(message.client,
@@ -487,7 +481,7 @@ function SaveGiveawayToPGuilds(message, Prize, GiveawayCreator) {
 }
 /**@param {Message} GiveawayMessage @param {User[]} WinnerArr*/
 function UpdatePGuildWinner(GiveawayMessage, WinnerArr) {
-    const pGuild = PinguGuild.GetPGuild(GiveawayMessage),
+    const pGuild = PinguGuild.GetPGuild(GiveawayMessage.guild),
         Giveaway = pGuild.giveawayConfig.giveaways.find(giveaway => giveaway.id == GiveawayMessage.id);
 
     for (var i = 0; i < WinnerArr.length; i++)
@@ -501,11 +495,11 @@ function UpdatePGuildWinner(GiveawayMessage, WinnerArr) {
 }
 /**@param {Message} message @param {string} GiveawayHostRole @param {Role | string} GiveawayWinnerRole @param {boolean} allowRepeatedWinners*/
 async function SaveGiveawayRolesToPGuilds(message, GiveawayHostRole, GiveawayWinnerRole, allowRepeatedWinners) {
-    const pGuild = PinguGuild.GetPGuild(message);
+    const pGuild = PinguGuild.GetPGuild(message.guild);
 
-    if (isString(GiveawayHostRole))
+    if (typeof(GiveawayHostRole) === 'string')
         GiveawayHostRole = await CreateGiveawayRole(message.guild, GiveawayHostRole);
-    if (isString(GiveawayWinnerRole))
+    if (typeof(GiveawayWinnerRole) === 'string')
         GiveawayWinnerRole = await CreateGiveawayRole(message.guild, GiveawayWinnerRole);
 
     if (!GiveawayHostRole) GiveawayHostRole = "undefined";
@@ -529,19 +523,19 @@ async function SaveGiveawayRolesToPGuilds(message, GiveawayHostRole, GiveawayWin
         return Guild.roles.create({
             data: { name: RoleName }
         }).catch(err => {
-            PinguSupport.errorLog(message.client, `Error while creating Giveaway role\n${err}`);
-            return `I had an error when I tried to create ${RoleName}! I've contacted my developers.`;
+            PinguLibrary.errorLog(message.client, `Error while creating Giveaway role\n${err}`)
+                .then(() => `I had an error when I tried to create ${RoleName}! I've contacted my developers.`);
         });
     }
 }
 /**@param {Message} message @param {Giveaway[]} giveaways*/
 async function RemoveGiveaways(message, giveaways) {
     if (!giveaways || giveaways.length == 0 || !giveaways[0]) return;
-    const pGuild = PinguGuild.GetPGuild(message);
+    const pGuild = PinguGuild.GetPGuild(message.guild);
 
     pGuild.giveawayConfig.giveaways = pGuild.giveawayConfig.giveaways.filter(ga => !giveaways.includes(ga));
 
-    console.log('Giveaway Removed');
+    console.log(`The giveaway, ${giveaways[0].value} (${giveaways[0].id}) was removed.`);
 
     await PinguGuild.UpdatePGuildsJSONAsync(message.client,
         `Removed ${giveaways.length} giveaways from ${message.guild.name}'s giveaway list.`,

@@ -1,4 +1,5 @@
 const { MessageEmbed, Message, Guild } = require('discord.js');
+const { PinguGuild } = require('../../PinguPackage');
 module.exports = {
     name: 'serverinfo',
     description: 'Sends server information.',
@@ -35,10 +36,11 @@ module.exports = {
 };
 
 /**@param {Guild} guild @param {boolean} bigboiinfo*/
-function SendCallerInfo(guild, bigboiinfo) {
+async function SendCallerInfo(guild, bigboiinfo) {
     const DefaultThumbnail = guild.iconURL(),
         Description = guild.description ? guild.description : 'None',
         color = GetPGuildColor(guild);
+
     let EmbedArray = [
         new MessageEmbed()
             .setTitle(`Server Information: ${guild.name}`)
@@ -58,18 +60,8 @@ function SendCallerInfo(guild, bigboiinfo) {
             .addField("\u200B", "\u200B", true)
     ];
     if (bigboiinfo) {
-
         EmbedArray[0].addField(`Presence Count`, guild.presences.cache.size, true)
             .addField(`Maximum Members`, guild.maximumMembers, true);
-
-        //#region Special Information
-        let Bans, Invites, Webhooks;
-        guild.fetchBans().then(bans => Bans = bans.size);
-        guild.fetchInvites().then(invites => Invites = invites.size);
-        guild.fetchWebhooks().then(webhooks => Webhooks = webhooks.size);
-
-        Bans = !Bans ? 0 : Bans;
-        Webhooks = !Webhooks ? 0 : Webhooks;
 
         EmbedArray[1] = new MessageEmbed()
             .setTitle(`Special Information`)
@@ -77,20 +69,17 @@ function SendCallerInfo(guild, bigboiinfo) {
             .setColor(color)
             .addField(`Default Notifications`, guild.defaultMessageNotifications, true)
             .addField(`Banner Hash`, guild.banner, true)
-            .addField(`Banned Members`, Bans, true)
-            .addField(`Invites`, Invites, true)
-            .addField(`Webhooks`, Webhooks, true)
+            .addField(`Banned Members`, (await guild.fetchBans()).size, true)
+            .addField(`Invites`, (await guild.fetchInvites()).size, true)
+            .addField(`Webhooks`, (await guild.fetchWebhooks()).size, true)
             .addField(`Partnered Discord`, guild.partnered, true)
             .addField(`Verified Discord`, guild.verified, true);
         //#endregion
 
         //#region Channel Information
         function GetChannelCount(type) {
-            const channels = guild.channels.cache.filter(c => c.type == type);
-            return channels.size;
-        };
-        const RulesChannel = guild.rulesChannel ? guild.rulesChannel : 'None',
-            AFKChannel = guild.afkChannel ? guild.afkChannel : 'None';
+            return guild.channels.cache.filter(c => c.type == type).size;
+        }
 
         EmbedArray[2] = new MessageEmbed()
             .setTitle(`Channel Information`)
@@ -98,22 +87,20 @@ function SendCallerInfo(guild, bigboiinfo) {
             .setColor(color)
             .addField('Categories', GetChannelCount('category'), true)
             .addField(`Channel count`, guild.channels.cache.size, true)
-            .addField(`AFK Channel`, AFKChannel, true)
+            .addField(`AFK Channel`, (guild.afkChannel ? guild.afkChannel : 'None'), true)
             .addField(`AFK Timeout`, guild.afkTimeout, true)
-            .addField(`Rules channel`, RulesChannel, true)
+            .addField(`Rules channel`, (guild.rulesChannel ? guild.rulesChannel : 'None'), true)
             .addField(`Text channels`, GetChannelCount('text'), true)
             .addField(`Voice channels`, GetChannelCount('voice'), true)
             .addField('Announcement channels', GetChannelCount('news'), true)
             .addField(`Store channels`, GetChannelCount('store'), true)
         //#endregion
 
-        //#region Widget Information
-        const WidgetEnabled = guild.widgetEnabled ? guild.widgetEnabled : false;
         EmbedArray[3] = new MessageEmbed()
             .setTitle(`Widget Information`)
             .setThumbnail(DefaultThumbnail)
             .setColor(color)
-            .addField(`Widgets enabled`, WidgetEnabled, true);
+            .addField(`Widgets enabled`, guild.widgetEnabled, true);
         if (guild.widgetEnabled)
             Embed[3].addField(`Widget channel`, guild.widgetChannel, true);
         //#endregion
@@ -123,37 +110,36 @@ function SendCallerInfo(guild, bigboiinfo) {
 
 //#region Send user its stuff
 /**@param {Message} message @param {Guild} serverGuild @param {boolean} bigboiinfo*/
-function SendEmbeds(message, serverGuild, bigboiinfo) {
-    const EmbedArray = SendCallerInfo(serverGuild, bigboiinfo)
+async function SendEmbeds(message, serverGuild, bigboiinfo) {
+    const EmbedArray = await SendCallerInfo(serverGuild, bigboiinfo)
 
-    if (!message.channel.permissionsFor(message.guild.client.user).has('SEND_MESSAGES'))
-        message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!\nBut here's your information:`)
-            .then(() => EmbedArray.forEach(Embed => message.author.send(Embed)));
+    if (!message.channel.permissionsFor(message.guild.client.user).has('SEND_MESSAGES')) {
+        await message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!\nBut here's your information:`)
+        EmbedArray.forEach(Embed => message.author.send(Embed));
+    }
     else EmbedArray.forEach(Embed => message.channel.send(Embed));
 }
 /**@param {Message} message @param {Guild} serverGuild*/
 function SendEmotes(message, serverGuild) {
     let EmoteList;
     for (var x = 0; x < serverGuild.emojis.cache.array().length; x++) {
-        if (!EmoteList)
-            EmoteList = `${serverGuild.emojis.cache.array()[x].name}, `;
+        if (!EmoteList) EmoteList = `${serverGuild.emojis.cache.array()[x].name}, `;
         else EmoteList += `${serverGuild.emojis.cache.array()[x].name}, `;
     }
-    try {
-        EmoteList = EmoteList.substring(0, EmoteList.length - 2);
-        message.channel.send(`**${serverGuild.name}'s Emotes (${serverGuild.emojis.cache.array().length}/${serverGuild.emojis.cache.array().length})**` +
-            '```' + EmoteList.substring(0, EmoteList.length - 2) + '```')
-    }
-    catch {
-        message.channel.send(`There are no emotes in ${serverGuild.name}!`);
-    }
+
+    if (!EmoteList) return message.channel.send(`There are no emotes in ${serverGuild.name}!`);
+
+    EmoteList = EmoteList.substring(0, EmoteList.length - 2);
+
+    message.channel.send(`**${serverGuild.name}'s Emotes (${serverGuild.emojis.cache.array().length}/${serverGuild.emojis.cache.array().length})**` +
+        '```' + EmoteList.substring(0, EmoteList.length - 2) + '```')
 }
 /**@param {Message} message @param {Guild} serverGuild*/
 function SendFeatures(message, serverGuild) {
     let FeatureList;
     serverGuild.features.forEach(feature => FeatureList += `${feature}\n`);
 
-    return FeatureList == undefined ?
+    return FeatureList ?
         message.channel.send(`There are no features in ${serverGuild.name}!`) :
         message.channel.send(`**${serverGuild.name}'s Features**` + '```' + FeatureList + '```')
 }
@@ -161,6 +147,5 @@ function SendFeatures(message, serverGuild) {
 
 /**@param {Guild} guild*/
 function GetPGuildColor(guild) {
-    const pGuilds = require('../../guilds.json');
-    return pGuilds.find(pguild => pguild.guildID == guild.id).embedColor;
+    return PinguGuild.GetPGuild(guild).embedColor;
 }

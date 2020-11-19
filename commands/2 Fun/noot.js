@@ -1,4 +1,5 @@
-const { Message } = require('discord.js');
+const { Message, Permissions } = require('discord.js');
+const { PinguLibrary } = require('../../PinguPackage');
 
 module.exports = {
     name: 'noot',
@@ -9,16 +10,13 @@ module.exports = {
     example: ["Pingu said this message!"],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        if (message.channel.type == 'dm')
-            return message.author.send(args.join(" "));
-
-        const PermissionCheck = message.channel.permissionsFor(message.guild.client.user),
-            PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES"];;
-        for (var Perm = 0; Perm < PermArr.length; Perm++)
-            if (!PermissionCheck.has(PermArr[Perm]))
-                return `Sorry, ${message.author}. It seems like I don't have the **${PermArr[Perm]}** permission.`
-
-        message.delete();
+        if (message.channel.type != 'dm') {
+            var permCheck = PinguLibrary.PermissionCheck(message, [
+                Permissions.FLAGS.SEND_MESSAGES,
+                Permissions.FLAGS.MANAGE_MESSAGES,
+            ]);
+            if (permCheck == PinguLibrary.PermissionGranted) message.delete();
+        }
         message.channel.send(args.join(" "));
     },
 };

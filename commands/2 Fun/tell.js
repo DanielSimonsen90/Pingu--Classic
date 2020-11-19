@@ -1,6 +1,7 @@
 ﻿//const { TellArray } = require('../index');
 
 const { Message } = require("discord.js");
+const { PinguLibrary } = require("../../PinguPackage");
 
 module.exports = {
     name: 'tell',
@@ -11,8 +12,8 @@ module.exports = {
     example: ["Danho Hello!", "Danho's_Super_Cool_Nickname_With_Spaces why is this so long??", "unset"],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        CheckResponse = ArgumentCheck(message, args);
-        if (CheckResponse != `Permission Granted`)
+        var CheckResponse = ArgumentCheck(message, args);
+        if (CheckResponse != PinguLibrary.PermissionGranted)
             return message.channel.send(CheckResponse);
 
         let UserMention = args.shift();
@@ -35,14 +36,15 @@ module.exports = {
             //    Reciever: Mention.user,
             //    Message: Message
             //});
-        }).catch(error => message.channel.send(`Attempted to message ${Mention.user.username} but couldn't due to ${error}`));
+        }).catch(err => PinguLibrary.errorLog(message.client, `${message.author} attempted to *tell ${Mention.user} but failed\n${err}`)
+            .then(() => message.channel.send(`Attempted to message ${Mention.user.username} but couldn't.. I've contacted my developers.`)));
     },
 };
 
 /**Checks if arguments are correct
  * @param {Message} message @param {string[]} args*/
 function ArgumentCheck(message, args) {
-    if (!args[0] && !args[1])
+    if (!args[0] || !args[1])
         return `Not enough arguments provided`;
 
     let Mention = args[0];
@@ -52,10 +54,10 @@ function ArgumentCheck(message, args) {
         for (var Guild of message.client.guilds.cache.array())
             for (var Member of Guild.members.cache.array()) 
                 if (Member.user.username == Mention || Member.nickname == Mention)
-                    return `Permission Granted`;
+                    return PinguLibrary.PermissionGranted;
         return `No mention provided`;
     }
-    return `Permission Granted`;
+    return PinguLibrary.PermissionGranted;
 }
 /**Returns Mention whether it's @Mentioned, username or nickname
  * @param {Message} message @param {string} UserMention*/

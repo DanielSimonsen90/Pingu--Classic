@@ -1,4 +1,5 @@
-const { Message } = require('discord.js');
+const { Message, Permissions } = require('discord.js');
+const { PinguLibrary } = require('../../PinguPackage');
 
 module.exports = {
     name: 'fly',
@@ -8,10 +9,10 @@ module.exports = {
     id: 2,
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        if (message.channel.type !== 'dm')
-            if (!message.channel.permissionsFor(message.guild.client.user).has('SEND_MESSAGES'))
-                return message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!`);
-
+        if (message.channel.type !== 'dm') {
+            var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.SEND_MESSAGES]);
+            if (permCheck != PinguLibrary.PermissionGranted) return permCheck;
+        }
         message.channel.send(`Are you aware of the fact I'm a literal penguin?...`);
     },
 };
