@@ -49,7 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Giveaway = exports.Poll = exports.Suggestion = exports.PinguLibrary = exports.PinguSupport = exports.PinguNotifier = exports.PinguGuild = exports.PRole = exports.PGuildMember = void 0;
+exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Giveaway = exports.Poll = exports.Suggestion = exports.PinguLibrary = exports.PinguGuild = exports.PRole = exports.PGuildMember = void 0;
 var discord_js_1 = require("discord.js");
 var fs = require('fs');
 //#region Custom Pingu classes
@@ -101,21 +101,23 @@ var PinguGuild = /** @class */ (function () {
     PinguGuild.GetPGuilds = function () {
         return require('./guilds.json');
     };
-    PinguGuild.GetPGuild = function (message) {
-        var result = this.GetPGuilds().find(function (pg) { return pg.guildID == message.guild.id; });
+    PinguGuild.GetPGuild = function (guild) {
+        var result = this.GetPGuilds().find(function (pg) { return pg.guildID == guild.id; });
         if (!result)
-            console.error("Unable to find a guild in pGuilds with id " + message.guild.id);
-        return this.GetPGuilds().find(function (pg) { return pg.guildID == message.guild.id; });
+            PinguLibrary.errorLog(guild.client, "Unable to find a guild in pGuilds with id " + guild.id);
+        return result;
     };
     PinguGuild.UpdatePGuildsJSON = function (client, succMsg, errMsg) {
         var _this = this;
         fs.writeFile('./guilds.json', '', function (err) {
             if (err)
-                console.error(err);
+                PinguLibrary.errorLog(client, "Error while updating guilds.json\n" + err);
             else
                 fs.appendFile('./guilds.json', JSON.stringify(_this.GetPGuilds(), null, 4), function (err) {
                     if (err)
-                        PinguNotifier.DanhoDM(client, errMsg + ":\n\n" + err);
+                        PinguLibrary.errorLog(client, errMsg + ":\n\n" + err);
+                    else
+                        console.log(succMsg);
                 });
         });
     };
@@ -130,38 +132,24 @@ var PinguGuild = /** @class */ (function () {
     return PinguGuild;
 }());
 exports.PinguGuild = PinguGuild;
-var PinguNotifier = /** @class */ (function () {
-    function PinguNotifier() {
+var PinguLibrary = /** @class */ (function () {
+    function PinguLibrary() {
     }
-    PinguNotifier.DanhoDM = function (client, messageToDanho) {
-        var DanhoMisc = client.guilds.cache.find(function (guild) { return guild.id == '460926327269359626'; });
-        if (!DanhoMisc)
-            return console.error('Unable to find Danho Misc guild!');
-        DanhoMisc.owner.createDM()
-            .then(function (DanhoDM) { return DanhoDM.send(messageToDanho); })
-            .catch(function (err) { return console.error("Creating DM to Danho failed, " + err); });
-    };
-    return PinguNotifier;
-}());
-exports.PinguNotifier = PinguNotifier;
-var PinguSupport = /** @class */ (function () {
-    function PinguSupport() {
-    }
-    PinguSupport.errorLog = function (client, messageToChannel) {
+    PinguLibrary.errorLog = function (client, messageToChannel) {
         var errorlogChannel = this.getChannel(client, '756383096646926376', '778685376692224080');
         if (!errorlogChannel)
-            return PinguNotifier.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
+            return this.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
         console.error(messageToChannel);
         return errorlogChannel.send(messageToChannel);
     };
-    PinguSupport.outages = function (client, messageToChannel) {
+    PinguLibrary.outages = function (client, messageToChannel) {
         var outageChannel = this.getChannel(client, '756383096646926376', '756386302684823602');
         if (!outageChannel)
-            return PinguNotifier.DanhoDM(client, "Couldn't get #outage channel in Pingu Support, https://discord.gg/Mp4CH8eftv");
+            return this.DanhoDM(client, "Couldn't get #outage channel in Pingu Support, https://discord.gg/Mp4CH8eftv");
         console.log(messageToChannel);
         return outageChannel.send(messageToChannel);
     };
-    PinguSupport.getChannel = function (client, guildID, channelID) {
+    PinguLibrary.getChannel = function (client, guildID, channelID) {
         var guild = client.guilds.cache.find(function (guild) { return guild.id == guildID; });
         if (!guild) {
             console.error("Unable to get guild from " + guildID);
@@ -174,12 +162,36 @@ var PinguSupport = /** @class */ (function () {
         }
         return channel;
     };
-    return PinguSupport;
-}());
-exports.PinguSupport = PinguSupport;
-var PinguLibrary = /** @class */ (function () {
-    function PinguLibrary() {
-    }
+    PinguLibrary.DanhoDM = function (client, messageToDanho) {
+        return __awaiter(this, void 0, void 0, function () {
+            var DanhoMisc, DanhoDM;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        console.error(messageToDanho);
+                        DanhoMisc = client.guilds.cache.find(function (guild) { return guild.id == '460926327269359626'; });
+                        if (!DanhoMisc)
+                            return [2 /*return*/, console.error('Unable to find Danho Misc guild!')];
+                        return [4 /*yield*/, DanhoMisc.owner.createDM()];
+                    case 1:
+                        DanhoDM = _a.sent();
+                        return [2 /*return*/, DanhoDM.send(messageToDanho)
+                                .catch(function (err) { return console.error("Creating DM to Danho failed, " + err); })];
+                }
+            });
+        });
+    };
+    PinguLibrary.PermissionCheck = function (message, client, permissions) {
+        var textChannel = message.channel;
+        for (var x = 0; x < permissions.length; x++) {
+            var permString = permissions[x].toLowerCase().replace('_', ' ');
+            if (!textChannel.permissionsFor(client.user).has(permissions[x]))
+                return "I don't have permission to **" + permString + "** in #" + textChannel.name + ".";
+            else if (!textChannel.permissionsFor(message.author).has(permissions[x]))
+                return message.author + " you don't have permission to **" + permString + "** in #" + textChannel.name + ".";
+        }
+        return this.PermissionGranted;
+    };
     return PinguLibrary;
 }());
 exports.PinguLibrary = PinguLibrary;

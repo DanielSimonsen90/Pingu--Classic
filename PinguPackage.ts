@@ -35,16 +35,17 @@ export class PinguGuild {
     public static GetPGuilds(): PinguGuild[] {
         return require('./guilds.json');
     }
-    public static GetPGuild(message: Message): PinguGuild {
-        var result = this.GetPGuilds().find(pg => pg.guildID == message.guild.id);
-        if (!result) console.error(`Unable to find a guild in pGuilds with id ${message.guild.id}`);
-        return this.GetPGuilds().find(pg => pg.guildID == message.guild.id);
+    public static GetPGuild(guild: Guild): PinguGuild {
+        var result = this.GetPGuilds().find(pg => pg.guildID == guild.id);
+        if (!result) PinguLibrary.errorLog(guild.client, `Unable to find a guild in pGuilds with id ${guild.id}`);
+        return result;
     }
     public static UpdatePGuildsJSON(client: Client, succMsg: string, errMsg: string) {
         fs.writeFile('./guilds.json', '', err => {
-            if (err) console.error(err);
+            if (err) PinguLibrary.errorLog(client, `Error while updating guilds.json\n${err}`);
             else fs.appendFile('./guilds.json', JSON.stringify(this.GetPGuilds(), null, 4), err => {
-                if (err) PinguNotifier.DanhoDM(client, `${errMsg}:\n\n${err}`);
+                if (err) PinguLibrary.errorLog(client, `${errMsg}:\n\n${err}`);
+                else console.log(succMsg);
             });
         });
     }
@@ -79,15 +80,24 @@ export class PinguGuild {
     public themeWinners: PGuildMember[]
 }
 export class PinguLibrary {
+    public static readonly PermissionGranted: "Permission Granted";
+    private static readonly PinguDevelopers: string[] = [
+        '245572699894710272', //Danho#2105
+        '405331883157880846' //Synthy Sytro
+    ];
+
+    public static isPinguDev(user: User) {
+        return this.PinguDevelopers.includes(user.id);
+    }
     public static errorLog(client: Client, messageToChannel: string) {
         var errorlogChannel = this.getChannel(client, '756383096646926376', '778685376692224080');
-        if (!errorlogChannel) return PinguNotifier.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
+        if (!errorlogChannel) return this.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
         console.error(messageToChannel);
         return errorlogChannel.send(messageToChannel);
     }
     public static outages(client: Client, messageToChannel: string) {
         var outageChannel = this.getChannel(client, '756383096646926376', '756386302684823602');
-        if (!outageChannel) return PinguNotifier.DanhoDM(client, `Couldn't get #outage channel in Pingu Support, https://discord.gg/Mp4CH8eftv`);
+        if (!outageChannel) return this.DanhoDM(client, `Couldn't get #outage channel in Pingu Support, https://discord.gg/Mp4CH8eftv`);
         console.log(messageToChannel);
         return outageChannel.send(messageToChannel);
     }
@@ -104,21 +114,26 @@ export class PinguLibrary {
         }
         return channel as TextChannel;
     }
-    public static DanhoDM(client: Client, messageToDanho: string) {
+    public static async DanhoDM(client: Client, messageToDanho: string) {
+        console.error(messageToDanho);
+
         var DanhoMisc = client.guilds.cache.find(guild => guild.id == '460926327269359626');
         if (!DanhoMisc) return console.error('Unable to find Danho Misc guild!');
-        DanhoMisc.owner.createDM()
-            .then(DanhoDM => DanhoDM.send(messageToDanho))
+        var DanhoDM = await DanhoMisc.owner.createDM();
+        return DanhoDM.send(messageToDanho)
             .catch(err => console.error(`Creating DM to Danho failed, ${err}`));
     }
-    public static PermissionCheck(message: Message, user: User, permissions: PermissionString[]) {
+    public static PermissionCheck(message: Message, permissions: PermissionString[]) {
         var textChannel = message.channel as TextChannel;
-        for (var x = 0; x < permissions.length; x++)
-            if (!textChannel.permissionsFor(user).has(permissions[x]))
-                return `Hey! ${(user == message.client.user ? `I don't have` : user == message.author ? `You don't have` : `${user.username} doesn't have`)} permission to **${permissions[x].toLowerCase().replace('_', ' ')}** in #${textChannel.name}!`;
+        for (var x = 0; x < permissions.length; x++) {
+            var permString = permissions[x].toLowerCase().replace('_', ' ');
+            if (!textChannel.permissionsFor(message.client.user).has(permissions[x]))
+                return `I don't have permission to **${permString}** in #${textChannel.name}.`;
+            else if (!textChannel.permissionsFor(message.author).has(permissions[x]))
+                return `${message.author} you don't have permission to **${permString}** in #${textChannel.name}.`;
+        }
         return this.PermissionGranted;
     }
-    public static readonly PermissionGranted: "Permission Granted";
 }
 //#endregion
 

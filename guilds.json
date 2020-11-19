@@ -1,270 +1,199 @@
 [
-    {
-        "guildName": "The Danho Discord",
+  {
+    "guildName": "The Danho Discord",
+    "guildID": "248104299534614528",
+    "guildOwner": {
+      "id": "405331883157880846",
+      "user": "Synthy Sytro#5637",
+      "DiscordGuildMember": {
         "guildID": "248104299534614528",
-        "guildOwner": {
-            "id": "405331883157880846",
-            "user": "Synthy Sytro#5637",
-            "DiscordGuildMember": {
-                "guildID": "248104299534614528",
-                "joinedTimestamp": 1516709295616,
-                "lastMessageChannelID": null,
-                "premiumSinceTimestamp": null,
-                "deleted": false,
-                "nickname": null,
-                "userID": "405331883157880846",
-                "displayName": "Synthy Sytro"
-            }
-        },
-        "botPrefix": "*",
-        "embedColor": 0,
-        "musicQueue": null,
-        "giveawayConfig": {
-            "firstTimeExecuted": true
-        },
-        "pollConfig": {
-            "firstTimeExecuted": true
-        },
-        "suggestions": []
+        "joinedTimestamp": 1516709295616,
+        "lastMessageChannelID": null,
+        "premiumSinceTimestamp": null,
+        "deleted": false,
+        "nickname": null,
+        "userID": "405331883157880846",
+        "displayName": "Synthy Sytro"
+      }
     },
-    {
-        "guildName": "Mailex' Twitch server",
+    "botPrefix": "*",
+    "embedColor": 0,
+    "musicQueue": null,
+    "giveawayConfig": {
+      "firstTimeExecuted": true
+    },
+    "pollConfig": {
+      "firstTimeExecuted": true
+    },
+    "suggestions": []
+  },
+  {
+    "guildName": "Mailex' Twitch server",
+    "guildID": "277371194422853633",
+    "guildOwner": {
+      "id": "277361003950505984",
+      "user": "Mailex#6538",
+      "DiscordGuildMember": {
         "guildID": "277371194422853633",
-        "guildOwner": {
-            "id": "277361003950505984",
-            "user": "Mailex#6538",
-            "DiscordGuildMember": {
-                "guildID": "277371194422853633",
-                "joinedTimestamp": 1486200846063,
-                "lastMessageChannelID": null,
-                "premiumSinceTimestamp": 0,
-                "deleted": false,
-                "nickname": null,
-                "userID": "277361003950505984",
-                "displayName": "Mailex"
-            }
-        },
-        "botPrefix": "*",
-        "embedColor": 16753461,
-        "musicQueue": null,
-        "giveawayConfig": {
-            "firstTimeExecuted": true
-        },
-        "pollConfig": {
-            "firstTimeExecuted": true
-        },
-        "suggestions": []
+        "joinedTimestamp": 1486200846063,
+        "lastMessageChannelID": null,
+        "premiumSinceTimestamp": 0,
+        "deleted": false,
+        "nickname": null,
+        "userID": "277361003950505984",
+        "displayName": "Mailex"
+      }
     },
-    {
-        "guildName": "Beer & Hooters",
+    "botPrefix": "*",
+    "embedColor": 16753461,
+    "musicQueue": null,
+    "giveawayConfig": {
+      "firstTimeExecuted": true
+    },
+    "pollConfig": {
+      "firstTimeExecuted": true
+    },
+    "suggestions": []
+  },
+  {
+    "guildName": "Beer & Hooters",
+    "guildID": "405763731079823380",
+    "guildOwner": {
+      "id": "245572699894710272",
+      "user": "Danho#2105",
+      "DiscordGuildMember": {
         "guildID": "405763731079823380",
-        "guildOwner": {
-            "id": "245572699894710272",
-            "user": "Danho#2105",
-            "DiscordGuildMember": {
-                "guildID": "405763731079823380",
-                "joinedTimestamp": 1544035171631,
-                "lastMessageChannelID": null,
-                "premiumSinceTimestamp": 1572466088188,
-                "deleted": false,
-                "nickname": null,
-                "userID": "245572699894710272",
-                "displayName": "Danho"
-            }
-        },
-        "botPrefix": "*",
-        "embedColor": 3447003,
-        "musicQueue": null,
-        "giveawayConfig": {
-            "firstTimeExecuted": true
-        },
-        "pollConfig": {
-            "firstTimeExecuted": true
-        },
-        "suggestions": [],
-        "themeWinners": []
+        "joinedTimestamp": 1544035171631,
+        "lastMessageChannelID": null,
+        "premiumSinceTimestamp": 1572466088188,
+        "deleted": false,
+        "nickname": null,
+        "userID": "245572699894710272",
+        "displayName": "Danho"
+      }
     },
-    {
-        "guildName": "Danho's Misc",
+    "botPrefix": "*",
+    "embedColor": 3447003,
+    "musicQueue": null,
+    "giveawayConfig": {
+      "firstTimeExecuted": true
+    },
+    "pollConfig": {
+      "firstTimeExecuted": true
+    },
+    "suggestions": [],
+    "themeWinners": []
+  },
+  {
+    "guildName": "Danho's Misc",
+    "guildID": "460926327269359626",
+    "guildOwner": {
+      "id": "245572699894710272",
+      "user": "Danho#2105",
+      "DiscordGuildMember": {
         "guildID": "460926327269359626",
-        "guildOwner": {
-            "id": "245572699894710272",
-            "user": "Danho#2105",
-            "DiscordGuildMember": {
-                "guildID": "460926327269359626",
-                "joinedTimestamp": 1529963800064,
-                "lastMessageChannelID": null,
-                "premiumSinceTimestamp": 0,
-                "deleted": false,
-                "nickname": null,
-                "userID": "245572699894710272",
-                "displayName": "Danho"
-            }
-        },
-        "botPrefix": "*",
-        "embedColor": 15105570,
-        "musicQueue": null,
-        "giveawayConfig": {
-            "firstTimeExecuted": true
-        },
-        "pollConfig": {
-            "firstTimeExecuted": true
-        },
-        "suggestions": []
+        "joinedTimestamp": 1529963800064,
+        "lastMessageChannelID": null,
+        "premiumSinceTimestamp": 0,
+        "deleted": false,
+        "nickname": null,
+        "userID": "245572699894710272",
+        "displayName": "Danho"
+      }
     },
-    {
-        "guildName": "Discurd Butts",
+    "botPrefix": "*",
+    "embedColor": 15105570,
+    "musicQueue": null,
+    "giveawayConfig": {
+      "firstTimeExecuted": true
+    },
+    "pollConfig": {
+      "firstTimeExecuted": true
+    },
+    "suggestions": []
+  },
+  {
+    "guildName": "Discurd Butts",
+    "guildID": "644823098260062221",
+    "guildOwner": {
+      "id": "405331883157880846",
+      "user": "Synthy Sytro#5637",
+      "DiscordGuildMember": {
         "guildID": "644823098260062221",
-        "guildOwner": {
-            "id": "405331883157880846",
-            "user": "Synthy Sytro#5637",
-            "DiscordGuildMember": {
-                "guildID": "644823098260062221",
-                "joinedTimestamp": 1574086194576,
-                "lastMessageChannelID": null,
-                "premiumSinceTimestamp": null,
-                "deleted": false,
-                "nickname": null,
-                "userID": "405331883157880846",
-                "displayName": "Synthy Sytro"
-            }
-        },
-        "botPrefix": "*",
-        "embedColor": 3447003,
-        "musicQueue": null,
-        "giveawayConfig": {
-            "firstTimeExecuted": true
-        },
-        "pollConfig": {
-            "firstTimeExecuted": true
-        },
-        "suggestions": []
+        "joinedTimestamp": 1574086194576,
+        "lastMessageChannelID": null,
+        "premiumSinceTimestamp": null,
+        "deleted": false,
+        "nickname": null,
+        "userID": "405331883157880846",
+        "displayName": "Synthy Sytro"
+      }
     },
-    {
-        "guildName": "Pingu Support",
+    "botPrefix": "*",
+    "embedColor": 3447003,
+    "musicQueue": null,
+    "giveawayConfig": {
+      "firstTimeExecuted": true
+    },
+    "pollConfig": {
+      "firstTimeExecuted": true
+    },
+    "suggestions": []
+  },
+  {
+    "guildName": "Pingu Support",
+    "guildID": "756383096646926376",
+    "guildOwner": {
+      "id": "245572699894710272",
+      "user": "Danho#2105",
+      "DiscordGuildMember": {
         "guildID": "756383096646926376",
-        "guildOwner": {
-            "id": "245572699894710272",
-            "user": "Danho#2105",
-            "DiscordGuildMember": {
-                "guildID": "756383096646926376",
-                "joinedTimestamp": 1600406183163,
-                "lastMessageChannelID": null,
-                "premiumSinceTimestamp": null,
-                "deleted": false,
-                "nickname": null,
-                "userID": "245572699894710272",
-                "displayName": "Danho"
-            }
-        },
-        "botPrefix": "*",
-        "embedColor": 3447003,
-        "musicQueue": null,
-        "giveawayConfig": {
-            "firstTimeExecuted": true
-        },
-        "pollConfig": {
-            "firstTimeExecuted": true
-        },
-        "suggestions": []
+        "joinedTimestamp": 1600406183163,
+        "lastMessageChannelID": null,
+        "premiumSinceTimestamp": null,
+        "deleted": false,
+        "nickname": null,
+        "userID": "245572699894710272",
+        "displayName": "Danho"
+      }
     },
-    {
-        "guildName": "The Devoloper Community",
+    "botPrefix": "*",
+    "embedColor": 3447003,
+    "musicQueue": null,
+    "giveawayConfig": {
+      "firstTimeExecuted": true
+    },
+    "pollConfig": {
+      "firstTimeExecuted": true
+    },
+    "suggestions": []
+  },
+  {
+    "guildName": "The Devoloper Community",
+    "guildID": "778022031811543041",
+    "guildOwner": {
+      "id": "396357904950755338",
+      "user": "Waterslide56#7794",
+      "DiscordGuildMember": {
         "guildID": "778022031811543041",
-        "guildOwner": {
-            "id": "396357904950755338",
-            "user": "Waterslide56#7794",
-            "DiscordGuildMember": {
-                "guildID": "778022031811543041",
-                "joinedTimestamp": 1605565307417,
-                "lastMessageChannelID": null,
-                "premiumSinceTimestamp": 0,
-                "deleted": false,
-                "nickname": null,
-                "userID": "396357904950755338",
-                "displayName": "Waterslide56"
-            }
-        },
-        "botPrefix": "*",
-        "embedColor": 0,
-        "musicQueue": null,
-        "giveawayConfig": {
-            "firstTimeExecuted": false,
-            "allowSameWinner": true,
-            "hostRole": {
-                "name": "GiveAway Host Role",
-                "id": "778634877942890558",
-                "DiscordRole": {
-                    "guild": "778022031811543041",
-                    "id": "778634877942890558",
-                    "name": "GiveAway Host Role",
-                    "color": 11342935,
-                    "hoist": false,
-                    "rawPosition": 1,
-                    "permissions": 103927361,
-                    "managed": false,
-                    "mentionable": false,
-                    "deleted": false,
-                    "createdTimestamp": 1605711421238
-                }
-            },
-            "winnerRole": {
-                "name": "Giveaway Winner",
-                "id": "778633729588723723",
-                "DiscordRole": {
-                    "guild": "778022031811543041",
-                    "id": "778633729588723723",
-                    "name": "Giveaway Winner",
-                    "color": 0,
-                    "hoist": false,
-                    "rawPosition": 2,
-                    "permissions": 103927361,
-                    "managed": false,
-                    "mentionable": false,
-                    "deleted": false,
-                    "createdTimestamp": 1605711147449
-                }
-            },
-            "giveaways": [
-                {
-                    "value": "Test for Ojcastillo29 yesyes",
-                    "id": "778635232613236756",
-                    "author": {
-                        "id": "245572699894710272",
-                        "user": "Danho#2105",
-                        "DiscordGuildMember": {
-                            "guildID": "778022031811543041",
-                            "joinedTimestamp": 1605566922547,
-                            "lastMessageChannelID": "778298820042686466",
-                            "premiumSinceTimestamp": 0,
-                            "deleted": false,
-                            "nickname": null,
-                            "userID": "245572699894710272",
-                            "displayName": "Danho"
-                        }
-                    },
-                    "winners": [
-                        {
-                            "id": "396357904950755338",
-                            "user": "Waterslide56#7794",
-                            "DiscordGuildMember": {
-                                "guildID": "778022031811543041",
-                                "joinedTimestamp": 1605565307417,
-                                "lastMessageChannelID": "778298820042686466",
-                                "premiumSinceTimestamp": 0,
-                                "deleted": false,
-                                "nickname": null,
-                                "userID": "396357904950755338",
-                                "displayName": "Waterslide56"
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        "pollConfig": {
-            "firstTimeExecuted": true
-        },
-        "suggestions": []
-    }
+        "joinedTimestamp": 1605565307417,
+        "lastMessageChannelID": null,
+        "premiumSinceTimestamp": 0,
+        "deleted": false,
+        "nickname": null,
+        "userID": "396357904950755338",
+        "displayName": "Waterslide56"
+      }
+    },
+    "botPrefix": "*",
+    "embedColor": 0,
+    "musicQueue": null,
+    "giveawayConfig": {
+      "firstTimeExecuted": true
+    },
+    "pollConfig": {
+      "firstTimeExecuted": true
+    },
+    "suggestions": []
+  }
 ]

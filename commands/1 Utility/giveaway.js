@@ -1,5 +1,5 @@
-﻿const { Message, MessageEmbed, User, Guild, GuildMember, Role } = require('discord.js'),
-    { PinguGuild, PGuildMember, PRole, GiveawayConfig, Giveaway, TimeLeftObject, PinguSupport } = require('../../PinguPackage'),
+﻿const { Message, MessageEmbed, User, Guild, GuildMember, Role, Permissions } = require('discord.js'),
+    { PinguGuild, PGuildMember, PRole, GiveawayConfig, Giveaway, TimeLeftObject, PinguLibrary } = require('../../PinguPackage'),
     { isString, isNumber } = require('util'), ms = require('ms');
 
 module.exports = {
@@ -14,7 +14,7 @@ module.exports = {
     execute(message, args) {
         // Test if all permissions are available & if all arguments are met
         let ReturnMessage = PermissionCheck(message, args);
-        if (ReturnMessage != `Permission Granted`) return message.author.send(ReturnMessage);
+        if (ReturnMessage != PinguLibrary.PermissionGranted) return message.author.send(ReturnMessage);
 
         const pGuild = PinguGuild.GetPGuild(message);
         if (pGuild.giveawayConfig.firstTimeExecuted || args[0] == `setup`)
@@ -89,16 +89,19 @@ module.exports = {
 //#region Misc Methods
 /**@param {Message} message @param {string[]} args*/
 function PermissionCheck(message, args) {
-    const PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES", "ADD_REACTIONS"],
-        pGuildConf = PinguGuild.GetPGuild(message).giveawayConfig;
-    for (var Perm = 0; Perm < PermArr.length; Perm++)
-        if (!message.channel.permissionsFor(message.client.user).has(PermArr[Perm]))
-            return `Sorry, ${message.author}. It seems like I don't have the **${PermArr[Perm]}** permission.`;
+    var permCheck = PinguLibrary.PermissionCheck(message, message.client, [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.MANAGE_MESSAGES,
+        Permissions.FLAGS.ADD_REACTIONS
+    ]);
+    if (permCheck != PinguLibrary.PermissionGranted) return permCheck;
 
+    const pGuildConf = PinguGuild.GetPGuild(message).giveawayConfig;
+    
     const OtherArguments = ["reroll", "setup", "list"];
     if (OtherArguments.includes(args[0]) || pGuildConf.firstTimeExecuted)
-        return "Permission Granted";
-    else if (!args[0] && !args[1]) return `Hey! You didn't give me enough arguments!`;
+        return PinguLibrary.PermissionGranted;
+    else if (!args[0] && !args[1]) return `You didn't give me enough arguments!`;
 
     CheckRoleUpdates(message);
 
