@@ -64,7 +64,7 @@ ms = require('ms'), { isString } = require('util'),
     };
 /**@param {Message} message @param {string[]} args*/
 function PermissionCheck(message, args) {
-    const PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES"];;
+    const PermArr = ["SEND_MESSAGES", "MANAGE_MESSAGES"];
     for (var x = 0; x < PermArr.length; x++)
         if (!message.channel.permissionsFor(message.client.user).has(PermArr[x]))
             return `Hey! I don't have permission to **${PermArr[x].toLowerCase().replace('_', ' ')}** in #${message.channel.name}!`;
