@@ -129,7 +129,7 @@ client.on('message', message => {
         return message.reply(`I can't execute that command inside DMs!`);
 
     //If DevOnly
-    if (command.id == 4 && message.author.id != "245572699894710272")
+    if (command.id == 4 && PinguLibrary.isPinguDev(message.author))
         return message.reply(`Who do you think you are exactly?`);
 
     //Is User trying to change my prefix?
@@ -252,7 +252,7 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
 function ExecuteTellReply(message) {
     let ConsoleLog = `${message.author.username} sent "${message.content}" to me in PMs.`
     if (LastToBeTold)
-        ConsoleLog += ` Forwarded message to ${LastToBeTold}.`;
+        ConsoleLog += ` Forwarded message to ${LastToBeTold.username}.`;
     console.log(ConsoleLog);
 
     /*try {

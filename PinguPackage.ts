@@ -102,26 +102,26 @@ export class PinguLibrary {
         return this.PinguDevelopers.includes(user.id);
     }
     public static errorLog(client: Client, messageToChannel: string) {
-        var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, '778685376692224080');
+        var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log');
         if (!errorlogChannel) return this.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
         console.error(messageToChannel.includes('`') ? messageToChannel.replace('`',' ') : messageToChannel);
         return errorlogChannel.send(messageToChannel);
     }
     public static outages(client: Client, messageToChannel: string) {
-        var outageChannel = this.getChannel(client, '756383096646926376', '756386302684823602');
+        var outageChannel = this.getChannel(client, '756383096646926376', 'outages');
         if (!outageChannel) return this.DanhoDM(client, `Couldn't get #outage channel in Pingu Support, https://discord.gg/Mp4CH8eftv`);
         console.log(messageToChannel);
         return outageChannel.send(messageToChannel);
     }
-    private static getChannel(client: Client, guildID: string, channelID: string) {
+    private static getChannel(client: Client, guildID: string, channelname: string) {
         var guild = client.guilds.cache.find(guild => guild.id == guildID);
         if (!guild) {
             console.error(`Unable to get guild from ${guildID}`);
             return null;
         }
-        var channel = guild.channels.cache.find(channel => channel.id == channelID);
+        var channel = guild.channels.cache.find(channel => channel.name == channelname);
         if (!channel) {
-            console.error(`Unable to get channel from ${channelID}`);
+            console.error(`Unable to get channel from ${channelname}`);
             return null;
         }
         return channel as TextChannel;

@@ -142,28 +142,28 @@ var PinguLibrary = /** @class */ (function () {
         return this.PinguDevelopers.includes(user.id);
     };
     PinguLibrary.errorLog = function (client, messageToChannel) {
-        var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, '778685376692224080');
+        var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log');
         if (!errorlogChannel)
             return this.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
         console.error(messageToChannel.includes('`') ? messageToChannel.replace('`', ' ') : messageToChannel);
         return errorlogChannel.send(messageToChannel);
     };
     PinguLibrary.outages = function (client, messageToChannel) {
-        var outageChannel = this.getChannel(client, '756383096646926376', '756386302684823602');
+        var outageChannel = this.getChannel(client, '756383096646926376', 'outages');
         if (!outageChannel)
             return this.DanhoDM(client, "Couldn't get #outage channel in Pingu Support, https://discord.gg/Mp4CH8eftv");
         console.log(messageToChannel);
         return outageChannel.send(messageToChannel);
     };
-    PinguLibrary.getChannel = function (client, guildID, channelID) {
+    PinguLibrary.getChannel = function (client, guildID, channelname) {
         var guild = client.guilds.cache.find(function (guild) { return guild.id == guildID; });
         if (!guild) {
             console.error("Unable to get guild from " + guildID);
             return null;
         }
-        var channel = guild.channels.cache.find(function (channel) { return channel.id == channelID; });
+        var channel = guild.channels.cache.find(function (channel) { return channel.name == channelname; });
         if (!channel) {
-            console.error("Unable to get channel from " + channelID);
+            console.error("Unable to get channel from " + channelname);
             return null;
         }
         return channel;
