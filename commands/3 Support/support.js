@@ -1,5 +1,5 @@
 const { Message, MessageEmbed, Permissions } = require('discord.js');
-const { PinguGuild, PinguSupport, PinguLibrary } = require('../../PinguPackage');
+const { PinguGuild, PinguLibrary } = require('../../PinguPackage');
 
 module.exports = {
     name: 'support',
@@ -16,13 +16,14 @@ module.exports = {
             .setThumbnail(message.client.user.avatarURL)
             .setFooter(`Please don't send him pointless stuff to waste his time :)`)
             .addField('Discord', '@Danho#2105', true)
-            .addField('GMail', 'pingulevel1@gmail.com', true)
+            .addField('E-mail', 'pingulevel1@gmail.com', true)
             .addField('Support Server', 'https://discord.gg/Mp4CH8eftv', true)
             .addField("\u200B", "\u200B", true)
             .addField('Spotify', 'https://open.spotify.com/artist/2Ya69OwtcUqvAMPaE8vXdg', false)
             .addField('YouTube', 'https://www.youtube.com/channel/UCNy01Kv9gpTLeKGHzdMbb0w?', false)
             .addField('SoundCloud', 'https://soundcloud.com/daniel-simonsen-705578407', false)
-            .addField('Instagram', 'https://www.instagram.com/danhoesaurus/', false);
+            .addField('Instagram', 'https://www.instagram.com/danhoesaurus/', false)
+            .addField('Github', 'https://www.github.com/DanielSimonsen90/', false);
 
         if (message.channel.type != 'dm') {
             var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.SEND_MESSAGES]);

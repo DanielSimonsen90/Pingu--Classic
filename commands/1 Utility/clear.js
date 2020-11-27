@@ -28,7 +28,8 @@ module.exports = {
         });
     },
 };
-/**@param {Message} message @param {string[]} args*/
+/**@param {Message} message 
+ * @param {string[]} args*/
 function PermissionCheck(message, args) {
     if (message.channel.type != 'dm') {
         var permCheck = PinguLibrary.PermissionCheck(message, [
@@ -42,7 +43,8 @@ function PermissionCheck(message, args) {
         return `I can't execute that command in DMs!`;
     return PinguLibrary.PermissionGranted;
 }
-/**@param {Message} message @param {number} amount*/
+/**@param {Message} message 
+ * @param {number} amount*/
 function ClearMessages(message, amount) {
     let MessagesRemoved = 0,
         MsgArrIndex = message.channel.messages.cache.size - 1,
@@ -51,8 +53,8 @@ function ClearMessages(message, amount) {
     while (MessagesRemoved != amount)
         MessageArray[MsgArrIndex].delete()
             .then(++MessagesRemoved)
-            .catch(err => PinguLibrary.errorLog(message.client, `Error while deleting messages: ${err}`)
-                .then(() => essage.channel.send(`I had an error trying to delete the messages! I've already notified my developers.`)
+            .catch(err => PinguLibrary.errorLog(message.client, `Failed to remove message`, message.content, err)
+                .then(() => message.channel.send(`I had an error trying to delete the messages! I've already notified my developers.`)
             ));
 }
 /**@param {Message} message
@@ -71,9 +73,11 @@ function ClearAll(message, channel) {
 
     channel.clone();
     channel.delete();
-    return `I've deleted the previous #${channel.name}, and replaced it with a new one!`;
+    return `I've deleted the previous #${channel.name}, and replaced it with ${(`<#${message.guild.channels.cache.find(c => c.name == channel.name)}>` ||  `a new one!`)}>!`;
 }
-/**@param {Message} message @param {string[]} args @param {User} SpecificUser*/
+/**@param {Message} message 
+ * @param {string[]} args 
+ * @param {User} SpecificUser*/
 function SpecificClear(message, args, SpecificUser) {
     let MessagesRemoved = 0,
         MsgArrIndex = message.channel.messages.cache.size - 1,
@@ -88,7 +92,7 @@ function SpecificClear(message, args, SpecificUser) {
         return `Removed ${args[0]} messages from ${SpecificUser.username}`
             .then(NewMessage => NewMessage.delete(1500));
     }).catch(err => {
-        PinguLibrary.errorLog(message.client, `Error while clearing ${args[0]} messages from ${SpecificUser.username}\n${err}`);
+        PinguLibrary.errorLog(message.client, `Tried to clear ${args[0]} messages from ${SpecificUser.username}`, message.content, err);
         return `I attempted to delete the messages, but couldn't finish!`;
     })
 }

@@ -31,7 +31,7 @@ module.exports = {
             const stream = ytdl('https://www.youtube.com/watch?v=Akwm2UZJ34o', { filter: 'audioonly' });
             const dispatcher = connection.play(stream);
 
-            dispatcher.on('error', err => PinguLibrary.errorLog(message.client, `Encountered an error on the voice dispatcher in *noice\n${err}`));
+            dispatcher.on('error', err => PinguLibrary.errorLog(message.client, `Voice dispatcher error in *noice`, message.content, err));
 
             ytdl.getInfo('https://www.youtube.com/watch?v=Akwm2UZJ34o');
             dispatcher.setVolume(0.5);

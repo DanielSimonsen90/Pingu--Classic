@@ -52,6 +52,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Giveaway = exports.Poll = exports.Suggestion = exports.PinguLibrary = exports.PinguGuild = exports.PRole = exports.PGuildMember = void 0;
 var discord_js_1 = require("discord.js");
 var fs = require('fs');
+var Error = /** @class */ (function () {
+    function Error(err) {
+        this.message = err.message;
+        this.stack = err.stack;
+        this.fileName = err.fileName;
+        this.lineNumber = err.lineNumber;
+    }
+    return Error;
+}());
 //#region Custom Pingu classes
 var PGuildMember = /** @class */ (function () {
     function PGuildMember(member) {
@@ -138,22 +147,90 @@ var PinguLibrary = /** @class */ (function () {
     PinguLibrary.getServer = function (client, id) {
         return client.guilds.cache.find(function (g) { return g.id == id; });
     };
+    PinguLibrary.PermissionCheck = function (message, permissions) {
+        var textChannel = message.channel;
+        for (var x = 0; x < permissions.length; x++) {
+            var permString = permissions[x].toString().toLowerCase().replace('_', ' ');
+            if (!textChannel.permissionsFor(message.client.user).has(permissions[x]))
+                return "I don't have permission to **" + permString + "** in " + textChannel.name + ".";
+            else if (!textChannel.permissionsFor(message.author).has(permissions[x]))
+                return message.author + " you don't have permission to **" + permString + "** in #" + textChannel.name + ".";
+        }
+        return this.PermissionGranted;
+    };
     PinguLibrary.isPinguDev = function (user) {
+        //console.log(`[${this.PinguDevelopers.join(', ')}].includes(${user.id})`);
         return this.PinguDevelopers.includes(user.id);
     };
-    PinguLibrary.errorLog = function (client, messageToChannel) {
-        var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log');
-        if (!errorlogChannel)
-            return this.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
-        console.error(messageToChannel.includes('`') ? messageToChannel.replace('`', ' ') : messageToChannel);
-        return errorlogChannel.send(messageToChannel);
-    };
-    PinguLibrary.outages = function (client, messageToChannel) {
+    PinguLibrary.outages = function (client, message) {
         var outageChannel = this.getChannel(client, '756383096646926376', 'outages');
         if (!outageChannel)
             return this.DanhoDM(client, "Couldn't get #outage channel in Pingu Support, https://discord.gg/Mp4CH8eftv");
-        console.log(messageToChannel);
-        return outageChannel.send(messageToChannel);
+        console.log(message);
+        return outageChannel.send(message);
+    };
+    PinguLibrary.errorLog = function (client, message, userContent, err) {
+        var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log');
+        if (!errorlogChannel)
+            return this.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
+        console.error(getErrorMessage(message.includes('`') ? message.replace('`', ' ') : message, userContent, err));
+        return errorlogChannel.send(getErrorMessage(message, userContent, err));
+        function getErrorMessage(message, userContent, err) {
+            if (!userContent)
+                return message;
+            else if (!err)
+                return ("[Provided Message]\n" +
+                    (message + "\n") +
+                    "\n" +
+                    "[Message content]\n" +
+                    (userContent + "\n"));
+            return (err.fileName && err.lineNumber ? err.fileName + " threw an error at line " + err.lineNumber + "!\n" : "" +
+                "[Provided Message]\n" +
+                (message + "\n") +
+                "\n" +
+                "[Message content]\n" +
+                (userContent + "\n") +
+                "\n" +
+                "[Error message]: \n" +
+                (err.message + "\n") +
+                "\n" +
+                "[Stack]\n" +
+                (err.stack + "\n\n"));
+        }
+    };
+    PinguLibrary.tellLog = function (client, sender, reciever, message) {
+        var tellLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'tell-log');
+        if (!tellLogChannel)
+            return this.DanhoDM(client, "Couldn't get #tell-log channel in Pingu Support, https://discord.gg/Mp4CH8eftv");
+        if (message.constructor.name == "Message") {
+            var messageAsMessage = message;
+            var consoleLog = messageAsMessage.content ?
+                sender.username + " sent a message to " + reciever.username + " saying " :
+                messageAsMessage.attachments.array().length == 1 ?
+                    sender.username + " sent a file to " + reciever.username :
+                    messageAsMessage.attachments.array().length > 1 ?
+                        sender.username + " sent " + messageAsMessage.attachments.array().length + " files to " + reciever.username :
+                        sender.username + " sent something unknown to " + reciever.username + "!";
+            if (messageAsMessage.content)
+                consoleLog += messageAsMessage.content;
+            if (messageAsMessage.attachments)
+                consoleLog += messageAsMessage.attachments.map(function (a) { return "\n" + a.url; });
+            console.log(consoleLog);
+            var format = new Date(Date.now()).toLocaleTimeString() + " [<@" + sender + "> => <@" + reciever + ">]";
+            if (messageAsMessage.content && messageAsMessage.attachments)
+                tellLogChannel.send(format + (": ||" + messageAsMessage.content + "||"), messageAsMessage.attachments.array());
+            else if (messageAsMessage.content)
+                tellLogChannel.send(format + (": ||" + messageAsMessage.content + "||"));
+            else if (messageAsMessage.attachments)
+                tellLogChannel.send(format, messageAsMessage.attachments.array());
+            else
+                this.errorLog(client, sender + " => " + reciever + " sent something that didn't have content or attachments")
+                    .then(function () { return tellLogChannel.send("Ran else statement - reported to " + tellLogChannel.guild.channels.cache.find(function (c) { return c.name == 'error-log'; })); });
+        }
+        else if (message.constructor.name == "MessageEmbed") {
+            console.log("The link between " + sender.username + " & " + reciever.username + " was unset.");
+            tellLogChannel.send(message);
+        }
     };
     PinguLibrary.getChannel = function (client, guildID, channelname) {
         var guild = client.guilds.cache.find(function (guild) { return guild.id == guildID; });
@@ -168,35 +245,24 @@ var PinguLibrary = /** @class */ (function () {
         }
         return channel;
     };
-    PinguLibrary.DanhoDM = function (client, messageToDanho) {
+    PinguLibrary.DanhoDM = function (client, message) {
         return __awaiter(this, void 0, void 0, function () {
             var DanhoMisc, DanhoDM;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        console.error(messageToDanho);
+                        console.error(message);
                         DanhoMisc = this.SavedServers.DanhoMisc(client);
                         if (!DanhoMisc)
                             return [2 /*return*/, console.error('Unable to find Danho Misc guild!', client.guilds.cache.array().forEach(function (g) { return console.log("[" + g.id + "] " + g.name); }))];
                         return [4 /*yield*/, DanhoMisc.owner.createDM()];
                     case 1:
                         DanhoDM = _a.sent();
-                        return [2 /*return*/, DanhoDM.send(messageToDanho)
+                        return [2 /*return*/, DanhoDM.send(message)
                                 .catch(function (err) { return console.error("Creating DM to Danho failed, " + err); })];
                 }
             });
         });
-    };
-    PinguLibrary.PermissionCheck = function (message, permissions) {
-        var textChannel = message.channel;
-        for (var x = 0; x < permissions.length; x++) {
-            var permString = permissions[x].toString().toLowerCase().replace('_', ' ');
-            if (!textChannel.permissionsFor(message.client.user).has(permissions[x]))
-                return "I don't have permission to **" + permString + "** in " + textChannel.name + ".";
-            else if (!textChannel.permissionsFor(message.author).has(permissions[x]))
-                return message.author + " you don't have permission to **" + permString + "** in #" + textChannel.name + ".";
-        }
-        return this.PermissionGranted;
     };
     PinguLibrary.PinguDevelopers = [
         '245572699894710272',

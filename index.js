@@ -49,7 +49,7 @@ client.once('guildCreate', guild => {
             `Thank you for adding me!\n` +
             `Use \`*help\`, if you don't know how I work!`
         ).then(() => console.log(`Sent ${guild.owner.user.tag} my "thank you" message.`))
-        .catch(err => PinguLibrary.errorLog(client, `Error while creating DM to server owner for adding me:\n${err}`)));
+            .catch(err => PinguLibrary.errorLog(client, `Creating DM to server owner for adding me`, err)));
 });
 //Leaving a guild
 client.once('guildDelete', guild => {
@@ -72,9 +72,8 @@ client.once('guildDelete', guild => {
 //Message response
 client.on('message', message => {
     //Find pGuilds in guilds.json
-    let pGuilds;
     try {
-        pGuilds = PinguGuild.GetPGuilds()
+        let pGuilds = PinguGuild.GetPGuilds()
         if (updatingPGuilds)
             updatingPGuilds = false;
     }
@@ -95,7 +94,11 @@ client.on('message', message => {
         }
         Prefix = pGuild.botPrefix;
         CheckRoleChange(message.guild, pGuild);
-    } catch { Prefix = '*'; }
+    } catch (err) {
+        if (err.message != `Cannot read property 'id' of null`)
+            PinguLibrary.errorLog(client, `Ran catch block in index, trying to assign Prefix.`, message.content, err);
+        Prefix = '*';
+    }
 
     //Split prefix from message content
     const args = message.content.slice(Prefix.length).split(/ +/) ||
@@ -113,9 +116,14 @@ client.on('message', message => {
 
     //If I'm not interacted with don't do anything
 
+    if (message.channel.type == 'dm') {
+        try { return ExecuteTellReply(message); }
+        catch (err) { return PinguLibrary.errorLog(client, `Failed to execute tell reply`, message.content, err); }
+    }
+
     if (!message.content.startsWith(Prefix) && !message.author.bot)
         if (!message.content.includes(SecondaryPrefix))
-            return (message.channel.type == 'dm') ? ExecuteTellReply(message) : null;
+            return;
 
     //Attempt "command" assignment
     let command = AssignCommand(commandName, args);
@@ -129,7 +137,7 @@ client.on('message', message => {
         return message.reply(`I can't execute that command inside DMs!`);
 
     //If DevOnly
-    if (command.id == 4 && PinguLibrary.isPinguDev(message.author))
+    if (command.id == 4 && !PinguLibrary.isPinguDev(message.author))
         return message.reply(`Who do you think you are exactly?`);
 
     //Is User trying to change my prefix?
@@ -142,6 +150,7 @@ client.on('message', message => {
     ExecuteAndLogCommand(message, args, Prefix, commandName, command);
 
 });
+client.on('error', err => PinguLibrary.errorLog(client, `Called from client.on('error')`, null, err));
 
 client.login(token);
 
@@ -223,17 +232,30 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
     try {
         if (commandName == "tell") {
             if (args[0] == 'unset') {
+                PinguLibrary.tellLog(
+                    client,
+                    LastToUseTell == message.author ? LastToUseTell : LastToBeTold,
+                    LastToUseTell != message.author ? LastToUseTell : LastToBeTold,
+                    new Discord.MessageEmbed()
+                        .setTitle(`Link between ${LastToUseTell} & ${LastToBeTold} was unset.`)
+                        .setColor(PinguGuild.GetPGuild(PinguLibrary.SavedServers.PinguSupport(client)).embedColor)
+                        .setDescription(`${message.author} unset the link.`)
+                        .setThumbnail(message.author.avatarURL())
+                        .setFooter(new Date(Date.now).toLocaleTimeString())
+                );
+
                 LastToUseTell = null;
                 LastToBeTold = null;
 
                 ConsoleLog += `successfully unset LastToUseTell & LastToBeTold.`;
                 console.log(ConsoleLog);
+
                 message.author.send(`Successfully unset LastToUseTell & LastToBeTold.`);
                 return;
             }
             let Mention = args[0];
             while (Mention.includes('_')) Mention = Mention.replace('_', ' ');
-            LastToBeTold = GetMention(message, Mention).user;
+            LastToBeTold = GetMention(message, Mention);
             LastToUseTell = message.author;
         }
 
@@ -241,7 +263,7 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
         ConsoleLog += `succeeded!\n`;
     } catch (err) {
         ConsoleLog += `failed!\nError: ${err}`;
-        PinguLibrary.errorLog(client, `There was an error trying to execute "\`${(PinguGuild.GetPGuild(message.guild).botPrefix || '*')}${commandName} ${args.join(' ')}\`"!\n Error being: ${err}\nAt ${err.stack}\n\nError called in ${err.fileName} on line ${err.lineNumber}`);
+        PinguLibrary.errorLog(client, `Trying to execute "\`${command.name}\`"!`, message.content, err);
     }
     console.log(ConsoleLog);
 }
@@ -250,10 +272,8 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
 // #region Tell command related
 /**@param {Discord.Message} message*/
 function ExecuteTellReply(message) {
-    let ConsoleLog = `${message.author.username} sent "${message.content}" to me in PMs.`
-    if (LastToBeTold)
-        ConsoleLog += ` Forwarded message to ${LastToBeTold.username}.`;
-    console.log(ConsoleLog);
+    try { PinguLibrary.tellLog(client, message.author, LastToBeTold.username == message.author.username ? LastToUseTell : LastToBeTold, message); }
+    catch (err) { PinguLibrary.errorLog(client, 'Tell reply failed', message.content, err); }
 
     /*try {
         for (var x = 0; x < TellArray.length; x++) {
@@ -265,11 +285,18 @@ function ExecuteTellReply(message) {
     }*/
 
     if (message.author == LastToUseTell) {
-        LastToBeTold.dmChannel.send(message.content);
+        if (message.content && message.attachments)
+            LastToBeTold.dmChannel.send(message.content, message.attachments.array());
+        else if (message.content)
+            LastToBeTold.dmChannel.send(message.content);
+        else if (message.attachments)
+            LastToBeTold.dmChannel.send(message.attachments.array());
+        else PinguLibrary.errorLog(client, `${LastToUseTell} => ${LastToBeTold} used else statement from ExecuteTellReply, Index`);
         message.react('✅');
     }
-    else if (LastToUseTell != null)
-        LastToUseTell.dmChannel.send(`${message.author} replied: \n"${message.content}"`);
+    else if (LastToUseTell != null) {
+        LastToUseTell.dmChannel.send(`${message.author} replied:\n${(message.content ? `${message.content}` : message.attachments.array())}`, message.content ? message.attachments.array() : null);
+    }
     else return;
 }
 /**@param {Discord.Message} message*/
@@ -287,8 +314,8 @@ function GetMention(message, UserMention) {
     if (message.mentions.users.first() == null) {
         for (var Guild of message.client.guilds.cache.array())
             for (var Member of Guild.members.cache.array())
-                if (Member.user.username == UserMention || Member.nickname == UserMention)
-                    return Member;
+                if ([Member.user.username, Member.nickname, Member.id].includes(UserMention))
+                    return Member.user;
         return null;
     }
     return message.mentions.users.first();
@@ -313,6 +340,8 @@ function SetCommand(path) {
  * @param {Discord.Guild} guild
  * @param {PinguGuild} pGuild*/
 function CheckRoleChange(guild, pGuild) {
+    const pGuilds = PinguGuild.GetPGuilds();
+
     //Get the color of the Pingu role in message.guild
     const guildRoleColor = guild.me.roles.cache.find(botRoles => botRoles.managed).color;
 
@@ -330,7 +359,7 @@ function CheckRoleChange(guild, pGuild) {
     //Update guilds.json
     PinguGuild.UpdatePGuildsJSON(client,
         `Successfully updated role color from "${guild.name}"`,
-        `I encountered and error while updating my role color in "${guild.name}":\n\n${err}`
+        `I encountered and error while updating my role color in "${guild.name}"`
     );
 }
 //#endregion

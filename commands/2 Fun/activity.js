@@ -35,10 +35,10 @@ module.exports = {
         request('https://www.googleapis.com/customsearch/v1?key=' + config.api_key + '&cx=' + config.google_custom_search + '&q=' + (`"anime" "${args[0]}" person "gif"`) + '&searchType=image&alt=json&num=10&start=' + page, function (err, res, body) {
             let data;
             try { data = JSON.parse(body); }
-            catch (err) { PinguLibrary.errorLog(`I had an error while getting data in activity, request()\n${err}`); }
+            catch (err) { PinguLibrary.errorLog(`Getting data`, err); }
 
             if (!data) {
-                PinguLibrary.errorLog(`I had an error while getting data in activity, request()\n${JSON.stringify(data)}`).then(() =>
+                PinguLibrary.errorLog(`Data is null, *Activity`).then(() =>
                     message.channel.send(`I was unable to recieve a gif! I have contacted my developers...`));
             }
             else if (!data.items || data.items.length == 0) {

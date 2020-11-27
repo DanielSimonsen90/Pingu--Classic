@@ -1,6 +1,20 @@
-import { GuildMember, Guild, Role, Message, TextChannel, VoiceChannel, VoiceConnection, Util, Client, PermissionString, User } from 'discord.js';
+import { GuildMember, Guild, Role, Message, TextChannel, VoiceChannel, VoiceConnection, Util, Client, PermissionString, User, MessageEmbed, MessageAttachment } from 'discord.js';
 import { videoInfo } from 'ytdl-core';
 const fs = require('fs');
+
+class Error {
+    constructor(err: { message: string, stack: string, fileName: string, lineNumber: string }) {
+        this.message = err.message;
+        this.stack = err.stack;
+        this.fileName = err.fileName;
+        this.lineNumber = err.lineNumber;
+    }
+
+    public message: string
+    public stack: string
+    public fileName: string
+    public lineNumber: string
+}
 
 //#region Custom Pingu classes
 export class PGuildMember {
@@ -98,20 +112,97 @@ export class PinguLibrary {
         return client.guilds.cache.find(g => g.id == id);
     }
 
+    public static PermissionCheck(message: Message, permissions: PermissionString[]) {
+        var textChannel = message.channel as TextChannel;
+        for (var x = 0; x < permissions.length; x++) {
+            var permString = permissions[x].toString().toLowerCase().replace('_', ' ');
+            if (!textChannel.permissionsFor(message.client.user).has(permissions[x]))
+                return `I don't have permission to **${permString}** in ${textChannel.name}.`;
+            else if (!textChannel.permissionsFor(message.author).has(permissions[x]))
+                return `${message.author} you don't have permission to **${permString}** in #${textChannel.name}.`;
+        }
+        return this.PermissionGranted;
+    }
     public static isPinguDev(user: User) {
+        //console.log(`[${this.PinguDevelopers.join(', ')}].includes(${user.id})`);
         return this.PinguDevelopers.includes(user.id);
     }
-    public static errorLog(client: Client, messageToChannel: string) {
-        var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log');
-        if (!errorlogChannel) return this.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
-        console.error(messageToChannel.includes('`') ? messageToChannel.replace('`',' ') : messageToChannel);
-        return errorlogChannel.send(messageToChannel);
-    }
-    public static outages(client: Client, messageToChannel: string) {
+
+    public static outages(client: Client, message: string) {
         var outageChannel = this.getChannel(client, '756383096646926376', 'outages');
         if (!outageChannel) return this.DanhoDM(client, `Couldn't get #outage channel in Pingu Support, https://discord.gg/Mp4CH8eftv`);
-        console.log(messageToChannel);
-        return outageChannel.send(messageToChannel);
+        console.log(message);
+        return outageChannel.send(message);
+    }
+    public static errorLog(client: Client, message: string, userContent?: string, err?: Error) {
+        var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log');
+        if (!errorlogChannel) return this.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
+
+        console.error(getErrorMessage(message.includes('`') ? message.replace('`', ' ') : message, userContent, err));
+        return errorlogChannel.send(getErrorMessage(message, userContent, err));
+
+        function getErrorMessage(message: string, userContent?: string, err?: Error) {
+            if (!userContent) return message;
+            else if (!err)
+                return (
+                    `[Provided Message]\n` +
+                    `${message}\n` +
+                    `\n` +
+                    `[Message content]\n` +
+                    `${userContent}\n`
+                );
+
+            return (
+                err.fileName && err.lineNumber ? `${err.fileName} threw an error at line ${err.lineNumber}!\n` : "" +
+                    `[Provided Message]\n` +
+                    `${message}\n` +
+                    `\n` +
+                    `[Message content]\n` +
+                    `${userContent}\n` +
+                    `\n` +
+                    `[Error message]: \n` +
+                    `${err.message}\n` +
+                    `\n` +
+                    `[Stack]\n` +
+                    `${err.stack}\n\n`
+            );
+        }
+    }
+    public static tellLog(client: Client, sender: User, reciever: User, message: Message | MessageEmbed) {
+        var tellLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'tell-log');
+        if (!tellLogChannel) return this.DanhoDM(client, `Couldn't get #tell-log channel in Pingu Support, https://discord.gg/Mp4CH8eftv`)
+
+        if ((message as object).constructor.name == "Message") {
+            var messageAsMessage = message as Message;
+            var consoleLog =
+                messageAsMessage.content ?
+                    `${sender.username} sent a message to ${reciever.username} saying ` :
+                    messageAsMessage.attachments.array().length == 1 ?
+                        `${sender.username} sent a file to ${reciever.username}` :
+                        messageAsMessage.attachments.array().length > 1 ?
+                            `${sender.username} sent ${messageAsMessage.attachments.array().length} files to ${reciever.username}` :
+                            `${sender.username} sent something unknown to ${reciever.username}!`;
+
+            if (messageAsMessage.content) consoleLog += messageAsMessage.content;
+            if (messageAsMessage.attachments) consoleLog += messageAsMessage.attachments.map(a => `\n${a.url}`);
+
+            console.log(consoleLog);
+
+            var format = `${new Date(Date.now()).toLocaleTimeString()} [<@${sender}> => <@${reciever}>]`;
+
+            if (messageAsMessage.content && messageAsMessage.attachments)
+                tellLogChannel.send(format + `: ||${messageAsMessage.content}||`, messageAsMessage.attachments.array());
+            else if (messageAsMessage.content)
+                tellLogChannel.send(format + `: ||${messageAsMessage.content}||`);
+            else if (messageAsMessage.attachments)
+                tellLogChannel.send(format, messageAsMessage.attachments.array());
+            else this.errorLog(client, `${sender} => ${reciever} sent something that didn't have content or attachments`)
+                .then(() => tellLogChannel.send(`Ran else statement - reported to ${tellLogChannel.guild.channels.cache.find(c => c.name == 'error-log')}`));
+        }
+        else if ((message as object).constructor.name == "MessageEmbed") {
+            console.log(`The link between ${sender.username} & ${reciever.username} was unset.`);
+            tellLogChannel.send(message)
+        }
     }
     private static getChannel(client: Client, guildID: string, channelname: string) {
         var guild = client.guilds.cache.find(guild => guild.id == guildID);
@@ -126,25 +217,14 @@ export class PinguLibrary {
         }
         return channel as TextChannel;
     }
-    public static async DanhoDM(client: Client, messageToDanho: string) {
-        console.error(messageToDanho);
+    public static async DanhoDM(client: Client, message: string) {
+        console.error(message);
 
         var DanhoMisc = this.SavedServers.DanhoMisc(client);
         if (!DanhoMisc) return console.error('Unable to find Danho Misc guild!', client.guilds.cache.array().forEach(g => console.log(`[${g.id}] ${g.name}`)));
         var DanhoDM = await DanhoMisc.owner.createDM();
-        return DanhoDM.send(messageToDanho)
+        return DanhoDM.send(message)
             .catch(err => console.error(`Creating DM to Danho failed, ${err}`));
-    }
-    public static PermissionCheck(message: Message, permissions: PermissionString[]) {
-        var textChannel = message.channel as TextChannel;
-        for (var x = 0; x < permissions.length; x++) {
-            var permString = permissions[x].toString().toLowerCase().replace('_', ' ');
-            if (!textChannel.permissionsFor(message.client.user).has(permissions[x]))
-                return `I don't have permission to **${permString}** in ${textChannel.name}.`;
-            else if (!textChannel.permissionsFor(message.author).has(permissions[x]))
-                return `${message.author} you don't have permission to **${permString}** in #${textChannel.name}.`;
-        }
-        return this.PermissionGranted;
     }
 }
 //#endregion

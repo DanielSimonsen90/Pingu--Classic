@@ -39,19 +39,16 @@ module.exports = {
             Prize = Prize.replace(/(<@!*[\d]{18}>)/, Mention.nickname || Mention.user.username ||
                 Mention.displayName || Mention.user.username);
 
-        const color = pGuild.embedColor;
         const EndsAt = new Date(Date.now() + ms(Time));
-
-        let Description =
-            `React with :fingers_crossed: to enter!\n` +
-            `Winners: **${Winners}**\n` +
-            `Ends in: ${new TimeLeftObject(new Date(Date.now()), EndsAt).toString()}\n` +
-            `Hosted by ${GiveawayCreator.user}`;
 
         let embed = new MessageEmbed()
             .setTitle(Prize)
-            .setColor(color)
-            .setDescription(Description)
+            .setColor(pGuild.embedColor)
+            .setDescription(
+                `React with :fingers_crossed: to enter!\n` +
+                `Winners: **${Winners}**\n` +
+                `Ends in: ${new TimeLeftObject(new Date(Date.now()), EndsAt).toString()}\n` +
+                `Hosted by ${GiveawayCreator.user}`)
             .setFooter(`Ends at: ${EndsAt}`);
         //#endregion
 
@@ -200,7 +197,7 @@ function FirstTimeExecuted(message, args) {
                 break;
             default:
                 collector.stop("Ran default switch-case");
-                PinguLibrary.errorLog(message.client, `Ran default in giveaways, collector.on, FirstTimeExecuted(), ${RoleName}, ${collectorCount}`); return;
+                PinguLibrary.errorLog(message.client, `Ran default in giveaways, collector.on, FirstTimeExecuted(), ${RoleName}, ${collectorCount}`, message.content); return;
         }
 
         collectorCount++;
@@ -249,7 +246,7 @@ async function ListGiveaways(message) {
             case '🗑️': embedToSend = ReturnEmbed(0); break;
             case '➡️': embedToSend = ReturnEmbed(1); break;
             case '🛑': reactionCollector.stop(); return;
-            default: PinguLibrary.errorLog(message.client, `ListGiveaways(), reactionCollector.on() default case`); break;
+            default: PinguLibrary.errorLog(message.client, `ListGiveaways(), reactionCollector.on() default case`, message.content); break;
         }
 
         if (Giveaways.length == 0 || !embedToSend) {
@@ -291,7 +288,7 @@ async function ListGiveaways(message) {
                 case -1: return Embeds[EmbedIndex]; break;
                 case 0: return await DeleteGiveaway(Embeds[EmbedIndex]); break;
                 case 1: return Embeds[EmbedIndex]; break;
-                default: PinguLibrary.errorLog(message.client, `Ran default in ReturnEmbed()`); return Embeds[EmbedIndex = 0];
+                default: PinguLibrary.errorLog(message.client, `Ran default in ReturnEmbed()`, message.content); return Embeds[EmbedIndex = 0];
             }
         }
         /**@param {MessageEmbed} embed*/
@@ -333,7 +330,7 @@ async function ListGiveaways(message) {
                     .addField(`ID`, Giveaways[i].id, true)
                     .addField(`Host`, Host, true)
                     .setFooter(`Now viewing: ${i + 1}/${Giveaways.length}`);
-            } catch (err) { PinguLibrary.errorLog(message.client, `Error while adding giveaway to Embeds\n${err}`); ToRemove.push(Giveaways[i]); }
+            } catch (err) { PinguLibrary.errorLog(message.client, `Error while adding giveaway to Embeds`, message.content, err); ToRemove.push(Giveaways[i]); }
         }
         RemoveGiveaways(message, ToRemove);
         if (!Embeds && !autocalled) return null;
@@ -360,7 +357,7 @@ async function ExecuteTimeOut(message, GiveawayMessage, Prize, Winners, embed, G
     let peopleReacted;
     try { peopleReacted = GiveawayMessage.reactions.cache.get('🤞').users.cache.array(); }
     catch (err) {
-        await PinguLibrary.errorLog(message.client, `Error while fetching 🤞 reactions from giveaway\n${err}`);
+        await PinguLibrary.errorLog(message.client, `Fetching 🤞 reactions from giveaway`, message.content, err);
         var GiveawayCreatorDM = await GiveawayCreator.createDM();
         GiveawayCreatorDM.send(`Hi! I ran into an issue while finding a winner for your giveaway "${Prize}"... I've already contacted my developers!`);
     }
@@ -400,7 +397,7 @@ async function ExecuteTimeOut(message, GiveawayMessage, Prize, Winners, embed, G
         await message.guild.member(WinnerArr[i]).roles.add(GiveawayWinnerRole.id)
             .catch(async err => {
                 if (err != `TypeError [INVALID_TYPE]: Supplied roles is not a Role, Snowflake or Array or Collection of Roles or Snowflakes.`) {
-                    await PinguLibrary.errorLog(message.client, `Unable to give <@${Winner.id}> "${message.guild.name}"'s Giveaway Winner Role, ${GiveawayWinnerRole.name} (${GiveawayWinnerRole.id})\n${err}`);
+                    await PinguLibrary.errorLog(message.client, `Unable to give <@${Winner.id}> "${message.guild.name}"'s Giveaway Winner Role, ${GiveawayWinnerRole.name} (${GiveawayWinnerRole.id})`, message.content, err);
                     GiveawayCreator.user.send(`I couldn't give <@${Winner.id}> a Giveaway Winner role! I have already notified my developers.`);
                 }
                 //`Please give me a role above the Giveaway Winner role, or move my role above it!`
@@ -414,7 +411,7 @@ async function ExecuteTimeOut(message, GiveawayMessage, Prize, Winners, embed, G
         .setTitle(`Winner of "${Prize}"!`)
         .setDescription(`${(Winners.length == 1 ? `Winner` : `Winners`)}: ${WinnerArrStringed}\nHosted by: ${GiveawayCreator.user}`)
         .setFooter('Giveaway ended.')
-    ).catch(err => PinguLibrary.errorLog(message.client, `I encounted an error trying to edit the Giveaway Message\n${err}`)
+    ).catch(err => PinguLibrary.errorLog(message.client, `Editing the Giveaway Message`, message.content, err)
         .then(() => GiveawayCreator.user.send(`I had an error while updating the original giveaway message... I've already notified my developers!`))
     );
 
@@ -523,7 +520,7 @@ async function SaveGiveawayRolesToPGuilds(message, GiveawayHostRole, GiveawayWin
         return Guild.roles.create({
             data: { name: RoleName }
         }).catch(err => {
-            PinguLibrary.errorLog(message.client, `Error while creating Giveaway role\n${err}`)
+            PinguLibrary.errorLog(message.client, `Creating Giveaway role`, message.content, err)
                 .then(() => `I had an error when I tried to create ${RoleName}! I've contacted my developers.`);
         });
     }

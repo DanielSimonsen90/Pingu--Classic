@@ -59,7 +59,7 @@ module.exports = {
                     `Brought to you by <@${Host.id}>\n` +
                     `Time left: ${new TimeLeftObject(new Date(Date.now()), EndsAt).toString()}`
                 )).catch(async err => {
-                    await PinguLibrary.errorLog(message.client, `Error while updating poll timer\n${err}`);
+                    await PinguLibrary.errorLog(message.client, `Updating poll timer`, message.content, err);
                     PollMessage.author.send(`I had an issue updating the poll message, so your poll might not finish! Don't worry though, I have already contacted my developers!`);
                 });
         }
@@ -80,7 +80,7 @@ function PermissionCheck(message, args) {
     if (pGuild.pollConfig.pollRole && !message.guild.member(message.author).roles.cache.has(pGuild.pollConfig.pollRole.id) && //pollRole exists and author doesn't have it
         !message.channel.permissionsFor(message.author).has('ADMINISTRATOR')) //author doesn't have Administrator
         return `You don't have \`ADMINISTRATOR\` permissions or a \`Polls\` role!`;
-    else if (!pGuild.pollConfig.pollRole && message.channel.permissionsFor(message.author).has('ADMINISTRATOR'))  //pollRole doesn't exist && author has Administrator
+    else if (!pGuild.pollConfig.pollRole && !message.channel.permissionsFor(message.author).has('ADMINISTRATOR'))  //pollRole doesn't exist && author doesn't have Administrator
         return "You don't have `ADMINISTRATOR` permission!";
     else if (!args[1]) return 'Please provide a poll question!';
     else if (args[0].endsWith('s') && parseInt(args[0].substring(0, args[0].length - 1)) < 30)
@@ -118,7 +118,7 @@ function FirstTimeExecuted(message, args) {
                 SaveSetupToPGuilds(message, PollsRole);
                 break;
             default: collector.stop("Ran default switch-case");
-                PinguLibrary.errorLog(message.client, `Ran default in polls, FirstTimeExecuted(), collector.on`); return;
+                PinguLibrary.errorLog(message.client, `Ran default in polls, FirstTimeExecuted(), collector.on`, message.content); return;
         }
 
         collectorCount++;
@@ -135,7 +135,7 @@ function FirstTimeExecuted(message, args) {
         return message.guild.roles.create({
             data: { name: 'Polls' }
         }).catch(async err => {
-            await PinguLibrary.errorLog(`I encountered an error while trying to make a Polls role for "${message.guild.name}" (${message.guild.id})\n${err}`)
+            await PinguLibrary.errorLog(`Create Polls role for "${message.guild.name}" (${message.guild.id})`, err)
             message.channel.send(`I had an error trying to create the polls role! I've contacted my developers.`);
         });
     }
@@ -214,7 +214,7 @@ async function ListPolls(message) {
                 sent.edit(`Stopped showing polls.`);
                 reactionCollector.stop();
                 return;
-            default: PinguLibrary.errorLog(message.client, `polls, ListPolls(), reactionCollector.on() default case: ${reaction.emoji.name}`); break;
+            default: PinguLibrary.errorLog(message.client, `polls, ListPolls(), reactionCollector.on() default case: ${reaction.emoji.name}`, message.content); break;
         }
 
         if (Polls.length == 0) {
@@ -250,7 +250,7 @@ async function ListPolls(message) {
                 case -1: Embed = Embeds[EmbedIndex]; break;
                 case 0: Embed = await DeletePoll(Embeds[EmbedIndex]); break;
                 case 1: Embed = Embeds[EmbedIndex]; break;
-                default: PinguLibrary.errorLog(message.client, `poll, ListPolls, reactionCollector.on(), ReturnEmbed() Ran default: ${index}`); return Embeds[EmbedIndex = 0];
+                default: PinguLibrary.errorLog(message.client, `poll, ListPolls, reactionCollector.on(), ReturnEmbed() Ran default: ${index}`, message.content); return Embeds[EmbedIndex = 0];
             }
             return Embed;
         }
@@ -289,7 +289,7 @@ async function ListPolls(message) {
                     .addField(`Verdict`, Polls[i].approved, true)
                     .addField(`Host`, Polls[i].author.toString(), true)
                     .setFooter(`Now viewing: ${i + 1}/${Polls.length}`);
-            } catch (err) { PinguLibrary.errorLog(message.client, `Error while adding poll to Embeds\n${err}`); ToRemove.push(Polls[i]); }
+            } catch (err) { PinguLibrary.errorLog(message.client, `Adding poll to Embeds`, message.content, err); ToRemove.push(Polls[i]); }
         }
         RemovePolls(message, ToRemove);
         if (!Embeds && !autocalled) return null;

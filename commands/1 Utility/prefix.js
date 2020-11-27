@@ -2,7 +2,7 @@ const { Message } = require('discord.js'),
     { PinguGuild } = require('../../PinguPackage');
 
 module.exports = {
-    name: 'setprefix',
+    name: 'prefix',
     description: 'set the prefix of server',
     usage: '<new prefix>',
     guildOnly: true,

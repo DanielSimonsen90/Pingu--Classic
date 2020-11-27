@@ -26,14 +26,14 @@ module.exports = {
             // "https://www.googleapis.com/customsearch/v1?key=AIzaSyAeAr2Dv1umzuLes_zhlY0lON4Pf_uAKeM&cx=013524999991164939702:z24cpkwx9nz&q=sloth&searchType=image&alt=json&num=10&start=31"
             let data;
             try { data = JSON.parse(body); }
-            catch (err) { PinguLibrary.errorLog(`I had an error while getting data in activity, request()\n${err}`); }
+            catch (err) { PinguLibrary.errorLog(`Getting data in activity, request()\n${err}`); }
 
             if (!data) {
-                PinguLibrary.errorLog(`I had an error while getting data in activity, request()\n${JSON.stringify(data)}`).then(() =>
+                PinguLibrary.errorLog(`Getting data in activity, request()\n${JSON.stringify(data)}`).then(() =>
                     message.channel.send(`I was unable to recieve a gif! I have contacted my developers...`));
             }
             else if (!data.items || data.items.length == 0) {
-                PinguLibrary.errorLog(`I was unable to get data for activity\n${data}`).then(() =>
+                PinguLibrary.errorLog(`data for activity has no items\n${data}`).then(() =>
                     message.channel.send(`I was unable to find a gif! I have contacted my developers...`));
             }
 

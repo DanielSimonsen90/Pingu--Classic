@@ -29,8 +29,8 @@ module.exports = {
                 if (err) console.log(err);
                 else fs.appendFile('guilds.json', data, err => {
                     if (err) {
-                        PinguLibrary.DanhoDM(message.client, `Error while saving to guilds.json!!\n${err}`);
-                        PinguLibrary.errorLog(message.client, `Error while saving to guilds.json!! <@245572699894710272>\n${err}`);
+                        PinguLibrary.DanhoDM(message.client, `Error while saving to guilds.json!!`, message.content, err);
+                        PinguLibrary.errorLog(message.client, `Error while saving to guilds.json!! <@245572699894710272>`, message.content, err);
                     }
                     else {
                         PinguLibrary.errorLog(message.client, 'Finished! guilds.json was successfully updated with new PinguGuilds elements.\n');
@@ -40,8 +40,8 @@ module.exports = {
                 });
             })
         } catch (err) {
-            PinguLibrary.DanhoDM(message.client, `Error while saving to guilds.json!!\n${err}`);
-            PinguLibrary.errorLog(message.client, `Error while saving to guilds.json!! <@245572699894710272>\n${err}`);
+            PinguLibrary.DanhoDM(message.client, `Error while saving to guilds.json!!`, message.content, err);
+            PinguLibrary.errorLog(message.client, `Error while saving to guilds.json!! <@245572699894710272>`, message.content, err);
         }
     }
 }

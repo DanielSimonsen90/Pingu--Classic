@@ -21,23 +21,28 @@ module.exports = {
 
         const Mention = GetMention(message, UserMention);
 
-        if (!Mention) return message.channel.send(`you dumbed up somewhere man gdi`);
+        if (!Mention) return PinguLibrary.errorLog(message.client, `Mention returned null`, message.content);
 
-        Mention.createDM().then(Channel => {
-            const Message = args.join(' ');
-            Channel.send(Message);
+        Mention.createDM().then(async tellChannel => {
+            const sendMessage = args.join(' ');
+            var sentMessage = await tellChannel.send(sendMessage, message.attachments.array());
 
-            //message.author.send(`Sent ${Mention.username || Mention.user.username}:\n "${Message}"`);
+            //message.author.send(`Sent ${Mention.username }:\n "${Message}"`);
             message.react('✅');
-            console.log(`${message.author.username} sent a message to ${Mention.user.username}, saying "${Message}"`);
+            PinguLibrary.tellLog(message.client, message.author, Mention, sentMessage);
 
             //TellArray.push({
             //    Giver: message.author,
             //    Reciever: Mention.user,
             //    Message: Message
             //});
-        }).catch(err => PinguLibrary.errorLog(message.client, `${message.author} attempted to *tell ${Mention.user} but failed\n${err}`)
-            .then(() => message.channel.send(`Attempted to message ${Mention.user.username} but couldn't.. I've contacted my developers.`)));
+        }).catch(async err => {
+            if (err.message == 'Cannot send messages to this user')
+                return message.channel.send(`Unable to send message to ${Mention.username}, as they have \`Allow direct messages from server members\` disabled!`);
+
+            await PinguLibrary.errorLog(message.client, `${message.author} attempted to *tell ${Mention}`, message.content, err)
+            message.channel.send(`Attempted to message ${Mention.username} but couldn't.. I've contacted my developers.`);
+        })
     },
 };
 
@@ -53,7 +58,7 @@ function ArgumentCheck(message, args) {
     if (message.mentions.users.first() == null) {
         for (var Guild of message.client.guilds.cache.array())
             for (var Member of Guild.members.cache.array()) 
-                if (Member.user.username == Mention || Member.nickname == Mention)
+                if ([Member.user.username, Member.nickname, Member.id].includes(Mention))
                     return PinguLibrary.PermissionGranted;
         return `No mention provided`;
     }
@@ -65,8 +70,8 @@ function GetMention(message, UserMention) {
     if (message.mentions.users.first() == null) {
         for (var Guild of message.client.guilds.cache.array())
             for (var Member of Guild.members.cache.array())
-                if (Member.user.username == UserMention || Member.nickname == UserMention)
-                    return Member;
+                if ([Member.user.username, Member.nickname, Member.id].includes(UserMention))
+                    return Member.user;
         return null;
     }
     return message.mentions.users.first();

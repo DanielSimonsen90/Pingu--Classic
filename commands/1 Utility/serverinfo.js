@@ -1,5 +1,5 @@
 const { MessageEmbed, Message, Guild } = require('discord.js');
-const { PinguGuild } = require('../../PinguPackage');
+const { PinguGuild, PinguLibrary } = require('../../PinguPackage');
 module.exports = {
     name: 'serverinfo',
     description: 'Sends server information.',
@@ -31,7 +31,8 @@ module.exports = {
         else if (args.includes('features'))
             return SendFeatures(message, serverGuild);
 
-        return message.channel.send(`Something happened.. I shouldn't've been here..`);
+        message.channel.send(`Something happened.. I shouldn't've been here..`);
+        PinguLibrary.errorLog(message.client, `Ran line 34, which was not intended`, message.content);
     },
 };
 

@@ -58,8 +58,8 @@ function DefaultHelp(message, embed, Prefix) {
             if (message.channel.type == 'dm') return;
             message.reply(`I've sent you a DM with all my commands!`);
         })
-        .catch(error => {
-            PinguLibrary.errorLog(message.client, `Unable to send help DM to ${message.author.tag}.\n`, error);
+        .catch(err => {
+            PinguLibrary.errorLog(message.client, `Unable to send help DM to ${message.author.tag}.`, message.content, err);
             message.reply(`It seems like I can't DM you! Do you have DMs disabled?`);
         });
 }
@@ -77,7 +77,7 @@ function CategoryOrSpecificHelp(message, args, commands, data, embed, Prefix) {
         case '2': args[0] = ScriptsCategorized[2]; break;
         case '3': args[0] = ScriptsCategorized[3]; break;
         case '4': args[0] = ScriptsCategorized[4]; break;
-        default: break;
+        default: message.channel.send(`I couldn't find that category!`); break;
     }
 
     //Set args[0] to lowercase
@@ -129,8 +129,8 @@ function CategoryOrSpecificHelp(message, args, commands, data, embed, Prefix) {
             if (message.channel.type == 'dm') return;
             message.reply(`I've sent you a DM with all my commands!`);
         })
-        .catch(error => {
-            PinguLibrary.errorLog(message.client, `Could not send help DM to ${message.author.tag}.\n`, error);
+        .catch(err => {
+            PinguLibrary.errorLog(message.client, `Could not send help DM to ${message.author.tag}.`, message.content, err);
             message.reply(`It seems like I can't DM you! Do you have DMs disabled?`);
         });
 }
