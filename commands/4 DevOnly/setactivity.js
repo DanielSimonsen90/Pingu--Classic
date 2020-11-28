@@ -11,7 +11,7 @@ module.exports = {
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         if (!args[0] || !args[1])
-            return message.reply(`You didn't provide me with enough arguments!`);
+            return message.channel.send(`You didn't provide me with enough arguments!`);
         else if (!['PLAYING', 'WATCHING', 'LISTENING'].includes(args[0]))
             return message.channel.send(`What am I supposed to do? Play? Listen? Watch?`); 
 

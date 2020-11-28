@@ -2,7 +2,6 @@ module.exports = {
     name: 'spinthewheel',
     description: 'set the prefix of server',
     usage: '<option1>, <option2>, <option3>....',
-    guildOnly: true,
     id: 1,
     example: ['Yes, No', 'Pizza, McDonalds, Sandwich, Noodles'],
     /**@param {Message} message @param {string[]} args*/
@@ -11,6 +10,9 @@ module.exports = {
         const options = stringArgs.split(', ');
         const ranItem = Math.round(Math.random() * Math.floor(options.length - 1));
 
-        message.channel.send(options[ranItem]);
+        var result = options[ranItem];
+        console.log(`Result: ${result}`);
+
+        message.channel.send(result);
     }
 }

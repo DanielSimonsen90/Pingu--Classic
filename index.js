@@ -9,9 +9,7 @@ const fs = require('fs'),
 const { PinguGuild, PinguLibrary } = require('./PinguPackage');
 client.commands = new Discord.Collection();
 
-let PreviousMessages = [],
-    PreMsgCount = 0,
-    LastToUseTell,
+let LastToUseTell,
     LastToBeTold,
     updatingPGuilds = false;
 //#endregion
@@ -73,7 +71,7 @@ client.once('guildDelete', guild => {
 client.on('message', message => {
     //Find pGuilds in guilds.json
     try {
-        let pGuilds = PinguGuild.GetPGuilds()
+        PinguGuild.GetPGuilds()
         if (updatingPGuilds)
             updatingPGuilds = false;
     }
@@ -115,15 +113,12 @@ client.on('message', message => {
     commandName = TestTagInteraction(commandName, args);
 
     //If I'm not interacted with don't do anything
-
     if (message.channel.type == 'dm') {
         try { return ExecuteTellReply(message); }
         catch (err) { return PinguLibrary.errorLog(client, `Failed to execute tell reply`, message.content, err); }
     }
 
-    if (!message.content.startsWith(Prefix) && !message.author.bot)
-        if (!message.content.includes(SecondaryPrefix))
-            return;
+    if ((!message.content.startsWith(Prefix) && !message.author.bot) && !message.content.includes(SecondaryPrefix)) return;
 
     //Attempt "command" assignment
     let command = AssignCommand(commandName, args);
@@ -140,12 +135,6 @@ client.on('message', message => {
     if (command.id == 4 && !PinguLibrary.isPinguDev(message.author))
         return message.reply(`Who do you think you are exactly?`);
 
-    //Is User trying to change my prefix?
-    TestForPrefixChange(message, commandName);
-
-    //If command on cooldown
-    TestForCooldown(message, command);
-
     //Execute command and log it
     ExecuteAndLogCommand(message, args, Prefix, commandName, command);
 
@@ -161,7 +150,9 @@ function TestTagInteraction(commandName, args) {
         commandName = args.shift();
     return commandName;
 }
-/**@param {string} commandName @param {string[]} args*/
+/**@param {string} commandName 
+ * @param {string[]} args
+ * @returns {Discord.Command}}*/
 function AssignCommand(commandName, args) {
     command = client.commands.get(commandName);
 
@@ -176,52 +167,6 @@ function AssignCommand(commandName, args) {
         } catch { return; }
     }
     return command;
-}
-/**@param {Discord.Message} message @param {string} commandName*/
-function TestForPrefixChange(message, commandName) {
-    if (commandName == 'prefix') return message.channel.send(`Successfully changed my prefix to \`${prefix = args[0]}\`!`);
-    else if (commandName == 'chatlog' || commandName == 'cl') {
-        var Embed = new Discord.RichEmbed()
-            .setTitle('Previous logged messages')
-            .setColor(0xfb8927)
-            .setThumbnail(message.client.user.avatarURL)
-            .setFooter(`I swear I don't mean to stalk you!`);
-
-        if (PreviousMessages.length >= 10)
-            for (var Message = 0; Message <= 10; Message++)
-                Embed.addField(`Message #${Message++}: ${PreviousMessages[Message].author}`, PreviousMessages[Message].content);
-        else
-            for (var Message in PreviousMessages)
-                Embed.addField(`Message #${Message++}: ${PreviousMessages[Message].author}`, PreviousMessages[Message].content)
-        message.channel.send(Embed);
-    }
-    else {
-        PreviousMessages[PreMsgCount] = message;
-        PreMsgCount++;
-    }
-}
-/**@param {Discord.Message} message @param {any} command*/
-function TestForCooldown(message, command) {
-    const cooldowns = new Discord.Collection();
-
-    if (!cooldowns.has(command.name))
-        cooldowns.set(command.name, new Discord.Collection());
-
-    const now = Date.now(),
-        timestamps = cooldowns.get(command.name),
-        cooldownAmount = (command.cooldown || 3) * 1000;
-
-    if (timestamps.has(message.author.id)) {
-        const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
-
-        if (now < expirationTime) {
-            const timeLeft = (expirationTime - now) / 1000;
-            return message.reply(`Please wait ${timeLeft.toFixed(1)} more second(s) before reusing the \`${command.name}\` command.`);
-        }
-
-        timestamps.set(message.autothor.id, now);
-        setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
-    }
 }
 /**@param {Discord.Message} message @param {string[]} args @param {string} Prefix @param {string} commandName @param {any} command*/
 function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {

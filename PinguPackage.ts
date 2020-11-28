@@ -1,4 +1,4 @@
-import { GuildMember, Guild, Role, Message, TextChannel, VoiceChannel, VoiceConnection, Util, Client, PermissionString, User, MessageEmbed, MessageAttachment } from 'discord.js';
+import { GuildMember, Guild, Role, Message, TextChannel, VoiceChannel, VoiceConnection, Util, Client, PermissionString, User, MessageEmbed } from 'discord.js';
 import { videoInfo } from 'ytdl-core';
 const fs = require('fs');
 
@@ -58,7 +58,7 @@ export class PinguGuild {
         fs.writeFile('./guilds.json', '', err => {
             if (err) PinguLibrary.errorLog(client, `Error while updating guilds.json\n${err}`);
             else fs.appendFile('./guilds.json', JSON.stringify(this.GetPGuilds(), null, 4), err => {
-                if (err) PinguLibrary.errorLog(client, `${errMsg}:\n\n${err}`);
+                if (err) PinguLibrary.errorLog(client, `${errMsg}`, null, err);
                 else console.log(succMsg);
             });
         });

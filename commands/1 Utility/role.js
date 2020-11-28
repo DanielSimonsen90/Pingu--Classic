@@ -23,17 +23,26 @@ module.exports = {
         var role = getRoleResult.role;
         args = getRoleResult.args;
 
-        switch (command) {
-            case 'give': case 'add': return AddRole(message, role, person);
-            case 'remove': case 'take': return RemoveRole(message, role, person);
-            case 'create': return CreateRole(message, args);
-            case 'delete': return DeleteRole(message, role);
-            case 'rename': return RenameRole(message, args, role);
-            case 'color': return ColorRole(message, args, role);
-            case 'set': case 'setpermission': return SetPermission(message, args, role);
-            case 'unset': case 'removepermission': return RemovePermission(message, args, role);
-            case 'check': case 'has': return CheckPermission(message, args, (role || person));
-            default: PinguLibrary.errorLog(message.client, `Ran default case in *role`, message.content); break;
+        try {
+            switch (command) {
+                case 'give': case 'add': return AddRole(message, role, person);
+                case 'remove': case 'take': return RemoveRole(message, role, person);
+                case 'create': return CreateRole(message, args);
+                case 'delete': return DeleteRole(message, role);
+                case 'rename': return RenameRole(message, args, role);
+                case 'color': return ColorRole(message, args, role);
+                case 'set': case 'setpermission': return SetPermission(message, args, role);
+                case 'unset': case 'removepermission': return RemovePermission(message, args, role);
+                case 'check': case 'has': return CheckPermission(message, args, (role || person));
+                default: PinguLibrary.errorLog(message.client, `Ran default case in *role`, message.content); break;
+            }
+        }
+        catch (err) {
+            if (err.message == "Invalid bitfield flag or number.")
+                return message.channel.send("That is not a valid permission!");
+
+            PinguLibrary.errorLog(message.client, message, message.content, err).then(() =>
+                message.channel.send("I encountered an error when checking! I've contacted my developers."));
         }
     }
 }
@@ -142,9 +151,8 @@ function SetPermission(message, args, role) {
         return message.channel.send(`${role.name} already has the "${permission}" permission!`);
     else if (!message.guild.me.hasPermission(permission))
         return message.channel.send(`I can't set this permission, as I don't even have that permission myself!`);
-    role.setPermissions(permission + role.permissions, `Requested by: ${message.author.username}`)
+    role.setPermissions(role.permissions.add(permission), `Requested by: ${message.author.username}`)
         .then(() => message.channel.send(`Permission set!`))
-        .catch(err => message.channel.send(/*`"${permission}" is not a valid permission!`*/ err))
 }
 /**@param {Message} message
  * @param {string[]} args
@@ -169,7 +177,8 @@ function RemovePermission(message, args, role) {
  * @param {GuildMember | Role} personOrRole*/
 function CheckPermission(message, args, personOrRole) {
     var permission = args.join('_').toUpperCase();
-    return message.channel.send(`${personOrRole.displayName || personOrRole.name} **${personOrRole.permissions.has(permission) ? `does` : `does not`}** have the ${permission} permission.`);
+    var hasPermission = personOrRole.permissions.has(permission);
+    return message.channel.send(`${personOrRole.displayName || personOrRole.name} **${hasPermission ? `does` : `does not`}** have the ${permission} permission.`);
 }
 
 

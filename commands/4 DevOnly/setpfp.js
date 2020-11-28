@@ -30,7 +30,12 @@ module.exports = {
         if (args[0].toLowerCase() == "preview")
             return HandlePreview(message, PFP);
 
-        message.client.user.setAvatar(`./commands/4 DevOnly/pfps/${PFP}`).then(() => {
+        var newPFP = `./commands/4 DevOnly/pfps/${PFP}`;
+
+        message.client.user.setAvatar(newPFP).then(() => {
+            PinguLibrary.SavedServers.PinguSupport(message.client).setIcon(newPFP, `${message.author.username} called *setpfp in "${message.guild.name}", #${message.channel.name}.`);
+            console.log(`${message.author.username} set profile picture to "${PFP}".`);
+
             if (message.channel.type != 'dm') {
                 var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.SEND_MESSAGES]);
                 if (permCheck != PinguLibrary.PermissionGranted) return message.author.send(`${permCheck}\nBut I have updated my profile picture!`);

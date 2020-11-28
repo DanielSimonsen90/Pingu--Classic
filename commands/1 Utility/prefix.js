@@ -10,6 +10,9 @@ module.exports = {
     example: ['!'],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
+        if (!args || !args[0])
+            return message.channel.send(`My prefix is \`${PinguGuild.GetPGuild(message.guild).botPrefix}\``);
+
         //Set new prefix
         PinguGuild.GetPGuild(message.guild).botPrefix = args[0];
 

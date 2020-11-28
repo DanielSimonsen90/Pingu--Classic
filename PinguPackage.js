@@ -124,7 +124,7 @@ var PinguGuild = /** @class */ (function () {
             else
                 fs.appendFile('./guilds.json', JSON.stringify(_this.GetPGuilds(), null, 4), function (err) {
                     if (err)
-                        PinguLibrary.errorLog(client, errMsg + ":\n\n" + err);
+                        PinguLibrary.errorLog(client, "" + errMsg, null, err);
                     else
                         console.log(succMsg);
                 });

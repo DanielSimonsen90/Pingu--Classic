@@ -19,7 +19,7 @@ module.exports = {
             return message.channel.send('I have cleared the log!');
         }
         else if (message.mentions.users.first())
-            return message.channel.send(SpecificClear(message, args, message.mentions.users.first()));
+            return SpecificClear(message, args, message.mentions.users.first());
 
         message.delete().then(() => {
             ClearMessages(message, parseInt(args[0]));
@@ -79,20 +79,23 @@ function ClearAll(message, channel) {
  * @param {string[]} args 
  * @param {User} SpecificUser*/
 function SpecificClear(message, args, SpecificUser) {
-    let MessagesRemoved = 0,
-        MsgArrIndex = message.channel.messages.cache.size - 1,
-        MessageArray = message.channel.messages.cache.array();
+    let messagesRemoved = 0,
+        cacheSize = message.channel.messages.cache.size - 1,
+        messageCache = message.channel.messages.cache.array(),
+        messagesToRemove = parseInt(args[0]);
 
-    message.delete().then(() => {
-        while (MessagesRemoved !== parseInt(args[0])) {
-            if (MessageArray[MsgArrIndex].author.id == SpecificUser.id)
-                MessageArray[MsgArrIndex].delete().then(MessagesRemoved++);
-            MsgArrIndex--;
+    message.delete().then(async () => {
+        while (messagesRemoved != messagesToRemove) {
+            if (messageCache[cacheSize].author.id == SpecificUser.id) {
+                await messageCache[cacheSize].delete();
+                messagesRemoved++;
+            }
+            cacheSize--;
         }
-        return `Removed ${args[0]} messages from ${SpecificUser.username}`
-            .then(NewMessage => NewMessage.delete(1500));
+        return message.channel.send(`Removed ${args[0]} messages from ${SpecificUser.username}`)
+            .then(sent => sent.delete({ timeout: 1500 }));
     }).catch(err => {
         PinguLibrary.errorLog(message.client, `Tried to clear ${args[0]} messages from ${SpecificUser.username}`, message.content, err);
-        return `I attempted to delete the messages, but couldn't finish!`;
+        return message.channel.send(`I attempted to delete the messages, but couldn't finish!`);
     })
 }

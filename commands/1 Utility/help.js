@@ -7,7 +7,7 @@ const { MessageEmbed, Message, Collection } = require('discord.js'),
 module.exports = {
     name: 'help',
     description: 'List all of my commands or info about a specific command.',
-    usage: '[command]',
+    usage: '[category | command]',
     id: 1,
     examples: ["", "giveaway", "activity"],
     /**@param {Message} message @param {string[]} args*/
