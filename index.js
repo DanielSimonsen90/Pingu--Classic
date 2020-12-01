@@ -22,7 +22,8 @@ for (var x = 1; x < ScriptsCategorized.length; x++)
 //Am I ready to launch?
 client.once('ready', () => {
     PinguLibrary.outages(client, `\nI'm back online!\n`);
-    client.user.setActivity('your screams for *help', { type: 'LISTENING' });
+    //client.user.setActivity('your screams for *help', { type: 'LISTENING' });
+    client.user.setActivity('jingle bells... *help', { type: 'LISTENING' });
 });
 //First time joining a guild
 client.once('guildCreate', guild => {
