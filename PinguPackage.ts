@@ -1,4 +1,4 @@
-import { GuildMember, Guild, Role, Message, TextChannel, VoiceChannel, VoiceConnection, Util, Client, PermissionString, User, MessageEmbed } from 'discord.js';
+import { GuildMember, Guild, Role, Message, TextChannel, VoiceChannel, VoiceConnection, Util, Client, PermissionString, User, MessageEmbed, Channel } from 'discord.js';
 import { videoInfo } from 'ytdl-core';
 const fs = require('fs');
 
@@ -54,17 +54,17 @@ export class PinguGuild {
         if (!result) PinguLibrary.errorLog(guild.client, `Unable to find a guild in pGuilds with id ${guild.id}`);
         return result;
     }
-    public static UpdatePGuildsJSON(client: Client, succMsg: string, errMsg: string) {
+    public static UpdatePGuildsJSON(client: Client, script: string, succMsg: string, errMsg: string) {
         fs.writeFile('./guilds.json', '', err => {
-            if (err) PinguLibrary.errorLog(client, `Error while updating guilds.json\n${err}`);
+            if (err) PinguLibrary.pGuildLog(client, script, `[writeFile]: ${errMsg}`, err);
             else fs.appendFile('./guilds.json', JSON.stringify(this.GetPGuilds(), null, 4), err => {
-                if (err) PinguLibrary.errorLog(client, `${errMsg}`, null, err);
-                else console.log(succMsg);
+                if (err) PinguLibrary.pGuildLog(client, script, `[appendFile]: ${errMsg}`, err);
+                else PinguLibrary.pGuildLog(client, script, succMsg);
             });
         });
     }
-    public static async UpdatePGuildsJSONAsync(client: Client, succMsg: string, errMsg: string) {
-        this.UpdatePGuildsJSON(client, succMsg, errMsg);
+    public static async UpdatePGuildsJSONAsync(client: Client, script: string, succMsg: string, errMsg: string) {
+        this.UpdatePGuildsJSON(client, script, succMsg, errMsg);
     }
     //#endregion
 
@@ -114,12 +114,14 @@ export class PinguLibrary {
 
     public static PermissionCheck(message: Message, permissions: PermissionString[]) {
         var textChannel = message.channel as TextChannel;
+
         for (var x = 0; x < permissions.length; x++) {
             var permString = permissions[x].toString().toLowerCase().replace('_', ' ');
+
             if (!textChannel.permissionsFor(message.client.user).has(permissions[x]))
                 return `I don't have permission to **${permString}** in ${textChannel.name}.`;
             else if (!textChannel.permissionsFor(message.author).has(permissions[x]))
-                return `${message.author} you don't have permission to **${permString}** in #${textChannel.name}.`;
+                return `<@${message.author.id}> you don't have permission to **${permString}** in #${textChannel.name}.`;
         }
         return this.PermissionGranted;
     }
@@ -204,6 +206,16 @@ export class PinguLibrary {
             tellLogChannel.send(message)
         }
     }
+    public static async pGuildLog(client: Client, script: string, message: string, err?: Error) {
+        var pinguGuildLog = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "pingu-guild-log");
+
+        if (err) {
+            var errorLink = (await this.errorLog(client, `pGuild Error: "${message}"`, null, err)).url;
+            return pinguGuildLog.send(`[**Failed**] [**${script}**]: ${message}\n${err.message}\n\n${errorLink}\n\n<@&756383446871310399>`);
+        }
+        return pinguGuildLog.send(`[**Success**] [**${script}**] ${message}`);
+    }
+
     private static getChannel(client: Client, guildID: string, channelname: string) {
         var guild = client.guilds.cache.find(guild => guild.id == guildID);
         if (!guild) {
@@ -217,38 +229,35 @@ export class PinguLibrary {
         }
         return channel as TextChannel;
     }
+
     public static async DanhoDM(client: Client, message: string) {
         console.error(message);
 
         var DanhoMisc = this.SavedServers.DanhoMisc(client);
-        if (!DanhoMisc) return console.error('Unable to find Danho Misc guild!', client.guilds.cache.array().forEach(g => console.log(`[${g.id}] ${g.name}`)));
+        if (!DanhoMisc) {
+            console.error('Unable to find Danho Misc guild!', client.guilds.cache.array().forEach(g => console.log(`[${g.id}] ${g.name}`)));
+            return null;
+        }
         var DanhoDM = await DanhoMisc.owner.createDM();
         return DanhoDM.send(message)
-            .catch(err => console.error(`Creating DM to Danho failed, ${err}`));
     }
 }
 //#endregion
 
 abstract class Decidable {
-    constructor(value: string, id: string, author: PGuildMember) {
+    constructor(value: string, id: string, author: PGuildMember, channel: Channel) {
         this.value = value;
         this.id = id;
         this.author = author;
+        this.channel = channel;
     }
     public value: string
     public id: string
     public author: PGuildMember
+    public channel: Channel
 }
 
 //#region extends Decideables
-export class Suggestion extends Decidable {
-    public Decide(approved: boolean, decidedBy: PGuildMember) {
-        this.approved = approved;
-        this.decidedBy = decidedBy;
-    }
-    public decidedBy: PGuildMember
-    public approved: boolean
-}
 export class Poll extends Decidable {
     public YesVotes: number
     public NoVotes: number
@@ -262,46 +271,60 @@ export class Poll extends Decidable {
     }
 }
 export class Giveaway extends Decidable {
-    constructor(value: string, id: string, author: PGuildMember) {
-        super(value, id, author);
+    constructor(value: string, id: string, author: PGuildMember, channel: Channel) {
+        super(value, id, author, channel);
         this.winners = new Array<PGuildMember>();
     }
     public winners: PGuildMember[]
 }
+export class Suggestion extends Decidable {
+    public Decide(approved: boolean, decidedBy: PGuildMember) {
+        this.approved = approved;
+        this.decidedBy = decidedBy;
+    }
+    public decidedBy: PGuildMember
+    public approved: boolean
+}
 //#endregion
 
-//#region PollConfig
-interface PollConfigOptions {
+interface IDecidableConfigOptions {
     firstTimeExecuted: boolean;
+    channel: Channel;
+}
+
+//#region PollConfig
+interface IPollConfigOptions extends IDecidableConfigOptions {
     pollRole: PRole;
     polls: Poll[];
 }
-export class PollConfig implements PollConfigOptions {
-    constructor(options?: PollConfigOptions) {
+export class PollConfig implements IPollConfigOptions {
+    constructor(options?: IPollConfigOptions) {
         this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
         this.pollRole = options ? options.pollRole : undefined;
+        this.channel = options ? options.channel : undefined;
         if (options) this.polls = options.polls;
     }
     firstTimeExecuted: boolean;
     pollRole: PRole;
     polls: Poll[];
+    channel: Channel;
 }
 //#endregion
 
 //#region GiveawayConfig
-interface GiveawayConfigOptions {
-    firstTimeExecuted: boolean;
+interface IGiveawayConfigOptions extends IDecidableConfigOptions {
     allowSameWinner: boolean;
     hostRole: PRole;
     winnerRole: PRole;
     giveaways: Giveaway[];
 }
-export class GiveawayConfig implements GiveawayConfigOptions {
-    constructor(options?: GiveawayConfigOptions) {
+export class GiveawayConfig implements IGiveawayConfigOptions {
+    constructor(options?: IGiveawayConfigOptions) {
         this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
         this.allowSameWinner = options ? options.allowSameWinner : undefined;
         this.hostRole = options ? options.hostRole : undefined;
         this.winnerRole = options ? options.winnerRole : undefined;
+        this.channel = options ? options.channel : undefined;
         if (options) this.giveaways = options.giveaways;
     }
     firstTimeExecuted: boolean;
@@ -309,6 +332,7 @@ export class GiveawayConfig implements GiveawayConfigOptions {
     hostRole: PRole;
     winnerRole: PRole;
     giveaways: Giveaway[];
+    channel: Channel;
 }
 export class TimeLeftObject {
     constructor(Now: Date, EndsAt: Date) {
@@ -368,7 +392,7 @@ export class TimeLeftObject {
 
 //#region Music
 export class Queue {
-    constructor(logChannel, voiceChannel) {
+    constructor(logChannel: TextChannel, voiceChannel: VoiceChannel) {
         this.logChannel = logChannel;
         this.voiceChannel = voiceChannel;
         this.volume = 5;

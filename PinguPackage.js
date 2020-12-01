@@ -49,7 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Giveaway = exports.Poll = exports.Suggestion = exports.PinguLibrary = exports.PinguGuild = exports.PRole = exports.PGuildMember = void 0;
+exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PRole = exports.PGuildMember = void 0;
 var discord_js_1 = require("discord.js");
 var fs = require('fs');
 var Error = /** @class */ (function () {
@@ -116,24 +116,24 @@ var PinguGuild = /** @class */ (function () {
             PinguLibrary.errorLog(guild.client, "Unable to find a guild in pGuilds with id " + guild.id);
         return result;
     };
-    PinguGuild.UpdatePGuildsJSON = function (client, succMsg, errMsg) {
+    PinguGuild.UpdatePGuildsJSON = function (client, script, succMsg, errMsg) {
         var _this = this;
         fs.writeFile('./guilds.json', '', function (err) {
             if (err)
-                PinguLibrary.errorLog(client, "Error while updating guilds.json\n" + err);
+                PinguLibrary.pGuildLog(client, script, "[writeFile]: " + errMsg, err);
             else
                 fs.appendFile('./guilds.json', JSON.stringify(_this.GetPGuilds(), null, 4), function (err) {
                     if (err)
-                        PinguLibrary.errorLog(client, "" + errMsg, null, err);
+                        PinguLibrary.pGuildLog(client, script, "[appendFile]: " + errMsg, err);
                     else
-                        console.log(succMsg);
+                        PinguLibrary.pGuildLog(client, script, succMsg);
                 });
         });
     };
-    PinguGuild.UpdatePGuildsJSONAsync = function (client, succMsg, errMsg) {
+    PinguGuild.UpdatePGuildsJSONAsync = function (client, script, succMsg, errMsg) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                this.UpdatePGuildsJSON(client, succMsg, errMsg);
+                this.UpdatePGuildsJSON(client, script, succMsg, errMsg);
                 return [2 /*return*/];
             });
         });
@@ -154,7 +154,7 @@ var PinguLibrary = /** @class */ (function () {
             if (!textChannel.permissionsFor(message.client.user).has(permissions[x]))
                 return "I don't have permission to **" + permString + "** in " + textChannel.name + ".";
             else if (!textChannel.permissionsFor(message.author).has(permissions[x]))
-                return message.author + " you don't have permission to **" + permString + "** in #" + textChannel.name + ".";
+                return "<@" + message.author.id + "> you don't have permission to **" + permString + "** in #" + textChannel.name + ".";
         }
         return this.PermissionGranted;
     };
@@ -232,6 +232,23 @@ var PinguLibrary = /** @class */ (function () {
             tellLogChannel.send(message);
         }
     };
+    PinguLibrary.pGuildLog = function (client, script, message, err) {
+        return __awaiter(this, void 0, void 0, function () {
+            var pinguGuildLog, errorLink;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        pinguGuildLog = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "pingu-guild-log");
+                        if (!err) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.errorLog(client, "pGuild Error: \"" + message + "\"", null, err)];
+                    case 1:
+                        errorLink = (_a.sent()).url;
+                        return [2 /*return*/, pinguGuildLog.send("[**Failed**] [**" + script + "**]: " + message + "\n" + err.message + "\n\n" + errorLink + "\n\n<@&756383446871310399>")];
+                    case 2: return [2 /*return*/, pinguGuildLog.send("[**Success**] [**" + script + "**] " + message)];
+                }
+            });
+        });
+    };
     PinguLibrary.getChannel = function (client, guildID, channelname) {
         var guild = client.guilds.cache.find(function (guild) { return guild.id == guildID; });
         if (!guild) {
@@ -253,13 +270,14 @@ var PinguLibrary = /** @class */ (function () {
                     case 0:
                         console.error(message);
                         DanhoMisc = this.SavedServers.DanhoMisc(client);
-                        if (!DanhoMisc)
-                            return [2 /*return*/, console.error('Unable to find Danho Misc guild!', client.guilds.cache.array().forEach(function (g) { return console.log("[" + g.id + "] " + g.name); }))];
+                        if (!DanhoMisc) {
+                            console.error('Unable to find Danho Misc guild!', client.guilds.cache.array().forEach(function (g) { return console.log("[" + g.id + "] " + g.name); }));
+                            return [2 /*return*/, null];
+                        }
                         return [4 /*yield*/, DanhoMisc.owner.createDM()];
                     case 1:
                         DanhoDM = _a.sent();
-                        return [2 /*return*/, DanhoDM.send(message)
-                                .catch(function (err) { return console.error("Creating DM to Danho failed, " + err); })];
+                        return [2 /*return*/, DanhoDM.send(message)];
                 }
             });
         });
@@ -281,26 +299,15 @@ var PinguLibrary = /** @class */ (function () {
 exports.PinguLibrary = PinguLibrary;
 //#endregion
 var Decidable = /** @class */ (function () {
-    function Decidable(value, id, author) {
+    function Decidable(value, id, author, channel) {
         this.value = value;
         this.id = id;
         this.author = author;
+        this.channel = channel;
     }
     return Decidable;
 }());
 //#region extends Decideables
-var Suggestion = /** @class */ (function (_super) {
-    __extends(Suggestion, _super);
-    function Suggestion() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    Suggestion.prototype.Decide = function (approved, decidedBy) {
-        this.approved = approved;
-        this.decidedBy = decidedBy;
-    };
-    return Suggestion;
-}(Decidable));
-exports.Suggestion = Suggestion;
 var Poll = /** @class */ (function (_super) {
     __extends(Poll, _super);
     function Poll() {
@@ -318,18 +325,31 @@ var Poll = /** @class */ (function (_super) {
 exports.Poll = Poll;
 var Giveaway = /** @class */ (function (_super) {
     __extends(Giveaway, _super);
-    function Giveaway(value, id, author) {
-        var _this = _super.call(this, value, id, author) || this;
+    function Giveaway(value, id, author, channel) {
+        var _this = _super.call(this, value, id, author, channel) || this;
         _this.winners = new Array();
         return _this;
     }
     return Giveaway;
 }(Decidable));
 exports.Giveaway = Giveaway;
+var Suggestion = /** @class */ (function (_super) {
+    __extends(Suggestion, _super);
+    function Suggestion() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Suggestion.prototype.Decide = function (approved, decidedBy) {
+        this.approved = approved;
+        this.decidedBy = decidedBy;
+    };
+    return Suggestion;
+}(Decidable));
+exports.Suggestion = Suggestion;
 var PollConfig = /** @class */ (function () {
     function PollConfig(options) {
         this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
         this.pollRole = options ? options.pollRole : undefined;
+        this.channel = options ? options.channel : undefined;
         if (options)
             this.polls = options.polls;
     }
@@ -342,6 +362,7 @@ var GiveawayConfig = /** @class */ (function () {
         this.allowSameWinner = options ? options.allowSameWinner : undefined;
         this.hostRole = options ? options.hostRole : undefined;
         this.winnerRole = options ? options.winnerRole : undefined;
+        this.channel = options ? options.channel : undefined;
         if (options)
             this.giveaways = options.giveaways;
     }

@@ -17,7 +17,7 @@ module.exports = {
         PinguGuild.GetPGuild(message.guild).botPrefix = args[0];
 
         //Update guilds.json
-        PinguGuild.UpdatePGuildsJSON(message.client,
+        PinguGuild.UpdatePGuildsJSON(message.client, module.exports.name,
             `Prefix has been changed to \`${args[0]}\`!`,
             `I encountered and error while changing my prefix in ${message.guild.name}:\n\n`
         )

@@ -14,7 +14,7 @@ module.exports = {
         let PinguGuilds = [];
         for (var x = 0; x < BotGuilds.length; x++) {
             PinguGuilds[x] = SetGuild(BotGuilds[x]);
-            PinguLibrary.errorLog(message.client, `Going through all servers - just finished: ${PinguGuilds[x].guildName}`);
+            PinguLibrary.pGuildLog(message.client, module.exports.name, `Going through all servers - just finished: ${PinguGuilds[x].guildName}`);
             //message.channel.send(new MessageEmbed()
             //    .setTitle(PinguGuilds[x].guildName)
             //    .setColor(PinguGuilds[x].EmbedColor)
@@ -22,26 +22,24 @@ module.exports = {
             //    .addField('Prefix', PinguGuilds[x].BotPrefix)
             //);
         }
-        PinguLibrary.errorLog(message.client, 'Going through servers complete!\nSaving to guilds.json...');
+        PinguLibrary.pGuildLog(message.client, module.exports.name, 'Going through servers complete!\nSaving to guilds.json...');
         try {
             var data = JSON.stringify(PinguGuilds, null, 2);
             fs.writeFile('guilds.json', '', err => {
-                if (err) console.log(err);
+                if (err) PinguLibrary.pGuildLog(message.client, module.exports.name, `[writeFile]: Failed to write file`, err)
                 else fs.appendFile('guilds.json', data, err => {
                     if (err) {
-                        PinguLibrary.DanhoDM(message.client, `Error while saving to guilds.json!!`, message.content, err);
-                        PinguLibrary.errorLog(message.client, `Error while saving to guilds.json!! <@245572699894710272>`, message.content, err);
+                        PinguLibrary.pGuildLog(message.client, module.exports.name, `Error while saving to guilds.json!!`, message.content, err);
                     }
                     else {
-                        PinguLibrary.errorLog(message.client, 'Finished! guilds.json was successfully updated with new PinguGuilds elements.\n');
+                        PinguLibrary.pGuildLog(message.client, module.exports.name, 'Finished! guilds.json was successfully updated with new PinguGuilds elements.\n');
                         if (message.content.includes('updatepguilds'))
                             message.react('✅')
                     }
                 });
             })
         } catch (err) {
-            PinguLibrary.DanhoDM(message.client, `Error while saving to guilds.json!!`, message.content, err);
-            PinguLibrary.errorLog(message.client, `Error while saving to guilds.json!! <@245572699894710272>`, message.content, err);
+            PinguLibrary.pGuildLog(message.client, module.exports.name, `Error while saving to guilds.json!!`, message.content, err);
         }
     }
 }

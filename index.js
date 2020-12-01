@@ -23,7 +23,7 @@ for (var x = 1; x < ScriptsCategorized.length; x++)
 client.once('ready', () => {
     PinguLibrary.outages(client, `\nI'm back online!\n`);
     client.user.setActivity('your screams for *help', { type: 'LISTENING' });
-})
+});
 //First time joining a guild
 client.once('guildCreate', guild => {
     //Get Pingu Guilds from guilds.json
@@ -33,7 +33,7 @@ client.once('guildCreate', guild => {
     pGuilds[pGuilds.length] = new PinguGuild(guild);
 
     //Update guilds.json with new guild
-    PinguGuild.UpdatePGuildsJSON(client,
+    PinguGuild.UpdatePGuildsJSON(client, "Index: guildCreate"
         `Successfully joined "**${guild.name}**", owned by <@${guild.owner.user.id}>`,
         `I encountered and error while joining ${guild.name}:\n${err}`
     );
@@ -60,7 +60,7 @@ client.once('guildDelete', guild => {
     });
 
     //Update guilds.json
-    PinguGuild.UpdatePGuildsJSON(client,
+    PinguGuild.UpdatePGuildsJSON(client, "Index: guildDelete"
         `Successfully left "**${guild.name}**", owned by <@${guild.owner.user.id}>`,
         `I encountered and error while updating guild.json from leaving ${guild.name}:\n\n${err}`
     );
@@ -78,7 +78,7 @@ client.on('message', message => {
     catch {
         if (updatingPGuilds) return;
         updatingPGuilds = true;
-        PinguLibrary.errorLog(client, `guilds.json was empty! Running updatepguilds.js...`)
+        PinguLibrary.errorLog(client, `guilds.json was empty! Running updatepguilds.js...\n<@&756383446871310399>`)
         AssignCommand('updatepguilds', null).execute(message, null);
     }
 
@@ -170,8 +170,7 @@ function AssignCommand(commandName, args) {
 }
 /**@param {Discord.Message} message @param {string[]} args @param {string} Prefix @param {string} commandName @param {any} command*/
 function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
-    let ConsoleLog = `User "${message.author.username}" executed command "${Prefix}${commandName}", from `;
-    ConsoleLog += !message.guild ? `DMs and ` : `"${message.guild}", #${message.channel.name}, and `;
+    let ConsoleLog = `User "${message.author.username}" executed command "${Prefix}${commandName}", from ${(!message.guild ? `DMs and ` : `"${message.guild}", #${message.channel.name}, and `)}`;
 
     //Attempt execution of command
     try {
@@ -189,11 +188,9 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
                         .setFooter(new Date(Date.now).toLocaleTimeString())
                 );
 
-                LastToUseTell = null;
-                LastToBeTold = null;
+                LastToUseTell = LastToBeTold = null;
 
-                ConsoleLog += `successfully unset LastToUseTell & LastToBeTold.`;
-                console.log(ConsoleLog);
+                console.log(ConsoleLog += `successfully unset LastToUseTell & LastToBeTold.`);
 
                 message.author.send(`Successfully unset LastToUseTell & LastToBeTold.`);
                 return;
@@ -217,6 +214,8 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
 // #region Tell command related
 /**@param {Discord.Message} message*/
 function ExecuteTellReply(message) {
+    if (message.author.id == client.user.id) return;
+
     try { PinguLibrary.tellLog(client, message.author, LastToBeTold.username == message.author.username ? LastToUseTell : LastToBeTold, message); }
     catch (err) { PinguLibrary.errorLog(client, 'Tell reply failed', message.content, err); }
 
@@ -275,7 +274,7 @@ function SetCommand(path) {
     for (const file of ScriptCollection) {
         try {
             const command = require(`./commands/${path}/${file}`);
-            client.commands.set(command.name, command);
+            client.commands.set(command.name, command);;
         } catch (error) {
             PinguLibrary.DanhoDM(client, `"${file}" threw an exception:\n${error.message}\n${error.stack}\n`)
         }
@@ -302,7 +301,7 @@ function CheckRoleChange(guild, pGuild) {
     pGuilds[pGuildIndex] = pGuild;
 
     //Update guilds.json
-    PinguGuild.UpdatePGuildsJSON(client,
+    PinguGuild.UpdatePGuildsJSON(client, "Index: CheckRoleChange",
         `Successfully updated role color from "${guild.name}"`,
         `I encountered and error while updating my role color in "${guild.name}"`
     );

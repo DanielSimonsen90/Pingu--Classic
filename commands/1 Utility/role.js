@@ -13,8 +13,8 @@ module.exports = {
     async execute(message, args) {
         var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.MANAGE_ROLES]);
         if (permCheck != PinguLibrary.PermissionGranted) {
-            //if (!permCheck.includes("you") || !PinguLibrary.isPinguDev(message.author)) //Uncomment to abuse Pingu's Manage Roles permission
-            return permCheck;
+            if (!permCheck.includes("you") || !PinguLibrary.isPinguDev(message.author)) //Uncomment to abuse Pingu's Manage Roles permission
+            return message.channel.send(permCheck);
         }
 
         var command = args.shift(),
@@ -153,6 +153,11 @@ function SetPermission(message, args, role) {
         return message.channel.send(`I can't set this permission, as I don't even have that permission myself!`);
     role.setPermissions(role.permissions.add(permission), `Requested by: ${message.author.username}`)
         .then(() => message.channel.send(`Permission set!`))
+        .catch(err =>
+            err.message == 'Missing Permissions' ?
+                message.channel.send(`That role is above my highest role!`) :
+                PinguLibrary.errorLog(message.client, "Error when setting perm to role", message.content, err)
+                    .then(() => message.channel.send(`I encountered an error while setting that permission! I have contacted my developers.`)));
 }
 /**@param {Message} message
  * @param {string[]} args

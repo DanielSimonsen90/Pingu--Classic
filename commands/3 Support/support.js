@@ -17,7 +17,7 @@ module.exports = {
             .setFooter(`Please don't send him pointless stuff to waste his time :)`)
             .addField('Discord', '@Danho#2105', true)
             .addField('E-mail', 'pingulevel1@gmail.com', true)
-            .addField('Support Server', 'https://discord.gg/Mp4CH8eftv', true)
+            .addField('Support Server', 'https://discord.gg/gbxRV4Ekvh', true)
             .addField("\u200B", "\u200B", true)
             .addField('Spotify', 'https://open.spotify.com/artist/2Ya69OwtcUqvAMPaE8vXdg', false)
             .addField('YouTube', 'https://www.youtube.com/channel/UCNy01Kv9gpTLeKGHzdMbb0w?', false)

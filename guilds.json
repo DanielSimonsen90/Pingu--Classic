@@ -37,7 +37,7 @@
                 "guildID": "277371194422853633",
                 "joinedTimestamp": 1486200846063,
                 "lastMessageChannelID": null,
-                "premiumSinceTimestamp": 0,
+                "premiumSinceTimestamp": null,
                 "deleted": false,
                 "nickname": null,
                 "userID": "277361003950505984",
@@ -56,7 +56,7 @@
         "suggestions": []
     },
     {
-        "guildName": "Beer & Hooters",
+        "guildName": "Shankx’s Furry Fantasies",
         "guildID": "405763731079823380",
         "guildOwner": {
             "id": "245572699894710272",
@@ -161,7 +161,391 @@
         "embedColor": 3447003,
         "musicQueue": null,
         "giveawayConfig": {
-            "firstTimeExecuted": true
+            "firstTimeExecuted": false,
+            "allowSameWinner": true,
+            "hostRole": {
+                "name": "Giveaway Host",
+                "id": "782605688290803724",
+                "DiscordRole": {
+                    "guild": "756383096646926376",
+                    "id": "782605688290803724",
+                    "name": "Giveaway Host",
+                    "color": 0,
+                    "hoist": false,
+                    "rawPosition": 1,
+                    "permissions": 104173121,
+                    "managed": false,
+                    "mentionable": false,
+                    "deleted": false,
+                    "createdTimestamp": 1606658136199
+                }
+            },
+            "winnerRole": {
+                "name": "Giveaway Winner",
+                "id": "782605689474121748",
+                "DiscordRole": {
+                    "guild": "756383096646926376",
+                    "id": "782605689474121748",
+                    "name": "Giveaway Winner",
+                    "color": 0,
+                    "hoist": false,
+                    "rawPosition": 1,
+                    "permissions": 104173121,
+                    "managed": false,
+                    "mentionable": false,
+                    "deleted": false,
+                    "createdTimestamp": 1606658136481
+                }
+            },
+            "channel": {
+                "type": "news",
+                "deleted": false,
+                "id": "756388600668749834",
+                "name": "giveaways",
+                "rawPosition": 4,
+                "parentID": "756384130236678184",
+                "permissionOverwrites": [
+                    "756383096646926376"
+                ],
+                "topic": "Hidden for the time being",
+                "lastMessageID": "783092744377073694",
+                "lastPinTimestamp": null,
+                "guild": "756383096646926376",
+                "messages": [
+                    "783089296822894644",
+                    "783092744377073694"
+                ],
+                "nsfw": false,
+                "createdTimestamp": 1600407495420
+            },
+            "giveaways": [
+                {
+                    "value": "test",
+                    "id": "783087423923159050",
+                    "author": {
+                        "id": "245572699894710272",
+                        "user": "Danho#2105",
+                        "DiscordGuildMember": {
+                            "guildID": "756383096646926376",
+                            "joinedTimestamp": 1600406183163,
+                            "lastMessageChannelID": "756387369388605570",
+                            "premiumSinceTimestamp": null,
+                            "deleted": false,
+                            "nickname": null,
+                            "userID": "245572699894710272",
+                            "displayName": "Danho"
+                        }
+                    },
+                    "channel": {
+                        "type": "text",
+                        "deleted": false,
+                        "id": "756387369388605570",
+                        "name": "dev-testing",
+                        "rawPosition": 21,
+                        "parentID": "756387300317069394",
+                        "permissionOverwrites": [
+                            "756383096646926376",
+                            "756383446871310399"
+                        ],
+                        "topic": null,
+                        "lastMessageID": "783093294624014346",
+                        "rateLimitPerUser": 0,
+                        "lastPinTimestamp": 1606658017705,
+                        "guild": "756383096646926376",
+                        "messages": [
+                            "783087091432161330",
+                            "783087092254507048",
+                            "783087100131934258",
+                            "783087100907487233",
+                            "783087105228275802",
+                            "783087105889927189",
+                            "783087106524315669",
+                            "783087111461011487",
+                            "783087112705540196",
+                            "783087120641818664",
+                            "783087121392599060",
+                            "783087122273140776",
+                            "783087127738449951",
+                            "783087128380178503",
+                            "783087135896240159",
+                            "783087136626311180",
+                            "783087138064957440",
+                            "783087156599980072",
+                            "783087157332934656",
+                            "783087423923159050",
+                            "783088930362097675",
+                            "783088931386032139",
+                            "783088942680506368",
+                            "783089144804409354",
+                            "783089145542213682",
+                            "783089163045568522",
+                            "783089286798901258",
+                            "783089287645364305",
+                            "783089296353001582",
+                            "783089296848322561",
+                            "783091971836739594",
+                            "783091972847304744",
+                            "783092045597900800",
+                            "783092719836725281",
+                            "783092720944152586",
+                            "783092743551189002",
+                            "783092744317829200",
+                            "783093106831654953",
+                            "783093107817709650",
+                            "783093167107866634",
+                            "783093293579501618",
+                            "783093294624014346"
+                        ],
+                        "nsfw": false,
+                        "createdTimestamp": 1600407201860
+                    },
+                    "winners": []
+                },
+                {
+                    "value": "",
+                    "id": "783089296822894644",
+                    "author": {
+                        "id": "245572699894710272",
+                        "user": "Danho#2105",
+                        "DiscordGuildMember": {
+                            "guildID": "756383096646926376",
+                            "joinedTimestamp": 1600406183163,
+                            "lastMessageChannelID": "756387369388605570",
+                            "premiumSinceTimestamp": null,
+                            "deleted": false,
+                            "nickname": null,
+                            "userID": "245572699894710272",
+                            "displayName": "Danho"
+                        }
+                    },
+                    "channel": {
+                        "type": "news",
+                        "deleted": false,
+                        "id": "756388600668749834",
+                        "name": "giveaways",
+                        "rawPosition": 4,
+                        "parentID": "756384130236678184",
+                        "permissionOverwrites": [
+                            "756383096646926376"
+                        ],
+                        "topic": "Hidden for the time being",
+                        "lastMessageID": "783092744377073694",
+                        "lastPinTimestamp": null,
+                        "guild": "756383096646926376",
+                        "messages": [
+                            "783089296822894644",
+                            "783092744377073694"
+                        ],
+                        "nsfw": false,
+                        "createdTimestamp": 1600407495420
+                    },
+                    "winners": []
+                },
+                {
+                    "value": "set-channel",
+                    "id": "783092744377073694",
+                    "author": {
+                        "id": "245572699894710272",
+                        "user": "Danho#2105",
+                        "DiscordGuildMember": {
+                            "guildID": "756383096646926376",
+                            "joinedTimestamp": 1600406183163,
+                            "lastMessageChannelID": "756387369388605570",
+                            "premiumSinceTimestamp": null,
+                            "deleted": false,
+                            "nickname": null,
+                            "userID": "245572699894710272",
+                            "displayName": "Danho"
+                        }
+                    },
+                    "channel": {
+                        "type": "news",
+                        "deleted": false,
+                        "id": "756388600668749834",
+                        "name": "giveaways",
+                        "rawPosition": 4,
+                        "parentID": "756384130236678184",
+                        "permissionOverwrites": [
+                            "756383096646926376"
+                        ],
+                        "topic": "Hidden for the time being",
+                        "lastMessageID": "783092744377073694",
+                        "lastPinTimestamp": null,
+                        "guild": "756383096646926376",
+                        "messages": [
+                            "783089296822894644",
+                            "783092744377073694"
+                        ],
+                        "nsfw": false,
+                        "createdTimestamp": 1600407495420
+                    },
+                    "winners": []
+                },
+                {
+                    "value": "Developers only!",
+                    "id": "783093167107866634",
+                    "author": {
+                        "id": "245572699894710272",
+                        "user": "Danho#2105",
+                        "DiscordGuildMember": {
+                            "guildID": "756383096646926376",
+                            "joinedTimestamp": 1600406183163,
+                            "lastMessageChannelID": "756387369388605570",
+                            "premiumSinceTimestamp": null,
+                            "deleted": false,
+                            "nickname": null,
+                            "userID": "245572699894710272",
+                            "displayName": "Danho"
+                        }
+                    },
+                    "channel": {
+                        "type": "text",
+                        "deleted": false,
+                        "id": "756387369388605570",
+                        "name": "dev-testing",
+                        "rawPosition": 21,
+                        "parentID": "756387300317069394",
+                        "permissionOverwrites": [
+                            "756383096646926376",
+                            "756383446871310399"
+                        ],
+                        "topic": null,
+                        "lastMessageID": "783093294624014346",
+                        "rateLimitPerUser": 0,
+                        "lastPinTimestamp": 1606658017705,
+                        "guild": "756383096646926376",
+                        "messages": [
+                            "783087091432161330",
+                            "783087092254507048",
+                            "783087100131934258",
+                            "783087100907487233",
+                            "783087105228275802",
+                            "783087105889927189",
+                            "783087106524315669",
+                            "783087111461011487",
+                            "783087112705540196",
+                            "783087120641818664",
+                            "783087121392599060",
+                            "783087122273140776",
+                            "783087127738449951",
+                            "783087128380178503",
+                            "783087135896240159",
+                            "783087136626311180",
+                            "783087138064957440",
+                            "783087156599980072",
+                            "783087157332934656",
+                            "783087423923159050",
+                            "783088930362097675",
+                            "783088931386032139",
+                            "783088942680506368",
+                            "783089144804409354",
+                            "783089145542213682",
+                            "783089163045568522",
+                            "783089286798901258",
+                            "783089287645364305",
+                            "783089296353001582",
+                            "783089296848322561",
+                            "783091971836739594",
+                            "783091972847304744",
+                            "783092045597900800",
+                            "783092719836725281",
+                            "783092720944152586",
+                            "783092743551189002",
+                            "783092744317829200",
+                            "783093106831654953",
+                            "783093107817709650",
+                            "783093167107866634",
+                            "783093293579501618",
+                            "783093294624014346"
+                        ],
+                        "nsfw": false,
+                        "createdTimestamp": 1600407201860
+                    },
+                    "winners": []
+                },
+                {
+                    "value": "Double trouble!",
+                    "id": "783093294624014346",
+                    "author": {
+                        "id": "245572699894710272",
+                        "user": "Danho#2105",
+                        "DiscordGuildMember": {
+                            "guildID": "756383096646926376",
+                            "joinedTimestamp": 1600406183163,
+                            "lastMessageChannelID": "756387369388605570",
+                            "premiumSinceTimestamp": null,
+                            "deleted": false,
+                            "nickname": null,
+                            "userID": "245572699894710272",
+                            "displayName": "Danho"
+                        }
+                    },
+                    "channel": {
+                        "type": "text",
+                        "deleted": false,
+                        "id": "756387369388605570",
+                        "name": "dev-testing",
+                        "rawPosition": 21,
+                        "parentID": "756387300317069394",
+                        "permissionOverwrites": [
+                            "756383096646926376",
+                            "756383446871310399"
+                        ],
+                        "topic": null,
+                        "lastMessageID": "783093294624014346",
+                        "rateLimitPerUser": 0,
+                        "lastPinTimestamp": 1606658017705,
+                        "guild": "756383096646926376",
+                        "messages": [
+                            "783087091432161330",
+                            "783087092254507048",
+                            "783087100131934258",
+                            "783087100907487233",
+                            "783087105228275802",
+                            "783087105889927189",
+                            "783087106524315669",
+                            "783087111461011487",
+                            "783087112705540196",
+                            "783087120641818664",
+                            "783087121392599060",
+                            "783087122273140776",
+                            "783087127738449951",
+                            "783087128380178503",
+                            "783087135896240159",
+                            "783087136626311180",
+                            "783087138064957440",
+                            "783087156599980072",
+                            "783087157332934656",
+                            "783087423923159050",
+                            "783088930362097675",
+                            "783088931386032139",
+                            "783088942680506368",
+                            "783089144804409354",
+                            "783089145542213682",
+                            "783089163045568522",
+                            "783089286798901258",
+                            "783089287645364305",
+                            "783089296353001582",
+                            "783089296848322561",
+                            "783091971836739594",
+                            "783091972847304744",
+                            "783092045597900800",
+                            "783092719836725281",
+                            "783092720944152586",
+                            "783092743551189002",
+                            "783092744317829200",
+                            "783093106831654953",
+                            "783093107817709650",
+                            "783093167107866634",
+                            "783093293579501618",
+                            "783093294624014346"
+                        ],
+                        "nsfw": false,
+                        "createdTimestamp": 1600407201860
+                    },
+                    "winners": []
+                }
+            ]
         },
         "pollConfig": {
             "firstTimeExecuted": true
@@ -169,7 +553,7 @@
         "suggestions": []
     },
     {
-        "guildName": "The Devoloper Community",
+        "guildName": "The Developer Community",
         "guildID": "778022031811543041",
         "guildOwner": {
             "id": "396357904950755338",
@@ -178,7 +562,7 @@
                 "guildID": "778022031811543041",
                 "joinedTimestamp": 1605565307417,
                 "lastMessageChannelID": null,
-                "premiumSinceTimestamp": 0,
+                "premiumSinceTimestamp": null,
                 "deleted": false,
                 "nickname": null,
                 "userID": "396357904950755338",
