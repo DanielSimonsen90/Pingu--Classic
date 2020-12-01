@@ -1,6 +1,6 @@
 const { PinguGuild, PinguLibrary } = require('../../PinguPackage');
 
-const { MessageEmbed, Message, Collection } = require('discord.js'),
+const { MessageEmbed, Message } = require('discord.js'),
     ScriptsCategorized = ["", "Utility", "Fun", "Support", "DevOnly"];
 
 
@@ -13,27 +13,23 @@ module.exports = {
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         //#region Create variables
-        //#region Get data from guilds.json
-        let color, Prefix;
-        if (message.channel.type != 'dm') {
-            const pGuild = PinguGuild.GetPGuild(message.guild);
-            color = pGuild.embedColor;
-            Prefix = pGuild.botPrefix;
-        }
-        else {
-            color = 15527148;
-            Prefix = "*";
-        }
-        //#endregion
+        let color, prefix;
 
-        let embed = new MessageEmbed() //embed 
+        if (message.channel.type != 'dm') {
+            color = PinguGuild.GetPGuild(message.guild).embedColor || 15527148;
+            prefix = PinguGuild.GetPGuild(message.guild).botPrefix || "*";
+        }
+        if (!color) color = 15527148;
+        if (!prefix) prefix = "*";
+
+        let embed = new MessageEmbed()
             .setColor(color)
             .setThumbnail(message.client.user.avatarURL());
         //#endregion
 
         switch (args.length) {
-            case 0: return DefaultHelp(message, embed, Prefix); //If no argument was provided, send default help menu
-            case 1: return CategoryOrSpecificHelp(message, args, message.client.commands, [], embed, Prefix); //If 1 argument is provided || if args[0] exists
+            case 0: return DefaultHelp(message, embed, prefix); //If no argument was provided, send default help menu
+            case 1: return CategoryOrSpecificHelp(message, args, embed, prefix); //If 1 argument is provided || if args[0] exists
             default: return message.channel.send(`Help arguments not recognized!`);
         }
     },
@@ -53,11 +49,7 @@ function DefaultHelp(message, embed, Prefix) {
         embed.addField(`**__${Prefix}${ScriptsCategorized[x]}__**`, `\`${Prefix}help ${ScriptsCategorized[x]}\``, true);
 
     //Return embed
-    return message.author.send(embed)
-        .then(() => {
-            if (message.channel.type == 'dm') return;
-            message.reply(`I've sent you a DM with all my commands!`);
-        })
+    return message.channel.send(embed)
         .catch(err => {
             PinguLibrary.errorLog(message.client, `Unable to send help DM to ${message.author.tag}.`, message.content, err);
             message.reply(`It seems like I can't DM you! Do you have DMs disabled?`);
@@ -66,46 +58,33 @@ function DefaultHelp(message, embed, Prefix) {
 /**Category help menu
  * @param {Message} message
  * @param {string[]} args
- * @param {Collection} commands
- * @param {any[]} data
  * @param {MessageEmbed} embed
  * @param {string} Prefix*/
-function CategoryOrSpecificHelp(message, args, commands, data, embed, Prefix) {
-    //If args[0] is a number, set number to text
+function CategoryOrSpecificHelp(message, args, embed, Prefix) {
+    args[0] = args[0].toLowerCase();
+
+    //Find category
     switch (args[0]) {
-        case '1': args[0] = ScriptsCategorized[1]; break;
-        case '2': args[0] = ScriptsCategorized[2]; break;
-        case '3': args[0] = ScriptsCategorized[3]; break;
-        case '4': args[0] = ScriptsCategorized[4]; break;
-        default: message.channel.send(`I couldn't find that category!`); break;
+        case '1': case 'utility': args[0] = 1; break;
+        case '2': case 'fun':     args[0] = 2; break;
+        case '3': case 'support': args[0] = 3; break;
+        case '4': case 'devonly': args[0] = 4; break;
+        default:
+            //Argument is specific command?
+            if (message.client.commands.has(args[0]))
+                return SpecificHelp(message, args, embed, Prefix);
+            return message.channel.send(`I couldn't find what you were looking for!`);
     }
 
-    //Set args[0] to lowercase
-    args[0] = args[0].toLowerCase();
-    //Set all from ScriptsCategorized to lowercase
-    for (var x = 0; x < ScriptsCategorized.length; x++)
-        ScriptsCategorized[x] = ScriptsCategorized[x].toLowerCase();
-
-    //If Pingu doesn't have args[0] as a command, and ScriptsCategorized doesn't contain it either
-    if (!commands.has(args[0]) && !ScriptsCategorized.includes(args[0]))
-        //Treat as unknown argument, and set to Utility
-        args[0] = "utility";
-
-    //If ScriptsCategorized has args[0] || If message.author isn't executing *help <script command>, but *help <category>
-    if (!ScriptsCategorized.includes(args[0]))
-        return SpecificHelp(message, args, embed, Prefix);
-
     //If "DevOnly" / "Banned" was used
-    if (["banned", "devonly"].includes(args[0]))
-        //Is message.author Danho?
-        if (!PinguLibrary.isPinguDev(message.author))
-            //If not, user cannot perform this help
-            return message.channel.send(`Sorry ${message.author}, but you're not cool enough to use that!`)
-        else args[0] = 'devonly';
+    if (args[0] == 4 && !PinguLibrary.isPinguDev(message.author))
+        //If not, user cannot perform this help
+        return message.channel.send(`Sorry ${message.author}, but you're not cool enough to use that!`);
 
     //Write all data into embed, if id matches the index of args[0] in ScriptsCategorized
-    data.push(commands.map(command => {
-        if (command.id == ScriptsCategorized.indexOf(args[0])) {
+    let data = [];
+    data.push(message.client.commands.map(command => {
+        if (command.id == args[0]) {
             let FieldContent = `"${command.description}" \n\`${Prefix}${command.name}`;
             if (command.usage) FieldContent += ` ${command.usage}`;
             embed.addField(`**__${Prefix}${command.name}__**`, `${FieldContent}\``);
@@ -113,9 +92,10 @@ function CategoryOrSpecificHelp(message, args, commands, data, embed, Prefix) {
     }));
 
     //Create footer
-    let Footer = `Keep in mind that I'm still learning and will eventually have new features!\nYou are now viewing page ${ScriptsCategorized.indexOf(args[0])}, being the help page of ${args[0]}.`;
+    let Footer = `Keep in mind that I'm still learning and will eventually have new features!\n` +
+        `You are now viewing page ${ScriptsCategorized.indexOf(args[0])}, being the help page of ${ScriptsCategorized[args[0]]}.`;
     //If message.author is viewing page 3 (*help Support)
-    if (ScriptsCategorized.indexOf(args[0]) <= 3)
+    if (args[0] <= 3)
         //Update Footer
         Footer += `Try my other help commands!\n${Prefix}help to view them!`;
     //Update embed's Footer with Footer
@@ -124,11 +104,7 @@ function CategoryOrSpecificHelp(message, args, commands, data, embed, Prefix) {
         .setTitle(`Pingu Commands: ${args[0]}`);
 
     //Return embed
-    return message.author.send(embed)
-        .then(() => {
-            if (message.channel.type == 'dm') return;
-            message.reply(`I've sent you a DM with all my commands!`);
-        })
+    return message.channel.send(embed)
         .catch(err => {
             PinguLibrary.errorLog(message.client, `Could not send help DM to ${message.author.tag}.`, message.content, err);
             message.reply(`It seems like I can't DM you! Do you have DMs disabled?`);

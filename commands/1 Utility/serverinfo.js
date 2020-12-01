@@ -122,23 +122,18 @@ async function SendEmbeds(message, serverGuild, bigboiinfo) {
 }
 /**@param {Message} message @param {Guild} serverGuild*/
 function SendEmotes(message, serverGuild) {
-    let EmoteList;
-    for (var x = 0; x < serverGuild.emojis.cache.array().length; x++) {
-        if (!EmoteList) EmoteList = `${serverGuild.emojis.cache.array()[x].name}, `;
-        else EmoteList += `${serverGuild.emojis.cache.array()[x].name}, `;
-    }
-
+    let EmoteList = serverGuild.emojis.cache.map(emote => emote.name);
     if (!EmoteList) return message.channel.send(`There are no emotes in ${serverGuild.name}!`);
 
-    EmoteList = EmoteList.substring(0, EmoteList.length - 2);
+    var emoteListString = EmoteList.join(', ');
 
-    message.channel.send(`**${serverGuild.name}'s Emotes (${serverGuild.emojis.cache.array().length}/${serverGuild.emojis.cache.array().length})**` +
-        '```' + EmoteList.substring(0, EmoteList.length - 2) + '```')
+    message.channel.send(
+        `**${serverGuild.name}'s Emotes (${EmoteList.length})**` +
+        '```' + emoteListString.substring(0, emoteListString.length - 1) + '```');
 }
 /**@param {Message} message @param {Guild} serverGuild*/
 function SendFeatures(message, serverGuild) {
-    let FeatureList;
-    serverGuild.features.forEach(feature => FeatureList += `${feature}\n`);
+    let FeatureList = serverGuild.features.map(feature => `${feature}\n`);
 
     return FeatureList ?
         message.channel.send(`There are no features in ${serverGuild.name}!`) :
