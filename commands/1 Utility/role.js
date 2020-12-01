@@ -162,7 +162,7 @@ function SetPermission(message, args, role) {
 /**@param {Message} message
  * @param {string[]} args
  * @param {Role} role*/
-function RemovePermission(message, args, role) {
+async function RemovePermission(message, args, role) {
     var permission = args.join('_').toUpperCase();
     if (!role.permissions.has(permission))
         return message.channel.send(`${role.name} doesn't have the "${permission}" permission!`);
@@ -173,8 +173,8 @@ function RemovePermission(message, args, role) {
     //newPermissionsArr.splice(role.permissions.toArray().indexOf(permission), 1);
     //var newPermissions = new Permissions(newPermissionsArr);
     //role.permissions = newPermissions;
-    role.permissions.remove(permission);
-
+    var removedPermissions = role.permissions.remove(permission);
+    await role.setPermissions(removedPermissions);
     message.channel.send(`"${permission}" was removed from ${role.name}!`);
 }
 /**@param {Message} message
