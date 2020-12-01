@@ -3,8 +3,10 @@
     "",
     "\\commands",
     "\\commands\\1 Utility",
-    "\\commands\\4 DevOnly"
+    "\\commands\\2 Fun",
+    "\\commands\\4 DevOnly\\pfps",
+    "\\commands\\Archived Commands"
   ],
-  "SelectedNode": "\\commands\\4 DevOnly\\updatepguilds.js",
+  "SelectedNode": "\\commands\\2 Fun\\noice.js",
   "PreviewInSolutionExplorer": false
 }
