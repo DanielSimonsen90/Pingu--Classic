@@ -167,14 +167,10 @@ async function RemovePermission(message, args, role) {
     if (!role.permissions.has(permission))
         return message.channel.send(`${role.name} doesn't have the "${permission}" permission!`);
     else if (!message.guild.me.hasPermission(permission))
-        return message.channel.send(`I can't remove this permission, as I don't even have that permission myself!`);
+        return message.channel.send(`I can't remove this permission, as I don't have that permission myself!`);
 
-    //var newPermissionsArr = role.permissions.toArray();
-    //newPermissionsArr.splice(role.permissions.toArray().indexOf(permission), 1);
-    //var newPermissions = new Permissions(newPermissionsArr);
-    //role.permissions = newPermissions;
     var removedPermissions = role.permissions.remove(permission);
-    await role.setPermissions(removedPermissions);
+    await role.setPermissions(removedPermissions, `Removed ${permission}, requested by ${message.author.username}.`);
     message.channel.send(`"${permission}" was removed from ${role.name}!`);
 }
 /**@param {Message} message
