@@ -32,7 +32,7 @@ module.exports = {
             case 'vol': case 'volume': HandleVolume(message, args[0], queue); break;
             case 'q': case 'queue': HandleQueue(message, queue); break;
             case 'pause': case 'resume': HandlePauseResume(message, queue, command == 'pause'); break;
-            case 'move': case 'mo': HandleMove(message, queue, args); break;
+            case 'mo': case 'move': HandleMove(message, queue, args); break;
             default: return PinguLibrary.errorLog(message.client, "Ran default case", message.content);
         }
     },
@@ -218,11 +218,11 @@ async function Play(message, song, queue) {
             pGuild.musicQueue = null;
         })
         .on('end', () => {
-            queue.songs.shift();
-            Play(message, queue.songs[0], queue);
+
         })
         .on('finish', () => {
-            queue.logChannel.send('Finished!')
+            queue.songs.shift();
+            Play(message, queue.songs[0], queue);
         })
         .setVolumeLogarithmic(queue.volume);
 }

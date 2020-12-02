@@ -49,7 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PRole = exports.PGuildMember = void 0;
+exports.Song = exports.PQueue = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PChannel = exports.PRole = exports.PGuildMember = void 0;
 var fs = require('fs');
 //var lock = new AsyncLock();
 var Error = /** @class */ (function () {
@@ -66,12 +66,10 @@ var PGuildMember = /** @class */ (function () {
     function PGuildMember(member) {
         this.id = member.id;
         this.user = member.user.tag;
-        this.DiscordGuildMember = member;
     }
     PGuildMember.prototype.toString = function () {
         return "<@" + this.id + ">";
     };
-    PGuildMember.prototype.toGuildMember = function () { return this.DiscordGuildMember; };
     return PGuildMember;
 }());
 exports.PGuildMember = PGuildMember;
@@ -80,16 +78,22 @@ var PRole = /** @class */ (function () {
         try {
             this.name = role.name;
             this.id = role.id;
-            this.DiscordRole = role;
         }
         catch (_a) {
             return undefined;
         }
     }
-    PRole.prototype.toRole = function () { return this.DiscordRole; };
     return PRole;
 }());
 exports.PRole = PRole;
+var PChannel = /** @class */ (function () {
+    function PChannel(channel) {
+        this.id = channel.id;
+        this.name = channel.name;
+    }
+    return PChannel;
+}());
+exports.PChannel = PChannel;
 var PinguGuild = /** @class */ (function () {
     //#endregion
     function PinguGuild(guild) {
@@ -448,6 +452,17 @@ var Queue = /** @class */ (function () {
     return Queue;
 }());
 exports.Queue = Queue;
+var PQueue = /** @class */ (function () {
+    function PQueue(queue) {
+        this.logChannel = new PChannel(queue.logChannel);
+        this.voiceChannel = new PChannel(queue.voiceChannel);
+        this.connection = queue.connection.voice.speaking;
+        this.songs = queue.songs;
+        this.volume = queue.volume;
+    }
+    return PQueue;
+}());
+exports.PQueue = PQueue;
 var Song = /** @class */ (function () {
     function Song(videoInfo, author) {
         var info = videoInfo.videoDetails;

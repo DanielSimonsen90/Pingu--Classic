@@ -70,7 +70,7 @@ function GetMention(message, UserMention) {
     if (message.mentions.users.first() == null) {
         for (var Guild of message.client.guilds.cache.array())
             for (var Member of Guild.members.cache.array())
-                if ([Member.user.username.toLowerCase(), Member.nickname.toLowerCase(), Member.id].includes(UserMention.toLowerCase()))
+                if ([Member.user.username.toLowerCase(), Member.nickname && Member.nickname.toLowerCase(), Member.id].includes(UserMention.toLowerCase()))
                     return Member.user;
         return null;
     }

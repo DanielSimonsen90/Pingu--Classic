@@ -1,4 +1,4 @@
-import { GuildMember, Guild, Role, Message, TextChannel, VoiceChannel, VoiceConnection, Util, Client, PermissionString, User, MessageEmbed, Channel } from 'discord.js';
+import { GuildMember, Guild, Role, Message, TextChannel, VoiceChannel, VoiceConnection, Util, Client, PermissionString, User, MessageEmbed, Channel, GuildChannel, GuildEmoji } from 'discord.js';
 import { videoInfo } from 'ytdl-core';
 import * as AsyncLock from 'async-lock';
 const fs = require('fs');
@@ -24,28 +24,35 @@ export class PGuildMember {
     constructor(member: GuildMember) {
         this.id = member.id;
         this.user = member.user.tag;
-        this.DiscordGuildMember = member;
     }
-    private DiscordGuildMember: GuildMember
     public id: string
     public user: string
     public toString() {
         return `<@${this.id}>`;
     }
-    public toGuildMember() { return this.DiscordGuildMember; }
 }
 export class PRole {
     constructor(role: Role) {
         try {
             this.name = role.name;
             this.id = role.id;
-            this.DiscordRole = role;
         } catch { return undefined; }
     }
-    private DiscordRole: Role;
     public name: string;
     public id: string;
-    public toRole() { return this.DiscordRole; }
+}
+export class PChannel {
+    constructor(channel: GuildChannel) {
+        this.id = channel.id;
+        this.name = channel.name;
+    }
+    public id: string
+    public name: string
+}
+export class PEmote {
+    constructor(emote: GuildEmoji) {
+        emote.
+    }
 }
 export class PinguGuild {
     //#region Static PinguGuild methods
@@ -427,6 +434,20 @@ export class Queue {
     public remove(song: Song) {
         this.songs = this.songs.filter(s => s != song);
     }
+}
+export class PQueue {
+    constructor(queue: Queue) {
+        this.logChannel = new PChannel(queue.logChannel);
+        this.voiceChannel = new PChannel(queue.voiceChannel);
+        this.connection = queue.connection.voice.speaking;
+        this.songs = queue.songs;
+        this.volume = queue.volume;
+    }
+    public logChannel: PChannel
+    public voiceChannel: PChannel
+    public connection: boolean
+    public songs: Song[]
+    public volume: number
 }
 export class Song {
     constructor(videoInfo: videoInfo, author: User) {

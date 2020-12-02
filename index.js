@@ -114,7 +114,7 @@ client.on('message', message => {
     commandName = TestTagInteraction(commandName, args);
 
     //If I'm not interacted with don't do anything
-    if (message.channel.type == 'dm' && ([LastToBeTold, LastToUseTell].includes(message.author) || commandName == "tell")) {
+    if (message.channel.type == 'dm' && ([LastToBeTold, LastToUseTell].includes(message.author))) {
         try { return ExecuteTellReply(message); }
         catch (err) { return PinguLibrary.errorLog(client, `Failed to execute tell reply`, message.content, err); }
     }
