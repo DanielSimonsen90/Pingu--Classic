@@ -50,8 +50,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PRole = exports.PGuildMember = void 0;
-var discord_js_1 = require("discord.js");
 var fs = require('fs');
+//var lock = new AsyncLock();
 var Error = /** @class */ (function () {
     function Error(err) {
         this.message = err.message;
@@ -118,6 +118,7 @@ var PinguGuild = /** @class */ (function () {
     };
     PinguGuild.UpdatePGuildsJSON = function (client, script, succMsg, errMsg) {
         var _this = this;
+        //lock.acquire('key', () => {
         fs.writeFile('./guilds.json', '', function (err) {
             if (err)
                 PinguLibrary.pGuildLog(client, script, "[writeFile]: " + errMsg, err);
@@ -129,6 +130,7 @@ var PinguGuild = /** @class */ (function () {
                         PinguLibrary.pGuildLog(client, script, succMsg);
                 });
         });
+        //});
     };
     PinguGuild.UpdatePGuildsJSONAsync = function (client, script, succMsg, errMsg) {
         return __awaiter(this, void 0, void 0, function () {
@@ -420,21 +422,14 @@ exports.TimeLeftObject = TimeLeftObject;
 //#endregion
 //#region Music
 var Queue = /** @class */ (function () {
-    function Queue(logChannel, voiceChannel) {
+    function Queue(logChannel, voiceChannel, songs) {
         this.logChannel = logChannel;
         this.voiceChannel = voiceChannel;
-        this.volume = 5;
+        this.songs = songs;
+        this.volume = .5;
+        this.connection = null;
+        this.playing = true;
     }
-    /** Switches log channel from initate log channel (channel where play was executed) to newChannel
-     * @param newChannel New log channel*/
-    Queue.prototype.switchLogChannel = function (newChannel) {
-        this.logChannel = newChannel;
-    };
-    /**Sets the connection to the voice channel
-     * @param conn*/
-    Queue.prototype.setConnection = function (conn) {
-        this.connection = conn;
-    };
     /** Adds song to the start of the queue
      * @param song song to add*/
     Queue.prototype.addFirst = function (song) {
@@ -454,11 +449,14 @@ var Queue = /** @class */ (function () {
 }());
 exports.Queue = Queue;
 var Song = /** @class */ (function () {
-    function Song(videoInfo) {
-        this.link = videoInfo.video_url;
-        this.title = discord_js_1.Util.escapeMarkdown(videoInfo.title);
-        this.length = this.GetLength(videoInfo.length_seconds);
-        this.endsAt = new Date(Date.now() + parseInt(videoInfo.length_seconds));
+    function Song(videoInfo, author) {
+        var info = videoInfo.videoDetails;
+        this.link = info.video_url;
+        this.title = info.title;
+        this.author = info.author.name;
+        this.length = this.GetLength(info.lengthSeconds);
+        this.endsAt = new Date(Date.now() + parseInt(info.lengthSeconds));
+        this.requestedBy = author.username;
     }
     Song.prototype.getTimeLeft = function () {
         return new TimeLeftObject(new Date(Date.now()), this.endsAt);
@@ -480,7 +478,7 @@ var Song = /** @class */ (function () {
             }
             final.unshift(hours);
         }
-        return final.join(':').substring(0, final.join(':').length - 1);
+        return final.join('.').substring(0, final.join('.').length - 1);
     };
     return Song;
 }());

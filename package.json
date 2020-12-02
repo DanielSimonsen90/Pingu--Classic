@@ -9,10 +9,11 @@
   "author": "Daniel Simonsen",
   "license": "ISC",
   "dependencies": {
+    "async-lock": "^1.2.4",
     "discord.js": "^12.5.1",
     "ffmpeg": "0.0.4",
-    "node-opus": "^0.3.3",
+    "node-opus": "0.3.3",
     "simple-youtube-api": "^5.2.1",
-    "ytdl-core": "^1.0.3"
+    "ytdl-core": "^4.1.1"
   }
 }

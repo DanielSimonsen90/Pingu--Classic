@@ -24,7 +24,7 @@ module.exports = {
             message.client.commands.set(newCommand.name, newCommand);
         } catch (error) {
             console.error(error);
-            return message.channel.send(`There was an error while updating \`${commandName}\`!\n\`${error.message}\``);
+            return message.channel.send(`There was an error while updating \`${commandName}\`!\n\n\`${error.message}\``);
         }
         if (message.channel.type != 'dm') {
             var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.SEND_MESSAGES]);

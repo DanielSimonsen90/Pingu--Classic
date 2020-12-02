@@ -1,12 +1,7 @@
 {
   "ExpandedNodes": [
-    "",
-    "\\commands",
-    "\\commands\\1 Utility",
-    "\\commands\\2 Fun",
-    "\\commands\\4 DevOnly\\pfps",
-    "\\commands\\Archived Commands"
+    ""
   ],
-  "SelectedNode": "\\commands\\2 Fun\\noice.js",
+  "SelectedNode": "\\PinguPackage.js",
   "PreviewInSolutionExplorer": false
 }

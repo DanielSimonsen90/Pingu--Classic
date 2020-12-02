@@ -1,6 +1,9 @@
 import { GuildMember, Guild, Role, Message, TextChannel, VoiceChannel, VoiceConnection, Util, Client, PermissionString, User, MessageEmbed, Channel } from 'discord.js';
 import { videoInfo } from 'ytdl-core';
+import * as AsyncLock from 'async-lock';
 const fs = require('fs');
+
+//var lock = new AsyncLock();
 
 class Error {
     constructor(err: { message: string, stack: string, fileName: string, lineNumber: string }) {
@@ -55,6 +58,7 @@ export class PinguGuild {
         return result;
     }
     public static UpdatePGuildsJSON(client: Client, script: string, succMsg: string, errMsg: string) {
+        //lock.acquire('key', () => {
         fs.writeFile('./guilds.json', '', err => {
             if (err) PinguLibrary.pGuildLog(client, script, `[writeFile]: ${errMsg}`, err);
             else fs.appendFile('./guilds.json', JSON.stringify(this.GetPGuilds(), null, 4), err => {
@@ -62,6 +66,7 @@ export class PinguGuild {
                 else PinguLibrary.pGuildLog(client, script, succMsg);
             });
         });
+        //});
     }
     public static async UpdatePGuildsJSONAsync(client: Client, script: string, succMsg: string, errMsg: string) {
         this.UpdatePGuildsJSON(client, script, succMsg, errMsg);
@@ -201,9 +206,9 @@ export class PinguLibrary {
             else this.errorLog(client, `${sender} => ${reciever} sent something that didn't have content or attachments`)
                 .then(() => tellLogChannel.send(`Ran else statement - reported to ${tellLogChannel.guild.channels.cache.find(c => c.name == 'error-log')}`));
         }
-        else if ((message as object).constructor.name == "MessageEmbed") {
+        else if ((message as MessageEmbed).constructor.name == "MessageEmbed") {
             console.log(`The link between ${sender.username} & ${reciever.username} was unset.`);
-            tellLogChannel.send(message)
+            tellLogChannel.send(message as MessageEmbed)
         }
     }
     public static async pGuildLog(client: Client, script: string, message: string, err?: Error) {
@@ -392,28 +397,20 @@ export class TimeLeftObject {
 
 //#region Music
 export class Queue {
-    constructor(logChannel: TextChannel, voiceChannel: VoiceChannel) {
+    constructor(logChannel: TextChannel, voiceChannel: VoiceChannel, songs: Song[]) {
         this.logChannel = logChannel;
         this.voiceChannel = voiceChannel;
-        this.volume = 5;
+        this.songs = songs;
+        this.volume = .5;
+        this.connection = null;
+        this.playing = true;
     }
     public logChannel: TextChannel
     public voiceChannel: VoiceChannel
     public connection: VoiceConnection
-    public songs: Array<Song>
+    public songs: Song[]
     public volume: number
-    public playing: true
-
-    /** Switches log channel from initate log channel (channel where play was executed) to newChannel
-     * @param newChannel New log channel*/
-    public switchLogChannel(newChannel: TextChannel) {
-        this.logChannel = newChannel;
-    }
-    /**Sets the connection to the voice channel
-     * @param conn*/
-    public setConnection(conn: VoiceConnection) {
-        this.connection = conn;
-    }
+    public playing: boolean
 
     /** Adds song to the start of the queue
      * @param song song to add*/
@@ -432,17 +429,22 @@ export class Queue {
     }
 }
 export class Song {
-    constructor(videoInfo: videoInfo) {
-        this.link = videoInfo.video_url;
-        this.title = Util.escapeMarkdown(videoInfo.title);
-        this.length = this.GetLength(videoInfo.length_seconds)
-        this.endsAt = new Date(Date.now() + parseInt(videoInfo.length_seconds));
+    constructor(videoInfo: videoInfo, author: User) {
+        var info = videoInfo.videoDetails;
+        this.link = info.video_url;
+        this.title = info.title;
+        this.author = info.author.name;
+        this.length = this.GetLength(info.lengthSeconds);
+        this.endsAt = new Date(Date.now() + parseInt(info.lengthSeconds));
+        this.requestedBy = author.username;
     }
     public title: string
+    public author: string
     public link: string
     public playing: boolean
     public length: string
     public endsAt: Date
+    public requestedBy: string
 
     public getTimeLeft() {
         return new TimeLeftObject(new Date(Date.now()), this.endsAt);
@@ -464,7 +466,7 @@ export class Song {
             }
             final.unshift(hours);
         }
-        return final.join(':').substring(0, final.join(':').length - 1);
+        return final.join('.').substring(0, final.join('.').length - 1);
     }
 }
 //#endregion
