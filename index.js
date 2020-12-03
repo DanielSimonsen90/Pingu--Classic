@@ -114,7 +114,7 @@ client.on('message', message => {
     //If interacted via @
     commandName = TestTagInteraction(commandName, args);
 
-    var startsWithPrefix = () => (!message.content.startsWith(Prefix) && !message.author.bot) && !message.content.includes(SecondaryPrefix);
+    var startsWithPrefix = () => (message.content.startsWith(Prefix) && !message.author.bot) || message.content.includes(SecondaryPrefix);
 
     //If I'm not interacted with don't do anything
     if (message.channel.type == 'dm' && ([LastToBeTold, LastToUseTell].includes(message.author)) && !startsWithPrefix()) {
