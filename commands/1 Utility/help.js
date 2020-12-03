@@ -93,7 +93,7 @@ function CategoryOrSpecificHelp(message, args, embed, Prefix) {
 
     //Create footer
     let Footer = `Keep in mind that I'm still learning and will eventually have new features!\n` +
-        `You are now viewing page ${ScriptsCategorized.indexOf(args[0])}, being the help page of ${ScriptsCategorized[args[0]]}.`;
+        `You are now viewing page ${args[0]}, being the help page of ${ScriptsCategorized[args[0]]}.`;
     //If message.author is viewing page 3 (*help Support)
     if (args[0] <= 3)
         //Update Footer
@@ -101,7 +101,7 @@ function CategoryOrSpecificHelp(message, args, embed, Prefix) {
     //Update embed's Footer with Footer
     embed.setFooter(Footer)
         .setDescription(`All of my nooty commands in **${args[0]}** (")>`)
-        .setTitle(`Pingu Commands: ${args[0]}`);
+        .setTitle(`Pingu Commands: ${ScriptsCategorized[args[0]]}`);
 
     //Return embed
     return message.channel.send(embed)

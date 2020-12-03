@@ -10,7 +10,7 @@ module.exports = {
     id: 4,
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        const BotGuilds = message.client.guilds.cache.array();
+        const BotGuilds = message.client.guilds.cache.array().sort((a, b) => a.name > b.name ? 1 : -1);
         let PinguGuilds = [];
         for (var x = 0; x < BotGuilds.length; x++) {
             PinguGuilds[x] = SetGuild(BotGuilds[x]);

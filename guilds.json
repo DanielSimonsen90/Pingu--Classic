@@ -36,7 +36,7 @@
         "suggestions": []
     },
     {
-        "guildName": "Shankx’s Furry Fantasies",
+        "guildName": "Do not take ma rice",
         "guildID": "405763731079823380",
         "guildOwner": {
             "id": "245572699894710272",
@@ -44,28 +44,7 @@
         },
         "botPrefix": "*",
         "embedColor": 3447003,
-        "musicQueue": {
-            "logChannel": {
-                "id": "474129152065273866",
-                "name": "robotic-furries🔌"
-            },
-            "voiceChannel": {
-                "id": "760145289956294716",
-                "name": "Danhoe's Dungeon that kinda smells like coffee..?"
-            },
-            "connection": null,
-            "songs": [
-                {
-                    "link": "https://www.youtube.com/watch?v=WzYqqOrZ5ro",
-                    "title": "Chicken Wrap (Bonus Track)",
-                    "author": "Daniel Simonsen - Topic",
-                    "length": "1.8",
-                    "endsAt": "2020-12-02T19:31:13.689Z",
-                    "requestedBy": "Danho"
-                }
-            ],
-            "volume": 0.5
-        },
+        "musicQueue": null,
         "giveawayConfig": {
             "firstTimeExecuted": true
         },
@@ -119,7 +98,7 @@
             "user": "Danho#2105"
         },
         "botPrefix": "*",
-        "embedColor": 3447003,
+        "embedColor": 15105570,
         "musicQueue": null,
         "giveawayConfig": {
             "firstTimeExecuted": true

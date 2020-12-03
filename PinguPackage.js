@@ -49,7 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Song = exports.PQueue = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PEmote = exports.PChannel = exports.PRole = exports.PGuildMember = void 0;
+exports.Song = exports.PQueue = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PClient = exports.PEmote = exports.PChannel = exports.PRole = exports.PGuildMember = void 0;
 var fs = require('fs');
 //var lock = new AsyncLock();
 var Error = /** @class */ (function () {
@@ -100,6 +100,13 @@ var PEmote = /** @class */ (function () {
     return PEmote;
 }());
 exports.PEmote = PEmote;
+var PClient = /** @class */ (function () {
+    function PClient(client, guild) {
+        this.displayName = guild.me.displayName;
+    }
+    return PClient;
+}());
+exports.PClient = PClient;
 var PinguGuild = /** @class */ (function () {
     //#endregion
     function PinguGuild(guild) {
@@ -156,8 +163,8 @@ exports.PinguGuild = PinguGuild;
 var PinguLibrary = /** @class */ (function () {
     function PinguLibrary() {
     }
-    PinguLibrary.getServer = function (client, id) {
-        return client.guilds.cache.find(function (g) { return g.id == id; });
+    PinguLibrary.setActivity = function (client) {
+        client.user.setActivity('jingle bells... *help', { type: 'LISTENING' });
     };
     PinguLibrary.PermissionCheck = function (message, permissions) {
         var textChannel = message.channel;
@@ -170,9 +177,25 @@ var PinguLibrary = /** @class */ (function () {
         }
         return this.PermissionGranted;
     };
+    PinguLibrary.getServer = function (client, id) {
+        return client.guilds.cache.find(function (g) { return g.id == id; });
+    };
     PinguLibrary.isPinguDev = function (user) {
         //console.log(`[${this.PinguDevelopers.join(', ')}].includes(${user.id})`);
         return this.PinguDevelopers.includes(user.id);
+    };
+    PinguLibrary.getChannel = function (client, guildID, channelname) {
+        var guild = client.guilds.cache.find(function (guild) { return guild.id == guildID; });
+        if (!guild) {
+            console.error("Unable to get guild from " + guildID);
+            return null;
+        }
+        var channel = guild.channels.cache.find(function (channel) { return channel.name == channelname; });
+        if (!channel) {
+            console.error("Unable to get channel from " + channelname);
+            return null;
+        }
+        return channel;
     };
     PinguLibrary.outages = function (client, message) {
         var outageChannel = this.getChannel(client, '756383096646926376', 'outages');
@@ -261,19 +284,6 @@ var PinguLibrary = /** @class */ (function () {
             });
         });
     };
-    PinguLibrary.getChannel = function (client, guildID, channelname) {
-        var guild = client.guilds.cache.find(function (guild) { return guild.id == guildID; });
-        if (!guild) {
-            console.error("Unable to get guild from " + guildID);
-            return null;
-        }
-        var channel = guild.channels.cache.find(function (channel) { return channel.name == channelname; });
-        if (!channel) {
-            console.error("Unable to get channel from " + channelname);
-            return null;
-        }
-        return channel;
-    };
     PinguLibrary.DanhoDM = function (client, message) {
         return __awaiter(this, void 0, void 0, function () {
             var DanhoMisc, DanhoDM;
@@ -294,10 +304,6 @@ var PinguLibrary = /** @class */ (function () {
             });
         });
     };
-    PinguLibrary.PinguDevelopers = [
-        '245572699894710272',
-        '405331883157880846' //Synthy Sytro
-    ];
     PinguLibrary.SavedServers = {
         DanhoMisc: function (client) {
             return PinguLibrary.getServer(client, '460926327269359626');
@@ -306,6 +312,11 @@ var PinguLibrary = /** @class */ (function () {
             return PinguLibrary.getServer(client, '756383096646926376');
         },
     };
+    PinguLibrary.PinguDevelopers = [
+        '245572699894710272',
+        '405331883157880846',
+        '290131910091603968',
+    ];
     return PinguLibrary;
 }());
 exports.PinguLibrary = PinguLibrary;
@@ -432,13 +443,14 @@ exports.TimeLeftObject = TimeLeftObject;
 //#endregion
 //#region Music
 var Queue = /** @class */ (function () {
-    function Queue(logChannel, voiceChannel, songs) {
+    function Queue(client, logChannel, voiceChannel, songs) {
         this.logChannel = logChannel;
         this.voiceChannel = voiceChannel;
         this.songs = songs;
         this.volume = .5;
         this.connection = null;
         this.playing = true;
+        this.client = client;
     }
     /** Adds song to the start of the queue
      * @param song song to add*/
@@ -465,6 +477,7 @@ var PQueue = /** @class */ (function () {
         this.connection = queue.connection.voice.speaking;
         this.songs = queue.songs;
         this.volume = queue.volume;
+        this.client = queue.client;
     }
     return PQueue;
 }());
@@ -477,7 +490,7 @@ var Song = /** @class */ (function () {
         this.author = info.author.name;
         this.length = this.GetLength(info.lengthSeconds);
         this.endsAt = new Date(Date.now() + parseInt(info.lengthSeconds));
-        this.requestedBy = author.username;
+        this.requestedBy = author;
     }
     Song.prototype.getTimeLeft = function () {
         return new TimeLeftObject(new Date(Date.now()), this.endsAt);

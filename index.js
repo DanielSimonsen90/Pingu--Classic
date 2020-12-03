@@ -7,6 +7,7 @@ const fs = require('fs'),
     ScriptsCategorized = ["", "Utility", "Fun", "Support", "DevOnly"],
     client = new Discord.Client();
 const { PinguGuild, PinguLibrary } = require('./PinguPackage');
+const { musicCommands } = require('./commands/2 Fun/music');
 client.commands = new Discord.Collection();
 
 let LastToUseTell,
@@ -23,7 +24,7 @@ for (var x = 1; x < ScriptsCategorized.length; x++)
 client.once('ready', () => {
     PinguLibrary.outages(client, `\nI'm back online!\n`);
     //client.user.setActivity('your screams for *help', { type: 'LISTENING' });
-    client.user.setActivity('jingle bells... *help', { type: 'LISTENING' });
+    PinguLibrary.setActivity(client);
 });
 //First time joining a guild
 client.once('guildCreate', guild => {
@@ -114,7 +115,7 @@ client.on('message', message => {
     commandName = TestTagInteraction(commandName, args);
 
     //If I'm not interacted with don't do anything
-    if (message.channel.type == 'dm' && ([LastToBeTold, LastToUseTell].includes(message.author))) {
+    if (message.channel.type == 'dm' && ([LastToBeTold, LastToUseTell].includes(message.author)) && commandName == "tell") {
         try { return ExecuteTellReply(message); }
         catch (err) { return PinguLibrary.errorLog(client, `Failed to execute tell reply`, message.content, err); }
     }
@@ -122,7 +123,12 @@ client.on('message', message => {
     if ((!message.content.startsWith(Prefix) && !message.author.bot) && !message.content.includes(SecondaryPrefix)) return;
 
     //Attempt "command" assignment
+    if (musicCommands.find(cmd => [cmd.name, cmd.alias].includes(commandName))) {
+        commandName = `music`;
+        args.unshift(commandName);
+    }
     let command = AssignCommand(commandName, args);
+
     if (!command) return;
 
     //If I'm not interacted with don't do anything
@@ -182,11 +188,11 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
                     LastToUseTell == message.author ? LastToUseTell : LastToBeTold,
                     LastToUseTell != message.author ? LastToUseTell : LastToBeTold,
                     new Discord.MessageEmbed()
-                        .setTitle(`Link between ${LastToUseTell} & ${LastToBeTold} was unset.`)
+                        .setTitle(`Link between ${LastToUseTell.username} & ${LastToBeTold.username} was unset.`)
                         .setColor(PinguGuild.GetPGuild(PinguLibrary.SavedServers.PinguSupport(client)).embedColor)
                         .setDescription(`${message.author} unset the link.`)
                         .setThumbnail(message.author.avatarURL())
-                        .setFooter(new Date(Date.now).toLocaleTimeString())
+                        .setFooter(new Date(Date.now()).toLocaleTimeString())
                 );
 
                 LastToUseTell = LastToBeTold = null;
@@ -207,6 +213,10 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
     } catch (err) {
         ConsoleLog += `failed!\nError: ${err}`;
         PinguLibrary.errorLog(client, `Trying to execute "\`${command.name}\`"!`, message.content, err);
+
+        if (commandName == "tell") {
+            LastToBeTold = LastToUseTell = null;
+        }
     }
     console.log(ConsoleLog);
 }

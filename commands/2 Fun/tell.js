@@ -58,7 +58,7 @@ function ArgumentCheck(message, args) {
     if (message.mentions.users.first() == null) {
         for (var Guild of message.client.guilds.cache.array())
             for (var Member of Guild.members.cache.array()) 
-                if ([Member.user.username, Member.nickname, Member.id].includes(Mention))
+                if ([Member.user.username.toLowerCase(), Member.nickname && Member.nickname.toLowerCase(), Member.id].includes(Mention.toLowerCase()))
                     return PinguLibrary.PermissionGranted;
         return `No mention provided`;
     }

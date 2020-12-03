@@ -1,6 +1,5 @@
-import { GuildMember, Guild, Role, Message, TextChannel, VoiceChannel, VoiceConnection, Util, Client, PermissionString, User, MessageEmbed, Channel, GuildChannel, GuildEmoji } from 'discord.js';
+import { GuildMember, Guild, Role, Message, TextChannel, VoiceChannel, VoiceConnection, Client, PermissionString, User, MessageEmbed, Channel, GuildChannel, GuildEmoji, Presence, ActivityOptions } from 'discord.js';
 import { videoInfo } from 'ytdl-core';
-import * as AsyncLock from 'async-lock';
 const fs = require('fs');
 
 //var lock = new AsyncLock();
@@ -52,6 +51,12 @@ export class PChannel {
 export class PEmote {
     constructor(emote: GuildEmoji) {
     }
+}
+export class PClient {
+    constructor(client: Client, guild: Guild) {
+        this.displayName = guild.me.displayName;
+    }
+    public displayName: string
 }
 export class PinguGuild {
     //#region Static PinguGuild methods
@@ -106,21 +111,8 @@ export class PinguGuild {
 }
 
 export class PinguLibrary {
-    public static readonly PermissionGranted: "Permission Granted";
-    private static readonly PinguDevelopers: string[] = [
-        '245572699894710272', //Danho#2105
-        '405331883157880846' //Synthy Sytro
-    ];
-    public static readonly SavedServers = {
-        DanhoMisc(client: Client) {
-            return PinguLibrary.getServer(client, '460926327269359626');
-        },
-        PinguSupport(client: Client) {
-            return PinguLibrary.getServer(client, '756383096646926376');
-        },
-    }
-    private static getServer(client: Client, id: string) {
-        return client.guilds.cache.find(g => g.id == id);
+    public static setActivity(client: Client) {
+        client.user.setActivity('jingle bells... *help', { type: 'LISTENING' });
     }
 
     public static PermissionCheck(message: Message, permissions: PermissionString[]) {
@@ -136,11 +128,43 @@ export class PinguLibrary {
         }
         return this.PermissionGranted;
     }
+    public static readonly PermissionGranted: "Permission Granted";
+
+    public static readonly SavedServers = {
+        DanhoMisc(client: Client) {
+            return PinguLibrary.getServer(client, '460926327269359626');
+        },
+        PinguSupport(client: Client) {
+            return PinguLibrary.getServer(client, '756383096646926376');
+        },
+    }
+    private static getServer(client: Client, id: string) {
+        return client.guilds.cache.find(g => g.id == id);
+    }
+
+    private static readonly PinguDevelopers: string[] = [
+        '245572699894710272', //Danho#2105
+        '405331883157880846', //Synthy Sytro
+        '290131910091603968', //Slothman
+    ];
     public static isPinguDev(user: User) {
         //console.log(`[${this.PinguDevelopers.join(', ')}].includes(${user.id})`);
         return this.PinguDevelopers.includes(user.id);
     }
 
+    private static getChannel(client: Client, guildID: string, channelname: string) {
+        var guild = client.guilds.cache.find(guild => guild.id == guildID);
+        if (!guild) {
+            console.error(`Unable to get guild from ${guildID}`);
+            return null;
+        }
+        var channel = guild.channels.cache.find(channel => channel.name == channelname);
+        if (!channel) {
+            console.error(`Unable to get channel from ${channelname}`);
+            return null;
+        }
+        return channel as TextChannel;
+    }
     public static outages(client: Client, message: string) {
         var outageChannel = this.getChannel(client, '756383096646926376', 'outages');
         if (!outageChannel) return this.DanhoDM(client, `Couldn't get #outage channel in Pingu Support, https://discord.gg/Mp4CH8eftv`);
@@ -226,21 +250,6 @@ export class PinguLibrary {
         }
         return pinguGuildLog.send(`[**Success**] [**${script}**] ${message}`);
     }
-
-    private static getChannel(client: Client, guildID: string, channelname: string) {
-        var guild = client.guilds.cache.find(guild => guild.id == guildID);
-        if (!guild) {
-            console.error(`Unable to get guild from ${guildID}`);
-            return null;
-        }
-        var channel = guild.channels.cache.find(channel => channel.name == channelname);
-        if (!channel) {
-            console.error(`Unable to get channel from ${channelname}`);
-            return null;
-        }
-        return channel as TextChannel;
-    }
-
     public static async DanhoDM(client: Client, message: string) {
         console.error(message);
 
@@ -252,6 +261,7 @@ export class PinguLibrary {
         var DanhoDM = await DanhoMisc.owner.createDM();
         return DanhoDM.send(message)
     }
+
 }
 //#endregion
 
@@ -403,13 +413,14 @@ export class TimeLeftObject {
 
 //#region Music
 export class Queue {
-    constructor(logChannel: TextChannel, voiceChannel: VoiceChannel, songs: Song[]) {
+    constructor(client: PClient, logChannel: TextChannel, voiceChannel: VoiceChannel, songs: Song[]) {
         this.logChannel = logChannel;
         this.voiceChannel = voiceChannel;
         this.songs = songs;
         this.volume = .5;
         this.connection = null;
         this.playing = true;
+        this.client = client;
     }
     public logChannel: TextChannel
     public voiceChannel: VoiceChannel
@@ -417,6 +428,7 @@ export class Queue {
     public songs: Song[]
     public volume: number
     public playing: boolean
+    public client: PClient
 
     /** Adds song to the start of the queue
      * @param song song to add*/
@@ -441,9 +453,11 @@ export class PQueue {
         this.connection = queue.connection.voice.speaking;
         this.songs = queue.songs;
         this.volume = queue.volume;
+        this.client = queue.client;
     }
     public logChannel: PChannel
     public voiceChannel: PChannel
+    public client: PClient
     public connection: boolean
     public songs: Song[]
     public volume: number
@@ -456,7 +470,7 @@ export class Song {
         this.author = info.author.name;
         this.length = this.GetLength(info.lengthSeconds);
         this.endsAt = new Date(Date.now() + parseInt(info.lengthSeconds));
-        this.requestedBy = author.username;
+        this.requestedBy = author;
     }
     public title: string
     public author: string
@@ -464,7 +478,7 @@ export class Song {
     public playing: boolean
     public length: string
     public endsAt: Date
-    public requestedBy: string
+    public requestedBy: User
 
     public getTimeLeft() {
         return new TimeLeftObject(new Date(Date.now()), this.endsAt);
