@@ -1,7 +1,7 @@
-const { Message, MessageEmbed, VoiceChannel, Permissions } = require('discord.js'),
+const { Message, Guild, MessageEmbed, VoiceChannel, Permissions } = require('discord.js'),
     ytdl = require('ytdl-core');
-const { PinguGuild, Queue, Song, PinguLibrary } = require('../../PinguPackage');
-var MainActivity, MainNickname;
+const { PinguGuild, Queue, Song, PinguLibrary, PQueue } = require('../../PinguPackage');
+var MainActivity, MainNickname, queue;
 
 module.exports = {
     name: 'music',
@@ -11,13 +11,13 @@ module.exports = {
     id: 2,
     example: ["play https://www.youtube.com/watch?v=dQw4w9WgXcQ",],
     /**@param {Message} message @param {string[]} args*/
-    execute(message, args) {
+    async execute(message, args) {
         const voiceChannel = message.member.voice.channel,
             PermCheck = PermissionCheck(message, voiceChannel);
         if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
 
-        const command = args.shift().toLowerCase(),
-            queue = PinguGuild.GetPGuild(message.guild).musicQueue;
+        const command = args.shift().toLowerCase();
+        queue = await getQueueElements(message.guild, PinguGuild.GetPGuild(message.guild).musicQueue);
         MainActivity = message.client.user.presence;
 
         if (command == 'play' || command == 'p')
@@ -33,7 +33,8 @@ module.exports = {
             case 'q': case 'queue': HandleQueue(message, queue); break;
             case 'pause': case 'resume': HandlePauseResume(message, queue, command == 'pause'); break;
             case 'mo': case 'move': HandleMove(message, queue, args); break;
-            default: return PinguLibrary.errorLog(message.client, "Ran default case", message.content);
+            case 'join': HandleJoin(message); break;
+            default: return message.channel.send(`I didn't recognize that command!`);
         }
     },
 };
@@ -63,9 +64,9 @@ function PermissionCheck(message, voiceChannel) {
  * @param {VoiceChannel} voiceChannel
  * @param {Queue} queue*/
 async function HandlePlay(message, args, voiceChannel, queue) {
-    if (!args[0]) return message.channel.send(`You didn't give me something to play!`);
+    if (!args[0] && !queue.songs[0]) return message.channel.send(`You didn't give me something to play!`);
 
-    var vInfo = await ytdl.getInfo(args[0].replace(/<(.+)>/g, '$1')).catch(async err => {
+    var vInfo = await ytdl.getInfo((args[0] && args[0].replace(/<(.+)>/g, '$1') || queue.songs[0].link)).catch(async err => {
         await PinguLibrary.errorLog(message.client, `Unable to get video info`, message.content, err);
         var errMsg = `I ran into an error trying to get the video information! I've contacted my developers.`;
         if (message.channel != queue.logChannel)
@@ -75,6 +76,7 @@ async function HandlePlay(message, args, voiceChannel, queue) {
     });
 
     const song = new Song(vInfo, message.author);
+    if (!song) message.channel.send(`I couldn't get that song!`);
 
     if (!queue) {
         queue = new Queue(message.channel, voiceChannel, [song]);
@@ -109,7 +111,7 @@ function HandleSkip(message, queue) {
 
     announceMessage(message, queue,
         "Skipped!",
-        `Skipped, requested by **${message.guild.member(message.author).nickname}**.`
+        `Skipped, requested by **${message.guild.member(message.author).displayName}**.`
     );
 }
 /**Executes when author sends *music np
@@ -143,7 +145,7 @@ function HandleQueue(message, queue) {
         .setImage(message.client.user.avatarURL())
         .setColor(PinguGuild.GetPGuild(message.guild).embedColor);
 
-    try { queue.songs.forEach(song => embed.addField(`[${queue.songs.indexOf(song) + 1}]: ${song.title}`, `Requested by: ${song.author} | Length: ${song.length}`)) }
+    try { queue.songs.forEach(song => embed.addField(`[${queue.songs.indexOf(song) + 1}]: ${song.title}`, `Requested by: ${song.requestedBy} | Length: ${song.length}`)) }
     catch (err) {
         PinguLibrary.errorLog(message.client, `Tried to send queue for ${queue.voiceChannel.guild.name}`, message.content, err);
         return message.channel.send(`I ran into an error trying to get the queue, and sent a message to my developers!`);
@@ -177,50 +179,61 @@ function HandlePauseResume(message, queue, pauseRequest) {
 function HandleMove(message, queue, args) {
     message.channel.send(`That is not implemented yet!`);
 }
+/**@param {Message} message*/
+async function HandleJoin(message) {
+    message.member.voice.channel.join();
+}
 //#endregion
 
 /**@param {Message} message @param {Song} song @param {Queue} queue*/
 async function Play(message, song, queue) {
     var pGuild = PinguGuild.GetPGuild(message.guild);
-    pGuild.musicQueue = queue;
+    pGuild.musicQueue = new PQueue(queue);
 
     if (!song) {
         queue.logChannel.send('Thank you for listening!');
         queue.voiceChannel.leave();
         PinguGuild.GetPGuild(message.guild).musicQueue = null;
-        message.client.user.presence = MainActivity;
+        message.client.user.setPresence(MainActivity);
+        message.guild.me.setNickname(MainNickname);
         return;
     }
 
     queue.connection.play(ytdl(song.link))
         .on('start', () => {
+            console.log("Song Start");
+
             if (message.guild.me.permissions.has("CHANGE_NICKNAME")) {
                 MainNickname = message.guild.me.displayName;
-                message.guild.me.setNickname(`[${message.member.displayName} Radio] ${MainNickname}`)
-                    .catch(() => message.guild.me.setNickname(`[${message.author.username} Radio] ${MainNickname}`))
-                    .catch(() => message.guild.me.setNickname(`[${message.client.user.username} Radio] ${MainNickname}`))
-                    .catch(() => message.guild.me.setNickname(MainNickname));
+                message.guild.me.setNickname(`[${message.member.displayName} Radio] ${MainNickname}`) //[Nickname Radio] Pingu
+                    .catch(() => message.guild.me.setNickname(`[${message.author.username} Radio] ${MainNickname}`)) //[Username Radio] Pingu
+                    .catch(() => message.guild.me.setNickname(`[${message.client.user.username} Radio] ${MainNickname}`)) //[Pingu Radio] Pingu
+                    .catch(() => message.guild.me.setNickname(MainNickname)); //Pingu
             }
 
             message.client.user.setActivity(`${song.title} in ${queue.voiceChannel.name}`, 'PLAYING');
-            queue.logChannel.send(`**Now playing:** ${song.title}`);
+            queue.logChannel.send(`**Now playing:** ${song.title} from ${song.requestedBy}`);
 
             //Am I saving too much?
-            //PinguGuild.UpdatePGuildsJSONAsync(message.client, module.exports.name,
-            //    `Saved Queue to pGuilds.json`,
-            //    `Error while saving **${message.guild.name}**'s queue to pGuilds.json`
-            //);
+            PinguGuild.UpdatePGuildsJSONAsync(message.client, module.exports.name,
+                `Saved Queue to pGuilds.json`,
+                `Error while saving **${message.guild.name}**'s queue to pGuilds.json`
+            );
         })
         .on('error', err => {
+            console.log("Song Error");
+
             PinguLibrary.errorLog(message.client, "Voice connection error", message.content, err);
             announceMessage(message, queue, `I had a voice connection error! I've notified my developers.`)
 
             pGuild.musicQueue = null;
         })
         .on('end', () => {
+            console.log("Song End");
 
         })
         .on('finish', () => {
+            console.log("Song Finished");
             queue.songs.shift();
             Play(message, queue.songs[0], queue);
         })
@@ -232,5 +245,19 @@ async function Play(message, song, queue) {
 function announceMessage(message, queue, senderMsg, logMsg) {
     if (message.channel != queue.logChannel)
         message.channel.send(senderMsg);
-    return queue.logChannel((logMsg || senderMsg));
+    return queue.logChannel.send((logMsg || senderMsg));
+}
+
+/**@param {Guild} guild
+ * @param {PQueue} pqueue*/
+async function getQueueElements(guild, pqueue) {
+    var queue = pqueue ? new Queue(
+        guild.channels.cache.find(c => c.id == pqueue.logChannel.id),
+        guild.channels.cache.find(c => c.id == pqueue.voiceChannel.id),
+        pqueue.songs
+    ) : null;
+
+    if (queue && guild.me.voice.channel)
+        queue.connection = await guild.me.voice.channel.join();
+    return queue;
 }

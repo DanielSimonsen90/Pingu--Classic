@@ -51,7 +51,6 @@ export class PChannel {
 }
 export class PEmote {
     constructor(emote: GuildEmoji) {
-        emote.
     }
 }
 export class PinguGuild {
@@ -99,7 +98,7 @@ export class PinguGuild {
     public guildOwner: PGuildMember
     public embedColor: number
     public botPrefix: string
-    public musicQueue: Queue
+    public musicQueue: PQueue
     public giveawayConfig: GiveawayConfig
     public pollConfig: PollConfig
     public suggestions: Suggestion[]

@@ -49,7 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Song = exports.PQueue = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PChannel = exports.PRole = exports.PGuildMember = void 0;
+exports.Song = exports.PQueue = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PEmote = exports.PChannel = exports.PRole = exports.PGuildMember = void 0;
 var fs = require('fs');
 //var lock = new AsyncLock();
 var Error = /** @class */ (function () {
@@ -94,6 +94,12 @@ var PChannel = /** @class */ (function () {
     return PChannel;
 }());
 exports.PChannel = PChannel;
+var PEmote = /** @class */ (function () {
+    function PEmote(emote) {
+    }
+    return PEmote;
+}());
+exports.PEmote = PEmote;
 var PinguGuild = /** @class */ (function () {
     //#endregion
     function PinguGuild(guild) {
