@@ -164,7 +164,7 @@ var PinguLibrary = /** @class */ (function () {
     function PinguLibrary() {
     }
     PinguLibrary.setActivity = function (client) {
-        client.user.setActivity('jingle bells... *help', { type: 'LISTENING' });
+        return client.user.setActivity('jingle bells... *help', { type: 'LISTENING' });
     };
     PinguLibrary.PermissionCheck = function (message, permissions) {
         var textChannel = message.channel;
@@ -443,13 +443,14 @@ exports.TimeLeftObject = TimeLeftObject;
 //#endregion
 //#region Music
 var Queue = /** @class */ (function () {
-    function Queue(client, logChannel, voiceChannel, songs) {
+    function Queue(client, logChannel, voiceChannel, songs, playing) {
+        if (playing === void 0) { playing = true; }
         this.logChannel = logChannel;
         this.voiceChannel = voiceChannel;
         this.songs = songs;
         this.volume = .5;
         this.connection = null;
-        this.playing = true;
+        this.playing = playing;
         this.client = client;
     }
     /** Adds song to the start of the queue
@@ -478,6 +479,7 @@ var PQueue = /** @class */ (function () {
         this.songs = queue.songs;
         this.volume = queue.volume;
         this.client = queue.client;
+        this.playing = queue.playing;
     }
     return PQueue;
 }());
@@ -497,22 +499,20 @@ var Song = /** @class */ (function () {
     };
     Song.prototype.GetLength = function (secondsLength) {
         var seconds = parseInt(secondsLength), minutes = 0, hours = 0, final = [];
-        final.push(seconds);
         if (seconds > 59) {
             while (seconds > 59) {
                 seconds -= 60;
                 minutes++;
             }
-            final.unshift(minutes);
         }
         if (minutes > 59) {
             while (minutes > 59) {
                 minutes -= 60;
                 hours++;
             }
-            final.unshift(hours);
         }
-        return final.join('.').substring(0, final.join('.').length - 1);
+        final.push(hours, minutes, seconds);
+        return final.map(function (i) { return i < 10 ? "0" + i : i; }).join('.');
     };
     return Song;
 }());

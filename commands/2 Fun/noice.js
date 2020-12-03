@@ -21,11 +21,10 @@ module.exports = {
         message.channel.send('https://tenor.com/LgPu.gif');
 
         if (!voiceChannel) return;
-        PermCheck = PinguLibrary.PermissionCheck(message, [
-            Permissions.FLAGS.CONNECT,
-            Permissions.FLAGS.SPEAK,
-        ]);
-        if (PermCheck != PinguLibrary.PermissionGranted) return `${PermCheck.substring(0, PermCheck.length - 1)}, so I couldn't play the video for you in there..`;
+        else if (!voiceChannel.permissionsFor(message.guild.me).has(Permissions.FLAGS.CONNECT))
+            return message.channel.send(`I don't have permission to **connect** to ${voiceChannel.name}`);
+        else if (!voiceChannel.permissionsFor(message.guild.me).has(Permissions.FLAGS.SPEAK))
+            return message.channel.send(`I don't have permission to **speak** to ${voiceChannel.name}`);
 
         voiceChannel.join().then(connection => {
             const stream = ytdl('https://www.youtube.com/watch?v=Akwm2UZJ34o', { filter: 'audioonly' });

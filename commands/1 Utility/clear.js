@@ -1,4 +1,4 @@
-const { Message, User, Permissions, TextChannel } = require('discord.js');
+const { Message, User, Permissions, TextChannel, GuildChannel } = require('discord.js');
 const { PinguLibrary } = require('../../PinguPackage');
 
 module.exports = {
@@ -58,7 +58,7 @@ function ClearMessages(message, amount) {
             ));
 }
 /**@param {Message} message
- @param {TextChannel} channel*/
+ @param {GuildChannel} channel*/
 function ClearAll(message, channel) {
     var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.MANAGE_CHANNELS]);
     if (permCheck != PinguLibrary.PermissionGranted) return permCheck;
@@ -71,9 +71,13 @@ function ClearAll(message, channel) {
         `<#${c.id}>` == channel
     );
 
+    if (message.guild.rulesChannelID == channel.id || !['text', 'voice'].includes(channel.type))
+        return `I cannot replace that channel!`;
+
+
+    channel.delete(`Requested by ${message.author.username}`);
     channel.clone();
-    channel.delete();
-    return `I've deleted the previous #${channel.name}, and replaced it with ${(`<#${message.guild.channels.cache.find(c => c.name == channel.name)}>` ||  `a new one!`)}>!`;
+    return `I've deleted the previous #${channel.name}, and replaced it with ${(`${message.guild.channels.cache.find(c => c.name == channel.name)}` ||  `a new one!`)}!`;
 }
 /**@param {Message} message 
  * @param {string[]} args 

@@ -112,7 +112,7 @@ export class PinguGuild {
 
 export class PinguLibrary {
     public static setActivity(client: Client) {
-        client.user.setActivity('jingle bells... *help', { type: 'LISTENING' });
+        return client.user.setActivity('jingle bells... *help', { type: 'LISTENING' });
     }
 
     public static PermissionCheck(message: Message, permissions: PermissionString[]) {
@@ -413,13 +413,13 @@ export class TimeLeftObject {
 
 //#region Music
 export class Queue {
-    constructor(client: PClient, logChannel: TextChannel, voiceChannel: VoiceChannel, songs: Song[]) {
+    constructor(client: PClient, logChannel: TextChannel, voiceChannel: VoiceChannel, songs: Song[], playing = true) {
         this.logChannel = logChannel;
         this.voiceChannel = voiceChannel;
         this.songs = songs;
         this.volume = .5;
         this.connection = null;
-        this.playing = true;
+        this.playing = playing;
         this.client = client;
     }
     public logChannel: TextChannel
@@ -454,6 +454,7 @@ export class PQueue {
         this.songs = queue.songs;
         this.volume = queue.volume;
         this.client = queue.client;
+        this.playing = queue.playing
     }
     public logChannel: PChannel
     public voiceChannel: PChannel
@@ -461,6 +462,7 @@ export class PQueue {
     public connection: boolean
     public songs: Song[]
     public volume: number
+    public playing: boolean
 }
 export class Song {
     constructor(videoInfo: videoInfo, author: User) {
@@ -485,22 +487,23 @@ export class Song {
     }
     private GetLength(secondsLength: string) {
         var seconds = parseInt(secondsLength), minutes = 0, hours = 0, final = [];
-        final.push(seconds);
+
         if (seconds > 59) {
             while (seconds > 59) {
                 seconds -= 60;
                 minutes++;
             }
-            final.unshift(minutes);
         }
         if (minutes > 59) {
             while (minutes > 59) {
                 minutes -= 60;
                 hours++;
             }
-            final.unshift(hours);
         }
-        return final.join('.').substring(0, final.join('.').length - 1);
+
+        final.push(hours, minutes, seconds);
+
+        return final.map(i => i < 10 ? `0${i}` : i).join('.');
     }
 }
 //#endregion

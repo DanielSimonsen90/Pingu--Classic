@@ -1,60 +1,5 @@
 [
     {
-        "guildName": "The Danho Discord",
-        "guildID": "248104299534614528",
-        "guildOwner": {
-            "id": "405331883157880846",
-            "user": "Synthy Sytro#5637"
-        },
-        "botPrefix": "*",
-        "embedColor": 0,
-        "musicQueue": null,
-        "giveawayConfig": {
-            "firstTimeExecuted": true
-        },
-        "pollConfig": {
-            "firstTimeExecuted": true
-        },
-        "suggestions": []
-    },
-    {
-        "guildName": "Mailex' Twitch server",
-        "guildID": "277371194422853633",
-        "guildOwner": {
-            "id": "277361003950505984",
-            "user": "Mailex#6538"
-        },
-        "botPrefix": "*",
-        "embedColor": 16753461,
-        "musicQueue": null,
-        "giveawayConfig": {
-            "firstTimeExecuted": true
-        },
-        "pollConfig": {
-            "firstTimeExecuted": true
-        },
-        "suggestions": []
-    },
-    {
-        "guildName": "Do not take ma rice",
-        "guildID": "405763731079823380",
-        "guildOwner": {
-            "id": "245572699894710272",
-            "user": "Danho#2105"
-        },
-        "botPrefix": "*",
-        "embedColor": 3447003,
-        "musicQueue": null,
-        "giveawayConfig": {
-            "firstTimeExecuted": true
-        },
-        "pollConfig": {
-            "firstTimeExecuted": true
-        },
-        "suggestions": [],
-        "themeWinners": []
-    },
-    {
         "guildName": "Danho's Misc",
         "guildID": "460926327269359626",
         "guildOwner": {
@@ -91,6 +36,43 @@
         "suggestions": []
     },
     {
+        "guildName": "Do not take ma rice",
+        "guildID": "405763731079823380",
+        "guildOwner": {
+            "id": "245572699894710272",
+            "user": "Danho#2105"
+        },
+        "botPrefix": "*",
+        "embedColor": 3447003,
+        "musicQueue": null,
+        "giveawayConfig": {
+            "firstTimeExecuted": true
+        },
+        "pollConfig": {
+            "firstTimeExecuted": true
+        },
+        "suggestions": [],
+        "themeWinners": []
+    },
+    {
+        "guildName": "Mailex' Twitch server",
+        "guildID": "277371194422853633",
+        "guildOwner": {
+            "id": "277361003950505984",
+            "user": "Mailex#6538"
+        },
+        "botPrefix": "*",
+        "embedColor": 16753461,
+        "musicQueue": null,
+        "giveawayConfig": {
+            "firstTimeExecuted": true
+        },
+        "pollConfig": {
+            "firstTimeExecuted": true
+        },
+        "suggestions": []
+    },
+    {
         "guildName": "Pingu Support",
         "guildID": "756383096646926376",
         "guildOwner": {
@@ -99,46 +81,25 @@
         },
         "botPrefix": "*",
         "embedColor": 15105570,
-        "musicQueue": {
-            "logChannel": {
-                "id": "756387369388605570",
-                "name": "dev-testing"
-            },
-            "voiceChannel": {
-                "id": "756388912443818075",
-                "name": "Pingu's Broadcasting Channel"
-            },
-            "connection": null,
-            "songs": [
-                {
-                    "link": "https://www.youtube.com/watch?v=0rhw4RnFilQ",
-                    "title": "Asian Creeper (REMIX) Feat. Mychonny (Asian Parody)",
-                    "author": "Aznromeo",
-                    "length": "3.23",
-                    "endsAt": "2020-12-03T11:58:31.054Z",
-                    "requestedBy": {
-                        "id": "290131910091603968",
-                        "system": null,
-                        "locale": null,
-                        "flags": 0,
-                        "username": "Slothman",
-                        "bot": false,
-                        "discriminator": "7727",
-                        "avatar": "aa5d4fbeec6c534a0cc1dcdd3f7ac866",
-                        "lastMessageChannelID": "756387369388605570",
-                        "createdTimestamp": 1489243237756,
-                        "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/2.png",
-                        "tag": "Slothman#7727",
-                        "avatarURL": "https://cdn.discordapp.com/avatars/290131910091603968/aa5d4fbeec6c534a0cc1dcdd3f7ac866.webp",
-                        "displayAvatarURL": "https://cdn.discordapp.com/avatars/290131910091603968/aa5d4fbeec6c534a0cc1dcdd3f7ac866.webp"
-                    }
-                }
-            ],
-            "volume": 0.5,
-            "client": {
-                "displayName": "Pingu"
-            }
+        "musicQueue": null,
+        "giveawayConfig": {
+            "firstTimeExecuted": true
         },
+        "pollConfig": {
+            "firstTimeExecuted": true
+        },
+        "suggestions": []
+    },
+    {
+        "guildName": "The Danho Discord",
+        "guildID": "248104299534614528",
+        "guildOwner": {
+            "id": "405331883157880846",
+            "user": "Synthy Sytro#5637"
+        },
+        "botPrefix": "*",
+        "embedColor": 0,
+        "musicQueue": null,
         "giveawayConfig": {
             "firstTimeExecuted": true
         },
