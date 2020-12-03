@@ -114,18 +114,20 @@ client.on('message', message => {
     //If interacted via @
     commandName = TestTagInteraction(commandName, args);
 
+    var startsWithPrefix = () => (!message.content.startsWith(Prefix) && !message.author.bot) && !message.content.includes(SecondaryPrefix);
+
     //If I'm not interacted with don't do anything
-    if (message.channel.type == 'dm' && ([LastToBeTold, LastToUseTell].includes(message.author)) && commandName == "tell") {
+    if (message.channel.type == 'dm' && ([LastToBeTold, LastToUseTell].includes(message.author)) && !startsWithPrefix()) {
         try { return ExecuteTellReply(message); }
         catch (err) { return PinguLibrary.errorLog(client, `Failed to execute tell reply`, message.content, err); }
     }
 
-    if ((!message.content.startsWith(Prefix) && !message.author.bot) && !message.content.includes(SecondaryPrefix)) return;
+    if (startsWithPrefix()) return;
 
     //Attempt "command" assignment
     if (musicCommands.find(cmd => [cmd.name, cmd.alias].includes(commandName))) {
-        commandName = `music`;
         args.unshift(commandName);
+        commandName = `music`;
     }
     let command = AssignCommand(commandName, args);
 

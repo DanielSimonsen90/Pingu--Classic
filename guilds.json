@@ -99,7 +99,46 @@
         },
         "botPrefix": "*",
         "embedColor": 15105570,
-        "musicQueue": null,
+        "musicQueue": {
+            "logChannel": {
+                "id": "756387369388605570",
+                "name": "dev-testing"
+            },
+            "voiceChannel": {
+                "id": "756388912443818075",
+                "name": "Pingu's Broadcasting Channel"
+            },
+            "connection": null,
+            "songs": [
+                {
+                    "link": "https://www.youtube.com/watch?v=0rhw4RnFilQ",
+                    "title": "Asian Creeper (REMIX) Feat. Mychonny (Asian Parody)",
+                    "author": "Aznromeo",
+                    "length": "3.23",
+                    "endsAt": "2020-12-03T11:58:31.054Z",
+                    "requestedBy": {
+                        "id": "290131910091603968",
+                        "system": null,
+                        "locale": null,
+                        "flags": 0,
+                        "username": "Slothman",
+                        "bot": false,
+                        "discriminator": "7727",
+                        "avatar": "aa5d4fbeec6c534a0cc1dcdd3f7ac866",
+                        "lastMessageChannelID": "756387369388605570",
+                        "createdTimestamp": 1489243237756,
+                        "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/2.png",
+                        "tag": "Slothman#7727",
+                        "avatarURL": "https://cdn.discordapp.com/avatars/290131910091603968/aa5d4fbeec6c534a0cc1dcdd3f7ac866.webp",
+                        "displayAvatarURL": "https://cdn.discordapp.com/avatars/290131910091603968/aa5d4fbeec6c534a0cc1dcdd3f7ac866.webp"
+                    }
+                }
+            ],
+            "volume": 0.5,
+            "client": {
+                "displayName": "Pingu"
+            }
+        },
         "giveawayConfig": {
             "firstTimeExecuted": true
         },

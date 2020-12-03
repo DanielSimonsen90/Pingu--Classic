@@ -12,16 +12,16 @@ module.exports = {
     id: 2,
     example: ["play https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
     musicCommands: [
-        {name: "play", alias: "p", cmdHandler: HandlePlay},
-        {name: "stop", alias: "st", cmdHandler: HandleStop},
-        {name: "skip", alias: "sk", cmdHandler: HandleSkip},
-        {name: "nowplaying", alias: "np", cmdHandler: HandleNowPlaying},
-        {name: "volume", alias: "vol", cmdHandler: HandleVolume},
-        {name: "queue", alias: "q", cmdHandler: HandleQueue},
-        {name: "pause", alias: null, cmdHandler: HandlePauseResume},
-        {name: "resume", alias: null, cmdHandler: HandlePauseResume},
-        {name: "move", alias: "mo", cmdHandler: HandleMove},
-        {name: "join", alias: null, cmdHandler: HandleJoin},
+        { name: "play", alias: "p", cmdHandler: HandlePlay },
+        { name: "stop", alias: "st", cmdHandler: HandleStop },
+        { name: "skip", alias: "sk", cmdHandler: HandleSkip },
+        { name: "nowplaying", alias: "np", cmdHandler: HandleNowPlaying },
+        { name: "volume", alias: "vol", cmdHandler: HandleVolume },
+        { name: "queue", alias: "q", cmdHandler: HandleQueue },
+        { name: "pause", alias: null, cmdHandler: HandlePauseResume },
+        { name: "resume", alias: null, cmdHandler: HandlePauseResume },
+        { name: "move", alias: "mo", cmdHandler: HandleMove },
+        { name: "join", alias: null, cmdHandler: HandleJoin },
     ],
     /**@param {Message} message @param {string[]} args*/
     async execute(message, args) {
@@ -29,25 +29,28 @@ module.exports = {
             PermCheck = PermissionCheck(message, voiceChannel);
         if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
 
-        const command = args.shift().toLowerCase();
+        const commandName = args.shift().toLowerCase();
         queue = await getQueueElements(message.guild, PinguGuild.GetPGuild(message.guild).musicQueue);
 
-        if (command == 'play' || command == 'p')
-            return HandlePlay(message, args, voiceChannel, queue);
+        if ([this.musicCommands[0].name, this.musicCommands[0].alias].includes(commandName))
+            return this.musicCommands[0].cmdHandler(message, args, voiceChannel, queue);
 
         if (!queue) return message.channel.send('Nothing is playing!');
 
-        switch (command) {
-            case 'st': case 'stop': HandleStop(message, queue); break;
-            case 'sk': case 'skip': HandleSkip(message, queue); break;
-            case 'np': case 'nowplaying': HandleNowPlaying(message, queue); break;
-            case 'vol': case 'volume': HandleVolume(message, args[0], queue); break;
-            case 'q': case 'queue': HandleQueue(message, queue); break;
-            case 'pause': case 'resume': HandlePauseResume(message, queue, command == 'pause'); break;
-            case 'mo': case 'move': HandleMove(message, queue, args); break;
-            case 'join': HandleJoin(message); break;
-            default: return message.channel.send(`I didn't recognize that command!`);
-        }
+        var command = this.musicCommands.find(cmd => [cmd.name, cmd.alias].includes(commandName))
+        if (!command) return message.channel.send(`I didn't recognize that command!`);
+        command.cmdHandler(message, queue, (["pause", "resume"].includes(commandName) ? commandName == 'pause' : args[0]))
+
+        //switch (commandName) {
+        //    case 'st': case 'stop': HandleStop              (message, queue); break;
+        //    case 'sk': case 'skip': HandleSkip              (message, queue); break;
+        //    case 'np': case 'nowplaying': HandleNowPlaying  (message, queue); break;
+        //    case 'vol': case 'volume': HandleVolume         (message, queue, args[0]); break;
+        //    case 'q': case 'queue': HandleQueue             (message, queue); break;
+        //    case 'pause': case 'resume': HandlePauseResume  (message, queue, commandName == 'pause'); break;
+        //    case 'mo': case 'move': HandleMove              (message, queue, args); break;
+        //    case 'join': HandleJoin                         (message); break;
+        //}
     },
 };
 
@@ -144,9 +147,9 @@ function HandleNowPlaying(message, queue) {
 }
 /**Executes when author sends *music volume
  * @param {Message} message 
- * @param {string} newVolume
- * @param {Queue} queue*/
-function HandleVolume(message, newVolume, queue) {
+ * @param {Queue} queue
+ * @param {string} newVolume*/
+function HandleVolume(message, queue, newVolume) {
     if (!newVolume) return message.channel.send(`Volume is currently **${queue.volume}**`);
 
     queue.connection.dispatcher.setVolumeLogarithmic(newVolume / 5);
@@ -236,9 +239,8 @@ async function Play(message, song, queue) {
             if (message.guild.me.permissions.has("CHANGE_NICKNAME")) {
                 var me = await message.guild.me.setNickname(`[${message.guild.member(song.requestedBy).displayName} Radio] ${queue.client.displayName}`) //[Nickname Radio] Pingu
                     .catch(() => message.guild.me.setNickname(`[${song.requestedBy.username} Radio] ${queue.client.displayName}`) //[Username Radio] Pingu
-                    .catch(() => message.guild.me.setNickname(`[${message.guild.me.displayName} Radio] ${queue.client.displayName}`) //[Pingu Radio] Pingu
-                    .catch(() => message.guild.me.setNickname(queue.client.displayName)))); //Pingu
-                console.log(queue.client.displayName, me.nickname);
+                        .catch(() => message.guild.me.setNickname(`[${message.guild.me.displayName} Radio] ${queue.client.displayName}`) //[Pingu Radio] Pingu
+                            .catch(() => message.guild.me.setNickname(queue.client.displayName)))); //Pingu
             }
 
             var nowPlayingMessage = `**Now playing:** ${song.title}\n**Requested by:** `;
