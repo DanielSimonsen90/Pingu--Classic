@@ -23,7 +23,6 @@ for (var x = 1; x < ScriptsCategorized.length; x++)
 //Am I ready to launch?
 client.once('ready', () => {
     PinguLibrary.outages(client, `\nI'm back online!\n`);
-    //client.user.setActivity('your screams for *help', { type: 'LISTENING' });
     PinguLibrary.setActivity(client);
 });
 //First time joining a guild
@@ -122,7 +121,7 @@ client.on('message', message => {
         catch (err) { return PinguLibrary.errorLog(client, `Failed to execute tell reply`, message.content, err); }
     }
 
-    if (startsWithPrefix()) return;
+    if (!startsWithPrefix()) return;
 
     //Attempt "command" assignment
     if (musicCommands.find(cmd => [cmd.name, cmd.alias].includes(commandName))) {
@@ -241,14 +240,19 @@ function ExecuteTellReply(message) {
         console.log(`Attempted to run ExecuteTellReply(message), but ran into an error:\n ${error}`)
     }*/
 
+    var cantMessage = async (err) => {
+        if (err.message == 'Cannot send messages to this user')
+            return message.channel.send(`Unable to send message to ${Mention.username}, as they have \`Allow direct messages from server members\` disabled!`);
+
+        await PinguLibrary.errorLog(message.client, `${message.author} attempted to *tell ${Mention}`, message.content, err)
+        message.channel.send(`Attempted to message ${Mention.username} but couldn't.. I've contacted my developers.`);
+    }
+
     if (message.author == LastToUseTell) {
-        if (message.content && message.attachments)
-            LastToBeTold.dmChannel.send(message.content, message.attachments.array());
-        else if (message.content)
-            LastToBeTold.dmChannel.send(message.content);
-        else if (message.attachments)
-            LastToBeTold.dmChannel.send(message.attachments.array());
-        else PinguLibrary.errorLog(client, `${LastToUseTell} => ${LastToBeTold} used else statement from ExecuteTellReply, Index`);
+        if (message.content && message.attachments) LastToBeTold.dmChannel.send(message.content, message.attachments.array()).catch(async err => cantMessage(err));
+        else if (message.content)                   LastToBeTold.dmChannel.send(message.content).catch(async err => cantMessage(err));
+        else if (message.attachments)               LastToBeTold.dmChannel.send(message.attachments.array()).catch(async err => cantMessage(err));
+        else PinguLibrary.errorLog(client, `${LastToUseTell} => ${LastToBeTold} used else statement from ExecuteTellReply, Index`, message.content);
         message.react('✅');
     }
     else if (LastToUseTell != null) {
@@ -256,22 +260,12 @@ function ExecuteTellReply(message) {
     }
     else return;
 }
-/**@param {Discord.Message} message*/
-function GetMessageContent(message) {
-    message.channel.fetchMessages({ limit: 20 }).then(MessageCollection => {
-        for (var x = 0; x < MessageCollection.array().length; x++) {
-            if (MessageCollection.array()[x].author == message.client.user)
-                return MessageContent = MessageCollection.array()[x].content;
-        }
-    });
-    return `Unable to find message content`;
-}
 /**@param {Discord.Message} message @param {string} UserMention*/
 function GetMention(message, UserMention) {
     if (message.mentions.users.first() == null) {
         for (var Guild of message.client.guilds.cache.array())
             for (var Member of Guild.members.cache.array())
-                if ([Member.user.username, Member.nickname, Member.id].includes(UserMention))
+                if ([Member.user.username.toLowerCase(), Member.nickname && Member.nickname.toLowerCase(), Member.id].includes(UserMention.toLowerCase()))
                     return Member.user;
         return null;
     }

@@ -164,6 +164,7 @@ var PinguLibrary = /** @class */ (function () {
     function PinguLibrary() {
     }
     PinguLibrary.setActivity = function (client) {
+        //return client.user.setActivity('your screams for *help', { type: 'LISTENING' });
         return client.user.setActivity('jingle bells... *help', { type: 'LISTENING' });
     };
     PinguLibrary.PermissionCheck = function (message, permissions) {
@@ -251,13 +252,16 @@ var PinguLibrary = /** @class */ (function () {
             if (messageAsMessage.attachments)
                 consoleLog += messageAsMessage.attachments.map(function (a) { return "\n" + a.url; });
             console.log(consoleLog);
-            var format = new Date(Date.now()).toLocaleTimeString() + " [<@" + sender + "> => <@" + reciever + ">]";
+            var format = function (ping) { return new Date(Date.now()).toLocaleTimeString() + " [<@" + (ping ? sender : sender.username) + "> => <@" + (ping ? reciever : reciever.username) + ">]"; };
             if (messageAsMessage.content && messageAsMessage.attachments)
-                tellLogChannel.send(format + (": ||" + messageAsMessage.content + "||"), messageAsMessage.attachments.array());
+                tellLogChannel.send(format(false) + (": ||" + messageAsMessage.content + "||"), messageAsMessage.attachments.array())
+                    .then(function (sent) { return sent.edit(format(true) + (": ||" + messageAsMessage.content + "||")); });
             else if (messageAsMessage.content)
-                tellLogChannel.send(format + (": ||" + messageAsMessage.content + "||"));
+                tellLogChannel.send(format(false) + (": ||" + messageAsMessage.content + "||"))
+                    .then(function (sent) { return sent.edit(format(true) + (": ||" + messageAsMessage.content + "||")); });
             else if (messageAsMessage.attachments)
-                tellLogChannel.send(format, messageAsMessage.attachments.array());
+                tellLogChannel.send(format(false), messageAsMessage.attachments.array())
+                    .then(function (sent) { return sent.edit(format(true)); });
             else
                 this.errorLog(client, sender + " => " + reciever + " sent something that didn't have content or attachments")
                     .then(function () { return tellLogChannel.send("Ran else statement - reported to " + tellLogChannel.guild.channels.cache.find(function (c) { return c.name == 'error-log'; })); });
@@ -460,13 +464,31 @@ var Queue = /** @class */ (function () {
     };
     /** Adds song to queue
      * @param song song to add*/
-    Queue.prototype.add = function (song) {
-        this.songs.push(song);
+    Queue.prototype.add = function () {
+        var _this = this;
+        var songs = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            songs[_i] = arguments[_i];
+        }
+        songs.forEach(function (song) { return _this.songs.push(song); });
     };
     /** Removes song from queue
      * @param song song to remove*/
     Queue.prototype.remove = function (song) {
         this.songs = this.songs.filter(function (s) { return s != song; });
+    };
+    Queue.prototype.move = function (posA, posB) {
+        var songToMove = this.songs[posA];
+        this.songs.unshift(null);
+        for (var i = 1; i < this.songs.length; i++) {
+            if (i == posB)
+                this.songs[i - 1] = songToMove;
+            else if (i == posA + 1)
+                continue;
+            else
+                this.songs[i - 1] = this.songs[i];
+        }
+        return this;
     };
     return Queue;
 }());

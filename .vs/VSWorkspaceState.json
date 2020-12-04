@@ -2,8 +2,10 @@
   "ExpandedNodes": [
     "",
     "\\commands",
-    "\\commands\\2 Fun"
+    "\\commands\\1 Utility",
+    "\\commands\\2 Fun",
+    "\\commands\\4 DevOnly"
   ],
-  "SelectedNode": "\\guilds.json",
+  "SelectedNode": "\\commands\\3 Support",
   "PreviewInSolutionExplorer": false
 }

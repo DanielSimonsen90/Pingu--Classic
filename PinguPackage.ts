@@ -112,6 +112,7 @@ export class PinguGuild {
 
 export class PinguLibrary {
     public static setActivity(client: Client) {
+        //return client.user.setActivity('your screams for *help', { type: 'LISTENING' });
         return client.user.setActivity('jingle bells... *help', { type: 'LISTENING' });
     }
 
@@ -225,14 +226,20 @@ export class PinguLibrary {
 
             console.log(consoleLog);
 
-            var format = `${new Date(Date.now()).toLocaleTimeString()} [<@${sender}> => <@${reciever}>]`;
+            var format = (ping) => `${new Date(Date.now()).toLocaleTimeString()} [<@${(ping ? sender : sender.username)}> => <@${(ping ? reciever : reciever.username)}>]`;
 
             if (messageAsMessage.content && messageAsMessage.attachments)
-                tellLogChannel.send(format + `: ||${messageAsMessage.content}||`, messageAsMessage.attachments.array());
+                tellLogChannel.send(format(false) + `: ||${messageAsMessage.content}||`, messageAsMessage.attachments.array())
+                    .then(sent => sent.edit(format(true) + `: ||${messageAsMessage.content}||`));
+
             else if (messageAsMessage.content)
-                tellLogChannel.send(format + `: ||${messageAsMessage.content}||`);
+                tellLogChannel.send(format(false) + `: ||${messageAsMessage.content}||`)
+                    .then(sent => sent.edit(format(true) + `: ||${messageAsMessage.content}||`));
+
             else if (messageAsMessage.attachments)
-                tellLogChannel.send(format, messageAsMessage.attachments.array());
+                tellLogChannel.send(format(false), messageAsMessage.attachments.array())
+                    .then(sent => sent.edit(format(true)));
+
             else this.errorLog(client, `${sender} => ${reciever} sent something that didn't have content or attachments`)
                 .then(() => tellLogChannel.send(`Ran else statement - reported to ${tellLogChannel.guild.channels.cache.find(c => c.name == 'error-log')}`));
         }
@@ -437,13 +444,24 @@ export class Queue {
     }
     /** Adds song to queue
      * @param song song to add*/
-    public add(song: Song) {
-        this.songs.push(song);
+    public add(...songs: Song[]) {
+        songs.forEach(song => this.songs.push(song));
     }
     /** Removes song from queue
      * @param song song to remove*/
     public remove(song: Song) {
         this.songs = this.songs.filter(s => s != song);
+    }
+    public move(posA: number, posB: number) {
+        var songToMove = this.songs[posA];
+        this.songs.unshift(null);
+
+        for (var i = 1; i < this.songs.length; i++) {
+            if (i == posB) this.songs[i - 1] = songToMove;
+            else if (i == posA + 1) continue;
+            else this.songs[i - 1] = this.songs[i];
+        }
+        return this;
     }
 }
 export class PQueue {
