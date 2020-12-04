@@ -490,6 +490,13 @@ var Queue = /** @class */ (function () {
         }
         return this;
     };
+    Queue.prototype.includes = function (title) {
+        var song = this.songs.find(function (s) { return s.title.includes(title); });
+        return song != null;
+    };
+    Queue.prototype.find = function (title) {
+        return this.songs.find(function (s) { return s.title.includes(title); });
+    };
     return Queue;
 }());
 exports.Queue = Queue;

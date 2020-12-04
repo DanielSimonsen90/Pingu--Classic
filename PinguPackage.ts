@@ -463,6 +463,13 @@ export class Queue {
         }
         return this;
     }
+    public includes(title: string) {
+        var song = this.songs.find(s => s.title.includes(title))
+        return song != null;
+    }
+    public find(title: string) {
+        return this.songs.find(s => s.title.includes(title));
+    }
 }
 export class PQueue {
     constructor(queue: Queue) {
