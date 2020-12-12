@@ -1,0 +1,18 @@
+{
+  "guildName": "The Danho Discord",
+  "guildID": "248104299534614528",
+  "guildOwner": {
+    "id": "405331883157880846",
+    "user": "Synthy Sytro#5637"
+  },
+  "botPrefix": "*",
+  "embedColor": 0,
+  "musicQueue": null,
+  "giveawayConfig": {
+    "firstTimeExecuted": true
+  },
+  "pollConfig": {
+    "firstTimeExecuted": true
+  },
+  "suggestions": []
+}

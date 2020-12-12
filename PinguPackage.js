@@ -49,9 +49,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Song = exports.PQueue = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PClient = exports.PEmote = exports.PChannel = exports.PRole = exports.PGuildMember = void 0;
-var fs = require('fs');
-//var lock = new AsyncLock();
+exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PinguUser = exports.PQueue = exports.PUser = exports.PClient = exports.PEmote = exports.PChannel = exports.PRole = exports.PGuildMember = exports.Error = void 0;
+var fs = require("fs");
 var Error = /** @class */ (function () {
     function Error(err) {
         this.message = err.message;
@@ -61,6 +60,7 @@ var Error = /** @class */ (function () {
     }
     return Error;
 }());
+exports.Error = Error;
 //#region Custom Pingu classes
 var PGuildMember = /** @class */ (function () {
     function PGuildMember(member) {
@@ -107,6 +107,73 @@ var PClient = /** @class */ (function () {
     return PClient;
 }());
 exports.PClient = PClient;
+var PUser = /** @class */ (function () {
+    function PUser(user) {
+        this.name = user.tag;
+        this.id = user.id;
+    }
+    return PUser;
+}());
+exports.PUser = PUser;
+var PQueue = /** @class */ (function () {
+    function PQueue(queue) {
+        this.logChannel = new PChannel(queue.logChannel);
+        this.voiceChannel = new PChannel(queue.voiceChannel);
+        this.connection = queue.connection.voice;
+        this.index = queue.index;
+        this.songs = queue.songs;
+        this.volume = queue.volume;
+        this.client = queue.client;
+        this.loop = queue.loop;
+        this.playing = queue.playing;
+    }
+    return PQueue;
+}());
+exports.PQueue = PQueue;
+var PinguUser = /** @class */ (function () {
+    function PinguUser(user) {
+        var pUser = new PUser(user);
+        this.id = pUser.id;
+        this.tag = pUser.name;
+        this.replyPerson = null;
+        this.dailyStreak = 0;
+    }
+    PinguUser.GetPUsers = function () {
+        return require('./users.json');
+    };
+    PinguUser.GetPUser = function (user) {
+        var result = this.GetPUsers().find(function (pu) { return pu.id == user.id; });
+        if (!result)
+            PinguLibrary.errorLog(user.client, "Unable to find a user in pUsers with id " + user.id);
+        return result;
+    };
+    PinguUser.UpdatePUsersJSON = function (client, script, succMsg, errMsg) {
+        var _this = this;
+        fs.writeFile('./users.json', '', function (err) {
+            if (err)
+                PinguLibrary.pUsersLog(client, script, "[writeFile]: " + errMsg, new Error(err));
+            else
+                fs.appendFile('./users.json', JSON.stringify(_this.GetPUsers(), null, 4), function (err) {
+                    if (err)
+                        PinguLibrary.pUsersLog(client, script, "[appendFile]: " + errMsg, new Error(err));
+                    else
+                        PinguLibrary.pUsersLog(client, script, succMsg);
+                });
+        });
+    };
+    PinguUser.UpdatePUsersJSONAsync = function (client, script, succMsg, errMsg) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.UpdatePUsersJSON(client, script, succMsg, errMsg)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return PinguUser;
+}());
+exports.PinguUser = PinguUser;
 var PinguGuild = /** @class */ (function () {
     //#endregion
     function PinguGuild(guild) {
@@ -115,7 +182,7 @@ var PinguGuild = /** @class */ (function () {
         this.guildOwner = new PGuildMember(guild.owner);
         var Prefix = require('./config.json').Prefix;
         this.botPrefix = Prefix;
-        this.embedColor = 0;
+        this.embedColor = guild.me.roles.cache.find(function (role) { return role.name.includes('Pingu'); }).color || 0;
         this.musicQueue = null;
         this.giveawayConfig = new GiveawayConfig();
         this.pollConfig = new PollConfig;
@@ -125,7 +192,13 @@ var PinguGuild = /** @class */ (function () {
     }
     //#region Static PinguGuild methods
     PinguGuild.GetPGuilds = function () {
-        return require('./guilds.json');
+        var guildCollection = fs.readdirSync("./servers/").filter(function (file) { return file.endsWith('.json'); });
+        var pGuildArr = [];
+        for (var _i = 0, guildCollection_1 = guildCollection; _i < guildCollection_1.length; _i++) {
+            var guildFile = guildCollection_1[_i];
+            pGuildArr.push(require("./servers/" + guildFile));
+        }
+        return pGuildArr;
     };
     PinguGuild.GetPGuild = function (guild) {
         var result = this.GetPGuilds().find(function (pg) { return pg.guildID == guild.id; });
@@ -133,29 +206,74 @@ var PinguGuild = /** @class */ (function () {
             PinguLibrary.errorLog(guild.client, "Unable to find a guild in pGuilds with id " + guild.id);
         return result;
     };
-    PinguGuild.UpdatePGuildsJSON = function (client, script, succMsg, errMsg) {
-        var _this = this;
-        //lock.acquire('key', () => {
-        fs.writeFile('./guilds.json', '', function (err) {
+    PinguGuild.UpdatePGuildJSON = function (client, guild, script, succMsg, errMsg) {
+        var path = "./servers/" + guild.name + ".json";
+        var pGuildObj = require(path);
+        fs.writeFile(path, '', null, function (err) {
             if (err)
-                PinguLibrary.pGuildLog(client, script, "[writeFile]: " + errMsg, err);
+                PinguLibrary.pGuildLog(client, script, "[writeFile]: " + errMsg, new Error(err));
             else
-                fs.appendFile('./guilds.json', JSON.stringify(_this.GetPGuilds(), null, 4), function (err) {
+                fs.appendFile(path, JSON.stringify(pGuildObj, null, 2), function (err) {
                     if (err)
-                        PinguLibrary.pGuildLog(client, script, "[appendFile]: " + errMsg, err);
+                        PinguLibrary.pGuildLog(client, script, "[appendFile]: " + errMsg, new Error(err));
                     else
                         PinguLibrary.pGuildLog(client, script, succMsg);
                 });
         });
-        //});
     };
-    PinguGuild.UpdatePGuildsJSONAsync = function (client, script, succMsg, errMsg) {
+    PinguGuild.UpdatePGuildJSONAsync = function (client, guild, script, succMsg, errMsg) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                this.UpdatePGuildsJSON(client, script, succMsg, errMsg);
-                return [2 /*return*/];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.UpdatePGuildJSON(client, guild, script, succMsg, errMsg)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
             });
         });
+    };
+    PinguGuild.WritePGuild = function (guild, callback) {
+        var _this = this;
+        try {
+            fs.writeFile("./servers/" + guild.name + ".json", JSON.stringify(new PinguGuild(guild), null, 2), function (err) { return __awaiter(_this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            if (err)
+                                PinguLibrary.pGuildLog(guild.client, "WritePGuild", null, new Error(err));
+                            return [4 /*yield*/, callback];
+                        case 1:
+                            if (_a.sent())
+                                callback();
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
+        }
+        catch (ewwor) {
+            console.log(ewwor);
+        }
+    };
+    PinguGuild.DeletePGuild = function (guild, callback) {
+        var _this = this;
+        try {
+            fs.unlink("./servers/" + guild.name + ".json", function (err) { return __awaiter(_this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            if (err)
+                                PinguLibrary.pGuildLog(guild.client, "DeletePGuild", "Unable to delete json file for " + PinguGuild.GetPGuild(guild).guildName, new Error(err));
+                            return [4 /*yield*/, callback];
+                        case 1:
+                            if (_a.sent())
+                                callback();
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
+        }
+        catch (ewwor) {
+            console.log(ewwor);
+        }
     };
     return PinguGuild;
 }());
@@ -205,6 +323,26 @@ var PinguLibrary = /** @class */ (function () {
         console.log(message);
         return outageChannel.send(message);
     };
+    PinguLibrary.DanhoDM = function (client, message) {
+        return __awaiter(this, void 0, void 0, function () {
+            var DanhoMisc, DanhoDM;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        console.error(message);
+                        DanhoMisc = this.SavedServers.DanhoMisc(client);
+                        if (!DanhoMisc) {
+                            console.error('Unable to find Danho Misc guild!', client.guilds.cache.array().forEach(function (g) { return console.log("[" + g.id + "] " + g.name); }));
+                            return [2 /*return*/, null];
+                        }
+                        return [4 /*yield*/, DanhoMisc.owner.createDM()];
+                    case 1:
+                        DanhoDM = _a.sent();
+                        return [2 /*return*/, DanhoDM.send(message)];
+                }
+            });
+        });
+    };
     PinguLibrary.errorLog = function (client, message, userContent, err) {
         var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log');
         if (!errorlogChannel)
@@ -215,12 +353,15 @@ var PinguLibrary = /** @class */ (function () {
             if (!userContent)
                 return message;
             else if (!err)
-                return ("[Provided Message]\n" +
+                return ("```\n" +
+                    "[Provided Message]\n" +
                     (message + "\n") +
                     "\n" +
                     "[Message content]\n" +
-                    (userContent + "\n"));
-            return (err.fileName && err.lineNumber ? err.fileName + " threw an error at line " + err.lineNumber + "!\n" : "" +
+                    (userContent + "\n") +
+                    "```");
+            return ("```\n" +
+                err.fileName && err.lineNumber ? err.fileName + " threw an error at line " + err.lineNumber + "!\n" : "" +
                 "[Provided Message]\n" +
                 (message + "\n") +
                 "\n" +
@@ -231,7 +372,8 @@ var PinguLibrary = /** @class */ (function () {
                 (err.message + "\n") +
                 "\n" +
                 "[Stack]\n" +
-                (err.stack + "\n\n"));
+                (err.stack + "\n\n") +
+                "```");
         }
     };
     PinguLibrary.tellLog = function (client, sender, reciever, message) {
@@ -252,7 +394,7 @@ var PinguLibrary = /** @class */ (function () {
             if (messageAsMessage.attachments)
                 consoleLog += messageAsMessage.attachments.map(function (a) { return "\n" + a.url; });
             console.log(consoleLog);
-            var format = function (ping) { return new Date(Date.now()).toLocaleTimeString() + " [<@" + (ping ? sender : sender.username) + "> => <@" + (ping ? reciever : reciever.username) + ">]"; };
+            var format = function (ping) { return new Date(Date.now()).toLocaleTimeString() + " [<@" + (ping ? sender : sender.username) + "> \u27A1\uFE0F <@" + (ping ? reciever : reciever.username) + ">]"; };
             if (messageAsMessage.content && messageAsMessage.attachments)
                 tellLogChannel.send(format(false) + (": ||" + messageAsMessage.content + "||"), messageAsMessage.attachments.array())
                     .then(function (sent) { return sent.edit(format(true) + (": ||" + messageAsMessage.content + "||")); });
@@ -283,27 +425,24 @@ var PinguLibrary = /** @class */ (function () {
                     case 1:
                         errorLink = (_a.sent()).url;
                         return [2 /*return*/, pinguGuildLog.send("[**Failed**] [**" + script + "**]: " + message + "\n" + err.message + "\n\n" + errorLink + "\n\n<@&756383446871310399>")];
-                    case 2: return [2 /*return*/, pinguGuildLog.send("[**Success**] [**" + script + "**] " + message)];
+                    case 2: return [2 /*return*/, pinguGuildLog.send("[**Success**] [**" + script + "**]: " + message)];
                 }
             });
         });
     };
-    PinguLibrary.DanhoDM = function (client, message) {
+    PinguLibrary.pUsersLog = function (client, script, message, err) {
         return __awaiter(this, void 0, void 0, function () {
-            var DanhoMisc, DanhoDM;
+            var pinguUserLog, errorLink;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        console.error(message);
-                        DanhoMisc = this.SavedServers.DanhoMisc(client);
-                        if (!DanhoMisc) {
-                            console.error('Unable to find Danho Misc guild!', client.guilds.cache.array().forEach(function (g) { return console.log("[" + g.id + "] " + g.name); }));
-                            return [2 /*return*/, null];
-                        }
-                        return [4 /*yield*/, DanhoMisc.owner.createDM()];
+                        pinguUserLog = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "pingu-user-log");
+                        if (!err) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.errorLog(client, "pUser Error: \"" + message + "\"", null, err)];
                     case 1:
-                        DanhoDM = _a.sent();
-                        return [2 /*return*/, DanhoDM.send(message)];
+                        errorLink = (_a.sent()).url;
+                        return [2 /*return*/, pinguUserLog.send("[**Failed**] [**" + script + "**]: " + message + "\n" + err.message + "\n\n" + errorLink + "\n\n<@&756383446871310399>")];
+                    case 2: return [2 /*return*/, pinguUserLog.send("[**Success**] [**" + script + "**]: " + message)];
                 }
             });
         });
@@ -456,10 +595,20 @@ var Queue = /** @class */ (function () {
         this.connection = null;
         this.playing = playing;
         this.client = client;
+        this.loop = false;
+        this.index = 0;
     }
+    Object.defineProperty(Queue.prototype, "currentSong", {
+        get: function () {
+            return this.songs[this.index];
+        },
+        enumerable: false,
+        configurable: true
+    });
     /** Adds song to the start of the queue
      * @param song song to add*/
     Queue.prototype.addFirst = function (song) {
+        song.id = this.songs.length;
         this.songs.unshift(song);
     };
     /** Adds song to queue
@@ -470,7 +619,10 @@ var Queue = /** @class */ (function () {
         for (var _i = 0; _i < arguments.length; _i++) {
             songs[_i] = arguments[_i];
         }
-        songs.forEach(function (song) { return _this.songs.push(song); });
+        songs.forEach(function (song) {
+            song.id = _this.songs.length;
+            _this.songs.push(song);
+        });
     };
     /** Removes song from queue
      * @param song song to remove*/
@@ -500,29 +652,22 @@ var Queue = /** @class */ (function () {
     return Queue;
 }());
 exports.Queue = Queue;
-var PQueue = /** @class */ (function () {
-    function PQueue(queue) {
-        this.logChannel = new PChannel(queue.logChannel);
-        this.voiceChannel = new PChannel(queue.voiceChannel);
-        this.connection = queue.connection.voice.speaking;
-        this.songs = queue.songs;
-        this.volume = queue.volume;
-        this.client = queue.client;
-        this.playing = queue.playing;
-    }
-    return PQueue;
-}());
-exports.PQueue = PQueue;
 var Song = /** @class */ (function () {
-    function Song(videoInfo, author) {
-        var info = videoInfo.videoDetails;
-        this.link = info.video_url;
-        this.title = info.title;
-        this.author = info.author.name;
-        this.length = this.GetLength(info.lengthSeconds);
-        this.endsAt = new Date(Date.now() + parseInt(info.lengthSeconds));
-        this.requestedBy = author;
+    function Song(author, songInfo) {
+        //YouTube
+        this.link = songInfo.video_url;
+        this.title = songInfo.title;
+        this.author = songInfo.author && songInfo.author.name;
+        this.length = this.GetLength(songInfo.lengthSeconds);
+        this.lengthMS = parseInt(songInfo.lengthSeconds) * 1000;
+        this.requestedBy = new PUser(author);
+        this.id = 0;
+        this.loop = false;
+        this.endsAt = null;
     }
+    Song.prototype.play = function () {
+        this.endsAt = new Date(Date.now() + this.lengthMS);
+    };
     Song.prototype.getTimeLeft = function () {
         return new TimeLeftObject(new Date(Date.now()), this.endsAt);
     };

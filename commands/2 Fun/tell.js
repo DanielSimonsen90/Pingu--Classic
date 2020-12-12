@@ -49,7 +49,7 @@ module.exports = {
 /**Checks if arguments are correct
  * @param {Message} message @param {string[]} args*/
 function ArgumentCheck(message, args) {
-    if (!args[0] || !args[1])
+    if ((!args[0] || !args[1]) && !message.attachments.array()[0])
         return `Not enough arguments provided`;
 
     let Mention = args[0];

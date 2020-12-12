@@ -3,8 +3,7 @@ const { Message, Guild, MessageEmbed, VoiceChannel, Permissions } = require('dis
     YouTube = require('simple-youtube-api'),
     { youtube_api } = require('../../config.json');
 const { PinguGuild, Queue, Song, PinguLibrary, PQueue, PClient } = require('../../PinguPackage');
-const update = require('../4 DevOnly/update');
-var queue, youTube = new YouTube(youtube_api);
+var youTube = new YouTube(youtube_api), commandName = "";
 
 
 module.exports = {
@@ -28,6 +27,7 @@ module.exports = {
         { name: "pause", alias: "stfu", cmdHandler: HandlePauseResume },
         { name: "resume", alias: "speak", cmdHandler: HandlePauseResume },
         { name: "move", alias: "mo", cmdHandler: HandleMove },
+        { name: "loop", alias: "repeat", cmdHandler: HandleLoop }
     ],
     /**@param {Message} message @param {string[]} args*/
     async execute(message, args) {
@@ -35,36 +35,28 @@ module.exports = {
             PermCheck = PermissionCheck(message, voiceChannel);
         if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
 
-        const commandName = args.shift().toLowerCase();
-        queue = await GetQueueElements(message.guild, PinguGuild.GetPGuild(message.guild).musicQueue);
+        commandName = args.shift().toLowerCase();
+        var queue = await GetQueueElements(message.guild, PinguGuild.GetPGuild(message.guild).musicQueue);
 
         switch (commandName) {
-            case this.musicCommands[0].name: case this.musicCommands[0].alias: return this.musicCommands[0].cmdHandler(message, args.join(' ')); //join
-            case this.musicCommands[1].name: case this.musicCommands[1].alias: return this.musicCommands[1].cmdHandler(message, queue); //disconnect
-            case this.musicCommands[2].name: case this.musicCommands[2].alias: return this.musicCommands[2].cmdHandler(message, args, voiceChannel, queue); //play
-            case this.musicCommands[3].name: case this.musicCommands[3].alias: return queue ? this.musicCommands[3].cmdHandler(message, queue, args) : //playskip
-                this.musicCommands[2].cmdHandler(message, args, voiceChannel, queue); //play
+            case "join": case "summon": return HandleJoin(message, args.join(' '));
+            case "disconnect": case "dc": return HandleDisconnect(message, queue);
+            case "play": case "p": return HandlePlay(message, args, voiceChannel, queue);
+            case "playskip": case "ps": return queue ?
+                HandlePlaySkip(message, queue, args) :
+                HandlePlay(message, args, voiceChannel, queue); 
         }
 
         if (!queue) return message.channel.send('Nothing is playing!');
 
         var command = this.musicCommands.find(cmd => [cmd.name, cmd.alias].includes(commandName))
         if (!command) return message.channel.send(`I didn't recognize that command!`);
-        command.cmdHandler(message, queue, (
-            ["pause", "stfu", "resume", "speak"].includes(commandName) ? commandName == 'pause' :
-                ['vol', 'volume'].includes(commandName) ? args[0] : args)
-        );
 
-        //switch (commandName) {
-        //    case 'st': case 'stop': HandleStop              (message, queue); break;
-        //    case 'sk': case 'skip': HandleSkip              (message, queue); break;
-        //    case 'np': case 'nowplaying': HandleNowPlaying  (message, queue); break;
-        //    case 'vol': case 'volume': HandleVolume         (message, queue, args[0]); break;
-        //    case 'q': case 'queue': HandleQueue             (message, queue); break;
-        //    case 'pause': case 'resume': HandlePauseResume  (message, queue, commandName == 'pause'); break;
-        //    case 'mo': case 'move': HandleMove              (message, queue, args); break;
-        //    case 'join': HandleJoin                         (message); break;
-        //}
+        if (["pause", "stfu", "resume", "speak"].includes(commandName))
+            HandlePauseResume(message, queue, ["pause", "stfu"].includes(commandName));
+        else if (['vol', 'volume'].includes(commandName))
+            HandleVolume(message, queue, args[0]);
+        else command.cmdHandler(message, queue, args);
     },
 };
 
@@ -103,6 +95,13 @@ async function HandleDisconnect(message, queue) {
 
     message.guild.me.voice.connection.disconnect();
     AnnounceMessage(message, queue, `Disconnected!`, `**${message.member.displayName}** disconnected me!`);
+
+    queue.playing = false;
+
+    return await UpdateQueue(message, queue, "HandleDisconnect",
+        `Disconnected from ${queue.voiceChannel.name}`,
+        `Error while disconnecting from ${queue.voiceChannel.name}`
+    );
 }
 /**Executes when author sends *music play
  * @param {Message} message 
@@ -113,7 +112,7 @@ async function HandlePlay(message, args, voiceChannel, queue) {
     if (!args[0] && !queue.songs[0]) return message.channel.send(`You didn't give me something to play!`);
 
     var searchType = 'video';
-    if (args[0].toLowerCase() == 'playlist')
+    if (args[0] && args[0].toLowerCase() == 'playlist')
         searchType = args.shift();
     var url = args.join(' ');
 
@@ -173,8 +172,9 @@ async function HandlePlay(message, args, voiceChannel, queue) {
         return null;
     });
 
-    const song = new Song(vInfo, message.author);
+    let song = new Song(message.author, vInfo.videoDetails);
     if (!song) return message.channel.send(`I couldn't get that song!`);
+    else if (!song.link) song = new Song(message.author, vInfo.videoDetails);
 
     if (!queue) {
         queue = new Queue(new PClient(message.client, message.guild), message.channel, voiceChannel, [song]);
@@ -249,24 +249,22 @@ async function HandleRemove(message, queue, args) {
 /**Executes when author sends *music stop
  * @param {Message} message
  * @param {Queue} queue*/
-function HandleStop(message, queue) {
+async function HandleStop(message, queue) {
     if (!queue.playing) return message.channel.send(`The music is already stopped!`);
 
-    ResetClient(message, queue);
-
-    AnnounceMessage(message, queue,
+    await AnnounceMessage(message, queue,
         `Stopped!`, `${message.member.displayName} stopped the radio!`
     );
 
     try { queue.connection.dispatcher.end(); }
     catch (err) {
-        if (err.message != "Cannot read property 'dispatcher' of null" && "Cannot read property 'end' of null")
+        if (!["Cannot read property 'dispatcher' of null", "Cannot read property 'end' of null"].includes(err.message))
             PinguLibrary.errorLog(message.client, "Dispatcher error in music, HandleStop", message.content, err);
     }
 
-    PinguGuild.GetPGuild(message.guild).musicQueue = null;
+    await ResetClient(message, queue);
 
-    UpdateQueue(message, queue, "HandleStop",
+    return await UpdateQueue(message, queue = null, "HandleStop",
         `Reset queue for **${message.guild.name}**.`,
         `Unable to reset queue for **${message.guild.name}**.`
     );
@@ -324,7 +322,50 @@ function HandleQueue(message, queue) {
         .setImage(message.client.user.avatarURL())
         .setColor(PinguGuild.GetPGuild(message.guild).embedColor);
 
-    try { queue.songs.forEach(song => embed.addField(`[${queue.songs.indexOf(song) + 1}]: ${song.title}`, `Requested by: ${song.requestedBy} | Time left: ${song.getTimeLeft()}/${song.length}`)) }
+    try {
+        for (var i = queue.index; i < queue.songs.length || i < 10 && queue.songs.length > 10; i++) {
+            let indexSong = queue.songs[i];
+
+            if (!indexSong.endsAt)
+                indexSong.endsAt = new Date(queue.songs[i - 1].endsAt + indexSong.lengthMS);
+
+            let timeLeft = indexSong.getTimeLeft();
+            let songLength = {
+                hours: parseInt(indexSong.length.split('.')[0]),
+                minutes: parseInt(indexSong.length.split('.')[1]),
+                seconds: parseInt(indexSong.length.split('.')[2]),
+            };
+
+            if (timeLeft.hours > songLength.hours) {
+                console.log(
+                    `Continue: ${timeLeft.hours} > ${songLength.hours}`,
+                    `(${timeLeft.hours}.${timeLeft.minutes}.${timeLeft.seconds}/`,
+                    `${ songLength.hours }.${ songLength.minutes }.${ songLength.seconds })`);
+                continue;
+            }
+            else if (timeLeft.minutes > songLength.minutes && songLength.hours == 0) {
+                console.log(
+                    `Continue: ${timeLeft.hours} > ${songLength.hours}`,
+                    `(${timeLeft.hours}.${timeLeft.minutes}.${timeLeft.seconds}/`,
+                    `${songLength.hours}.${songLength.minutes}.${songLength.seconds})`);
+                continue;
+            }
+            else if (timeLeft.seconds > songLength.seconds && songLength.minutes == 0 && songLength.hours == 0) {
+                console.log(
+                    `Continue: ${timeLeft.hours} > ${songLength.hours}`,
+                    `(${timeLeft.hours}.${timeLeft.minutes}.${timeLeft.seconds}/`,
+                    `${songLength.hours}.${songLength.minutes}.${songLength.seconds})`);
+                continue;
+            }
+
+            embed.addField(
+                `[${i + 1}]: ${indexSong.title}`,
+                `Requested by: <@${indexSong.requestedBy.id}> | Time left: ${timeLeft}/${indexSong.length}`
+            );
+            if (i != queue.index)
+                indexSong.endsAt = null;
+        }
+    }
     catch (err) {
         PinguLibrary.errorLog(message.client, `Tried to send queue for ${queue.voiceChannel.guild.name}`, message.content, err);
         return message.channel.send(`I ran into an error trying to get the queue, and sent a message to my developers!`);
@@ -372,6 +413,23 @@ function HandleMove(message, queue, args) {
         `Error while updating positions for **${message.guild.name}**'s music queue`
     );
 }
+/**@param {Message} message
+ * @param {Queue} queue
+ * @param {string[]} args*/
+async function HandleLoop(message, queue, args) {
+    var loopType = args[0] && args[0] == 'song' ? 'song' : 'queue';
+    var looping = loopType == 'queue' ? !queue.loop : !queue.currentSong.loop;
+
+    if (loopType == 'queue') queue.loop = !queue.loop;
+    else queue.currentSong.loop = !queue.currentSong.loop;
+
+    message.channel.send(`${(looping ? `Looping` : `Unlooped`)} ${loopType}!`);
+
+    await UpdateQueue(message, queue, "HandleLoop",
+        `Updated loop (${looping}) for ${loopType}`,
+        `Unable to loop ${loopType}`
+    );
+}
 //#endregion
 
 /**@param {Message} message 
@@ -385,9 +443,8 @@ async function Play(message, song, queue) {
         await ResetClient(message, queue);
         queue.logChannel.send('Thank you for listening!');
         queue.voiceChannel.leave();
-        pGuild.musicQueue = null;
 
-        return await UpdateQueue(message, queue, "Play",
+        return await UpdateQueue(message, queue = null, "Play",
             `Queue finished - reset & saved to pGuilds.json`,
             `Error while resetting **${message.guild.name}**'s queue to pGuilds.json`
         );
@@ -397,25 +454,34 @@ async function Play(message, song, queue) {
 
     queue.connection.play(streamItem)
         .on('start', async () => {
+            song.play();
+
+            //Deafen yourself
             if (!message.guild.me.voice.selfDeaf)
                 message.guild.me.voice.setSelfDeaf(true);
 
             console.log("Song Start");
 
+            var requestedBy = message.guild.members.cache.find(m => m.id == song.requestedBy.id);
+
+            //Change nickname to [<name> Radio] Pingu
             if (message.guild.me.permissions.has("CHANGE_NICKNAME")) {
-                message.guild.me.setNickname(`[${message.guild.member(song.requestedBy).displayName} Radio] ${queue.client.displayName}`) //[Nickname Radio] Pingu
-                    .catch(() => message.guild.me.setNickname(`[${song.requestedBy.username} Radio] ${queue.client.displayName}`) //[Username Radio] Pingu
+                message.guild.me.setNickname(`[${requestedBy.displayName} Radio] ${queue.client.displayName}`) //[Nickname Radio] Pingu
+                    .catch(() => message.guild.me.setNickname(`[${requestedBy.username} Radio] ${queue.client.displayName}`) //[Username Radio] Pingu
                         .catch(() => message.guild.me.setNickname(`[${message.guild.me.displayName} Radio] ${queue.client.displayName}`) //[Pingu Radio] Pingu
                             .catch(() => message.guild.me.setNickname(queue.client.displayName)))); //Pingu
             }
 
+            //Set activity to match the song you're playing, and where you're playing it
             //message.client.user.setActivity(`${song.title} in ${queue.voiceChannel.name}`, 'PLAYING');
             message.client.user.setActivity(`${song.title} in ${queue.voiceChannel.name}`, { type: 'STREAMING', url: song.link })
 
+            //Send now plating message in logChannel
             var nowPlayingMessage = `**Now playing:** ${song.title}\n**Requested by:** `;
-            queue.logChannel.send(nowPlayingMessage + `${song.requestedBy.username}`)
+            queue.logChannel.send(nowPlayingMessage + `${requestedBy.displayName}`)
                 .then(sent => sent.edit(nowPlayingMessage + `<@${song.requestedBy.id}>`));
 
+            //Update pGuilds queue
             UpdateQueue(message, queue, "play.on",
                 `Saved Queue to pGuilds.json`,
                 `Error while saving **${message.guild.name}**'s queue to pGuilds.json`
@@ -429,21 +495,19 @@ async function Play(message, song, queue) {
 
             pGuild.musicQueue = null;
         })
-        .on('end', () => {
-            console.log("Song End");
-
-        })
+        .on('end', () => console.log("Song End"))
         .on('finish', async () => {
             console.log("Song Finished");
-            var pinguName = queue.client.displayName,
-                volume = queue.volume;
+
+            var pinguName = queue.client.displayName;
             queue = await GetQueueElements(message.guild, PinguGuild.GetPGuild(message.guild).musicQueue);
-
             queue.client.displayName = pinguName;
-            queue.volume = volume;
 
-            queue.songs.shift();
-            Play(message, queue.songs[0], queue);
+            if (!queue.currentSong.loop) queue.index++;
+            if (queue.index == queue.songs.length && queue.loop) queue.index = 0;
+
+            if (!["stop", "st"].includes(commandName))
+                Play(message, queue.currentSong, queue);
         })
         .setVolumeLogarithmic(queue.volume / 5);
 }
@@ -452,6 +516,8 @@ async function Play(message, song, queue) {
  * @param {string} senderMsg
  * @param {string} logMsg*/
 function AnnounceMessage(message, queue, senderMsg, logMsg) {
+    if (!queue.logChannel) return message.channel.send(senderMsg);
+
     if (message.channel != queue.logChannel) {
         message.channel.send(senderMsg);
         return queue.logChannel.send(logMsg);
@@ -462,15 +528,21 @@ function AnnounceMessage(message, queue, senderMsg, logMsg) {
  * @param {PQueue} pqueue*/
 async function GetQueueElements(guild, pqueue) {
     var queue = pqueue ? new Queue(
-        new PClient(guild.me, guild),
+        new PClient(guild.me, guild),   
         guild.channels.cache.find(c => c.id == pqueue.logChannel.id),
         guild.channels.cache.find(c => c.id == pqueue.voiceChannel.id),
         pqueue.songs || [],
         pqueue.playing
     ) : null;
 
-    if (queue && guild.me.voice.channel)
-        queue.connection = await guild.me.voice.channel.join();
+    if (queue) {
+        if (guild.me.voice.channel)
+            queue.connection = await guild.me.voice.channel.join();
+        queue.client.displayName = pqueue.client.displayName;
+        queue.volume = pqueue.volume;
+        queue.loop = pqueue.loop;
+    }
+
     return queue;
 }
 /**@param {Message} message
@@ -488,8 +560,11 @@ async function ResetClient(message, queue) {
  * @param {string} errMsg
  * @returns {Promise<void>}*/
 async function UpdateQueue(message, queue, commandName, succMsg, errMsg) {
-    PinguGuild.GetPGuild(message.guild).musicQueue = new PQueue(queue);
-    return PinguGuild.UpdatePGuildsJSONAsync(message.client, module.exports.name,
+    var clientDisplayName = PinguGuild.GetPGuild(message.guild).musicQueue.client.displayName;
+    var pQueue = PinguGuild.GetPGuild(message.guild).musicQueue = queue ? new PQueue(queue) : null;
+    if (pQueue) pQueue.client.displayName = clientDisplayName;
+
+    return await PinguGuild.UpdatePGuildJSONAsync(message.client, message.guild, module.exports.name,
         `{**${commandName}**}: ${succMsg}`,
         `{**${commandName}**}: ${errMsg}`
     );

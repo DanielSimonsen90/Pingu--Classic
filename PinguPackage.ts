@@ -1,11 +1,9 @@
-import { GuildMember, Guild, Role, Message, TextChannel, VoiceChannel, VoiceConnection, Client, PermissionString, User, MessageEmbed, Channel, GuildChannel, GuildEmoji, Presence, ActivityOptions } from 'discord.js';
-import { videoInfo } from 'ytdl-core';
-const fs = require('fs');
+﻿import { GuildMember, Guild, Role, Message, TextChannel, VoiceChannel, VoiceConnection, Client, PermissionString, User, MessageEmbed, Channel, GuildChannel, GuildEmoji, MessageAttachment, VoiceState, GuildAuditLogs } from 'discord.js';
+import { MoreVideoDetails } from 'ytdl-core';
+import * as fs from 'fs';
 
-//var lock = new AsyncLock();
-
-class Error {
-    constructor(err: { message: string, stack: string, fileName: string, lineNumber: string }) {
+export class Error {
+    constructor(err: { message: string, stack: string, fileName: string, lineNumber: string } | any) {
         this.message = err.message;
         this.stack = err.stack;
         this.fileName = err.fileName;
@@ -58,29 +56,125 @@ export class PClient {
     }
     public displayName: string
 }
+export class PUser {
+    constructor(user: User) {
+        this.name = user.tag;
+        this.id = user.id;
+    }
+    public name: string
+    public id: string
+}
+
+export class PQueue {
+    constructor(queue: Queue) {
+        this.logChannel = new PChannel(queue.logChannel);
+        this.voiceChannel = new PChannel(queue.voiceChannel);
+        this.connection = queue.connection.voice;
+        this.index = queue.index;
+        this.songs = queue.songs;
+        this.volume = queue.volume;
+        this.client = queue.client;
+        this.loop = queue.loop;
+        this.playing = queue.playing;
+    }
+
+    public logChannel: PChannel
+    public voiceChannel: PChannel
+    public client: PClient
+    public connection: VoiceState
+    public index: number
+    public songs: Song[]
+    public volume: number
+    public playing: boolean
+    public loop: boolean;
+}
+
+export class PinguUser {
+    public static GetPUsers(): PinguUser[] {
+        return require('./users.json');
+    }
+    public static GetPUser(user: User): PinguUser {
+        var result = this.GetPUsers().find(pu => pu.id == user.id);
+        if (!result) PinguLibrary.errorLog(user.client, `Unable to find a user in pUsers with id ${user.id}`);
+        return result;
+    }
+    public static UpdatePUsersJSON(client: Client, script: string, succMsg: string, errMsg: string) {
+        fs.writeFile('./users.json', '', err => {
+            if (err) PinguLibrary.pUsersLog(client, script, `[writeFile]: ${errMsg}`, new Error(err));
+            else fs.appendFile('./users.json', JSON.stringify(this.GetPUsers(), null, 4), err => {
+                if (err) PinguLibrary.pUsersLog(client, script, `[appendFile]: ${errMsg}`, new Error(err));
+                else PinguLibrary.pUsersLog(client, script, succMsg);
+            });
+        });
+    }
+    public static async UpdatePUsersJSONAsync(client: Client, script: string, succMsg: string, errMsg: string) {
+        return await this.UpdatePUsersJSON(client, script, succMsg, errMsg);
+    }
+
+    constructor(user: User) {
+        let pUser = new PUser(user);
+        this.id = pUser.id;
+        this.tag = pUser.name;
+        this.replyPerson = null;
+        this.dailyStreak = 0;
+    }
+    public id: string
+    public tag: string
+    public replyPerson: PUser
+    public dailyStreak: number
+    //public Achievements: Achievement[]
+}
 export class PinguGuild {
     //#region Static PinguGuild methods
     public static GetPGuilds(): PinguGuild[] {
-        return require('./guilds.json');
+        let guildCollection = fs.readdirSync(`./servers/`).filter(file => file.endsWith('.json'));
+        let pGuildArr = [];
+
+        for (var guildFile of guildCollection)
+            pGuildArr.push(require(`./servers/${guildFile}`));
+        return pGuildArr;
     }
     public static GetPGuild(guild: Guild): PinguGuild {
         var result = this.GetPGuilds().find(pg => pg.guildID == guild.id);
         if (!result) PinguLibrary.errorLog(guild.client, `Unable to find a guild in pGuilds with id ${guild.id}`);
         return result;
     }
-    public static UpdatePGuildsJSON(client: Client, script: string, succMsg: string, errMsg: string) {
-        //lock.acquire('key', () => {
-        fs.writeFile('./guilds.json', '', err => {
-            if (err) PinguLibrary.pGuildLog(client, script, `[writeFile]: ${errMsg}`, err);
-            else fs.appendFile('./guilds.json', JSON.stringify(this.GetPGuilds(), null, 4), err => {
-                if (err) PinguLibrary.pGuildLog(client, script, `[appendFile]: ${errMsg}`, err);
+
+    public static UpdatePGuildJSON(client: Client, guild: Guild, script: string, succMsg: string, errMsg: string) {
+        let path = `./servers/${guild.name}.json`;
+        let pGuildObj = require(path);
+
+        fs.writeFile(path, '', null, err => {
+            if (err) PinguLibrary.pGuildLog(client, script, `[writeFile]: ${errMsg}`, new Error(err));
+            else fs.appendFile(path, JSON.stringify(pGuildObj, null, 2), err => {
+                if (err) PinguLibrary.pGuildLog(client, script, `[appendFile]: ${errMsg}`, new Error(err));
                 else PinguLibrary.pGuildLog(client, script, succMsg);
-            });
+            })
         });
-        //});
     }
-    public static async UpdatePGuildsJSONAsync(client: Client, script: string, succMsg: string, errMsg: string) {
-        this.UpdatePGuildsJSON(client, script, succMsg, errMsg);
+    public static async UpdatePGuildJSONAsync(client: Client, guild: Guild, script: string, succMsg: string, errMsg: string) {
+        return await this.UpdatePGuildJSON(client, guild, script, succMsg, errMsg);
+    }
+
+    public static WritePGuild(guild: Guild, callback?: () => void) {
+        try {
+            fs.writeFile(`./servers/${guild.name}.json`, JSON.stringify(new PinguGuild(guild), null, 2), async err => {
+                if (err) PinguLibrary.pGuildLog(guild.client, "WritePGuild", null, new Error(err));
+                if (await callback) callback();
+            });
+        } catch (ewwor) {
+            console.log(ewwor);
+        }
+    }
+    public static DeletePGuild(guild: Guild, callback?: () => void) {
+        try {
+            fs.unlink(`./servers/${guild.name}.json`, async err => {
+                if (err) PinguLibrary.pGuildLog(guild.client, "DeletePGuild", `Unable to delete json file for ${PinguGuild.GetPGuild(guild).guildName}`, new Error(err));
+                if (await callback) callback();
+            });
+        } catch (ewwor) {
+            console.log(ewwor);
+        }
     }
     //#endregion
 
@@ -90,7 +184,7 @@ export class PinguGuild {
         this.guildOwner = new PGuildMember(guild.owner);
         const { Prefix } = require('./config.json');
         this.botPrefix = Prefix;
-        this.embedColor = 0;
+        this.embedColor = guild.me.roles.cache.find(role => role.name.includes('Pingu')).color || 0;
         this.musicQueue = null;
         this.giveawayConfig = new GiveawayConfig();
         this.pollConfig = new PollConfig;
@@ -109,7 +203,6 @@ export class PinguGuild {
     public suggestions: Suggestion[]
     public themeWinners: PGuildMember[]
 }
-
 export class PinguLibrary {
     public static setActivity(client: Client) {
         //return client.user.setActivity('your screams for *help', { type: 'LISTENING' });
@@ -172,6 +265,18 @@ export class PinguLibrary {
         console.log(message);
         return outageChannel.send(message);
     }
+    public static async DanhoDM(client: Client, message: string) {
+        console.error(message);
+
+        var DanhoMisc = this.SavedServers.DanhoMisc(client);
+        if (!DanhoMisc) {
+            console.error('Unable to find Danho Misc guild!', client.guilds.cache.array().forEach(g => console.log(`[${g.id}] ${g.name}`)));
+            return null;
+        }
+        var DanhoDM = await DanhoMisc.owner.createDM();
+        return DanhoDM.send(message)
+    }
+
     public static errorLog(client: Client, message: string, userContent?: string, err?: Error) {
         var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log');
         if (!errorlogChannel) return this.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
@@ -182,27 +287,29 @@ export class PinguLibrary {
         function getErrorMessage(message: string, userContent?: string, err?: Error) {
             if (!userContent) return message;
             else if (!err)
-                return (
-                    `[Provided Message]\n` +
-                    `${message}\n` +
-                    `\n` +
-                    `[Message content]\n` +
-                    `${userContent}\n`
-                );
-
-            return (
-                err.fileName && err.lineNumber ? `${err.fileName} threw an error at line ${err.lineNumber}!\n` : "" +
+                return ("```\n" +
                     `[Provided Message]\n` +
                     `${message}\n` +
                     `\n` +
                     `[Message content]\n` +
                     `${userContent}\n` +
-                    `\n` +
-                    `[Error message]: \n` +
-                    `${err.message}\n` +
-                    `\n` +
-                    `[Stack]\n` +
-                    `${err.stack}\n\n`
+                    "```"
+                );
+
+            return ("```\n" +
+                err.fileName && err.lineNumber ? `${err.fileName} threw an error at line ${err.lineNumber}!\n` : "" +
+                `[Provided Message]\n` +
+                `${message}\n` +
+                `\n` +
+                `[Message content]\n` +
+                `${userContent}\n` +
+                `\n` +
+                `[Error message]: \n` +
+                `${err.message}\n` +
+                `\n` +
+                `[Stack]\n` +
+                `${err.stack}\n\n` +
+                "```"
             );
         }
     }
@@ -226,7 +333,7 @@ export class PinguLibrary {
 
             console.log(consoleLog);
 
-            var format = (ping) => `${new Date(Date.now()).toLocaleTimeString()} [<@${(ping ? sender : sender.username)}> => <@${(ping ? reciever : reciever.username)}>]`;
+            var format = (ping) => `${new Date(Date.now()).toLocaleTimeString()} [<@${(ping ? sender : sender.username)}> ➡️ <@${(ping ? reciever : reciever.username)}>]`;
 
             if (messageAsMessage.content && messageAsMessage.attachments)
                 tellLogChannel.send(format(false) + `: ||${messageAsMessage.content}||`, messageAsMessage.attachments.array())
@@ -255,18 +362,16 @@ export class PinguLibrary {
             var errorLink = (await this.errorLog(client, `pGuild Error: "${message}"`, null, err)).url;
             return pinguGuildLog.send(`[**Failed**] [**${script}**]: ${message}\n${err.message}\n\n${errorLink}\n\n<@&756383446871310399>`);
         }
-        return pinguGuildLog.send(`[**Success**] [**${script}**] ${message}`);
+        return pinguGuildLog.send(`[**Success**] [**${script}**]: ${message}`);
     }
-    public static async DanhoDM(client: Client, message: string) {
-        console.error(message);
+    public static async pUsersLog(client: Client, script: string, message: string, err?: Error) {
+        var pinguUserLog = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "pingu-user-log");
 
-        var DanhoMisc = this.SavedServers.DanhoMisc(client);
-        if (!DanhoMisc) {
-            console.error('Unable to find Danho Misc guild!', client.guilds.cache.array().forEach(g => console.log(`[${g.id}] ${g.name}`)));
-            return null;
+        if (err) {
+            var errorLink = (await this.errorLog(client, `pUser Error: "${message}"`, null, err)).url;
+            return pinguUserLog.send(`[**Failed**] [**${script}**]: ${message}\n${err.message}\n\n${errorLink}\n\n<@&756383446871310399>`);
         }
-        var DanhoDM = await DanhoMisc.owner.createDM();
-        return DanhoDM.send(message)
+        return pinguUserLog.send(`[**Success**] [**${script}**]: ${message}`);
     }
 
 }
@@ -428,24 +533,37 @@ export class Queue {
         this.connection = null;
         this.playing = playing;
         this.client = client;
+        this.loop = false;
+        this.index = 0;
     }
+
     public logChannel: TextChannel
     public voiceChannel: VoiceChannel
     public connection: VoiceConnection
     public songs: Song[]
     public volume: number
     public playing: boolean
+    public loop: boolean
+    public index: number
     public client: PClient
+
+    get currentSong(): Song {
+        return this.songs[this.index];
+    }
 
     /** Adds song to the start of the queue
      * @param song song to add*/
     public addFirst(song: Song) {
+        song.id = this.songs.length;
         this.songs.unshift(song);
     }
     /** Adds song to queue
      * @param song song to add*/
     public add(...songs: Song[]) {
-        songs.forEach(song => this.songs.push(song));
+        songs.forEach(song => {
+            song.id = this.songs.length;
+            this.songs.push(song)
+        });
     }
     /** Removes song from queue
      * @param song song to remove*/
@@ -471,42 +589,34 @@ export class Queue {
         return this.songs.find(s => s.title.includes(title));
     }
 }
-export class PQueue {
-    constructor(queue: Queue) {
-        this.logChannel = new PChannel(queue.logChannel);
-        this.voiceChannel = new PChannel(queue.voiceChannel);
-        this.connection = queue.connection.voice.speaking;
-        this.songs = queue.songs;
-        this.volume = queue.volume;
-        this.client = queue.client;
-        this.playing = queue.playing
-    }
-    public logChannel: PChannel
-    public voiceChannel: PChannel
-    public client: PClient
-    public connection: boolean
-    public songs: Song[]
-    public volume: number
-    public playing: boolean
-}
 export class Song {
-    constructor(videoInfo: videoInfo, author: User) {
-        var info = videoInfo.videoDetails;
-        this.link = info.video_url;
-        this.title = info.title;
-        this.author = info.author.name;
-        this.length = this.GetLength(info.lengthSeconds);
-        this.endsAt = new Date(Date.now() + parseInt(info.lengthSeconds));
-        this.requestedBy = author;
+    constructor(author: User, songInfo: MoreVideoDetails) {
+        //YouTube
+        this.link = songInfo.video_url;
+        this.title = songInfo.title;
+        this.author = songInfo.author && songInfo.author.name;
+        this.length = this.GetLength(songInfo.lengthSeconds);
+        this.lengthMS = parseInt(songInfo.lengthSeconds) * 1000;
+
+        this.requestedBy = new PUser(author);
+        this.id = 0;
+        this.loop = false;
+        this.endsAt = null;
     }
+    public id: number
     public title: string
     public author: string
     public link: string
     public playing: boolean
     public length: string
+    public lengthMS: number
     public endsAt: Date
-    public requestedBy: User
+    public loop: boolean
+    public requestedBy: PUser
 
+    public play() {
+        this.endsAt = new Date(Date.now() + this.lengthMS);
+    }
     public getTimeLeft() {
         return new TimeLeftObject(new Date(Date.now()), this.endsAt);
     }

@@ -6,7 +6,7 @@ const fs = require('fs'),
     SecondaryPrefix = '562176550674366464',
     ScriptsCategorized = ["", "Utility", "Fun", "Support", "DevOnly"],
     client = new Discord.Client();
-const { PinguGuild, PinguLibrary } = require('./PinguPackage');
+const { PinguGuild, PinguLibrary, Error } = require('./PinguPackage');
 const { musicCommands } = require('./commands/2 Fun/music');
 client.commands = new Discord.Collection();
 
@@ -19,68 +19,23 @@ let LastToUseTell,
 for (var x = 1; x < ScriptsCategorized.length; x++)
     SetCommand(`${x} ${ScriptsCategorized[x]}`);
 
-//#region client.once()
 //Am I ready to launch?
 client.once('ready', () => {
-    PinguLibrary.outages(client, `\nI'm back online!\n`);
+    //PinguLibrary.outages(client, `\nI'm back online!\n`);
+    console.log(`\nI'm back online!\n`);
     PinguLibrary.setActivity(client);
 });
-//First time joining a guild
-client.once('guildCreate', guild => {
-    //Get Pingu Guilds from guilds.json
-    const pGuilds = PinguGuild.GetPGuilds();
-
-    //Insert new PinguGuild into pGuilds
-    pGuilds[pGuilds.length] = new PinguGuild(guild);
-
-    //Update guilds.json with new guild
-    PinguGuild.UpdatePGuildsJSON(client, "Index: guildCreate"
-        `Successfully joined "**${guild.name}**", owned by <@${guild.owner.user.id}>`,
-        `I encountered and error while joining ${guild.name}:\n${err}`
-    );
-
-    //Thank guild owner for adding Pingu
-    guild.owner.user.createDM()
-        .then(OwnerDM => OwnerDM.send(
-            `Hi, <@${guild.owner.user.id}>!\n` +
-            `I've successfully joined your server, "**${guild.name}**"!\n\n` +
-
-            `Thank you for adding me!\n` +
-            `Use \`*help\`, if you don't know how I work!`
-        ).then(() => console.log(`Sent ${guild.owner.user.tag} my "thank you" message.`))
-            .catch(err => PinguLibrary.errorLog(client, `Creating DM to server owner for adding me`, err)));
-});
-//Leaving a guild
-client.once('guildDelete', guild => {
-    const pGuilds = PinguGuild.GetPGuilds();
-    const pGuild = PinguGuild.GetPGuild(guild);
-    let arr = [];
-    pGuilds.forEach(pg => {
-        if (pg != pGuild)
-            arr.push(pg);
-    });
-
-    //Update guilds.json
-    PinguGuild.UpdatePGuildsJSON(client, "Index: guildDelete"
-        `Successfully left "**${guild.name}**", owned by <@${guild.owner.user.id}>`,
-        `I encountered and error while updating guild.json from leaving ${guild.name}:\n\n${err}`
-    );
-})
-//#endregion
 
 //Message response
 client.on('message', message => {
     //Find pGuilds in guilds.json
-    try {
-        PinguGuild.GetPGuilds()
-        if (updatingPGuilds)
-            updatingPGuilds = false;
-    }
-    catch {
+    if (updatingPGuilds) updatingPGuilds = false;
+
+    if (!PinguGuild.GetPGuild(message.guild)) {
         if (updatingPGuilds) return;
         updatingPGuilds = true;
-        PinguLibrary.errorLog(client, `guilds.json was empty! Running updatepguilds.js...\n<@&756383446871310399>`)
-        AssignCommand('updatepguilds', null).execute(message, null);
+        PinguLibrary.pGuildLog(client, `on('message')`, `Unable to find pGuild for **${message.guild.name}**! Running updatepguilds.js...\n<@&756383446871310399>`)
+        return PinguGuild.WritePGuild(message.guild, PinguLibrary.pGuildLog(client, `on('message')`, `Created pGuild for **${message.guild.name}**`));
     }
 
     //Find prefix in pGuild
@@ -149,6 +104,60 @@ client.on('message', message => {
 });
 client.on('error', err => PinguLibrary.errorLog(client, `Called from client.on('error')`, null, err));
 
+//First time joining a guild
+client.on('guildCreate', guild => {
+    //Get Pingu Guilds from guilds.json
+    const pGuilds = PinguGuild.GetPGuilds();
+
+    //Insert new PinguGuild into pGuilds
+    pGuilds[pGuilds.length] = new PinguGuild(guild);
+
+    //Update guilds.json with new guild
+    PinguGuild.UpdatePGuildJSON(client, guild, "Index: guildCreate"
+        `Successfully joined "**${guild.name}**", owned by <@${guild.owner.user.id}>`,
+        `I encountered and error while joining ${guild.name}:\n${err}`
+    );
+
+    //Thank guild owner for adding Pingu
+    guild.owner.user.createDM()
+        .then(OwnerDM => OwnerDM.send(
+            `Hi, <@${guild.owner.user.id}>!\n` +
+            `I've successfully joined your server, "**${guild.name}**"!\n\n` +
+
+            `Thank you for adding me!\n` +
+            `Use \`*help\`, if you don't know how I work!`
+        ).then(() => console.log(`Sent ${guild.owner.user.tag} my "thank you" message.`))
+            .catch(err => PinguLibrary.errorLog(client, `Creating DM to server owner for adding me`, err)));
+});
+//Guild was updated with new data
+client.on('guildUpdate', (from, to) => {
+    try {
+        PinguGuild.UpdatePGuildJSON(client, to, "index: guildUpdate",
+            `Successfully updated **${to.name}**'s ${(from.name != to.name ? `(${from.name})` : "")} Pingu Guild.`,
+            `Unable to update **${to.name}**'s ${(from.name != to.name ? `(${from.name})` : "")} Pingu Guild.`
+        );
+    }
+    catch (err) {
+        if (err.message.includes('Cannot find module'))
+            return PinguGuild.DeletePGuild(from, () => PinguGuild.WritePGuild(to, () => PinguLibrary.pGuildLog(client,
+                `index: guildUpdate`, `Renamed **${from.name}**'s pGuild name to **${to.name}**.`)));
+
+        PinguLibrary.errorLog(client, "Unable to update pGuild", null, err);
+    }
+});
+//Leaving a guild
+client.on('guildDelete', guild => {
+    const pGuilds = PinguGuild.GetPGuilds();
+    const pGuild = PinguGuild.GetPGuild(guild);
+    pGuilds = pGuilds.filter(pg => pg != pGuild);
+
+    //Update guilds.json
+    PinguGuild.UpdatePGuildJSON(client, guild, "Index: guildDelete"
+        `Successfully left "**${guild.name}**", owned by <@${guild.owner.user.id}>`,
+        `I encountered and error while updating guild.json from leaving ${guild.name}:\n\n${err}`
+    );
+});
+
 client.login(token);
 
 //#region OnMessage Methods
@@ -178,7 +187,7 @@ function AssignCommand(commandName, args) {
 }
 /**@param {Discord.Message} message @param {string[]} args @param {string} Prefix @param {string} commandName @param {any} command*/
 function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
-    let ConsoleLog = `User "${message.author.username}" executed command "${Prefix}${commandName}", from ${(!message.guild ? `DMs and ` : `"${message.guild}", #${message.channel.name}, and `)}`;
+    let ConsoleLog = `[${new Date(Date.now()).toLocaleTimeString()}] User "${message.author.username}" executed command "${Prefix}${commandName}", from ${(!message.guild ? `DMs and ` : `"${message.guild}", #${message.channel.name}, and `)}`;
 
     //Attempt execution of command
     try {
@@ -250,8 +259,8 @@ function ExecuteTellReply(message) {
 
     if (message.author == LastToUseTell) {
         if (message.content && message.attachments) LastToBeTold.dmChannel.send(message.content, message.attachments.array()).catch(async err => cantMessage(err));
-        else if (message.content)                   LastToBeTold.dmChannel.send(message.content).catch(async err => cantMessage(err));
-        else if (message.attachments)               LastToBeTold.dmChannel.send(message.attachments.array()).catch(async err => cantMessage(err));
+        else if (message.content) LastToBeTold.dmChannel.send(message.content).catch(async err => cantMessage(err));
+        else if (message.attachments) LastToBeTold.dmChannel.send(message.attachments.array()).catch(async err => cantMessage(err));
         else PinguLibrary.errorLog(client, `${LastToUseTell} => ${LastToBeTold} used else statement from ExecuteTellReply, Index`, message.content);
         message.react('✅');
     }
@@ -308,7 +317,7 @@ function CheckRoleChange(guild, pGuild) {
     pGuilds[pGuildIndex] = pGuild;
 
     //Update guilds.json
-    PinguGuild.UpdatePGuildsJSON(client, "Index: CheckRoleChange",
+    PinguGuild.UpdatePGuildJSON(client, "Index: CheckRoleChange",
         `Successfully updated role color from "${guild.name}"`,
         `I encountered and error while updating my role color in "${guild.name}"`
     );

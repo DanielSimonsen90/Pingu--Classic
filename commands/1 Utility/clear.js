@@ -59,7 +59,7 @@ function ClearMessages(message, amount) {
 }
 /**@param {Message} message
  @param {GuildChannel} channel*/
-function ClearAll(message, channel) {
+async function ClearAll(message, channel) {
     var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.MANAGE_CHANNELS]);
     if (permCheck != PinguLibrary.PermissionGranted) return permCheck;
 
@@ -76,8 +76,8 @@ function ClearAll(message, channel) {
 
 
     channel.delete(`Requested by ${message.author.username}`);
-    channel.clone();
-    return `I've deleted the previous #${channel.name}, and replaced it with ${(`${message.guild.channels.cache.find(c => c.name == channel.name)}` ||  `a new one!`)}!`;
+    var newChannel = await channel.clone();
+    return `I've deleted the previous #${channel.name}, and replaced it with ${(`${newChannel}` ||  `a new one!`)}!`;
 }
 /**@param {Message} message 
  * @param {string[]} args 

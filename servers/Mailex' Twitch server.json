@@ -1,0 +1,18 @@
+{
+  "guildName": "Mailex' Twitch server",
+  "guildID": "277371194422853633",
+  "guildOwner": {
+    "id": "277361003950505984",
+    "user": "Mailex#6538"
+  },
+  "botPrefix": "*",
+  "embedColor": 16753461,
+  "musicQueue": null,
+  "giveawayConfig": {
+    "firstTimeExecuted": true
+  },
+  "pollConfig": {
+    "firstTimeExecuted": true
+  },
+  "suggestions": []
+}

@@ -1,6 +1,6 @@
 const request = require('request'),
     config = require('../../config.json'),
-    { Message, MessageEmbed } = require('discord.js');
+    { Message, MessageEmbed, Permissions } = require('discord.js');
 const { PinguLibrary } = require('../../PinguPackage');
 
 module.exports = {

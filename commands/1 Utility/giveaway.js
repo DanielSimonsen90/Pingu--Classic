@@ -141,7 +141,7 @@ function PermissionCheck(message, args) {
         WinnerRole = CheckRole(WinnerRole);
         HostRole = CheckRole(HostRole);
 
-        PinguGuild.UpdatePGuildsJSON(message.client, module.exports.name,
+        PinguGuild.UpdatePGuildJSON(message.client, message.guild, module.exports.name,
             `Updated giveaway roles`,
             `I encountered and error while updating giveaway roles`
         );
@@ -516,7 +516,7 @@ function SaveGiveawayToPGuilds(message, Prize, GiveawayCreator, GiveawayChannel)
     const pGuild = PinguGuild.GetPGuild(message.guild);
     pGuild.giveawayConfig.giveaways.push(new Giveaway(Prize, message.id, new PGuildMember(GiveawayCreator), GiveawayChannel));
 
-    PinguGuild.UpdatePGuildsJSON(message.client, module.exports.name,
+    PinguGuild.UpdatePGuildJSON(message.client, message.guild, module.exports.name,
         `pGuild.Giveaways for **${message.guild.name}** was successfully updated with the new giveaway!`,
         `Saving giveaway in ${message.guild.name}`
     );
@@ -529,7 +529,7 @@ function UpdatePGuildWinner(GiveawayMessage, WinnerArr) {
     for (var i = 0; i < WinnerArr.length; i++)
         Giveaway.winners.push(new PGuildMember(GiveawayMessage.guild.member(WinnerArr[i])));
 
-    PinguGuild.UpdatePGuildsJSON(GiveawayMessage.client, module.exports.name,
+    PinguGuild.UpdatePGuildJSON(GiveawayMessage.client, message.guild, module.exports.name,
         `Successfully updated **${GiveawayMessage.guild.name}**'s "${Giveaway.value}" giveaway winner in guilds.json!`,
         `Saving **${GiveawayMessage.guild.name}**'s "${Giveaway.value}" giveaway winner in guilds.json!`
     );
@@ -566,7 +566,7 @@ async function SaveGiveawayConfig(message, GiveawayHostRole, GiveawayWinnerRole,
         channel: channel
     });
 
-    PinguGuild.UpdatePGuildsJSON(message.client, module.exports.name,
+    PinguGuild.UpdatePGuildJSON(message.client, message.guild, module.exports.name,
         `Successfully saved **${message.guild.name}**'s Giveaway Host & Giveaway Winner to guild.json!`,
         `Saving **${message.guild.name}**'s Giveaway config to guild.json!`
     );
@@ -588,7 +588,7 @@ async function RemoveGiveaways(message, giveaways) {
 
     console.log(`The giveaway, ${giveaways[0].value} (${giveaways[0].id}) was removed.`);
 
-    await PinguGuild.UpdatePGuildsJSONAsync(message.client, module.exports.name,
+    await PinguGuild.UpdatePGuildJSONAsync(message.client, message.guild, module.exports.name,
         `Removed ${giveaways.length} giveaways from **${message.guild.name}**'s giveaway list.`,
         `Removing ${giveaways[0].id} (${giveaways[0].value}) from **${message.guild.name}**'s giveaways list`,
     );

@@ -151,7 +151,7 @@ function FirstTimeExecuted(message, args) {
             polls: new Array()
         });
 
-        PinguGuild.UpdatePGuildsJSON(message.client, PinguGuild.GetPGuilds(),
+        PinguGuild.UpdatePGuildJSON(message.client, message.guild, "Poll: SaveSetupToPGuilds",
             `Successfully updated guilds.json with ${message.guild.name}'s pollConfig.`,
             `I encountered an error, while saving ${message.guild.name}'s pollConfig to guilds.json`
         );
@@ -304,7 +304,7 @@ async function RemovePolls(message, polls) {
     const pGuild = PinguGuild.GetPGuild(message.guild);
     pGuild.pollConfig.polls = pGuild.pollConfig.polls.filter(p => !polls.includes(p));
 
-    await PinguGuild.UpdatePGuildsJSONAsync(message.client, module.exports.name,
+    await PinguGuild.UpdatePGuildJSONAsync(message.client, message.guild, module.exports.name,
         `Removed "${polls[0].value}" from ${message.guild.name}'s polls list.`,
         `I encounted an error, while removing ${polls.id} (${polls.value}) from ${message.guild.name}'s polls list`
     );
@@ -315,7 +315,7 @@ async function RemovePolls(message, polls) {
 /**@param {Message} message @param {Poll} poll*/
 function AddPollToPGuilds(message, poll) {
     PinguGuild.GetPGuild(message.guild).pollConfig.polls.push(poll);
-    PinguGuild.UpdatePGuildsJSON(message.client, module.exports.name,
+    PinguGuild.UpdatePGuildJSON(message.client, message.guild, module.exports.name,
         `Added "${poll.value}" to "${message.guild.name}" in guilds.json`,
         `I encountered an error, while adding ${poll.value} to guilds.json`
     );
@@ -327,7 +327,7 @@ function SaveVerdictToPGuilds(message, poll) {
     const thispollman = pGuildPolls.find(p => p.id == poll.id);
     pGuildPolls[pGuildPolls.indexOf(thispollman)] = poll;
 
-    PinguGuild.UpdatePGuildsJSON(message.client, module.exports.name,
+    PinguGuild.UpdatePGuildJSON(message.client, message.guild, module.exports.name,
         `Successfully saved the verdict for "${poll.value}" in guilds.json`,
         `I encountered an error, while saving the verdict for "${poll.value}"`
     );

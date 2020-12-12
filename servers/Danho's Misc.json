@@ -1,0 +1,18 @@
+{
+  "guildName": "Danho's Misc",
+  "guildID": "460926327269359626",
+  "guildOwner": {
+    "id": "245572699894710272",
+    "user": "Danho#2105"
+  },
+  "botPrefix": "*",
+  "embedColor": 15105570,
+  "musicQueue": null,
+  "giveawayConfig": {
+    "firstTimeExecuted": true
+  },
+  "pollConfig": {
+    "firstTimeExecuted": true
+  },
+  "suggestions": []
+}
