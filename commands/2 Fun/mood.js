@@ -1,5 +1,5 @@
-const { Message, Permissions } = require('discord.js');
-const { PinguLibrary } = require('../../PinguPackage');
+const { Message } = require('discord.js');
+const { DiscordPermissions } = require('../../PinguPackage');
 
 module.exports = {
     name: 'mood',
@@ -7,13 +7,9 @@ module.exports = {
     description: 'My current mood',
     usage: '',
     id: 2,
+    permissions: [DiscordPermissions.SEND_MESSAGES],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        if (message.channel.type != 'dm') {
-            var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.SEND_MESSAGES])
-            if (permCheck != PinguLibrary.PermissionGranted) return message.channel.send(permCheck); 
-        }
-
         let Mood;
 
         switch (Math.floor(Math.random() * Math.floor(5))) {

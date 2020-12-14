@@ -1,5 +1,5 @@
-﻿const { Message, Permissions } = require("discord.js");
-const { PinguLibrary, PinguGuild } = require("../../PinguPackage");
+﻿const { Message } = require("discord.js");
+const { PinguLibrary, PinguGuild, DiscordPermissions } = require("../../PinguPackage");
 
 module.exports = {
     name: 'update',
@@ -27,7 +27,7 @@ module.exports = {
             return message.channel.send(`There was an error while updating \`${commandName}\`!\n\n\`${error.message}\``);
         }
         if (message.channel.type != 'dm') {
-            var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.SEND_MESSAGES]);
+            var permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.SEND_MESSAGES]);
             if (permCheck != PinguLibrary.PermissionGranted) return message.author.send(`${permCheck}\nBut I have updated my command!`)
         }
         message.channel.send(`\`${PinguGuild.GetPGuild(message.guild).botPrefix || '*'}${commandName}\` was updated!`);

@@ -1,4 +1,4 @@
-﻿const { Message, Guild, MessageEmbed } = require("discord.js");
+﻿const { Message } = require("discord.js");
 const { PinguGuild, PinguLibrary } = require('../../PinguPackage');
 const fs = require('fs');
 

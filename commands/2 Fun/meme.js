@@ -1,19 +1,17 @@
 const request = require('request'),
     config = require('../../config.json'),
     { Message, MessageEmbed, Permissions } = require('discord.js');
-const { PinguLibrary, PinguGuild } = require('../../PinguPackage');
+const { PinguLibrary, PinguGuild, DiscordPermissions } = require('../../PinguPackage');
 
 module.exports = {
     name: 'meme',
     description: 'Searches google for pingu memes',
     usage: '',
     id: 2, 
+    permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.EMBED_LINKS],
     /**@param {Message} message
      * @param {string[]} args*/
     execute(message, args) {
-        PermCheck = CheckPermissions(message);
-        if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
-
         if (!config || !config.api_key || !config.google_custom_search) {
             PinguLibrary.errorLog(message.client, 'Unable to send gif\nImage search requires both a YouTube API key and a Google Custom Search key!').then(() =>
                 message.channel.send(`I was unable to search for a gif! I have contacted my developers...`));
@@ -46,14 +44,3 @@ module.exports = {
         });
     },
 };
-
-/**@param {Message} message*/
-function CheckPermissions(message) {
-    if (message.channel.type != 'dm') {
-        return PinguLibrary.PermissionCheck(message, [
-            Permissions.FLAGS.SEND_MESSAGES,
-            Permissions.FLAGS.EMBED_LINKS
-        ]);
-    }
-    return PinguLibrary.PermissionGranted;
-}

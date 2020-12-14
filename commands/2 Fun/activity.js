@@ -1,7 +1,7 @@
 ﻿const request = require('request'),
     config = require('../../config.json'),
-    { Message, MessageEmbed, Permissions } = require('discord.js');
-const { PinguLibrary, PinguGuild } = require('../../PinguPackage');
+    { Message, MessageEmbed } = require('discord.js');
+const { PinguLibrary, PinguGuild, DiscordPermissions } = require('../../PinguPackage');
 
 module.exports = {
     name: 'activity',
@@ -11,6 +11,7 @@ module.exports = {
     guildOnly: true,
     id: 2,
     example: ["hug @Danho#2105"],
+    permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.embedl],
     /**@param {Message} message @param {string[]} args */
     execute(message, args) {
         //Permission check
@@ -61,11 +62,6 @@ module.exports = {
 
 /**@param {Message} message @param {string[]} args*/
 function PermissionCheck(message, args) {
-    var permCheck = PinguLibrary.PermissionCheck(message, [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.EMBED_LINKS
-    ]);
-    if (permCheck != PinguLibrary.PermissionGranted) return permCheck;
     if (!args[0]) return `Provide me with proper arguments please UwU`;
 
     return PinguLibrary.PermissionGranted;

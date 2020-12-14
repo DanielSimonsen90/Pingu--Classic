@@ -1,16 +1,14 @@
-const { MessageEmbed, Message, Permissions } = require('discord.js');
-const { PinguLibrary, PinguGuild } = require('../../PinguPackage');
+const { MessageEmbed, Message } = require('discord.js');
+const { PinguGuild, DiscordPermissions } = require('../../PinguPackage');
 module.exports = {
     name: 'fact',
     cooldown: 5,
     description: 'Pingu Facts woah',
     usage: '',
     id: 2,
+    permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.EMBED_LINKS],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        const PermCheck = PermissionCheck(message);
-        if (PermCheck != PinguLibrary.PermissionGranted) return message.author.send(PermCheck);
-
         const Facts = [
             //Literal Penguin facts
             "Penguins are birds but they __cannot__ fly whatsoever. Visit LearnToFly to learn more.",
@@ -51,14 +49,3 @@ module.exports = {
         );
     },
 };
-
-/**@param {Message} message*/
-function PermissionCheck(message) {
-    if (message.channel.type != 'dm')
-        return PinguLibrary.PermissionCheck(message, [
-            Permissions.FLAGS.SEND_MESSAGES,
-            Permissions.FLAGS.EMBED_LINKS,
-        ]);
-
-    return PinguLibrary.PermissionGranted;
-}

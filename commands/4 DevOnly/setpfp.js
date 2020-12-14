@@ -1,5 +1,5 @@
-const { Message, Permissions } = require('discord.js');
-const { PinguLibrary } = require('../../PinguPackage');
+const { Message } = require('discord.js');
+const { PinguLibrary, DiscordPermissions } = require('../../PinguPackage');
 
 module.exports = {
     name: 'setpfp',
@@ -38,7 +38,7 @@ module.exports = {
             console.log(`${message.author.username} set profile picture to "${PFP}".`);
 
             if (message.channel.type != 'dm') {
-                var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.SEND_MESSAGES]);
+                var permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.SEND_MESSAGES]);
                 if (permCheck != PinguLibrary.PermissionGranted) return message.author.send(`${permCheck}\nBut I have updated my profile picture!`);
             }
             return message.channel.send(`Successfully changed my profile picture!`);

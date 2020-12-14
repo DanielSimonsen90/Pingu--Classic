@@ -1,5 +1,5 @@
-const { Message, Permissions } = require("discord.js");
-const { PinguLibrary } = require("../../PinguPackage");
+const { Message } = require("discord.js");
+const { PinguLibrary, DiscordPermissions } = require("../../PinguPackage");
 
 module.exports = {
     name: 'setactivity',
@@ -20,7 +20,7 @@ module.exports = {
         message.client.user.setActivity(`${ActivityMessage} *help`, { type: Activity });
 
         if (message.channel.type != 'dm') {
-            var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.SEND_MESSAGES]);
+            var permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.SEND_MESSAGES]);
             if (permCheck != PinguLibrary.PermissionGranted) return message.author.send(`${permCheck}\nBut I have updated my activity!`);
         }
         message.channel.send(`Updated activity!`);  

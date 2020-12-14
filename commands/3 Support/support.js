@@ -1,5 +1,5 @@
-const { Message, MessageEmbed, Permissions } = require('discord.js');
-const { PinguGuild, PinguLibrary } = require('../../PinguPackage');
+const { Message, MessageEmbed } = require('discord.js');
+const { PinguGuild, DiscordPermissions } = require('../../PinguPackage');
 
 module.exports = {
     name: 'support',
@@ -7,6 +7,7 @@ module.exports = {
     description: 'Contact information incase something is :b:roke or if any questions may occur about me',
     usage: '',
     id: 3,
+    permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.EMBED_LINKS],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         var Embed = new MessageEmbed()
@@ -24,11 +25,6 @@ module.exports = {
             .addField('SoundCloud', 'https://soundcloud.com/daniel-simonsen-705578407', false)
             .addField('Instagram', 'https://www.instagram.com/danhoesaurus/', false)
             .addField('Github', 'https://www.github.com/DanielSimonsen90/', false);
-
-        if (message.channel.type != 'dm') {
-            var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.SEND_MESSAGES]);
-            if (permCheck != PinguLibrary.PermissionGranted) return message.author.send(`${permCheck}\nBut here's your information:`, Embed);
-        }
         message.channel.send(Embed);
     },
 };
