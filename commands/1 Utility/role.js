@@ -1,5 +1,5 @@
-const { Message, Permissions, Role, GuildMember, BitField } = require('discord.js');
-const { PinguLibrary } = require('../../PinguPackage');
+const { Message, Permissions, Role, GuildMember } = require('discord.js');
+const { PinguLibrary, DiscordPermissions } = require('../../PinguPackage');
 
 module.exports = {
     name: 'role',
@@ -9,14 +9,9 @@ module.exports = {
     id: 1,
     guildOnly: true,
     example: ["add Admin", "remove SMod DiaGuy", "rename 778022131178405918 Discord Bot Developer"],
+    permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.MANAGE_ROLES],
     /**@param {Message} message @param {string[]} args*/
     async execute(message, args) {
-        var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.MANAGE_ROLES]);
-        if (permCheck != PinguLibrary.PermissionGranted) {
-            if (!permCheck.includes("you") || !PinguLibrary.isPinguDev(message.author)) //Uncomment to abuse Pingu's Manage Roles permission
-            return message.channel.send(permCheck);
-        }
-
         var command = args.shift(),
             getRoleResult = await getRole(message, args),
             person = message.mentions.members.first() || message.guild.member(message.author);
@@ -181,5 +176,3 @@ function CheckPermission(message, args, personOrRole) {
     var hasPermission = personOrRole.permissions.has(permission);
     return message.channel.send(`${personOrRole.displayName || personOrRole.name} **${hasPermission ? `does` : `does not`}** have the ${permission} permission.`);
 }
-
-

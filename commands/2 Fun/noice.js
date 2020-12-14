@@ -1,6 +1,6 @@
 const ytdl = require('ytdl-core');
-const { Message, Permissions } = require('discord.js');
-const { PinguLibrary } = require('../../PinguPackage');
+const { Message } = require('discord.js');
+const { PinguLibrary, DiscordPermissions } = require('../../PinguPackage');
 
 module.exports = {
     name: 'noice',
@@ -8,22 +8,17 @@ module.exports = {
     usage: '',
     guildOnly: true,
     id: 2,
+    permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.MANAGE_MESSAGES],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        var PermCheck = PinguLibrary.PermissionCheck(message, [
-            Permissions.FLAGS.SEND_MESSAGES,
-            Permissions.FLAGS.MANAGE_MESSAGES,
-        ]);
-        if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
-
         const voiceChannel = message.member.voice.channel;
         message.delete();
         message.channel.send('https://tenor.com/LgPu.gif');
 
         if (!voiceChannel) return;
-        else if (!voiceChannel.permissionsFor(message.guild.me).has(Permissions.FLAGS.CONNECT))
+        else if (!voiceChannel.permissionsFor(message.guild.me).has(DiscordPermissions.CONNECT))
             return message.channel.send(`I don't have permission to **connect** to ${voiceChannel.name}`);
-        else if (!voiceChannel.permissionsFor(message.guild.me).has(Permissions.FLAGS.SPEAK))
+        else if (!voiceChannel.permissionsFor(message.guild.me).has(DiscordPermissions.SPEAK))
             return message.channel.send(`I don't have permission to **speak** to ${voiceChannel.name}`);
 
         voiceChannel.join().then(connection => {

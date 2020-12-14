@@ -1,4 +1,4 @@
-const { PinguGuild, PinguLibrary } = require('../../PinguPackage');
+const { PinguGuild, PinguLibrary, DiscordPermissions } = require('../../PinguPackage');
 
 const { MessageEmbed, Message } = require('discord.js'),
     ScriptsCategorized = ["", "Utility", "Fun", "Support", "DevOnly"];

@@ -1,14 +1,16 @@
 const request = require('request'),
     config = require('../../config.json'),
     { Message, MessageEmbed, Permissions } = require('discord.js');
-const { PinguLibrary } = require('../../PinguPackage');
+const { PinguLibrary, PinguGuild } = require('../../PinguPackage');
 
 module.exports = {
     name: 'meme',
     description: 'Searches google for pingu memes',
     usage: '',
     id: 2, 
-    execute(message) {
+    /**@param {Message} message
+     * @param {string[]} args*/
+    execute(message, args) {
         PermCheck = CheckPermissions(message);
         if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
 

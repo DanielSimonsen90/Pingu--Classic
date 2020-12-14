@@ -1,4 +1,4 @@
-﻿import { GuildMember, Guild, Role, Message, TextChannel, VoiceChannel, VoiceConnection, Client, PermissionString, User, MessageEmbed, Channel, GuildChannel, GuildEmoji, MessageAttachment, VoiceState, GuildAuditLogs } from 'discord.js';
+﻿import { GuildMember, Guild, Role, Message, TextChannel, VoiceChannel, VoiceConnection, Client, PermissionString, User, MessageEmbed, Channel, GuildChannel, GuildEmoji, VoiceState } from 'discord.js';
 import { MoreVideoDetails } from 'ytdl-core';
 import * as fs from 'fs';
 
@@ -14,6 +14,39 @@ export class Error {
     public stack: string
     public fileName: string
     public lineNumber: string
+}
+export class DiscordPermissions {
+    static 'CREATE_INSTANT_INVITE': 'CREATE_INSTANT_INVITE'
+    static 'KICK_MEMBERS': 'KICK_MEMBERS'
+    static 'BAN_MEMBERS': 'BAN_MEMBERS'
+    static 'ADMINISTRATOR': 'ADMINISTRATOR'
+    static 'MANAGE_CHANNELS': 'MANAGE_CHANNELS'
+    static 'MANAGE_GUILD': 'MANAGE_GUILD'
+    static 'ADD_REACTIONS': 'ADD_REACTIONS'
+    static 'VIEW_AUDIT_LOG': 'VIEW_AUDIT_LOG'
+    static 'PRIORITY_SPEAKER': 'PRIORITY_SPEAKER'
+    static 'STREAM': 'STREAM'
+    static 'VIEW_CHANNEL': 'VIEW_CHANNEL'
+    static 'SEND_MESSAGES': 'SEND_MESSAGES'
+    static 'SEND_TTS_MESSAGES': 'SEND_TTS_MESSAGES'
+    static 'MANAGE_MESSAGES': 'MANAGE_MESSAGES'
+    static 'EMBED_LINKS': 'EMBED_LINKS'
+    static 'ATTACH_FILES': 'ATTACH_FILES'
+    static 'READ_MESSAGE_HISTORY': 'READ_MESSAGE_HISTORY'
+    static 'MENTION_EVERYONE': 'MENTION_EVERYONE'
+    static 'USE_EXTERNAL_EMOJIS': 'USE_EXTERNAL_EMOJIS'
+    static 'VIEW_GUILD_INSIGHTS': 'VIEW_GUILD_INSIGHTS'
+    static 'CONNECT': 'CONNECT'
+    static 'SPEAK': 'SPEAK'
+    static 'MUTE_MEMBERS': 'MUTE_MEMBERS'
+    static 'DEAFEN_MEMBERS': 'DEAFEN_MEMBERS'
+    static 'MOVE_MEMBERS': 'MOVE_MEMBERS'
+    static 'USE_VAD': 'USE_VAD'
+    static 'CHANGE_NICKNAME': 'CHANGE_NICKNAME'
+    static 'MANAGE_NICKNAMES': 'MANAGE_NICKNAMES'
+    static 'MANAGE_ROLES': 'MANAGE_ROLES'
+    static 'MANAGE_WEBHOOKS': 'MANAGE_WEBHOOKS'
+    static 'MANAGE_EMOJIS': 'MANAGE_EMOJIS'
 }
 
 //#region Custom Pingu classes
@@ -208,16 +241,55 @@ export class PinguLibrary {
         //return client.user.setActivity('your screams for *help', { type: 'LISTENING' });
         return client.user.setActivity('jingle bells... *help', { type: 'LISTENING' });
     }
+    public static async LatencyCheck(message: Message) {
+        //Get latency
+        let pingChannel = this.getChannel(message.client, this.SavedServers.PinguSupport(message.client).id, "ping-log");
+        if (message.channel == pingChannel || message.author.bot) return;
 
-    public static PermissionCheck(message: Message, permissions: PermissionString[]) {
+        let pingChannelSent = await pingChannel.send(`Calculating ping`);
+
+        let latency = pingChannelSent.createdTimestamp - message.createdTimestamp;
+        pingChannelSent.edit(latency);
+
+        //Get outages channel
+        let outages = this.getChannel(message.client, this.SavedServers.PinguSupport(message.client).id, "outages");
+        if (!outages) return this.errorLog(message.client, `Unable to find outages channel from LatencyCheck!`);
+
+        //Set up to find last Pingu message
+        let outagesMessages = outages.messages.cache.array();
+        let outageMessagesCount = outagesMessages.length - 1;
+        let lastPinguMessage = null;
+
+        //Find Pingu message
+        for (var i = outageMessagesCount - 1; i >= 0; i--) {
+            if (outagesMessages[i].author != message.client.user) continue;
+            lastPinguMessage = outagesMessages[i];
+        }
+
+        if (!lastPinguMessage) return;
+
+        let sendMessage = !lastPinguMessage.content.includes(`I have a latency delay on`);
+        if (!sendMessage) {
+            let lastMessageArgs = lastPinguMessage.content.split(` `);
+            let lastLatencyExclaim = lastMessageArgs[lastMessageArgs.length - 1];
+            let lastLatency = parseInt(lastLatencyExclaim.substring(0, lastLatencyExclaim.length - 1));
+
+            if (lastLatency > 1000)
+                return lastPinguMessage.edit(`I have a latency delay on ${latency}!`);
+        }
+
+        if (latency > 1000) PinguLibrary.outages(message.client, `I have a latency delay on ${latency}!`);
+    }
+
+    public static PermissionCheck(message: Message, permissions: string[]) {
         var textChannel = message.channel as TextChannel;
 
         for (var x = 0; x < permissions.length; x++) {
-            var permString = permissions[x].toString().toLowerCase().replace('_', ' ');
+            var permString = permissions[x].toLowerCase().replace('_', ' ');
 
-            if (!textChannel.permissionsFor(message.client.user).has(permissions[x]))
+            if (!textChannel.permissionsFor(message.client.user).has(permissions[x] as PermissionString))
                 return `I don't have permission to **${permString}** in ${textChannel.name}.`;
-            else if (!textChannel.permissionsFor(message.author).has(permissions[x]))
+            else if (!textChannel.permissionsFor(message.author).has(permissions[x] as PermissionString))
                 return `<@${message.author.id}> you don't have permission to **${permString}** in #${textChannel.name}.`;
         }
         return this.PermissionGranted;
@@ -246,7 +318,7 @@ export class PinguLibrary {
         return this.PinguDevelopers.includes(user.id);
     }
 
-    private static getChannel(client: Client, guildID: string, channelname: string) {
+    public static getChannel(client: Client, guildID: string, channelname: string) {
         var guild = client.guilds.cache.find(guild => guild.id == guildID);
         if (!guild) {
             console.error(`Unable to get guild from ${guildID}`);

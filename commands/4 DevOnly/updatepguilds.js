@@ -23,7 +23,7 @@ module.exports = {
             //    .addField('Prefix', PinguGuilds[x].BotPrefix)
             //);
         }
-        PinguLibrary.pGuildLog(message.client, module.exports.name, 'Going through servers complete!\nSaving to guilds.json...');
+        //PinguLibrary.pGuildLog(message.client, module.exports.name, 'Going through servers complete!\nSaving guilds...');
 
         for (var i = 0; i < PinguGuildsArr.length; i++) {
             let pGuild = PinguGuildsArr[i];
@@ -44,16 +44,16 @@ async function WriteFile(pGuild, path) {
             if (err) PinguLibrary.pGuildLog(message.client, `${module.exports.name}: ${pGuild.guildName}`, `[writeFile]: Failed to write file`, err)
             else fs.appendFile(path, data, err => {
                 if (err) {
-                    PinguLibrary.pGuildLog(message.client, `${module.exports.name}: ${pGuild.guildName}`, `Error while saving to guilds.json!!`, message.content, err);
+                    PinguLibrary.pGuildLog(message.client, `${module.exports.name}: ${pGuild.guildName}`, `Error while saving **${pGuild.guildName}**!!`, message.content, err);
                 }
-                //else {
-                //    PinguLibrary.pGuildLog(message.client, `${module.exports.name}: ${pGuild.guildName}`, `Finished! **${pGuild.guildName}.json** was successfully updated with new PinguGuilds elements.\n`);
-                //    if (message.content.includes('updatepguilds'))
-                //        message.react('✅')
-                //}
+                else {
+                    PinguLibrary.pGuildLog(message.client, `${module.exports.name}: ${pGuild.guildName}`, `Finished! **${pGuild.guildName}.json** was successfully updated with new PinguGuilds elements.\n`);
+                    if (message.content.includes('updatepguilds'))
+                        message.react('✅')
+                }
             });
         })
     } catch (err) {
-        PinguLibrary.pGuildLog(message.client, module.exports.name, `Error while saving to guilds.json!!`, message.content, err);
+        PinguLibrary.pGuildLog(message.client, module.exports.name, `Error while saving **${pGuild.guildName}**!!`, message.content, err);
     }
 }

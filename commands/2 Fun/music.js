@@ -1,8 +1,8 @@
-const { Message, Guild, MessageEmbed, VoiceChannel, Permissions } = require('discord.js'),
+const { Message, Guild, MessageEmbed, VoiceChannel } = require('discord.js'),
     ytdl = require('ytdl-core'),
     YouTube = require('simple-youtube-api'),
     { youtube_api } = require('../../config.json');
-const { PinguGuild, Queue, Song, PinguLibrary, PQueue, PClient } = require('../../PinguPackage');
+const { PinguGuild, Queue, Song, PinguLibrary, PQueue, PClient, DiscordPermissions } = require('../../PinguPackage');
 var youTube = new YouTube(youtube_api), commandName = "";
 
 
@@ -29,6 +29,7 @@ module.exports = {
         { name: "move", alias: "mo", cmdHandler: HandleMove },
         { name: "loop", alias: "repeat", cmdHandler: HandleLoop }
     ],
+    permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.SPEAK],
     /**@param {Message} message @param {string[]} args*/
     async execute(message, args) {
         const voiceChannel = message.member.voice.channel,
@@ -62,17 +63,10 @@ module.exports = {
 
 /**@param {Message} message @param {VoiceChannel} voiceChannel*/
 function PermissionCheck(message, voiceChannel) {
-    var permCheck = PinguLibrary.PermissionCheck(message, [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.SPEAK,
-    ]);
-
-    if (permCheck != PinguLibrary.PermissionGranted) return permCheck;
-
     if (!voiceChannel)
         return `Please join a **voice channel** ${message.author}!`;
 
-    if (!voiceChannel.permissionsFor(message.guild.me).has(Permissions.FLAGS.CONNECT))
+    if (!voiceChannel.permissionsFor(message.guild.me).has(DiscordPermissions.CONNECT))
         return `I can't connect to your voice channel!`;
 
     return PinguLibrary.PermissionGranted;

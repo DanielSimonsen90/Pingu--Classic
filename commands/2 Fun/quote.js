@@ -1,5 +1,5 @@
-const { Message, Permissions } = require("discord.js");
-const { PinguLibrary } = require("../../PinguPackage");
+const { Message } = require("discord.js");
+const { DiscordPermissions } = require("../../PinguPackage");
 
 module.exports = {
     name: 'quote',
@@ -9,11 +9,9 @@ module.exports = {
     guildOnly: true,
     id: 2,
     example: ["This is a quote by me!", "Idk why he wanna quote me?? @Danho#2105"],
+    permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.MANAGE_MESSAGES, /*DiscordPermissions.EMBED_LINKS*/],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        const PermCheck = CheckPermissions(message);
-        if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
-
         let Quote = args.join(" "),
             quotee = message.mentions.users.size != 0 ?
                 message.mentions.users.first().username :
@@ -31,11 +29,3 @@ module.exports = {
             .then(QuotedMessage => QuotedMessage.edit(`\`"${Quote}"\`\n- ${quotee}`));
     },
 };
-/**@param {Message} message*/
-function CheckPermissions(message) {
-    return PinguLibrary.PermissionCheck(message, [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.MANAGE_MESSAGES,
-        Permissions.FLAGS.EMBED_LINKS,
-    ]);
-}

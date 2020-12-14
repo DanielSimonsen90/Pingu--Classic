@@ -1,5 +1,5 @@
 const { Message } = require('discord.js'),
-    { PinguGuild } = require('../../PinguPackage');
+    { PinguGuild, DiscordPermissions } = require('../../PinguPackage');
 
 module.exports = {
     name: 'prefix',
@@ -8,6 +8,7 @@ module.exports = {
     guildOnly: true,
     id: 1,
     example: ['!'],
+    permissions: [DiscordPermissions.SEND_MESSAGES],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         if (!args || !args[0])

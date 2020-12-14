@@ -49,7 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PinguUser = exports.PQueue = exports.PUser = exports.PClient = exports.PEmote = exports.PChannel = exports.PRole = exports.PGuildMember = exports.Error = void 0;
+exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PinguUser = exports.PQueue = exports.PUser = exports.PClient = exports.PEmote = exports.PChannel = exports.PRole = exports.PGuildMember = exports.DiscordPermissions = exports.Error = void 0;
 var fs = require("fs");
 var Error = /** @class */ (function () {
     function Error(err) {
@@ -61,6 +61,12 @@ var Error = /** @class */ (function () {
     return Error;
 }());
 exports.Error = Error;
+var DiscordPermissions = /** @class */ (function () {
+    function DiscordPermissions() {
+    }
+    return DiscordPermissions;
+}());
+exports.DiscordPermissions = DiscordPermissions;
 //#region Custom Pingu classes
 var PGuildMember = /** @class */ (function () {
     function PGuildMember(member) {
@@ -285,10 +291,53 @@ var PinguLibrary = /** @class */ (function () {
         //return client.user.setActivity('your screams for *help', { type: 'LISTENING' });
         return client.user.setActivity('jingle bells... *help', { type: 'LISTENING' });
     };
+    PinguLibrary.LatencyCheck = function (message) {
+        return __awaiter(this, void 0, void 0, function () {
+            var pingChannel, pingChannelSent, latency, outages, outagesMessages, outageMessagesCount, lastPinguMessage, i, sendMessage, lastMessageArgs, lastLatencyExclaim, lastLatency;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        pingChannel = this.getChannel(message.client, this.SavedServers.PinguSupport(message.client).id, "ping-log");
+                        if (message.channel == pingChannel || message.author.bot)
+                            return [2 /*return*/];
+                        return [4 /*yield*/, pingChannel.send("Calculating ping")];
+                    case 1:
+                        pingChannelSent = _a.sent();
+                        latency = pingChannelSent.createdTimestamp - message.createdTimestamp;
+                        pingChannelSent.edit(latency);
+                        outages = this.getChannel(message.client, this.SavedServers.PinguSupport(message.client).id, "outages");
+                        if (!outages)
+                            return [2 /*return*/, this.errorLog(message.client, "Unable to find outages channel from LatencyCheck!")];
+                        outagesMessages = outages.messages.cache.array();
+                        outageMessagesCount = outagesMessages.length - 1;
+                        lastPinguMessage = null;
+                        //Find Pingu message
+                        for (i = outageMessagesCount - 1; i >= 0; i--) {
+                            if (outagesMessages[i].author != message.client.user)
+                                continue;
+                            lastPinguMessage = outagesMessages[i];
+                        }
+                        if (!lastPinguMessage)
+                            return [2 /*return*/];
+                        sendMessage = !lastPinguMessage.content.includes("I have a latency delay on");
+                        if (!sendMessage) {
+                            lastMessageArgs = lastPinguMessage.content.split(" ");
+                            lastLatencyExclaim = lastMessageArgs[lastMessageArgs.length - 1];
+                            lastLatency = parseInt(lastLatencyExclaim.substring(0, lastLatencyExclaim.length - 1));
+                            if (lastLatency > 1000)
+                                return [2 /*return*/, lastPinguMessage.edit("I have a latency delay on " + latency + "!")];
+                        }
+                        if (latency > 1000)
+                            PinguLibrary.outages(message.client, "I have a latency delay on " + latency + "!");
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
     PinguLibrary.PermissionCheck = function (message, permissions) {
         var textChannel = message.channel;
         for (var x = 0; x < permissions.length; x++) {
-            var permString = permissions[x].toString().toLowerCase().replace('_', ' ');
+            var permString = permissions[x].toLowerCase().replace('_', ' ');
             if (!textChannel.permissionsFor(message.client.user).has(permissions[x]))
                 return "I don't have permission to **" + permString + "** in " + textChannel.name + ".";
             else if (!textChannel.permissionsFor(message.author).has(permissions[x]))

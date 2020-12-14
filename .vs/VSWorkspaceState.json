@@ -5,8 +5,9 @@
     "\\commands\\1 Utility",
     "\\commands\\2 Fun",
     "\\commands\\3 Support",
-    "\\commands\\4 DevOnly"
+    "\\commands\\4 DevOnly",
+    "\\servers"
   ],
-  "SelectedNode": "\\commands\\4 DevOnly\\update.js",
+  "SelectedNode": "\\commands\\4 DevOnly\\setpfp.js",
   "PreviewInSolutionExplorer": false
 }

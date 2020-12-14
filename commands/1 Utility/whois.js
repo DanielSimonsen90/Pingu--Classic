@@ -1,18 +1,17 @@
 const { Message, MessageEmbed, GuildMember, Permissions} = require('discord.js');
-const { PinguLibrary, PinguGuild } = require('../../PinguPackage');
+const { PinguGuild, DiscordPermissions } = require('../../PinguPackage');
 module.exports = {
     name: 'whois',
     cooldown: 5,
     description: 'Gets the info of a specified user',
     usage: '<ID> | <Mention>',
+    guildOnly: true,
     id: 1,
     example: ['245572699894710272', '@Danho#2105'],
+    permissions: [DiscordPermissions.SEND_MESSAGES],
     /**@param {Message} message @param {string[]} args*/
     async execute(message, args) {
         //Permission check
-        const PermCheck = CheckPermissions(message);
-        if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
-
         if (args[0] != null) {
             if (args[0].includes('_')) args[0] = args[0].replace('_', ' ');
             if (args[0].includes('!')) args[0] = args[0].replace('!', '');
@@ -34,13 +33,6 @@ module.exports = {
     },
 };
 
-/**@param {Message} message*/
-function CheckPermissions(message) {
-    if (message.channel.type == 'dm') return;
-
-    var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.SEND_MESSAGES])
-    return permCheck != PinguLibrary.PermissionGranted ? permCheck : PinguLibrary.PermissionGranted;
-}
 /**@param {Message} message @param {GuildMember} GuildMember*/
 function HandleGuildMember(message, GuildMember) {
     var GuildArray = GuildMember.client.guilds.cache.array(),

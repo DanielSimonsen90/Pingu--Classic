@@ -18,6 +18,7 @@ module.exports = {
             case '1k': PFP = '1k days celebration hype.png'; break;
             case 'afools': PFP = 'April Fools.png'; break;
             case 'cool': PFP = 'FeelsCoolMan.png'; break;
+            case 'christmas': PFP = 'Christmas.png'; break;
             case 'green': PFP = 'Greeny_Boi.png'; break;
             case 'hollywood': PFP = 'Hollywood Party.png'; break;
             case 'blogger': PFP = 'The Blogger.png'; break;

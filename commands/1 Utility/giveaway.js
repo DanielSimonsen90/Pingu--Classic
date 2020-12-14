@@ -1,5 +1,5 @@
-﻿const { Message, MessageEmbed, User, Guild, GuildMember, Role, Permissions, Channel, TextChannel } = require('discord.js'),
-    { PinguGuild, PGuildMember, PRole, GiveawayConfig, Giveaway, TimeLeftObject, PinguLibrary } = require('../../PinguPackage'),
+﻿const { Message, MessageEmbed, User, Guild, GuildMember, Role, Channel, TextChannel } = require('discord.js'),
+    { PinguGuild, PGuildMember, PRole, GiveawayConfig, Giveaway, TimeLeftObject, PinguLibrary, DiscordPermissions } = require('../../PinguPackage'),
     ms = require('ms');
 
 module.exports = {
@@ -10,6 +10,11 @@ module.exports = {
     guildOnly: true,
     id: 1,
     examples: ["setup", "list", "10m Discord Nitro", "24h 2w Movie tickets for 2!"],
+    permissions: [
+        DiscordPermissions.SEND_MESSAGES,
+        DiscordPermissions.MANAGE_MESSAGES,
+        DiscordPermissions.ADD_REACTIONS
+    ],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         // Test if all permissions are available & if all arguments are met

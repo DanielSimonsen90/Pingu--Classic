@@ -1,15 +1,15 @@
-﻿const { Message, MessageEmbed, Role, Permissions } = require('discord.js'),
-    { PinguGuild, Poll, PollConfig, PRole, TimeLeftObject, PGuildMember, PinguLibrary } = require('../../PinguPackage');
+﻿const { Message, MessageEmbed, Role } = require('discord.js'),
+    { PinguGuild, Poll, PollConfig, PRole, TimeLeftObject, PGuildMember, PinguLibrary, DiscordPermissions } = require('../../PinguPackage');
 ms = require('ms');
 
 module.exports = {
     name: 'poll',
-    cooldown: 5,
     description: 'Create a poll for users to react',
     usage: '<setup> | <list> | <time> <question>',
     guildOnly: true,
     id: 1,
     example: ["setup", "list", "10m Am I asking a question?"],
+    permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.MANAGE_MESSAGES],
     /**@param {Message} message @param {string[]} args*/
     async execute(message, args) {
         var pGuild = PinguGuild.GetPGuild(message.guild);
@@ -67,12 +67,6 @@ module.exports = {
 };
 /**@param {Message} message @param {string[]} args*/
 function PermissionCheck(message, args) {
-    var permCheck = PinguLibrary.PermissionCheck(message, [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.MANAGE_MESSAGES
-    ]);
-    if (permCheck != PinguLibrary.PermissionGranted) return permCheck;
-
     const pGuild = PinguGuild.GetPGuild(message);
     if (pGuild.pollConfig.firstTimeExecuted || ['setup', "list"].includes(args[0]))
         return PinguLibrary.PermissionGranted;

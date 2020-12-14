@@ -1,5 +1,5 @@
 const { Message, Permissions } = require('discord.js');
-const { PinguLibrary } = require('../../PinguPackage');
+const { PinguLibrary, DiscordPermissions } = require('../../PinguPackage');
 
 module.exports = {
     name: 'noot',
@@ -8,14 +8,12 @@ module.exports = {
     usage: '<message>',
     id: 2,
     example: ["Pingu said this message!"],
+    permissions: [DiscordPermissions.SEND_MESSAGES],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         if (message.channel.type != 'dm') {
-            var permCheck = PinguLibrary.PermissionCheck(message, [
-                Permissions.FLAGS.SEND_MESSAGES,
-                Permissions.FLAGS.MANAGE_MESSAGES,
-            ]);
-            if (permCheck == PinguLibrary.PermissionGranted) message.delete();
+            let hasManageMessages = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.MANAGE_MESSAGES]) == PinguLibrary.PermissionGranted;
+            if (hasManageMessages) message.delete();
         }
         message.channel.send(args.join(" "));
     },

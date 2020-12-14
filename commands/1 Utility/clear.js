@@ -1,5 +1,5 @@
-const { Message, User, Permissions, TextChannel, GuildChannel } = require('discord.js');
-const { PinguLibrary } = require('../../PinguPackage');
+const { Message, User, GuildChannel } = require('discord.js');
+const { PinguLibrary, DiscordPermissions } = require('../../PinguPackage');
 
 module.exports = {
     name: 'clear',
@@ -7,6 +7,7 @@ module.exports = {
     usage: '<messages [from @User] | all [channelID]> ',
     id: 1,
     examples: ["5", "10 @Danho#2105", "all"],
+    permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.MANAGE_MESSAGES],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         const PermCheck = PermissionCheck(message, args);
@@ -31,24 +32,14 @@ module.exports = {
 /**@param {Message} message 
  * @param {string[]} args*/
 function PermissionCheck(message, args) {
-    if (message.channel.type != 'dm') {
-        var permCheck = PinguLibrary.PermissionCheck(message, [
-            Permissions.FLAGS.SEND_MESSAGES,
-            Permissions.FLAGS.MANAGE_MESSAGES
-        ]);
-
-        if (permCheck != PinguLibrary.PermissionGranted) return permCheck;
-    }
-    else if (args[0].toLowerCase() != "log")
-        return `I can't execute that command in DMs!`;
-    return PinguLibrary.PermissionGranted;
+    return args[0].toLowerCase() != "log" ? `I can't execute that command in DMs!` : PinguLibrary.PermissionGranted;
 }
 /**@param {Message} message 
  * @param {number} amount*/
-function ClearMessages(message, amount) {
+async function ClearMessages(message, amount) {
     let MessagesRemoved = 0,
-        MsgArrIndex = message.channel.messages.cache.size - 1,
-        MessageArray = message.channel.messages.cache.array();
+        MessageArray = (await message.channel.messages.fetch()).array();
+    let MsgArrIndex = MessageArray.length - 1;
 
     while (MessagesRemoved != amount)
         MessageArray[MsgArrIndex].delete()
@@ -82,11 +73,12 @@ async function ClearAll(message, channel) {
 /**@param {Message} message 
  * @param {string[]} args 
  * @param {User} SpecificUser*/
-function SpecificClear(message, args, SpecificUser) {
+async function SpecificClear(message, args, SpecificUser) {
     let messagesRemoved = 0,
-        cacheSize = message.channel.messages.cache.size - 1,
-        messageCache = message.channel.messages.cache.array(),
+        messageCache = (await message.channel.messages.fetch()).array(),
         messagesToRemove = parseInt(args[0]);
+    let cacheSize = messageCache.length - 1;
+
 
     message.delete().then(async () => {
         while (messagesRemoved != messagesToRemove) {
