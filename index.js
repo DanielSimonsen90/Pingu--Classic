@@ -154,7 +154,7 @@ client.on('message', message => {
      * @param {string[]} args
      * @returns {Command}}*/
     function AssignCommand(commandName, args) {
-        command = client.commands.get(commandName);
+        let command = client.commands.get(commandName);
 
         //If command assignment failed, assign command
         if (!command) {
