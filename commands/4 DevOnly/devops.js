@@ -3,7 +3,6 @@ const { DiscordPermissions } = require('../../PinguPackage');
 
 module.exports = {
     name: 'devops',
-    cooldown: 5,
     description: 'Sends link to DevOps page',
     usage: '',
     id: 4,

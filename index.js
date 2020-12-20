@@ -1,14 +1,13 @@
-//Construction variables
 //#region Variables
-const fs = require('fs'),
-    Discord = require('discord.js'),
+const { Command, Client, Collection, Guild, Message, MessageEmbed } = require('discord.js'),
     { token, Prefix } = require('./config.json'),
+    { musicCommands } = require('./commands/2 Fun/music'),
+    { CategoryNames } = require('./commands/4 DevOnly/update'),
+    { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions } = require('./PinguPackage'),
+    fs = require('fs'),
     SecondaryPrefix = '562176550674366464',
-    ScriptsCategorized = ["", "Utility", "Fun", "Support", "DevOnly"],
-    client = new Discord.Client();
-const { PinguGuild, PinguLibrary, DiscordPermissions } = require('./PinguPackage');
-const { musicCommands } = require('./commands/2 Fun/music');
-client.commands = new Discord.Collection();
+    client = new Client();
+client.commands = new Collection();
 
 let LastToUseTell,
     LastToBeTold,
@@ -16,40 +15,37 @@ let LastToUseTell,
 //#endregion
 
 //Does individual command work?
-for (var x = 1; x < ScriptsCategorized.length; x++)
-    SetCommand(`${x} ${ScriptsCategorized[x]}`);
+for (var x = 1; x < CategoryNames.length; x++) {
+    let path = `${x} ${CategoryNames[x]}`;
+
+    const ScriptCollection = fs.readdirSync(`./commands/${path}/`).filter(file => file.endsWith('.js'));
+
+    for (const file of ScriptCollection) {
+        try {
+            const command = require(`./commands/${path}/${file}`);
+            client.commands.set(command.name, command);
+        } catch (err) {
+            PinguLibrary.DanhoDM(client, `"${file}" threw an exception:\n${err.message}\n${err.stack}\n`)
+        }
+    }
+}
 
 //Am I ready to launch?
 client.once('ready', () => {
     //PinguLibrary.outages(client, `\nI'm back online!\n`);
     console.log(`\nI'm back online!\n`);
     PinguLibrary.setActivity(client);
-});
+}); //Bot is ready to be (ab)used
+client.on('error', err => PinguLibrary.errorLog(client, `Called from client.on('error')`, null, err));
 
 //Message response
 client.on('message', message => {
+    //Log latency
     try { PinguLibrary.LatencyCheck(message); }
     catch (err) { PinguLibrary.errorLog(client, `LatencyCheck error`, message.content, err); }
 
-    let prefix = Prefix;
-
-    if (message.guild) {
-        //Find pGuild in servers folder
-        if (updatingPGuild) updatingPGuild = false;
-
-        let pGuild = PinguGuild.GetPGuild(message.guild);
-
-        //If pGuild wasn't found, create pGuild
-        if (!pGuild) {
-            if (updatingPGuild) return;
-            updatingPGuild = true;
-            PinguLibrary.pGuildLog(client, `on('message')`, `Unable to find pGuild for **${message.guild.name}**! Running updatepguilds.js...\n<@&756383446871310399>`)
-            return PinguGuild.WritePGuild(message.guild, PinguLibrary.pGuildLog(client, `on('message')`, `Created pGuild for **${message.guild.name}**`));
-        }
-
-        prefix = pGuild.botPrefix;
-        CheckRoleChange(message.guild, pGuild);
-    }
+    //Assign prefix
+    let prefix = message.guild ? HandlePGuild(message.guild) : Prefix;
 
     //Split prefix from message content
     const args = message.content.slice(prefix.length).split(/ +/) ||
@@ -65,7 +61,7 @@ client.on('message', message => {
     //If interacted via @
     commandName = TestTagInteraction(commandName, args);
 
-    var startsWithPrefix = () => (message.content.startsWith(prefix) && !message.author.bot) || message.content.includes(SecondaryPrefix);
+    var startsWithPrefix = () => message.content.startsWith(prefix) && !message.author.bot || message.content.includes(SecondaryPrefix);
 
     //If I'm not interacted with don't do anything
     if (message.channel.type == 'dm' && ([LastToBeTold, LastToUseTell].includes(message.author)) && !startsWithPrefix()) {
@@ -77,115 +73,172 @@ client.on('message', message => {
 
     //Attempt "command" assignment
     if (musicCommands.find(cmd => [cmd.name, cmd.alias].includes(commandName))) {
-        args.unshift(commandName);
+        args.unshift(commandName); 
         commandName = `music`;
-    }
+    } //music command was used without *music
     let command = AssignCommand(commandName, args);
     if (!command) return;
 
     //If I'm not interacted with don't do anything
     if ((!message.content.startsWith(prefix) || message.author.bot) && !message.content.includes(SecondaryPrefix)) return;
 
-    //If guildOnly
-    if (command.guildOnly && message.channel.type != 'text')
-        return message.reply(`I can't execute that command inside DMs!`);
-
-    //If DevOnly
-    if (command.id == 4 && !PinguLibrary.isPinguDev(message.author))
-        return message.reply(`Who do you think you are exactly?`);
-
-    if (command.permissions) {
-        let permCheck = PinguLibrary.PermissionCheck(message, command.permissions);
-        if (permCheck != PinguLibrary.PermissionGranted)
-            return PinguLibrary.PermissionCheck(message, DiscordPermissions.SEND_MESSAGES) != PinguLibrary.PermissionGranted ?
-                message.channel.send(permCheck) : message.author.send(permCheck);
-    }
+    //Decode command
+    let decoded = DecodeCommand(message, command);
+    if (!decoded.value) decoded.type == 'text' ? message.channel.send(decoded.message) : message.author.send(decoded.message);
 
     //Execute command and log it
-    ExecuteAndLogCommand(message, args, prefix, commandName, command);
+    ExecuteAndLogCommand(message, args, commandName, command);
 
-});
-client.on('error', err => PinguLibrary.errorLog(client, `Called from client.on('error')`, null, err));
+    /**@param {Guild} guild
+     * @returns {string} */
+    function HandlePGuild(guild) {
+        //Find pGuild in servers folder
+        if (updatingPGuild) updatingPGuild = false;
 
-//First time joining a guild
-client.on('guildCreate', async guild => {
-    PinguGuild.WritePGuild(guild, async () => await PinguLibrary.pGuildLog(client, "index: guildCreate", `Successfully joined "**${guild.name}**", owned by <@${guild.owner.user.id}>`));
+        let pGuild = PinguGuild.GetPGuild(guild);
 
-    //Thank guild owner for adding Pingu
-    let OwnerDM = await guild.owner.user.createDM();
-    if (!OwnerDM) return PinguLibrary.errorLog(client, `Unable to create DM to <@${guild.owner.id}>!`);
+        //If pGuild wasn't found, create pGuild
+        if (!pGuild) {
+            if (updatingPGuild) return;
+            updatingPGuild = true;
+            PinguLibrary.pGuildLog(client, `on('message')`, `Unable to find pGuild for **${guild.name}**! Running updatepguilds.js...\n<@&756383446871310399>`)
+            PinguGuild.WritePGuild(message.guild, PinguLibrary.pGuildLog(client, `on('message')`, `Created pGuild for **${guild.name}**`));
+            return Prefix;
+        }
+        else if (pGuild.guildName != guild.name) {
+            client.emit('guildUpdate', {
+                name: pGuild.guildName,
+                client: client,
+                id: pGuild.guildID
+            }, guild);
+        }
 
-    OwnerDM.send(
-        `Hi, <@${guild.owner.user.id}>!\n` +
-        `I've successfully joined your server, "**${guild.name}**"!\n\n` +
+        CheckRoleChange(guild, pGuild);
+        return pGuild.botPrefix || Prefix;
 
-        `Thank you for adding me!\n` +
-        `Use \`*help\`, if you don't know how I work!`)
-        .catch(err => PinguLibrary.errorLog(client, `Failed to send <@${guild.owner.id}> a DM`, null, err)).then(console.log(`Sent ${guild.owner.user.tag} my "thank you" message.`));
-});
-//Guild was updated with new data
-client.on('guildUpdate', (from, to) => {
-    try {
-        if (from.name != to.name) throw 'Cannot find module';
-        PinguGuild.UpdatePGuildJSON(client, to, "index: guildUpdate",
-            `Successfully updated **${to.name}**'s ${(from.name != to.name ? `(${from.name})` : "")} Pingu Guild.`,
-            `Unable to update **${to.name}**'s ${(from.name != to.name ? `(${from.name})` : "")} Pingu Guild.`
-        );
+        /**Checks if role color was changed, to update embed colors  
+        * @param {Guild} guild
+        * @param {PinguGuild} pGuild*/
+        function CheckRoleChange(guild, pGuild) {
+            const pGuilds = PinguGuild.GetPGuilds();
+
+            //Get the color of the Pingu role in message.guild
+            const guildRoleColor = guild.me.roles.cache.find(botRoles => botRoles.managed).color;
+
+            //If color didn't change
+            if (guildRoleColor == pGuild.embedColor) return;
+
+            //Save Index of pGuild & log the change
+            const pGuildIndex = pGuilds.indexOf(pGuild);
+            console.log(`Embedcolor updated from ${pGuild.embedColor} to ${guildRoleColor}`);
+
+            //Update pGuild.EmbedColor with guild's Pingu role color & put pGuild back into pGuilds
+            pGuild.embedColor = guildRoleColor;
+            pGuilds[pGuildIndex] = pGuild;
+
+            //Update guilds.json
+            PinguGuild.UpdatePGuildJSON(client, guild, "Index: CheckRoleChange",
+                `Successfully updated role color from "${guild.name}"`,
+                `I encountered and error while updating my role color in "${guild.name}"`
+            );
+        }
     }
-    catch (err) {
-        if (err.message.includes('Cannot find module'))
-            return PinguGuild.DeletePGuild(from, () => PinguGuild.WritePGuild(to, () => PinguLibrary.pGuildLog(client,
-                `index: guildUpdate`, `Renamed **${from.name}**'s pGuild name to **${to.name}**.`)));
-
-        PinguLibrary.errorLog(client, "Unable to update pGuild", null, err);
+    /**@param {string} commandName 
+     * @param {string[]} args*/
+    function TestTagInteraction(commandName, args) {
+        if (commandName.includes(SecondaryPrefix))
+            commandName = args.shift();
+        return commandName;
     }
-});
-//Leaving a guild
-client.on('guildDelete', guild => {
-    PinguGuild.DeletePGuild(guild, () =>
-        PinguLibrary.pGuildLog(client, "index: guildDelete", `Successfully left "**${guild.name}**", owned by <@${guild.owner.user.id}>`));
-});
+    /**@param {string} commandName 
+     * @param {string[]} args
+     * @returns {Command}}*/
+    function AssignCommand(commandName, args) {
+        command = client.commands.get(commandName);
 
-client.login(token);
+        //If command assignment failed, assign command
+        if (!command) {
+            try {
+                for (var number = 1; number < args.length || command; number++) {
+                    number += 1;
+                    commandName = args[number].toLowerCase();
+                    command = client.commands.get(commandName);
+                }
+            } catch { return; }
+        }
+        return command;
+    }
+    /**@param {Message} message
+     * @param {Command} command
+     * @returns {{value: boolean, message: string, type: "text" | "dm"}}*/
+    function DecodeCommand(message, command) {
+        let type = PinguLibrary.PermissionCheck(message, [DiscordPermissions.SEND_MESSAGES]) != PinguLibrary.PermissionGranted ? "text" : "dm";
 
-//#region OnMessage Methods
-/**@param {string} commandName @param {string[]} args*/
-function TestTagInteraction(commandName, args) {
-    if (commandName.includes(SecondaryPrefix))
-        commandName = args.shift();
-    return commandName;
-}
-/**@param {string} commandName 
- * @param {string[]} args
- * @returns {Discord.Command}}*/
-function AssignCommand(commandName, args) {
-    command = client.commands.get(commandName);
+        let returnValue = {
+            type: type,
+            value: false,
+            message: PinguLibrary.PermissionGranted,
 
-    //If command assignment failed, assign command
-    if (!command) {
-        try {
-            for (var number = 1; number < args.length || command; number++) {
-                number += 1;
-                commandName = args[number].toLowerCase();
-                command = client.commands.get(commandName);
+            /**@param {string} message*/
+            setMessage(message) {
+                this.message = message;
+                return this;
+            },
+            /**@param {boolean} value*/
+            setValue(value) {
+                this.value = value;
+                return this;
             }
-        } catch { return; }
-    }
-    return command;
-}
-/**@param {Discord.Message} message @param {string[]} args @param {string} Prefix @param {string} commandName @param {any} command*/
-function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
-    let ConsoleLog = `[${new Date(Date.now()).toLocaleTimeString()}] User "${message.author.username}" executed command "${commandName}", from ${(!message.guild ? `DMs and ` : `"${message.guild}", #${message.channel.name}, and `)}`;
+        }
 
-    //Attempt execution of command
-    try {
-        if (commandName == "tell") {
+        //If guildOnly
+        if (command.guildOnly && message.channel.type == 'dm')
+            return returnValue.setMessage(`I can't execute that command inside DMs!`)
+
+        //If DevOnly
+        if (command.id == 4 && !PinguLibrary.isPinguDev(message.author))
+            return returnValue.setMessage(`Who do you think you are exactly?`);
+
+        if (command.permissions) {
+            let permCheck = PinguLibrary.PermissionCheck(message, command.permissions);
+            if (permCheck != PinguLibrary.PermissionGranted)
+                return returnValue.setMessage(permCheck);
+        }
+        return returnValue.setValue(true);
+    }
+    /**@param {Message} message 
+     * @param {string[]} args 
+     * @param {string} Prefix 
+     * @param {string} commandName 
+     * @param {Command} command*/
+    function ExecuteAndLogCommand(message, args, commandName, command) {
+        let ConsoleLog = `[${new Date(Date.now()).toLocaleTimeString()}] User "${message.author.username}" executed command "${commandName}", from ${(!message.guild ? `DMs and ` : `"${message.guild}", #${message.channel.name}, and `)}`;
+
+        //Attempt execution of command
+        try {
+            if (commandName == "tell") HandleTell(message, args);
+
+            command.execute(message, args);
+            ConsoleLog += `succeeded!\n`;
+        } catch (err) {
+            ConsoleLog += `failed!\nError: ${err}`;
+            PinguLibrary.errorLog(client, `Trying to execute "\`${command.name}\`"!`, message.content, err);
+
+            if (commandName == "tell") {
+
+                LastToBeTold = LastToUseTell = null;
+            }
+        }
+        console.log(ConsoleLog);
+        /**@param {Message} message
+         * @param {string[]} args*/
+        function HandleTell(message, args) {
             if (args[0] == 'unset') {
                 PinguLibrary.tellLog(
                     client,
                     LastToUseTell == message.author ? LastToUseTell : LastToBeTold,
                     LastToUseTell != message.author ? LastToUseTell : LastToBeTold,
-                    new Discord.MessageEmbed()
+                    new MessageEmbed()
                         .setTitle(`Link between ${LastToUseTell.username} & ${LastToBeTold.username} was unset.`)
                         .setColor(PinguGuild.GetPGuild(PinguLibrary.SavedServers.PinguSupport(client)).embedColor)
                         .setDescription(`${message.author} unset the link.`)
@@ -205,39 +258,68 @@ function ExecuteAndLogCommand(message, args, Prefix, commandName, command) {
             LastToBeTold = GetMention(message, Mention);
             LastToUseTell = message.author;
         }
-
-        command.execute(message, args);
-        ConsoleLog += `succeeded!\n`;
-    } catch (err) {
-        ConsoleLog += `failed!\nError: ${err}`;
-        PinguLibrary.errorLog(client, `Trying to execute "\`${command.name}\`"!`, message.content, err);
-
-        if (commandName == "tell") {
-            LastToBeTold = LastToUseTell = null;
-        }
     }
-    console.log(ConsoleLog);
-}
-// #endregion
+}); //Message was sent by anyone
 
-// #region Tell command related
-/**@param {Discord.Message} message*/
+//#region Guild Events
+client.on('guildCreate', async guild => {
+    PinguGuild.WritePGuild(guild, async () => await PinguLibrary.pGuildLog(client, "index: guildCreate", `Successfully joined "**${guild.name}**", owned by <@${guild.owner.user.id}>`));
+
+    //Thank guild owner for adding Pingu
+    let OwnerDM = await guild.owner.user.createDM();
+    if (!OwnerDM) return PinguLibrary.errorLog(client, `Unable to create DM to <@${guild.owner.id}>!`);
+
+    OwnerDM.send(
+        `Hi, <@${guild.owner.user.id}>!\n` +
+        `I've successfully joined your server, "**${guild.name}**"!\n\n` +
+
+        `Thank you for adding me!\n` +
+        `Use \`*help\`, if you don't know how I work!`)
+        .catch(err => PinguLibrary.errorLog(client, `Failed to send <@${guild.owner.id}> a DM`, null, err)).then(console.log(`Sent ${guild.owner.user.tag} my "thank you" message.`));
+}); //First time joining a guild
+client.on('guildUpdate', (from, to) => {
+    try {
+        if (from.name != to.name) throw { message: 'Cannot find module' };
+        PinguGuild.UpdatePGuildJSON(client, to, "index: guildUpdate",
+            `Successfully updated **${to.name}**'s ${(from.name != to.name ? `(${from.name}) ` : "")}Pingu Guild.`,
+            `Unable to update **${to.name}**'s ${(from.name != to.name ? `(${from.name})` : "")} Pingu Guild.`
+        );
+    }
+    catch (err) {
+        if (err.message.includes('Cannot find module'))
+            return PinguGuild.DeletePGuild(from, () => PinguGuild.WritePGuild(to, () => PinguLibrary.pGuildLog(client,
+                `index: guildUpdate`, `Renamed **${from.name}**'s pGuild name to **${to.name}**.`)));
+
+        PinguLibrary.errorLog(client, "Unable to update pGuild", null, err);
+    }
+}); //Guild was updated with new data
+client.on('guildDelete', guild => {
+    PinguGuild.DeletePGuild(guild, () =>
+        PinguLibrary.pGuildLog(client, "index: guildDelete", `Successfully left "**${guild.name}**", owned by <@${guild.owner.user.id}>`));
+
+    let guildUsers = guild.members.cache.array().map(gm => !gm.user.bot && gm.user);
+    let clientGuilds = client.guilds.cache.array();
+
+    for (var user of guildUsers) {
+        let pUser = PinguUser.GetPUser(user);
+        if (!pUser) continue;
+
+        let guilds = clientGuilds.map(g => g.member(user)).length;
+        if (guilds == 1) PinguUser.DeletePUser(user, () =>
+            PinguLibrary.pUserLog(client, "index: guildDelete", `Successfully removed **${user.tag}** from pUsers.`));
+    }
+}); //Leaving a guild
+//#endregion
+
+//#region Tell command related
+/**@param {Message} message*/
 function ExecuteTellReply(message) {
     if (message.author.id == client.user.id) return;
 
     try { PinguLibrary.tellLog(client, message.author, LastToBeTold.username == message.author.username ? LastToUseTell : LastToBeTold, message); }
     catch (err) { PinguLibrary.errorLog(client, 'Tell reply failed', message.content, err); }
 
-    /*try {
-        for (var x = 0; x < TellArray.length; x++) {
-            if (TellArray[x].Message == GetMessageContent(message))
-                return TellArray[x].Giver.dmChannel.send(`${TellArray[x].Reciever.username} replied: \n"${message.content}"`)
-        }
-    } catch (error) {
-        console.log(`Attempted to run ExecuteTellReply(message), but ran into an error:\n ${error}`)
-    }*/
-
-    var cantMessage = async (err) => {
+    var cantMessage = async err => {
         if (err.message == 'Cannot send messages to this user')
             return message.channel.send(`Unable to send message to ${Mention.username}, as they have \`Allow direct messages from server members\` disabled!`);
 
@@ -257,7 +339,8 @@ function ExecuteTellReply(message) {
     }
     else return;
 }
-/**@param {Discord.Message} message @param {string} UserMention*/
+/**@param {Message} message 
+ * @param {string} UserMention*/
 function GetMention(message, UserMention) {
     if (message.mentions.users.first() == null) {
         for (var Guild of message.client.guilds.cache.array())
@@ -268,46 +351,6 @@ function GetMention(message, UserMention) {
     }
     return message.mentions.users.first();
 }
-// #endregion
-
-//#region Misc Methods
-/**@param {string} path*/
-function SetCommand(path) {
-    const ScriptCollection = fs.readdirSync(`./commands/${path}/`).filter(file => file.endsWith('.js'));
-
-    for (const file of ScriptCollection) {
-        try {
-            const command = require(`./commands/${path}/${file}`);
-            client.commands.set(command.name, command);;
-        } catch (error) {
-            PinguLibrary.DanhoDM(client, `"${file}" threw an exception:\n${error.message}\n${error.stack}\n`)
-        }
-    }
-}
-/**Checks if role color was changed, to update embed colors 
- * @param {Discord.Guild} guild
- * @param {PinguGuild} pGuild*/
-function CheckRoleChange(guild, pGuild) {
-    const pGuilds = PinguGuild.GetPGuilds();
-
-    //Get the color of the Pingu role in message.guild
-    const guildRoleColor = guild.me.roles.cache.find(botRoles => botRoles.managed).color;
-
-    //If color didn't change
-    if (guildRoleColor == pGuild.embedColor) return;
-
-    //Save Index of pGuild & log the change
-    const pGuildIndex = pGuilds.indexOf(pGuild);
-    console.log(`Embedcolor updated from ${pGuild.embedColor} to ${guildRoleColor}`);
-
-    //Update pGuild.EmbedColor with guild's Pingu role color & put pGuild back into pGuilds
-    pGuild.embedColor = guildRoleColor;
-    pGuilds[pGuildIndex] = pGuild;
-
-    //Update guilds.json
-    PinguGuild.UpdatePGuildJSON(client, "Index: CheckRoleChange",
-        `Successfully updated role color from "${guild.name}"`,
-        `I encountered and error while updating my role color in "${guild.name}"`
-    );
-}
 //#endregion
+
+client.login(token);

@@ -16,37 +16,37 @@ export class Error {
     public lineNumber: string
 }
 export class DiscordPermissions {
-    static 'CREATE_INSTANT_INVITE': 'CREATE_INSTANT_INVITE'
-    static 'KICK_MEMBERS': 'KICK_MEMBERS'
-    static 'BAN_MEMBERS': 'BAN_MEMBERS'
-    static 'ADMINISTRATOR': 'ADMINISTRATOR'
-    static 'MANAGE_CHANNELS': 'MANAGE_CHANNELS'
-    static 'MANAGE_GUILD': 'MANAGE_GUILD'
-    static 'ADD_REACTIONS': 'ADD_REACTIONS'
-    static 'VIEW_AUDIT_LOG': 'VIEW_AUDIT_LOG'
-    static 'PRIORITY_SPEAKER': 'PRIORITY_SPEAKER'
-    static 'STREAM': 'STREAM'
-    static 'VIEW_CHANNEL': 'VIEW_CHANNEL'
-    static 'SEND_MESSAGES': 'SEND_MESSAGES'
-    static 'SEND_TTS_MESSAGES': 'SEND_TTS_MESSAGES'
-    static 'MANAGE_MESSAGES': 'MANAGE_MESSAGES'
-    static 'EMBED_LINKS': 'EMBED_LINKS'
-    static 'ATTACH_FILES': 'ATTACH_FILES'
-    static 'READ_MESSAGE_HISTORY': 'READ_MESSAGE_HISTORY'
-    static 'MENTION_EVERYONE': 'MENTION_EVERYONE'
-    static 'USE_EXTERNAL_EMOJIS': 'USE_EXTERNAL_EMOJIS'
-    static 'VIEW_GUILD_INSIGHTS': 'VIEW_GUILD_INSIGHTS'
-    static 'CONNECT': 'CONNECT'
-    static 'SPEAK': 'SPEAK'
-    static 'MUTE_MEMBERS': 'MUTE_MEMBERS'
-    static 'DEAFEN_MEMBERS': 'DEAFEN_MEMBERS'
-    static 'MOVE_MEMBERS': 'MOVE_MEMBERS'
-    static 'USE_VAD': 'USE_VAD'
-    static 'CHANGE_NICKNAME': 'CHANGE_NICKNAME'
-    static 'MANAGE_NICKNAMES': 'MANAGE_NICKNAMES'
-    static 'MANAGE_ROLES': 'MANAGE_ROLES'
-    static 'MANAGE_WEBHOOKS': 'MANAGE_WEBHOOKS'
-    static 'MANAGE_EMOJIS': 'MANAGE_EMOJIS'
+    public static 'CREATE_INSTANT_INVITE' = 'CREATE_INSTANT_INVITE'
+    public static 'KICK_MEMBERS' = 'KICK_MEMBERS'
+    public static 'BAN_MEMBERS' = 'BAN_MEMBERS'
+    public static 'ADMINISTRATOR' = 'ADMINISTRATOR'
+    public static 'MANAGE_CHANNELS' = 'MANAGE_CHANNELS'
+    public static 'MANAGE_GUILD' = 'MANAGE_GUILD'
+    public static 'ADD_REACTIONS' = 'ADD_REACTIONS'
+    public static 'VIEW_AUDIT_LOG' = 'VIEW_AUDIT_LOG'
+    public static 'PRIORITY_SPEAKER' = 'PRIORITY_SPEAKER'
+    public static 'STREAM' = 'STREAM'
+    public static 'VIEW_CHANNEL' = 'VIEW_CHANNEL'
+    public static 'SEND_MESSAGES' = 'SEND_MESSAGES'
+    public static 'SEND_TTS_MESSAGES' = 'SEND_TTS_MESSAGES'
+    public static 'MANAGE_MESSAGES' = 'MANAGE_MESSAGES'
+    public static 'EMBED_LINKS' = 'EMBED_LINKS'
+    public static 'ATTACH_FILES' = 'ATTACH_FILES'
+    public static 'READ_MESSAGE_HISTORY' = 'READ_MESSAGE_HISTORY'
+    public static 'MENTION_EVERYONE' = 'MENTION_EVERYONE'
+    public static 'USE_EXTERNAL_EMOJIS' = 'USE_EXTERNAL_EMOJIS'
+    public static 'VIEW_GUILD_INSIGHTS' = 'VIEW_GUILD_INSIGHTS'
+    public static 'CONNECT' = 'CONNECT'
+    public static 'SPEAK' = 'SPEAK'
+    public static 'MUTE_MEMBERS' = 'MUTE_MEMBERS'
+    public static 'DEAFEN_MEMBERS' = 'DEAFEN_MEMBERS'
+    public static 'MOVE_MEMBERS' = 'MOVE_MEMBERS'
+    public static 'USE_VAD' = 'USE_VAD'
+    public static 'CHANGE_NICKNAME' = 'CHANGE_NICKNAME'
+    public static 'MANAGE_NICKNAMES' = 'MANAGE_NICKNAMES'
+    public static 'MANAGE_ROLES' = 'MANAGE_ROLES'
+    public static 'MANAGE_WEBHOOKS' = 'MANAGE_WEBHOOKS'
+    public static 'MANAGE_EMOJIS' = 'MANAGE_EMOJIS'
 }
 
 //#region Custom Pingu classes
@@ -123,6 +123,7 @@ export class PQueue {
 }
 
 export class PinguUser {
+    //#region Static PinguUser methods
     public static GetPUsers(): PinguUser[] {
         return require('./users.json');
     }
@@ -131,18 +132,41 @@ export class PinguUser {
         if (!result) PinguLibrary.errorLog(user.client, `Unable to find a user in pUsers with id ${user.id}`);
         return result;
     }
+
     public static UpdatePUsersJSON(client: Client, script: string, succMsg: string, errMsg: string) {
         fs.writeFile('./users.json', '', err => {
-            if (err) PinguLibrary.pUsersLog(client, script, `[writeFile]: ${errMsg}`, new Error(err));
+            if (err) PinguLibrary.pUserLog(client, script, `[writeFile]: ${errMsg}`, new Error(err));
             else fs.appendFile('./users.json', JSON.stringify(this.GetPUsers(), null, 4), err => {
-                if (err) PinguLibrary.pUsersLog(client, script, `[appendFile]: ${errMsg}`, new Error(err));
-                else PinguLibrary.pUsersLog(client, script, succMsg);
+                if (err) PinguLibrary.pUserLog(client, script, `[appendFile]: ${errMsg}`, new Error(err));
+                else PinguLibrary.pUserLog(client, script, succMsg);
             });
         });
     }
     public static async UpdatePUsersJSONAsync(client: Client, script: string, succMsg: string, errMsg: string) {
         return await this.UpdatePUsersJSON(client, script, succMsg, errMsg);
     }
+
+    public static WritePUser(user: User, callback?: () => void) {
+        try {
+            fs.writeFile(`./users/${user.tag}.json`, JSON.stringify(new PinguUser(user), null, 2), async err => {
+                if (err) PinguLibrary.pUserLog(user.client, "WritePUser", null, new Error(err));
+                if (await callback) callback();
+            });
+        } catch (ewwor) {
+            console.log(ewwor);
+        }
+    }
+    public static DeletePUser(user: User, callback?: () => void) {
+        try {
+            fs.unlink(`./users/${user.tag}.json`, async err => {
+                if (err) PinguLibrary.pUserLog(user.client, "DeletePGuild", `Unable to delete json file for ${PinguUser.GetPUser(user).tag}`, new Error(err));
+                if (await callback) callback();
+            });
+        } catch (ewwor) {
+            console.log(ewwor);
+        }
+    }
+    //#endregion
 
     constructor(user: User) {
         let pUser = new PUser(user);
@@ -175,7 +199,8 @@ export class PinguGuild {
 
     public static UpdatePGuildJSON(client: Client, guild: Guild, script: string, succMsg: string, errMsg: string) {
         let path = `./servers/${guild.name}.json`;
-        let pGuildObj = require(path);
+        try { var pGuildObj = require(path); }
+        catch (err) { return PinguLibrary.pGuildLog(client, script, `Unable to get pGuild from ${guild.name}`, err); }
 
         fs.writeFile(path, '', null, err => {
             if (err) PinguLibrary.pGuildLog(client, script, `[writeFile]: ${errMsg}`, new Error(err));
@@ -217,7 +242,7 @@ export class PinguGuild {
         this.guildOwner = new PGuildMember(guild.owner);
         const { Prefix } = require('./config.json');
         this.botPrefix = Prefix;
-        this.embedColor = guild.me.roles.cache.find(role => role.name.includes('Pingu')).color || 0;
+        this.embedColor = guild.me.roles.cache.find(role => role.name.includes('Pingu')) && guild.me.roles.cache.find(role => role.name.includes('Pingu')).color || 0;
         this.musicQueue = null;
         this.giveawayConfig = new GiveawayConfig();
         this.pollConfig = new PollConfig;
@@ -283,18 +308,25 @@ export class PinguLibrary {
 
     public static PermissionCheck(message: Message, permissions: string[]) {
         var textChannel = message.channel as TextChannel;
+        let { testingMode } = require('./config.json');
+
+        if (permissions[0].length == 1) {
+            this.errorLog(message.client, `Permissions not defined correctly!`, message.content);
+            return "Permissions for this script was not defined correctly!";
+        }
 
         for (var x = 0; x < permissions.length; x++) {
             var permString = permissions[x].toLowerCase().replace('_', ' ');
 
             if (!textChannel.permissionsFor(message.client.user).has(permissions[x] as PermissionString))
                 return `I don't have permission to **${permString}** in ${textChannel.name}.`;
-            else if (!textChannel.permissionsFor(message.author).has(permissions[x] as PermissionString))
+            else if (!textChannel.permissionsFor(message.author).has(permissions[x] as PermissionString) &&
+                    (this.isPinguDev(message.author) && testingMode || !this.isPinguDev(message.author)))
                 return `<@${message.author.id}> you don't have permission to **${permString}** in #${textChannel.name}.`;
         }
         return this.PermissionGranted;
     }
-    public static readonly PermissionGranted: "Permission Granted";
+    public static readonly PermissionGranted = "Permission Granted";
 
     public static readonly SavedServers = {
         DanhoMisc(client: Client) {
@@ -331,11 +363,12 @@ export class PinguLibrary {
         }
         return channel as TextChannel;
     }
-    public static outages(client: Client, message: string) {
+    public static async outages(client: Client, message: string) {
         var outageChannel = this.getChannel(client, '756383096646926376', 'outages');
         if (!outageChannel) return this.DanhoDM(client, `Couldn't get #outage channel in Pingu Support, https://discord.gg/Mp4CH8eftv`);
         console.log(message);
-        return outageChannel.send(message);
+        let sent = await outageChannel.send(message);
+        return sent.crosspost();
     }
     public static async DanhoDM(client: Client, message: string) {
         console.error(message);
@@ -368,8 +401,8 @@ export class PinguLibrary {
                     "```"
                 );
 
-            return ("```\n" +
-                err.fileName && err.lineNumber ? `${err.fileName} threw an error at line ${err.lineNumber}!\n` : "" +
+            let returnMessage = ("```" +
+                err.fileName && err.lineNumber ? `${err.fileName} threw an error at line ${err.lineNumber}!\n` : " " +
                 `[Provided Message]\n` +
                 `${message}\n` +
                 `\n` +
@@ -383,6 +416,8 @@ export class PinguLibrary {
                 `${err.stack}\n\n` +
                 "```"
             );
+            console.log(returnMessage);
+            return returnMessage
         }
     }
     public static tellLog(client: Client, sender: User, reciever: User, message: Message | MessageEmbed) {
@@ -436,16 +471,15 @@ export class PinguLibrary {
         }
         return pinguGuildLog.send(`[**Success**] [**${script}**]: ${message}`);
     }
-    public static async pUsersLog(client: Client, script: string, message: string, err?: Error) {
+    public static async pUserLog(client: Client, script: string, message: string, err?: Error) {
         var pinguUserLog = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "pingu-user-log");
 
         if (err) {
-            var errorLink = (await this.errorLog(client, `pUser Error: "${message}"`, null, err)).url;
+            var errorLink = (await this.errorLog(client, `pUser Error (**${script}**): "${message}"`, null, err)).url;
             return pinguUserLog.send(`[**Failed**] [**${script}**]: ${message}\n${err.message}\n\n${errorLink}\n\n<@&756383446871310399>`);
         }
         return pinguUserLog.send(`[**Success**] [**${script}**]: ${message}`);
     }
-
 }
 //#endregion
 

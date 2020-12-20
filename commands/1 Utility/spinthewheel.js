@@ -16,7 +16,7 @@ module.exports = {
         var result = options[ranItem];
         console.log(`Result: ${result}`);
 
-        let permCheck = PinguLibrary.PermissionCheck(message, DiscordPermissions.SEND_MESSAGES);
+        let permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.SEND_MESSAGES]);
         if (permCheck != PinguLibrary.PermissionGranted)
             return message.author.send(`I don't have permission to send messages in ${message.channel}, but I've selected ${result}.`);
         message.channel.send(result);

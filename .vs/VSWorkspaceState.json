@@ -2,10 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\commands",
-    "\\commands\\3 Support",
-    "\\commands\\4 DevOnly",
-    "\\servers"
+    "\\commands\\1 Utility",
+    "\\commands\\4 DevOnly"
   ],
-  "SelectedNode": "\\commands\\2 Fun",
+  "SelectedNode": "\\commands\\4 DevOnly\\update.js",
   "PreviewInSolutionExplorer": false
 }

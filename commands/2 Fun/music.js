@@ -66,7 +66,8 @@ function PermissionCheck(message, voiceChannel) {
     if (!voiceChannel)
         return `Please join a **voice channel** ${message.author}!`;
 
-    if (!voiceChannel.permissionsFor(message.guild.me).has(DiscordPermissions.CONNECT))
+    let hasPerm = (perm) => voiceChannel.permissionsFor(message.guild.me).has(perm);
+    if (!hasPerm(DiscordPermissions.CONNECT) || !hasPerm(DiscordPermissions.VIEW_CHANNEL))
         return `I can't connect to your voice channel!`;
 
     return PinguLibrary.PermissionGranted;

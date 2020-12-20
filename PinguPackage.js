@@ -64,6 +64,37 @@ exports.Error = Error;
 var DiscordPermissions = /** @class */ (function () {
     function DiscordPermissions() {
     }
+    DiscordPermissions['CREATE_INSTANT_INVITE'] = 'CREATE_INSTANT_INVITE';
+    DiscordPermissions['KICK_MEMBERS'] = 'KICK_MEMBERS';
+    DiscordPermissions['BAN_MEMBERS'] = 'BAN_MEMBERS';
+    DiscordPermissions['ADMINISTRATOR'] = 'ADMINISTRATOR';
+    DiscordPermissions['MANAGE_CHANNELS'] = 'MANAGE_CHANNELS';
+    DiscordPermissions['MANAGE_GUILD'] = 'MANAGE_GUILD';
+    DiscordPermissions['ADD_REACTIONS'] = 'ADD_REACTIONS';
+    DiscordPermissions['VIEW_AUDIT_LOG'] = 'VIEW_AUDIT_LOG';
+    DiscordPermissions['PRIORITY_SPEAKER'] = 'PRIORITY_SPEAKER';
+    DiscordPermissions['STREAM'] = 'STREAM';
+    DiscordPermissions['VIEW_CHANNEL'] = 'VIEW_CHANNEL';
+    DiscordPermissions['SEND_MESSAGES'] = 'SEND_MESSAGES';
+    DiscordPermissions['SEND_TTS_MESSAGES'] = 'SEND_TTS_MESSAGES';
+    DiscordPermissions['MANAGE_MESSAGES'] = 'MANAGE_MESSAGES';
+    DiscordPermissions['EMBED_LINKS'] = 'EMBED_LINKS';
+    DiscordPermissions['ATTACH_FILES'] = 'ATTACH_FILES';
+    DiscordPermissions['READ_MESSAGE_HISTORY'] = 'READ_MESSAGE_HISTORY';
+    DiscordPermissions['MENTION_EVERYONE'] = 'MENTION_EVERYONE';
+    DiscordPermissions['USE_EXTERNAL_EMOJIS'] = 'USE_EXTERNAL_EMOJIS';
+    DiscordPermissions['VIEW_GUILD_INSIGHTS'] = 'VIEW_GUILD_INSIGHTS';
+    DiscordPermissions['CONNECT'] = 'CONNECT';
+    DiscordPermissions['SPEAK'] = 'SPEAK';
+    DiscordPermissions['MUTE_MEMBERS'] = 'MUTE_MEMBERS';
+    DiscordPermissions['DEAFEN_MEMBERS'] = 'DEAFEN_MEMBERS';
+    DiscordPermissions['MOVE_MEMBERS'] = 'MOVE_MEMBERS';
+    DiscordPermissions['USE_VAD'] = 'USE_VAD';
+    DiscordPermissions['CHANGE_NICKNAME'] = 'CHANGE_NICKNAME';
+    DiscordPermissions['MANAGE_NICKNAMES'] = 'MANAGE_NICKNAMES';
+    DiscordPermissions['MANAGE_ROLES'] = 'MANAGE_ROLES';
+    DiscordPermissions['MANAGE_WEBHOOKS'] = 'MANAGE_WEBHOOKS';
+    DiscordPermissions['MANAGE_EMOJIS'] = 'MANAGE_EMOJIS';
     return DiscordPermissions;
 }());
 exports.DiscordPermissions = DiscordPermissions;
@@ -137,6 +168,7 @@ var PQueue = /** @class */ (function () {
 }());
 exports.PQueue = PQueue;
 var PinguUser = /** @class */ (function () {
+    //#endregion
     function PinguUser(user) {
         var pUser = new PUser(user);
         this.id = pUser.id;
@@ -144,6 +176,7 @@ var PinguUser = /** @class */ (function () {
         this.replyPerson = null;
         this.dailyStreak = 0;
     }
+    //#region Static PinguUser methods
     PinguUser.GetPUsers = function () {
         return require('./users.json');
     };
@@ -157,13 +190,13 @@ var PinguUser = /** @class */ (function () {
         var _this = this;
         fs.writeFile('./users.json', '', function (err) {
             if (err)
-                PinguLibrary.pUsersLog(client, script, "[writeFile]: " + errMsg, new Error(err));
+                PinguLibrary.pUserLog(client, script, "[writeFile]: " + errMsg, new Error(err));
             else
                 fs.appendFile('./users.json', JSON.stringify(_this.GetPUsers(), null, 4), function (err) {
                     if (err)
-                        PinguLibrary.pUsersLog(client, script, "[appendFile]: " + errMsg, new Error(err));
+                        PinguLibrary.pUserLog(client, script, "[appendFile]: " + errMsg, new Error(err));
                     else
-                        PinguLibrary.pUsersLog(client, script, succMsg);
+                        PinguLibrary.pUserLog(client, script, succMsg);
                 });
         });
     };
@@ -177,6 +210,50 @@ var PinguUser = /** @class */ (function () {
             });
         });
     };
+    PinguUser.WritePUser = function (user, callback) {
+        var _this = this;
+        try {
+            fs.writeFile("./users/" + user.tag + ".json", JSON.stringify(new PinguUser(user), null, 2), function (err) { return __awaiter(_this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            if (err)
+                                PinguLibrary.pUserLog(user.client, "WritePUser", null, new Error(err));
+                            return [4 /*yield*/, callback];
+                        case 1:
+                            if (_a.sent())
+                                callback();
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
+        }
+        catch (ewwor) {
+            console.log(ewwor);
+        }
+    };
+    PinguUser.DeletePUser = function (user, callback) {
+        var _this = this;
+        try {
+            fs.unlink("./users/" + user.tag + ".json", function (err) { return __awaiter(_this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            if (err)
+                                PinguLibrary.pUserLog(user.client, "DeletePGuild", "Unable to delete json file for " + PinguUser.GetPUser(user).tag, new Error(err));
+                            return [4 /*yield*/, callback];
+                        case 1:
+                            if (_a.sent())
+                                callback();
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
+        }
+        catch (ewwor) {
+            console.log(ewwor);
+        }
+    };
     return PinguUser;
 }());
 exports.PinguUser = PinguUser;
@@ -188,7 +265,7 @@ var PinguGuild = /** @class */ (function () {
         this.guildOwner = new PGuildMember(guild.owner);
         var Prefix = require('./config.json').Prefix;
         this.botPrefix = Prefix;
-        this.embedColor = guild.me.roles.cache.find(function (role) { return role.name.includes('Pingu'); }).color || 0;
+        this.embedColor = guild.me.roles.cache.find(function (role) { return role.name.includes('Pingu'); }) && guild.me.roles.cache.find(function (role) { return role.name.includes('Pingu'); }).color || 0;
         this.musicQueue = null;
         this.giveawayConfig = new GiveawayConfig();
         this.pollConfig = new PollConfig;
@@ -214,7 +291,12 @@ var PinguGuild = /** @class */ (function () {
     };
     PinguGuild.UpdatePGuildJSON = function (client, guild, script, succMsg, errMsg) {
         var path = "./servers/" + guild.name + ".json";
-        var pGuildObj = require(path);
+        try {
+            var pGuildObj = require(path);
+        }
+        catch (err) {
+            return PinguLibrary.pGuildLog(client, script, "Unable to get pGuild from " + guild.name, err);
+        }
         fs.writeFile(path, '', null, function (err) {
             if (err)
                 PinguLibrary.pGuildLog(client, script, "[writeFile]: " + errMsg, new Error(err));
@@ -336,11 +418,17 @@ var PinguLibrary = /** @class */ (function () {
     };
     PinguLibrary.PermissionCheck = function (message, permissions) {
         var textChannel = message.channel;
+        var testingMode = require('./config.json').testingMode;
+        if (permissions[0].length == 1) {
+            this.errorLog(message.client, "Permissions not defined correctly!", message.content);
+            return "Permissions for this script was not defined correctly!";
+        }
         for (var x = 0; x < permissions.length; x++) {
             var permString = permissions[x].toLowerCase().replace('_', ' ');
             if (!textChannel.permissionsFor(message.client.user).has(permissions[x]))
                 return "I don't have permission to **" + permString + "** in " + textChannel.name + ".";
-            else if (!textChannel.permissionsFor(message.author).has(permissions[x]))
+            else if (!textChannel.permissionsFor(message.author).has(permissions[x]) &&
+                (this.isPinguDev(message.author) && testingMode || !this.isPinguDev(message.author)))
                 return "<@" + message.author.id + "> you don't have permission to **" + permString + "** in #" + textChannel.name + ".";
         }
         return this.PermissionGranted;
@@ -366,11 +454,22 @@ var PinguLibrary = /** @class */ (function () {
         return channel;
     };
     PinguLibrary.outages = function (client, message) {
-        var outageChannel = this.getChannel(client, '756383096646926376', 'outages');
-        if (!outageChannel)
-            return this.DanhoDM(client, "Couldn't get #outage channel in Pingu Support, https://discord.gg/Mp4CH8eftv");
-        console.log(message);
-        return outageChannel.send(message);
+        return __awaiter(this, void 0, void 0, function () {
+            var outageChannel, sent;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        outageChannel = this.getChannel(client, '756383096646926376', 'outages');
+                        if (!outageChannel)
+                            return [2 /*return*/, this.DanhoDM(client, "Couldn't get #outage channel in Pingu Support, https://discord.gg/Mp4CH8eftv")];
+                        console.log(message);
+                        return [4 /*yield*/, outageChannel.send(message)];
+                    case 1:
+                        sent = _a.sent();
+                        return [2 /*return*/, sent.crosspost()];
+                }
+            });
+        });
     };
     PinguLibrary.DanhoDM = function (client, message) {
         return __awaiter(this, void 0, void 0, function () {
@@ -409,8 +508,8 @@ var PinguLibrary = /** @class */ (function () {
                     "[Message content]\n" +
                     (userContent + "\n") +
                     "```");
-            return ("```\n" +
-                err.fileName && err.lineNumber ? err.fileName + " threw an error at line " + err.lineNumber + "!\n" : "" +
+            var returnMessage = ("```" +
+                err.fileName && err.lineNumber ? err.fileName + " threw an error at line " + err.lineNumber + "!\n" : " " +
                 "[Provided Message]\n" +
                 (message + "\n") +
                 "\n" +
@@ -423,6 +522,8 @@ var PinguLibrary = /** @class */ (function () {
                 "[Stack]\n" +
                 (err.stack + "\n\n") +
                 "```");
+            console.log(returnMessage);
+            return returnMessage;
         }
     };
     PinguLibrary.tellLog = function (client, sender, reciever, message) {
@@ -479,7 +580,7 @@ var PinguLibrary = /** @class */ (function () {
             });
         });
     };
-    PinguLibrary.pUsersLog = function (client, script, message, err) {
+    PinguLibrary.pUserLog = function (client, script, message, err) {
         return __awaiter(this, void 0, void 0, function () {
             var pinguUserLog, errorLink;
             return __generator(this, function (_a) {
@@ -487,7 +588,7 @@ var PinguLibrary = /** @class */ (function () {
                     case 0:
                         pinguUserLog = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "pingu-user-log");
                         if (!err) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.errorLog(client, "pUser Error: \"" + message + "\"", null, err)];
+                        return [4 /*yield*/, this.errorLog(client, "pUser Error (**" + script + "**): \"" + message + "\"", null, err)];
                     case 1:
                         errorLink = (_a.sent()).url;
                         return [2 /*return*/, pinguUserLog.send("[**Failed**] [**" + script + "**]: " + message + "\n" + err.message + "\n\n" + errorLink + "\n\n<@&756383446871310399>")];
@@ -496,6 +597,7 @@ var PinguLibrary = /** @class */ (function () {
             });
         });
     };
+    PinguLibrary.PermissionGranted = "Permission Granted";
     PinguLibrary.SavedServers = {
         DanhoMisc: function (client) {
             return PinguLibrary.getServer(client, '460926327269359626');

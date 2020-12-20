@@ -3,7 +3,6 @@ const { PinguLibrary, DiscordPermissions } = require('../../PinguPackage');
 
 module.exports = {
     name: 'setpfp',
-    cooldown: 5,
     description: 'Changes my profile picture',
     usage: ' [preview] <1k | AFools | Cool | Green | Hollywood | Blogger | Sithlord | Wiking>',
     id: 4,
@@ -50,6 +49,9 @@ module.exports = {
 /**@param {Message} message @param {string} imageToPreview
  */
 function HandlePreview(message, imageToPreview) {
+    let permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.ATTACH_FILES]);
+    if (permCheck != PinguLibrary.PermissionGranted) return message.channel.send(permCheck);
+
     if (!imageToPreview) return message.channel.send(`Preview image not specified!`);
     try {
         message.channel.send(`Preview image for: **${imageToPreview}**`, {

@@ -1,14 +1,13 @@
-const { Message, Permissions, Role, GuildMember } = require('discord.js');
+const { Message, Role, GuildMember } = require('discord.js');
 const { PinguLibrary, DiscordPermissions } = require('../../PinguPackage');
 
 module.exports = {
     name: 'role',
-    cooldown: 5,
     description: 'Gives a role to author or mentioned',
     usage: '<add | remove | create | delete | rename> <role | role ID | role name> [user]',
     id: 1,
     guildOnly: true,
-    example: ["add Admin", "remove SMod DiaGuy", "rename 778022131178405918 Discord Bot Developer"],
+    example: ["add Admin", "remove SMod @DiaGuy", "rename 778022131178405918 Discord Bot Developer"],
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.MANAGE_ROLES],
     /**@param {Message} message @param {string[]} args*/
     async execute(message, args) {
@@ -33,9 +32,6 @@ module.exports = {
             }
         }
         catch (err) {
-            if (err.message == "Invalid bitfield flag or number.")
-                return message.channel.send("That is not a valid permission!");
-
             PinguLibrary.errorLog(message.client, message, message.content, err).then(() =>
                 message.channel.send("I encountered an error when checking! I've contacted my developers."));
         }

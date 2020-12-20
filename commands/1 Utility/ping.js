@@ -12,7 +12,7 @@ module.exports = {
     async execute(message, args) {
         let sent = await message.channel.send(`Calculating...`);
         let latency = sent.createdTimestamp - message.createdTimestamp;
-        console.log(`Ping: ${latency}`);
+        console.log(`Ping: ${latency}ms`);
 
         sent.edit(
             `My latency: ${latency}ms\n` +

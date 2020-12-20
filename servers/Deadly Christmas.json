@@ -1,0 +1,19 @@
+{
+  "guildName": "Deadly Christmas",
+  "guildID": "405763731079823380",
+  "guildOwner": {
+    "id": "245572699894710272",
+    "user": "Danho#2105"
+  },
+  "botPrefix": "*",
+  "embedColor": 3447003,
+  "musicQueue": null,
+  "giveawayConfig": {
+    "firstTimeExecuted": true
+  },
+  "pollConfig": {
+    "firstTimeExecuted": true
+  },
+  "suggestions": [],
+  "themeWinners": []
+}

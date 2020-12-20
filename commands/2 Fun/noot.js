@@ -1,4 +1,4 @@
-const { Message, Permissions } = require('discord.js');
+const { Message } = require('discord.js');
 const { PinguLibrary, DiscordPermissions } = require('../../PinguPackage');
 
 module.exports = {
@@ -12,7 +12,7 @@ module.exports = {
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         if (message.channel.type != 'dm') {
-            let hasManageMessages = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.MANAGE_MESSAGES]) == PinguLibrary.PermissionGranted;
+            let hasManageMessages = PinguLibrary.PermissionCheck(message, [DiscordPermissions.MANAGE_MESSAGES]) == PinguLibrary.PermissionGranted;
             if (hasManageMessages) message.delete();
         }
         message.channel.send(args.join(" "));

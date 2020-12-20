@@ -32,7 +32,7 @@ module.exports = {
 /**@param {Message} message 
  * @param {string[]} args*/
 function PermissionCheck(message, args) {
-    return args[0].toLowerCase() != "log" ? `I can't execute that command in DMs!` : PinguLibrary.PermissionGranted;
+    return args[0].toLowerCase() != "log" && message.channel.type == 'dm' ? `I can't execute that command in DMs!` : PinguLibrary.PermissionGranted;
 }
 /**@param {Message} message 
  * @param {number} amount*/
@@ -51,7 +51,7 @@ async function ClearMessages(message, amount) {
 /**@param {Message} message
  @param {GuildChannel} channel*/
 async function ClearAll(message, channel) {
-    var permCheck = PinguLibrary.PermissionCheck(message, [Permissions.FLAGS.MANAGE_CHANNELS]);
+    var permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.MANAGE_CHANNELS]);
     if (permCheck != PinguLibrary.PermissionGranted) return permCheck;
 
     if (!channel) channel = message.channel;

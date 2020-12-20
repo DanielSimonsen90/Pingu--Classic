@@ -6,14 +6,14 @@ module.exports = {
     description: 'Reloads a command',
     usage: '<script/command>',
     id: 4,
+    CategoryNames: ["", "Utility", "Fun", "Support", "DevOnly"],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         if (!args.length) return message.channel.send(`What am I supposed to update, ${message.author}?`);
 
         const commandName = args[0].toLowerCase(),
             command = message.client.commands.get(commandName) ||
-                message.client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName)),
-            CategoryNames = ["", "Utility", "Fun", "Support", "DevOnly"];
+                message.client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
 
         if (!command) return message.channel.send(`There is no command with name or alias \`${commandName}\`, ${message.author}!`);
 

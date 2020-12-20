@@ -3,7 +3,6 @@ const { PinguLibrary, DiscordPermissions } = require("../../PinguPackage");
 
 module.exports = {
     name: 'setactivity',
-    cooldown: 5,
     description: 'Sets the status of the bot',
     usage: '<status type> <status message>',
     id: 4,
