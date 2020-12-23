@@ -84,7 +84,7 @@ client.on('message', message => {
 
     //Decode command
     let decoded = DecodeCommand(message, command);
-    if (!decoded.value) decoded.type == 'text' ? message.channel.send(decoded.message) : message.author.send(decoded.message);
+    if (!decoded.value) return decoded.type == 'text' ? message.channel.send(decoded.message) : message.author.send(decoded.message);
 
     //Execute command and log it
     ExecuteAndLogCommand(message, args, commandName, command);
@@ -172,7 +172,7 @@ client.on('message', message => {
      * @param {Command} command
      * @returns {{value: boolean, message: string, type: "text" | "dm"}}*/
     function DecodeCommand(message, command) {
-        let type = PinguLibrary.PermissionCheck(message, [DiscordPermissions.SEND_MESSAGES]) != PinguLibrary.PermissionGranted ? "text" : "dm";
+        let type = PinguLibrary.PermissionCheck(message, [DiscordPermissions.SEND_MESSAGES]) == PinguLibrary.PermissionGranted ? "text" : "dm";
 
         let returnValue = {
             type: type,
@@ -275,7 +275,8 @@ client.on('guildCreate', async guild => {
 
         `Thank you for adding me!\n` +
         `Use \`*help\`, if you don't know how I work!`)
-        .catch(err => PinguLibrary.errorLog(client, `Failed to send <@${guild.owner.id}> a DM`, null, err)).then(console.log(`Sent ${guild.owner.user.tag} my "thank you" message.`));
+        .catch(err => PinguLibrary.errorLog(client, `Failed to send <@${guild.owner.id}> a DM`, null, err))
+        .then(console.log(`Sent ${guild.owner.user.tag} my "thank you" message.`));
 }); //First time joining a guild
 client.on('guildUpdate', (from, to) => {
     try {

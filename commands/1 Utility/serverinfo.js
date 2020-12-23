@@ -1,4 +1,4 @@
-const { MessageEmbed, Message, Guild } = require('discord.js');
+﻿const { MessageEmbed, Message, Guild } = require('discord.js');
 const { PinguGuild, PinguLibrary, DiscordPermissions } = require('../../PinguPackage');
 module.exports = {
     name: 'serverinfo',
@@ -9,7 +9,7 @@ module.exports = {
     example: ["", "all", "emotes", "emotes FeelsBadMan", "features"],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        const bigboiinfo = args[0] && args[0] == 'all',
+        const bigboiinfo = args[0] && args[0].toLowerCase() == 'all',
             serverGuild = message.guild,
             emote = serverGuild.emojis.cache.find(e => args.includes(e.name));
 
@@ -36,45 +36,138 @@ module.exports = {
     },
 };
 
-/**@param {Guild} guild @param {boolean} bigboiinfo*/
-async function SendCallerInfo(guild, bigboiinfo) {
+/**@param {Message} message @param {boolean} bigboiinfo*/
+async function SendCallerInfo(message, bigboiinfo) {
+    let { guild } = message;
     const DefaultThumbnail = guild.iconURL(),
-        Description = guild.description ? guild.description : 'None',
+        Description = guild.description ? guild.description : '',
         color = GetPGuildColor(guild);
+    let savedEmotes = {
+        boost: PinguLibrary.getEmote(message.client, 'guildBoost', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        partner: PinguLibrary.getEmote(message.client, 'partneredServer', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        verified: PinguLibrary.getEmote(message.client, 'verifiedServer', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        wumpus: PinguLibrary.getEmote(message.client, 'wumpusLove', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        channelAnnounce: PinguLibrary.getEmote(message.client, 'channelAnnounce', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        channelRules: PinguLibrary.getEmote(message.client, 'channelRules', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        channelStore: PinguLibrary.getEmote(message.client, 'channelStore', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        channelText: PinguLibrary.getEmote(message.client, 'channelText', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        channelVoice: PinguLibrary.getEmote(message.client, 'channelVoice', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        channelAFK: PinguLibrary.getEmote(message.client, 'channelAFK', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        channelCategory: PinguLibrary.getEmote(message.client, 'channelCategory', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        banner: PinguLibrary.getEmote(message.client, 'banner', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        invite: PinguLibrary.getEmote(message.client, 'invite', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        notification: PinguLibrary.getEmote(message.client, 'notification', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        banHammer: PinguLibrary.getEmote(message.client, 'banHammer', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        widget: PinguLibrary.getEmote(message.client, 'widget', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        webhook: PinguLibrary.getEmote(message.client, 'webhook', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        channelIcon: PinguLibrary.getEmote(message.client, 'channelIcon', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        ownerCrown: PinguLibrary.getEmote(message.client, 'ownerCrown', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+    }
+
+    /**@param {string} region*/
+    function getRegionEmoji(region) {
+        let america = {
+            countries: ['us-east', 'brazil', 'us-central', 'us-south', 'us-west'],
+            value: '🌎'
+        };
+        let europe = {
+            countries: ['europe', 'africa', 'india', 'southafrica'],
+            value: '🌍'
+        };
+        let asia = {
+            countries: ['hongkong', 'japan', 'russia', 'singapore', 'sydney'],
+            value: '🌏'
+        }
+
+        let returnValue;
+        if (america.countries.includes(region)) returnValue = america.value;
+        else if (europe.countries.includes(region)) returnValue = europe.value;
+        else if (asia.countries.includes(region)) returnValue = asia.value;
+        else {
+            returnValue = europe.value;
+            PinguLibrary.errorLog(message.client, `Unable to find region for ${region}`, message.content);
+        }
+
+        return returnValue + " Region";
+    }
+    /**@param {string} value*/
+    function humanize(value) {
+        let featureStrings = value.split('_');
+        return featureStrings.map(str => str.charAt(0).toUpperCase() + str.substring(1, str.length).toLowerCase()).join(' ');
+    }
+    /**@param {string} permission
+     * @param {MessageEmbed} embed
+     * @param {string} title
+     * @param {() => Promise<any>} value*/
+    async function addField(permission, embed, title, value, inline) {
+        return HasPermission(permission) ?
+            embed.addField(title, await value(), inline != null ? inline : true) :
+            embed.addField(title, `Missing **${humanize(permission)}** permission`, inline != null ? inline : true)
+    }
+    function HasPermission(permission) {
+        return PinguLibrary.PermissionCheck(message, [permission]) == PinguLibrary.PermissionGranted;
+    }
 
     let EmbedArray = [
         new MessageEmbed()
             .setTitle(`Server Information: ${guild.name}`)
             .setThumbnail(DefaultThumbnail)
+            .setDescription(Description)
+            .setFooter(`Server ID: ${guild.id}`)
             .setColor(color)
-            .addField(`Owner`, guild.owner, true)
-            .addField(`Region`, guild.region.charAt(0).toUpperCase() + guild.region.substring(1, guild.region.length), true)
-            .addField(`Creation Date`, guild.createdAt, true)
-            .addField(`Description`, Description, true)
-            .addField(`Boost level`, guild.premiumTier, true)
-            .addField(`Boosts`, guild.premiumSubscriptionCount, true)
-            .addField(`Total members`, guild.memberCount, true)
-            .addField(`Roles`, guild.roles.cache.size, true)
-            .addField(`Emotes`, guild.emojis.cache.size, true)
-            .addField(`Features`, guild.features.length, true)
-            .addField(`Server ID`, guild.id, true)
-            .addField("\u200B", "\u200B", true)
+            .addField(`${savedEmotes.ownerCrown} Owner`, guild.owner, true)
+            .addField(getRegionEmoji(guild.region), guild.region.charAt(0).toUpperCase() + guild.region.substring(1, guild.region.length), true)
+            .addField(`⏰ Creation Date`, guild.createdAt.toUTCString(), false)
+            .addField(`👥 Total members`, guild.memberCount, true)
+            .addField(`🧍 Total users`, guild.members.cache.filter(gm => !gm.user.bot).size, true)
+            .addField(`🤖 Total bots`, guild.members.cache.filter(gm => gm.user.bot).size, true)
+            .addField(`💂 Roles`, guild.roles.cache.size, true)
+            .addField(`${savedEmotes.wumpus} Emotes`, guild.emojis.cache.size, true)
+            .addField(`🚷 Maximum Members`, guild.maximumMembers, true)
+            .addField(`${savedEmotes.boost} Boost level`, guild.premiumTier, true)
+            .addField(`${savedEmotes.boost} Boosts`, guild.premiumSubscriptionCount, true)
     ];
-    if (bigboiinfo) {
-        EmbedArray[0].addField(`Presence Count`, guild.presences.cache.size, true)
-            .addField(`Maximum Members`, guild.maximumMembers, true);
 
+    let featureLimit = 3;
+    //if (guild.features.length > featureLimit) EmbedArray[0].addField("\u200B", "\u200B", true);
+    EmbedArray[0].addField(`🏃‍ Presence Count`, guild.presences.cache.size, true)
+
+    EmbedArray[0].addField(`${guild.features.length} Features`,
+        guild.features.length > 0 ? guild.features
+            .sort((a, b) => a > b ? 1 : -1)
+            .map((feature, index) => `**${index + 1}**: ${humanize(feature)}`)
+            .join('\n') : "Server has no features.",
+        guild.features.length < featureLimit
+    );
+
+    if (bigboiinfo) {
         EmbedArray[1] = new MessageEmbed()
             .setTitle(`Special Information`)
             .setThumbnail(DefaultThumbnail)
             .setColor(color)
-            .addField(`Default Notifications`, guild.defaultMessageNotifications, true)
-            .addField(`Banner Hash`, guild.banner, true)
-            .addField(`Banned Members`, (await guild.fetchBans()).size, true)
-            .addField(`Invites`, (await guild.fetchInvites()).size, true)
-            .addField(`Webhooks`, (await guild.fetchWebhooks()).size, true)
-            .addField(`Partnered Discord`, guild.partnered, true)
-            .addField(`Verified Discord`, guild.verified, true);
+            .addField(`${savedEmotes.notification} Default Notifications`, humanize(guild.defaultMessageNotifications), true)
+            .addField(`${savedEmotes.banner} Banner`, guild.bannerURL() ? guild.bannerURL() : "None", true)
+
+        if (HasPermission(DiscordPermissions.CREATE_INSTANT_INVITE)) EmbedArray[1].addField("\u200B", "\u200B", true);
+
+        EmbedArray[1] = await addField(DiscordPermissions.MANAGE_GUILD, EmbedArray[1], `${savedEmotes.invite} Invites`, async () => (await guild.fetchInvites()).size, HasPermission(DiscordPermissions.MANAGE_GUILD));
+        EmbedArray[1] = await addField(DiscordPermissions.BAN_MEMBERS, EmbedArray[1], `${savedEmotes.banHammer} Banned Members`, async () => (await guild.fetchBans()).size, HasPermission(DiscordPermissions.BAN_MEMBERS));
+
+        if (HasPermission(DiscordPermissions.BAN_MEMBERS)) EmbedArray[1].addField("\u200B", "\u200B", true);
+
+        EmbedArray[1] = await addField(DiscordPermissions.MANAGE_WEBHOOKS, EmbedArray[1], `${savedEmotes.webhook} Webhooks`, async () => (await guild.fetchWebhooks()).size, HasPermission(DiscordPermissions.MANAGE_WEBHOOKS));
+        EmbedArray[1].addField(`${savedEmotes.widget} Widgets enabled`, guild.widgetEnabled ? true : false, true);
+        if (guild.widgetEnabled) EmbedArray[1].addField(`${savedEmotes.channelText} Widget channel`, guild.widgetChannel, true);
+        else EmbedArray[1].addField("\u200B", "\u200B", true);
+
+        if (!HasPermission(DiscordPermissions.MANAGE_WEBHOOKS) && (!guild.widgetEnabled || guild.widgetEnabled && guild.widgetChannel)) EmbedArray[1].addField("\u200B", "\u200B", true);
+
+        EmbedArray[1]
+            .addField(`${savedEmotes.partner} Partnered Discord`, guild.partnered, true)
+            .addField(`${savedEmotes.verified} Verified Discord`, guild.verified, true);
+
+        if (!guild.widgetEnabled) EmbedArray[1].addField("\u200B", "\u200B", true);
+
         //#endregion
 
         //#region Channel Information
@@ -86,35 +179,29 @@ async function SendCallerInfo(guild, bigboiinfo) {
             .setTitle(`Channel Information`)
             .setThumbnail(DefaultThumbnail)
             .setColor(color)
-            .addField('Categories', GetChannelCount('category'), true)
-            .addField(`Channel count`, guild.channels.cache.size, true)
-            .addField(`AFK Channel`, (guild.afkChannel ? guild.afkChannel : 'None'), true)
-            .addField(`AFK Timeout`, guild.afkTimeout, true)
-            .addField(`Rules channel`, (guild.rulesChannel ? guild.rulesChannel : 'None'), true)
-            .addField(`Text channels`, GetChannelCount('text'), true)
-            .addField(`Voice channels`, GetChannelCount('voice'), true)
-            .addField('Announcement channels', GetChannelCount('news'), true)
-            .addField(`Store channels`, GetChannelCount('store'), true)
+            .addField(`${savedEmotes.channelIcon} Channel count`, guild.channels.cache.size, true)
+            .addField(`${savedEmotes.channelCategory} Categories`, GetChannelCount('category'), true)
+            .addField(`${savedEmotes.channelRules} Rules channel`, (guild.rulesChannel ? guild.rulesChannel : 'None'), true)
+            .addField(`${savedEmotes.channelText} Text channels`, GetChannelCount('text'), true)
+            .addField(`${savedEmotes.channelVoice} Voice channels`, GetChannelCount('voice'), true)
+            .addField(`${savedEmotes.channelAnnounce} Announcement channels`, GetChannelCount('news'), true)
+            .addField(`${savedEmotes.channelStore} Store channels`, GetChannelCount('store'), true)
+            .addField(`${savedEmotes.channelAFK} AFK Channel`, (guild.afkChannel ? guild.afkChannel : 'None'), true)
+            .addField(`${savedEmotes.channelAFK} AFK Timeout`, (guild.afkTimeout / 60).toString() + " minutes", true)
         //#endregion
 
-        EmbedArray[3] = new MessageEmbed()
-            .setTitle(`Widget Information`)
-            .setThumbnail(DefaultThumbnail)
-            .setColor(color)
-            .addField(`Widgets enabled`, guild.widgetEnabled, true);
-        if (guild.widgetEnabled)
-            Embed[3].addField(`Widget channel`, guild.widgetChannel, true);
         //#endregion
     }
+    else EmbedArray[0].addField("\u200B", "\u200B", true);
     return EmbedArray;
 }
 
 //#region Send user its stuff
 /**@param {Message} message @param {Guild} serverGuild @param {boolean} bigboiinfo*/
 async function SendEmbeds(message, serverGuild, bigboiinfo) {
-    const EmbedArray = await SendCallerInfo(serverGuild, bigboiinfo)
+    const EmbedArray = await SendCallerInfo(message, bigboiinfo)
 
-    if (!message.channel.permissionsFor(message.guild.client.user).has('SEND_MESSAGES')) {
+    if (!PinguLibrary.PermissionCheck(message, [DiscordPermissions.SEND_MESSAGES])) {
         await message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!\nBut here's your information:`)
         EmbedArray.forEach(Embed => message.author.send(Embed));
     }

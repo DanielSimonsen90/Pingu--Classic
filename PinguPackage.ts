@@ -1,4 +1,4 @@
-﻿import { GuildMember, Guild, Role, Message, TextChannel, VoiceChannel, VoiceConnection, Client, PermissionString, User, MessageEmbed, Channel, GuildChannel, GuildEmoji, VoiceState } from 'discord.js';
+﻿import { Channel, Client, Collection, Guild, GuildChannel, GuildEmoji, GuildMember, Message, MessageEmbed, PermissionString, Role, TextChannel, User, VoiceChannel, VoiceConnection, VoiceState } from 'discord.js';
 import { MoreVideoDetails } from 'ytdl-core';
 import * as fs from 'fs';
 
@@ -49,7 +49,7 @@ export class DiscordPermissions {
     public static 'MANAGE_EMOJIS' = 'MANAGE_EMOJIS'
 }
 
-//#region Custom Pingu classes
+//#region JSON Classes
 export class PGuildMember {
     constructor(member: GuildMember) {
         this.id = member.id;
@@ -120,8 +120,27 @@ export class PQueue {
     public volume: number
     public playing: boolean
     public loop: boolean;
-}
 
+    public async ToQueue(guild: Guild) {
+        let queue = new Queue(
+            this.client,
+            guild.channels.cache.find(c => c.id == this.logChannel.id) as TextChannel,
+            guild.channels.cache.find(c => c.id == this.voiceChannel.id) as VoiceChannel,
+            this.songs,
+            this.playing
+        );
+        queue.connection = await queue.voiceChannel.join();
+        queue.client.displayName = this.client.displayName;
+        queue.volume = this.volume;
+        queue.loop = this.loop;
+        queue.index = this.index;
+
+        return queue;
+    }
+}
+//#endregion
+
+//#region Custom Pingu classes 
 export class PinguUser {
     //#region Static PinguUser methods
     public static GetPUsers(): PinguUser[] {
@@ -174,11 +193,15 @@ export class PinguUser {
         this.tag = pUser.name;
         this.replyPerson = null;
         this.dailyStreak = 0;
+        this.avatar = user.avatarURL();
+        this.playlists = new Collection<Queue, string>();
     }
     public id: string
     public tag: string
     public replyPerson: PUser
     public dailyStreak: number
+    public avatar: string
+    public playlists: Collection<Queue, string>
     //public Achievements: Achievement[]
 }
 export class PinguGuild {
@@ -335,6 +358,9 @@ export class PinguLibrary {
         PinguSupport(client: Client) {
             return PinguLibrary.getServer(client, '756383096646926376');
         },
+        PinguEmotes(client: Client) {
+            return PinguLibrary.getServer(client, '791312245555855401');
+        }
     }
     private static getServer(client: Client, id: string) {
         return client.guilds.cache.find(g => g.id == id);
@@ -479,6 +505,16 @@ export class PinguLibrary {
             return pinguUserLog.send(`[**Failed**] [**${script}**]: ${message}\n${err.message}\n\n${errorLink}\n\n<@&756383446871310399>`);
         }
         return pinguUserLog.send(`[**Success**] [**${script}**]: ${message}`);
+    }
+
+    public static getEmote(client: Client, name: string, emoteGuild: Guild) {
+        for (var guild of client.guilds.cache.array()) {
+            if (guild.name != emoteGuild.name) continue;
+            let emote = guild.emojis.cache.find(emote => emote.name == name)
+            if (emote) return emote;
+        }
+        PinguLibrary.errorLog(client, `Unable to find Emote **${name}** from ${emoteGuild.name}`);
+        return '😵';
     }
 }
 //#endregion

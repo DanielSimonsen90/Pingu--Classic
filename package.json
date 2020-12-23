@@ -10,10 +10,9 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/opus": "^0.3.3",
-    "async-lock": "^1.2.4",
     "discord.js": "^12.5.1",
     "ffmpeg": "0.0.4",
     "simple-youtube-api": "^5.2.1",
-    "ytdl-core": "^4.1.7"
+    "ytdl-core": "^4.2.1"
   }
 }

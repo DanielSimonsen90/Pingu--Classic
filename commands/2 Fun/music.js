@@ -37,7 +37,8 @@ module.exports = {
         if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
 
         commandName = args.shift().toLowerCase();
-        var queue = await GetQueueElements(message.guild, PinguGuild.GetPGuild(message.guild).musicQueue);
+        let pQueue = PinguGuild.GetPGuild(message.guild).musicQueue;
+        var queue = pQueue ? await pQueue.ToQueue(message.guild) : null;
 
         switch (commandName) {
             case "join": case "summon": return HandleJoin(message, args.join(' '));
@@ -86,10 +87,10 @@ async function HandleJoin(message, channelData) {
  * @param {Queue} queue*/
 async function HandleDisconnect(message, queue) {
     if (!message.guild.me.voice.connection) return message.channel.send(`I'm not in a voice chat!`);
-    else if (!message.member.voice.channel == message.guild.me.voice.channel) return message.channel.send(`You're not in my voice channel, so you can't disconnect me!`);
+    else if (message.member.voice.channel != message.guild.me.voice.channel) return message.channel.send(`You're not in my voice channel, so you can't disconnect me!`);
 
     message.guild.me.voice.connection.disconnect();
-    AnnounceMessage(message, queue, `Disconnected!`, `**${message.member.displayName}** disconnected me!`);
+    await AnnounceMessage(message, queue, `Disconnected!`, `**${message.member.displayName}** disconnected me!`);
 
     queue.playing = false;
 
@@ -119,7 +120,7 @@ async function HandlePlay(message, args, voiceChannel, queue) {
 
         try {
             if (searchType == 'video') {
-                var searchResultVideos = await youTube.searchVideos(`"${url}"`, 1);
+                var searchResultVideos = await youTube.searchVideos(url, 1);
                 video = await youTube.getVideoByID(searchResultVideos[0].id);
             }
             else {
@@ -178,7 +179,12 @@ async function HandlePlay(message, args, voiceChannel, queue) {
     }
     else if (!args[0]) {
         queue.connection = await queue.voiceChannel.join();
-        queue.connection.dispatcher.resume();
+        try { queue.connection.dispatcher.resume(); }
+        catch (err) {
+            if (err.message == `Cannot read property 'resume' of null`)
+                return Play(message, queue.songs[queue.index], queue);
+            PinguLibrary.errorLog(message.client, `Unable to resume dispatcher`, message.content, err);
+        }
     }
     else {
         if (!queue.playing) return HandlePauseResume(message, queue);
@@ -495,7 +501,7 @@ async function Play(message, song, queue) {
             console.log("Song Finished");
 
             var pinguName = queue.client.displayName;
-            queue = await GetQueueElements(message.guild, PinguGuild.GetPGuild(message.guild).musicQueue);
+            queue = await PinguGuild.GetPGuild(message.guild).musicQueue.ToQueue(message.guild);
             queue.client.displayName = pinguName;
 
             if (!queue.currentSong.loop) queue.index++;
@@ -518,27 +524,6 @@ function AnnounceMessage(message, queue, senderMsg, logMsg) {
         return queue.logChannel.send(logMsg);
     }
     return queue.logChannel.send(senderMsg);
-}
-/**@param {Guild} guild
- * @param {PQueue} pqueue*/
-async function GetQueueElements(guild, pqueue) {
-    var queue = pqueue ? new Queue(
-        new PClient(guild.me, guild),   
-        guild.channels.cache.find(c => c.id == pqueue.logChannel.id),
-        guild.channels.cache.find(c => c.id == pqueue.voiceChannel.id),
-        pqueue.songs || [],
-        pqueue.playing
-    ) : null;
-
-    if (queue) {
-        if (guild.me.voice.channel)
-            queue.connection = await guild.me.voice.channel.join();
-        queue.client.displayName = pqueue.client.displayName;
-        queue.volume = pqueue.volume;
-        queue.loop = pqueue.loop;
-    }
-
-    return queue;
 }
 /**@param {Message} message
  * @param {Queue} queue*/

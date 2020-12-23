@@ -438,7 +438,7 @@ async function ExecuteTimeOut(message, GiveawayMessage, Prize, Winners, embed, G
 
     //Announce Winner
     var WinnerMessage = await GiveawayMessage.channel.send(`The winner of "**${Prize}**" is no other than ${WinnerArrStringed}! Congratulations!`)
-    WinnerMessage.react(PinguLibrary.SavedServers.PinguSupport(message.client).emojis.cache.find(emote => emote.name == 'hypers'));
+    WinnerMessage.react(PinguLibrary.getEmote(message.client, 'hypers'));
 
     RemovePreviousWinners(message.guild.members.cache.filter(Member => Member.roles.cache.has(GiveawayWinnerRole.id)).array());
 

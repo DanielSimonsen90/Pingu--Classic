@@ -4,7 +4,7 @@ const { PinguLibrary, DiscordPermissions } = require('../../PinguPackage');
 module.exports = {
     name: 'setpfp',
     description: 'Changes my profile picture',
-    usage: ' [preview] <1k | AFools | Cool | Green | Hollywood | Blogger | Sithlord | Wiking>',
+    usage: ' [preview] <1k | AFools | Cool | Christmas | Green | Hollywood | Blogger | Sithlord | Wiking>',
     id: 4,
     example: ["AFools", "preview Green"],
     /**@param {Message} message @param {string[]} args*/

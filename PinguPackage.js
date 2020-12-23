@@ -50,6 +50,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PinguUser = exports.PQueue = exports.PUser = exports.PClient = exports.PEmote = exports.PChannel = exports.PRole = exports.PGuildMember = exports.DiscordPermissions = exports.Error = void 0;
+var discord_js_1 = require("discord.js");
 var fs = require("fs");
 var Error = /** @class */ (function () {
     function Error(err) {
@@ -98,7 +99,7 @@ var DiscordPermissions = /** @class */ (function () {
     return DiscordPermissions;
 }());
 exports.DiscordPermissions = DiscordPermissions;
-//#region Custom Pingu classes
+//#region JSON Classes
 var PGuildMember = /** @class */ (function () {
     function PGuildMember(member) {
         this.id = member.id;
@@ -164,9 +165,32 @@ var PQueue = /** @class */ (function () {
         this.loop = queue.loop;
         this.playing = queue.playing;
     }
+    PQueue.prototype.ToQueue = function (guild) {
+        return __awaiter(this, void 0, void 0, function () {
+            var queue, _a;
+            var _this = this;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        queue = new Queue(this.client, guild.channels.cache.find(function (c) { return c.id == _this.logChannel.id; }), guild.channels.cache.find(function (c) { return c.id == _this.voiceChannel.id; }), this.songs, this.playing);
+                        _a = queue;
+                        return [4 /*yield*/, queue.voiceChannel.join()];
+                    case 1:
+                        _a.connection = _b.sent();
+                        queue.client.displayName = this.client.displayName;
+                        queue.volume = this.volume;
+                        queue.loop = this.loop;
+                        queue.index = this.index;
+                        return [2 /*return*/, queue];
+                }
+            });
+        });
+    };
     return PQueue;
 }());
 exports.PQueue = PQueue;
+//#endregion
+//#region Custom Pingu classes 
 var PinguUser = /** @class */ (function () {
     //#endregion
     function PinguUser(user) {
@@ -175,6 +199,8 @@ var PinguUser = /** @class */ (function () {
         this.tag = pUser.name;
         this.replyPerson = null;
         this.dailyStreak = 0;
+        this.avatar = user.avatarURL();
+        this.playlists = new discord_js_1.Collection();
     }
     //#region Static PinguUser methods
     PinguUser.GetPUsers = function () {
@@ -597,6 +623,18 @@ var PinguLibrary = /** @class */ (function () {
             });
         });
     };
+    PinguLibrary.getEmote = function (client, name, emoteGuild) {
+        for (var _i = 0, _a = client.guilds.cache.array(); _i < _a.length; _i++) {
+            var guild = _a[_i];
+            if (guild.name != emoteGuild.name)
+                continue;
+            var emote = guild.emojis.cache.find(function (emote) { return emote.name == name; });
+            if (emote)
+                return emote;
+        }
+        PinguLibrary.errorLog(client, "Unable to find Emote **" + name + "** from " + emoteGuild.name);
+        return '😵';
+    };
     PinguLibrary.PermissionGranted = "Permission Granted";
     PinguLibrary.SavedServers = {
         DanhoMisc: function (client) {
@@ -605,6 +643,9 @@ var PinguLibrary = /** @class */ (function () {
         PinguSupport: function (client) {
             return PinguLibrary.getServer(client, '756383096646926376');
         },
+        PinguEmotes: function (client) {
+            return PinguLibrary.getServer(client, '791312245555855401');
+        }
     };
     PinguLibrary.PinguDevelopers = [
         '245572699894710272',

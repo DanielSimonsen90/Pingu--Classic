@@ -1,5 +1,5 @@
 const { Message } = require("discord.js");
-const { DiscordPermissions } = require("../../PinguPackage");
+const { DiscordPermissions, PinguLibrary } = require("../../PinguPackage");
 
 module.exports = {
     name: 'quote',
@@ -25,7 +25,11 @@ module.exports = {
 
         message.delete();
 
-        message.channel.send(`\`"${Quote}"\`\Said by ${quotee}`, { tts: true })
-            .then(QuotedMessage => QuotedMessage.edit(`\`"${Quote}"\`\n- ${quotee}`));
+        let messageContent = `\`"${Quote}"\`\n- ${quotee}`;
+
+        if (PinguLibrary.PermissionCheck(message, [DiscordPermissions.SEND_TTS_MESSAGES]) == PinguLibrary.PermissionGranted)
+            return message.channel.send(`\`"${Quote}"\`\Said by ${quotee}`, { tts: true })
+                .then(QuotedMessage => QuotedMessage.edit(messageContent));
+        return message.channel.send(messageContent)
     },
 };

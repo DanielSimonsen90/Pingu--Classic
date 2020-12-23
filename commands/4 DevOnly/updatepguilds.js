@@ -4,7 +4,7 @@ const fs = require('fs');
 
 module.exports = {
     name: 'updatepguilds',
-    description: 'Updates PinguGuilds in guilds.json with new stuff from PinguPackage.ts',
+    description: 'Updates PinguGuilds to /servers/ with new stuff from PinguPackage.ts',
     usage: '<guild name | guild id | show>',
     example: [`Pingu Support`, '460926327269359626', 'show'],
     id: 4,

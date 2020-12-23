@@ -17,10 +17,10 @@ module.exports = {
 
         if (!command) return message.channel.send(`There is no command with name or alias \`${commandName}\`, ${message.author}!`);
 
-        delete require.cache[require.resolve(`../${command.id} ${CategoryNames[command.id]}/${commandName}.js`)];
+        delete require.cache[require.resolve(`../${command.id} ${this.CategoryNames[command.id]}/${commandName}.js`)];
 
         try {
-            const newCommand = require(`../${command.id} ${CategoryNames[command.id]}/${commandName}.js`);
+            const newCommand = require(`../${command.id} ${this.CategoryNames[command.id]}/${commandName}.js`);
             message.client.commands.set(newCommand.name, newCommand);
         } catch (error) {
             console.error(error);

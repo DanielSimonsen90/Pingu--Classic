@@ -1,0 +1,18 @@
+{
+  "guildName": "Pingu Emote Server",
+  "guildID": "791312245555855401",
+  "guildOwner": {
+    "id": "245572699894710272",
+    "user": "Danho#2105"
+  },
+  "botPrefix": "*",
+  "embedColor": 16522011,
+  "musicQueue": null,
+  "giveawayConfig": {
+    "firstTimeExecuted": true
+  },
+  "pollConfig": {
+    "firstTimeExecuted": true
+  },
+  "suggestions": []
+}

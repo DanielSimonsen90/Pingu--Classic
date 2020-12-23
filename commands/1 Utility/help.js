@@ -1,8 +1,7 @@
 const { PinguGuild, PinguLibrary, DiscordPermissions } = require('../../PinguPackage');
 
 const { MessageEmbed, Message } = require('discord.js'),
-    ScriptsCategorized = ["", "Utility", "Fun", "Support", "DevOnly"];
-
+    { CategoryNames } = require('../4 DevOnly/update');
 
 module.exports = {
     name: 'help',
@@ -46,7 +45,7 @@ function DefaultHelp(message, embed, Prefix) {
 
     //Insert data for help menu
     for (var x = 1; x < 4; x++)
-        embed.addField(`**__${Prefix}${ScriptsCategorized[x]}__**`, `\`${Prefix}help ${ScriptsCategorized[x]}\``, true);
+        embed.addField(`**__${Prefix}${CategoryNames[x]}__**`, `\`${Prefix}help ${CategoryNames[x]}\``, true);
 
     //Return embed
     return message.channel.send(embed)
@@ -81,27 +80,27 @@ function CategoryOrSpecificHelp(message, args, embed, Prefix) {
         //If not, user cannot perform this help
         return message.channel.send(`Sorry ${message.author}, but you're not cool enough to use that!`);
 
-    //Write all data into embed, if id matches the index of args[0] in ScriptsCategorized
+    //Write all data into embed, if id matches the index of args[0] in CategoryNames
     let data = [];
     data.push(message.client.commands.map(command => {
         if (command.id == args[0]) {
-            let FieldContent = `"${command.description}" \n\`${Prefix}${command.name}`;
+            let FieldContent = `${command.description} \n\`${Prefix}${command.name}`;
             if (command.usage) FieldContent += ` ${command.usage}`;
-            embed.addField(`**__${Prefix}${command.name}__**`, `${FieldContent}\``);
+            embed.addField(`**${Prefix}${command.name}**`, `${FieldContent}\``);
         }
     }));
 
     //Create footer
     let Footer = `Keep in mind that I'm still learning and will eventually have new features!\n` +
-        `You are now viewing page ${args[0]}, being the help page of ${ScriptsCategorized[args[0]]}.`;
+        `You are now viewing page ${args[0]}, being the help page of ${CategoryNames[args[0]]}.`;
     //If message.author is viewing page 3 (*help Support)
     if (args[0] <= 3)
         //Update Footer
         Footer += `Try my other help commands!\n${Prefix}help to view them!`;
     //Update embed's Footer with Footer
     embed.setFooter(Footer)
-        .setDescription(`All of my nooty commands in **${args[0]}** (")>`)
-        .setTitle(`Pingu Commands: ${ScriptsCategorized[args[0]]}`);
+        .setDescription(`All of my nooty commands in **${CategoryNames[args[0]]}** (")>`)
+        .setTitle(`Pingu Commands: ${CategoryNames[args[0]]}`);
 
     //Return embed
     return message.channel.send(embed)
