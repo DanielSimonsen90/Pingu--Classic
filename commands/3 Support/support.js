@@ -17,14 +17,14 @@ module.exports = {
             .setThumbnail(message.client.user.avatarURL)
             .setFooter(`Please don't send him pointless stuff to waste his time :)`)
             .addField('Discord', '@Danho#2105', true)
-            .addField('E-mail', 'pingulevel1@gmail.com', true)
-            .addField('Support Server', 'https://discord.gg/gbxRV4Ekvh', true)
-            .addField("\u200B", "\u200B", true)
-            .addField('Spotify', 'https://open.spotify.com/artist/2Ya69OwtcUqvAMPaE8vXdg', false)
-            .addField('YouTube', 'https://www.youtube.com/channel/UCNy01Kv9gpTLeKGHzdMbb0w?', false)
-            .addField('SoundCloud', 'https://soundcloud.com/daniel-simonsen-705578407', false)
-            .addField('Instagram', 'https://www.instagram.com/danhoesaurus/', false)
-            .addField('Github', 'https://www.github.com/DanielSimonsen90/', false);
+            .addField("\u200B", `[**Support Server**](https://discord.gg/gbxRV4Ekvh)`, true)
+            .addField("\u200B", `[**Github**](https://www.github.com/DanielSimonsen90/)`, true)
+            .addField("\u200B", `[**Spotify**](https://open.spotify.com/artist/2Ya69OwtcUqvAMPaE8vXdg)`, true)
+            .addField("\u200B", `[**YouTube**](https://www.youtube.com/channel/UCNy01Kv9gpTLeKGHzdMbb0w?)`, true)
+            .addField("\u200B", `[**SoundCloud**](https://soundcloud.com/daniel-simonsen-705578407)`, true)
+            .addField("\u200B", `[**Twitch**](https://www.twitch.tv/danhoesaurus)`, true)
+            .addField("\u200B", `[**Instagram**](https://www.instagram.com/danhoesaurus/)`, true)
+            .addField("\u200B", "\u200B", true);
         message.channel.send(Embed);
     },
 };

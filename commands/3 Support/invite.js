@@ -10,7 +10,25 @@ module.exports = {
     permissions: [DiscordPermissions.SEND_MESSAGES],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
-        const Permissions = 271711312;
+        let missingPermissions = [
+            DiscordPermissions.ADMINISTRATOR,
+            DiscordPermissions.VIEW_AUDIT_LOG,
+            DiscordPermissions.VIEW_GUILD_INSIGHTS,
+            DiscordPermissions.MANAGE_GUILD,
+            DiscordPermissions.KICK_MEMBERS,
+            DiscordPermissions.BAN_MEMBERS,
+            DiscordPermissions.CREATE_INSTANT_INVITE,
+            DiscordPermissions.MANAGE_NICKNAMES,
+            DiscordPermissions.MANAGE_EMOJIS,
+            DiscordPermissions.MANAGE_WEBHOOKS,
+            DiscordPermissions.MENTION_EVERYONE,
+            DiscordPermissions.STREAM,
+            DiscordPermissions.MUTE_MEMBERS,
+            DiscordPermissions.MOVE_MEMBERS,
+            DiscordPermissions.PRIORITY_SPEAKER
+        ]
+
+        const Permissions = 372636752;
         message.channel.send(`https://discord.com/api/oauth2/authorize?client_id=562176550674366464&permissions=${Permissions}&scope=bot`);
     }
 }

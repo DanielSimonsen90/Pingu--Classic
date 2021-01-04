@@ -18,7 +18,7 @@ module.exports = {
 
         let PinguUsersArr = [];
         for (var i = 0; i < Users.length; i++) {
-            PinguUsersArr[i] = new PinguUser(Users[i]);
+            PinguUsersArr[i] = new PinguUser(Users[i], message.client);
             let pUser = PinguUsersArr[i];
 
             if (arg == "show")
@@ -27,7 +27,7 @@ module.exports = {
                     .setColor(PinguGuild.GetPGuild(message.guild) && PinguGuild.GetPGuild(message.guild).embedColor || 'BLURPLE')
                     .setThumbnail(pUser.avatar)
                     .setDescription(`ID: ${pUser.id}`)
-                    .setFooter(`Servers shared: ${GetSharedServers(message.client, pUser)}`)
+                    .setFooter(`Servers shared: ${pUser.sharedServers}`)
                     .addField('Daily Streak', pUser.dailyStreak, true)
                     .addField('Last Messaged', pUser.replyPerson && pUser.replyPerson.name | "Unset", true)
                     .addField(`Playlists`, pUser.playlists && pUser.playlists.size, true)
@@ -59,22 +59,6 @@ function GetUsers(BotGuilds) {
         });
     });
     return users;
-}
-/**@param {Client} client
- * @param {User} user*/
-function GetSharedServers(client, user) {
-    let servers = [];
-    client.guilds.cache.forEach(g => g.members.cache.forEach(gm => {
-        if (gm.user.id == user.id)
-            servers.push(g.name);
-    }));
-
-    let result = `[${server.length}]: `;
-    for (var i = 0; i < servers.length; i++) {
-        if (i == 0) result += servers[i];
-        else result += ` • ${servers[i]}`;
-    }
-    return result;
 }
 /**@param {Message} message
  * @param {PinguUser} pUser

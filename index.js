@@ -3,7 +3,7 @@ const { Command, Client, Collection, Guild, Message, MessageEmbed } = require('d
     { token, Prefix } = require('./config.json'),
     { musicCommands } = require('./commands/2 Fun/music'),
     { CategoryNames } = require('./commands/4 DevOnly/update'),
-    { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions } = require('./PinguPackage'),
+    { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error } = require('./PinguPackage'),
     fs = require('fs'),
     SecondaryPrefix = '562176550674366464',
     client = new Client();
@@ -39,10 +39,13 @@ client.once('ready', () => {
 client.on('error', err => PinguLibrary.errorLog(client, `Called from client.on('error')`, null, err));
 
 //Message response
-client.on('message', message => {
+client.on('message', async message => {
+
     //Log latency
     try { PinguLibrary.LatencyCheck(message); }
     catch (err) { PinguLibrary.errorLog(client, `LatencyCheck error`, message.content, err); }
+
+    if (await fromEmojiServer(message)) return;
 
     //Assign prefix
     let prefix = message.guild ? HandlePGuild(message.guild) : Prefix;
@@ -73,7 +76,7 @@ client.on('message', message => {
 
     //Attempt "command" assignment
     if (musicCommands.find(cmd => [cmd.name, cmd.alias].includes(commandName))) {
-        args.unshift(commandName); 
+        args.unshift(commandName);
         commandName = `music`;
     } //music command was used without *music
     let command = AssignCommand(commandName, args);
@@ -89,6 +92,38 @@ client.on('message', message => {
     //Execute command and log it
     ExecuteAndLogCommand(message, args, commandName, command);
 
+    /**@param {Message} message*/
+    async function fromEmojiServer(message) {
+        let guild = message.guild.id == PinguLibrary.SavedServers.PinguEmotes(client).id && message.guild;
+        if (!guild || message.author.bot) return false;
+        if (message.channel.name != 'emotes') return false;
+
+        let permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.MANAGE_EMOJIS, DiscordPermissions.SEND_MESSAGES])
+        if (permCheck != PinguLibrary.PermissionGranted) {
+            message.channel.send(permCheck);
+            return false;
+        }
+
+        for (var file of message.attachments.array()) {
+            let errMsg = "";
+
+            let emote = file && file.attachment;
+            let name = message.content && message.content.replace(' ', '_') || file && file.name.split('.')[0];
+
+            if (!file) errMsg = "No file attatched!";
+            else if (!emote) errMsg = "No suitable emote attachment!";
+            else if (!name) errMsg = "No name provided!";
+
+            if (errMsg) {
+                message.channel.send(errMsg);
+                return false;
+            }
+
+            let newEmote = await guild.emojis.create(emote, name);
+            message.channel.send(`${newEmote} was created!`);
+        }
+        return true;
+    }
     /**@param {Guild} guild
      * @returns {string} */
     function HandlePGuild(guild) {
@@ -263,7 +298,7 @@ client.on('message', message => {
 
 //#region Guild Events
 client.on('guildCreate', async guild => {
-    PinguGuild.WritePGuild(guild, async () => await PinguLibrary.pGuildLog(client, "index: guildCreate", `Successfully joined "**${guild.name}**", owned by <@${guild.owner.user.id}>`));
+    PinguGuild.WritePGuild(guild, async pGuild => await PinguLibrary.pGuildLog(client, "index: guildCreate", `Successfully joined "**${pGuild.guildName}**", owned by <@${pGuild.guildOwner.id}>`));
 
     //Thank guild owner for adding Pingu
     let OwnerDM = await guild.owner.user.createDM();
@@ -274,9 +309,17 @@ client.on('guildCreate', async guild => {
         `I've successfully joined your server, "**${guild.name}**"!\n\n` +
 
         `Thank you for adding me!\n` +
-        `Use \`*help\`, if you don't know how I work!`)
-        .catch(err => PinguLibrary.errorLog(client, `Failed to send <@${guild.owner.id}> a DM`, null, err))
-        .then(console.log(`Sent ${guild.owner.user.tag} my "thank you" message.`));
+        `Use \`*help\`, if you don't know how I work!`
+    )
+    .catch(err => PinguLibrary.errorLog(client, `Failed to send <@${guild.owner.id}> a DM`, null, err))
+    .then(console.log(`Sent ${guild.owner.user.tag} my "thank you" message.`));
+
+    let pUsers = PinguUser.GetPUsers();
+    guild.members.cache.forEach(member => {
+        if (!pUsers.find(pUser => pUser.id == member.id)) {
+            PinguUser.WritePUser(member.user, client, async pUser => await PinguLibrary.pUserLog(client, "index: guildCreate", `Created **${pUser.tag}.json**`))
+        }
+    })
 }); //First time joining a guild
 client.on('guildUpdate', (from, to) => {
     try {
@@ -288,15 +331,15 @@ client.on('guildUpdate', (from, to) => {
     }
     catch (err) {
         if (err.message.includes('Cannot find module'))
-            return PinguGuild.DeletePGuild(from, () => PinguGuild.WritePGuild(to, () => PinguLibrary.pGuildLog(client,
-                `index: guildUpdate`, `Renamed **${from.name}**'s pGuild name to **${to.name}**.`)));
+            return PinguGuild.DeletePGuild(from, pFGuild => PinguGuild.WritePGuild(to, pTGuild => PinguLibrary.pGuildLog(client,
+                `index: guildUpdate`, `Renamed **${pFGuild.guildName}**'s pGuild name to **${pTGuild.guildName}**.`)));
 
         PinguLibrary.errorLog(client, "Unable to update pGuild", null, err);
     }
 }); //Guild was updated with new data
 client.on('guildDelete', guild => {
-    PinguGuild.DeletePGuild(guild, () =>
-        PinguLibrary.pGuildLog(client, "index: guildDelete", `Successfully left "**${guild.name}**", owned by <@${guild.owner.user.id}>`));
+    PinguGuild.DeletePGuild(guild, pGuild =>
+        PinguLibrary.pGuildLog(client, "index: guildDelete", `Successfully left "**${pGuild.guildName}**", owned by <@${pGuild.guildOwner.id}>`));
 
     let guildUsers = guild.members.cache.array().map(gm => !gm.user.bot && gm.user);
     let clientGuilds = client.guilds.cache.array();
@@ -306,8 +349,8 @@ client.on('guildDelete', guild => {
         if (!pUser) continue;
 
         let guilds = clientGuilds.map(g => g.member(user)).length;
-        if (guilds == 1) PinguUser.DeletePUser(user, () =>
-            PinguLibrary.pUserLog(client, "index: guildDelete", `Successfully removed **${user.tag}** from pUsers.`));
+        if (guilds == 1) PinguUser.DeletePUser(user, pUser =>
+            PinguLibrary.pUserLog(client, "index: guildDelete", `Successfully removed **${pUser.tag}** from pUsers.`));
     }
 }); //Leaving a guild
 //#endregion

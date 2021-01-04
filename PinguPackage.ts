@@ -1,4 +1,4 @@
-﻿import { Channel, Client, Collection, Guild, GuildChannel, GuildEmoji, GuildMember, Message, MessageEmbed, PermissionString, Role, TextChannel, User, VoiceChannel, VoiceConnection, VoiceState } from 'discord.js';
+﻿import { ActivityType, Channel, Client, Collection, Guild, GuildChannel, GuildEmoji, GuildMember, Message, MessageEmbed, PermissionString, Role, TextChannel, User, VoiceChannel, VoiceConnection, VoiceState } from 'discord.js';
 import { MoreVideoDetails } from 'ytdl-core';
 import * as fs from 'fs';
 
@@ -165,21 +165,23 @@ export class PinguUser {
         return await this.UpdatePUsersJSON(client, script, succMsg, errMsg);
     }
 
-    public static WritePUser(user: User, callback?: () => void) {
+    public static WritePUser(user: User, client: Client, callback?: (pUser?: PinguUser) => void) {
         try {
-            fs.writeFile(`./users/${user.tag}.json`, JSON.stringify(new PinguUser(user), null, 2), async err => {
+            let pUser = new PinguUser(user, client);
+            fs.writeFile(`./users/${user.tag}.json`, JSON.stringify(pUser, null, 2), async err => {
                 if (err) PinguLibrary.pUserLog(user.client, "WritePUser", null, new Error(err));
-                if (await callback) callback();
+                if (await callback) callback(pUser);
             });
         } catch (ewwor) {
             console.log(ewwor);
         }
     }
-    public static DeletePUser(user: User, callback?: () => void) {
+    public static DeletePUser(user: User, callback?: (pUser?: PinguUser) => void) {
         try {
+            let pUser = this.GetPUser(user);
             fs.unlink(`./users/${user.tag}.json`, async err => {
                 if (err) PinguLibrary.pUserLog(user.client, "DeletePGuild", `Unable to delete json file for ${PinguUser.GetPUser(user).tag}`, new Error(err));
-                if (await callback) callback();
+                if (await callback) callback(pUser);
             });
         } catch (ewwor) {
             console.log(ewwor);
@@ -187,21 +189,38 @@ export class PinguUser {
     }
     //#endregion
 
-    constructor(user: User) {
+    constructor(user: User, client: Client) {
         let pUser = new PUser(user);
         this.id = pUser.id;
         this.tag = pUser.name;
+        this.sharedServers = getSharedServers();
         this.replyPerson = null;
         this.dailyStreak = 0;
         this.avatar = user.avatarURL();
-        this.playlists = new Collection<Queue, string>();
+        this.playlists = new Array<Queue>();
+
+        function getSharedServers() {
+            let servers = [];
+            client.guilds.cache.forEach(g => g.members.cache.forEach(gm => {
+                if (gm.user.id == user.id)
+                    servers.push(g.name);
+            }));
+
+            let result = `[${servers.length}]: `;
+            for (var i = 0; i < servers.length; i++) {
+                if (i == 0) result += servers[i];
+                else result += ` • ${servers[i]}`;
+            }
+            return result;
+        }
     }
     public id: string
     public tag: string
+    public sharedServers: string
     public replyPerson: PUser
     public dailyStreak: number
     public avatar: string
-    public playlists: Collection<Queue, string>
+    public playlists: Queue[]
     //public Achievements: Achievement[]
 }
 export class PinguGuild {
@@ -237,21 +256,23 @@ export class PinguGuild {
         return await this.UpdatePGuildJSON(client, guild, script, succMsg, errMsg);
     }
 
-    public static WritePGuild(guild: Guild, callback?: () => void) {
+    public static WritePGuild(guild: Guild, callback?: (pGuild?: PinguGuild) => void) {
         try {
-            fs.writeFile(`./servers/${guild.name}.json`, JSON.stringify(new PinguGuild(guild), null, 2), async err => {
+            let pGuild = new PinguGuild(guild);
+            fs.writeFile(`./servers/${guild.name}.json`, JSON.stringify(pGuild, null, 2), async err => {
                 if (err) PinguLibrary.pGuildLog(guild.client, "WritePGuild", null, new Error(err));
-                if (await callback) callback();
+                if (await callback) callback(pGuild);
             });
         } catch (ewwor) {
             console.log(ewwor);
         }
     }
-    public static DeletePGuild(guild: Guild, callback?: () => void) {
+    public static DeletePGuild(guild: Guild, callback?: (pGuild?: PinguGuild) => void) {
         try {
+            let pGuild = this.GetPGuild(guild);
             fs.unlink(`./servers/${guild.name}.json`, async err => {
-                if (err) PinguLibrary.pGuildLog(guild.client, "DeletePGuild", `Unable to delete json file for ${PinguGuild.GetPGuild(guild).guildName}`, new Error(err));
-                if (await callback) callback();
+                if (err) PinguLibrary.pGuildLog(guild.client, "DeletePGuild", `Unable to delete json file for ${pGuild.guildName}`, new Error(err));
+                if (await callback) callback(pGuild);
             });
         } catch (ewwor) {
             console.log(ewwor);
@@ -286,47 +307,41 @@ export class PinguGuild {
 }
 export class PinguLibrary {
     public static setActivity(client: Client) {
-        //return client.user.setActivity('your screams for *help', { type: 'LISTENING' });
-        return client.user.setActivity('jingle bells... *help', { type: 'LISTENING' });
-    }
-    public static async LatencyCheck(message: Message) {
-        //Get latency
-        let pingChannel = this.getChannel(message.client, this.SavedServers.PinguSupport(message.client).id, "ping-log");
-        if (message.channel == pingChannel || message.author.bot) return;
-
-        let pingChannelSent = await pingChannel.send(`Calculating ping`);
-
-        let latency = pingChannelSent.createdTimestamp - message.createdTimestamp;
-        pingChannelSent.edit(latency);
-
-        //Get outages channel
-        let outages = this.getChannel(message.client, this.SavedServers.PinguSupport(message.client).id, "outages");
-        if (!outages) return this.errorLog(message.client, `Unable to find outages channel from LatencyCheck!`);
-
-        //Set up to find last Pingu message
-        let outagesMessages = outages.messages.cache.array();
-        let outageMessagesCount = outagesMessages.length - 1;
-        let lastPinguMessage = null;
-
-        //Find Pingu message
-        for (var i = outageMessagesCount - 1; i >= 0; i--) {
-            if (outagesMessages[i].author != message.client.user) continue;
-            lastPinguMessage = outagesMessages[i];
+        class Activity {
+            constructor(text: string, type: ActivityType) {
+                this.text = text;
+                this.type = type;
+            }
+            public text: string
+            public type: ActivityType
         }
 
-        if (!lastPinguMessage) return;
+        internalSetActivity();
+        setInterval(internalSetActivity, 86400000);
 
-        let sendMessage = !lastPinguMessage.content.includes(`I have a latency delay on`);
-        if (!sendMessage) {
-            let lastMessageArgs = lastPinguMessage.content.split(` `);
-            let lastLatencyExclaim = lastMessageArgs[lastMessageArgs.length - 1];
-            let lastLatency = parseInt(lastLatencyExclaim.substring(0, lastLatencyExclaim.length - 1));
+        function internalSetActivity() {
+            let date = {
+                day: new Date(Date.now()).getDate(),
+                month: new Date(Date.now()).getMonth() + 1,
+                year: new Date(Date.now()).getFullYear()
+            };
 
-            if (lastLatency > 1000)
-                return lastPinguMessage.edit(`I have a latency delay on ${latency}!`);
+            let activity = new Activity('your screams for', 'LISTENING');
+
+            //date.getMonth is 0-indexed
+            if (date.month == 12)
+                activity = date.day < 26 ?
+                    new Activity('Jingle Bells...', 'LISTENING') :
+                    new Activity('fireworks go boom', 'WATCHING');
+            else if (date.month == 5 && date.day == 3)
+                activity = new Activity(`Danho's birthday wishes`, 'LISTENING');
+
+            client.user.setActivity(activity.text + ' *help', { type: activity.type })
+                .then(presence => {
+                    let activity = presence.activities[presence.activities.length - 1];
+                    PinguLibrary.activityLog(client, `${activity.type} ${activity.name}`)
+                });
         }
-
-        if (latency > 1000) PinguLibrary.outages(message.client, `I have a latency delay on ${latency}!`);
     }
 
     public static PermissionCheck(message: Message, permissions: string[]) {
@@ -446,6 +461,24 @@ export class PinguLibrary {
             return returnMessage
         }
     }
+    public static async pGuildLog(client: Client, script: string, message: string, err?: Error) {
+        var pinguGuildLog = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "pingu-guild-log");
+
+        if (err) {
+            var errorLink = (await this.errorLog(client, `pGuild Error: "${message}"`, null, err)).url;
+            return pinguGuildLog.send(`[**Failed**] [**${script}**]: ${message}\n${err.message}\n\n${errorLink}\n\n<@&756383446871310399>`);
+        }
+        return pinguGuildLog.send(`[**Success**] [**${script}**]: ${message}`);
+    }
+    public static async pUserLog(client: Client, script: string, message: string, err?: Error) {
+        var pinguUserLog = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "pingu-user-log");
+
+        if (err) {
+            var errorLink = (await this.errorLog(client, `pUser Error (**${script}**): "${message}"`, null, err)).url;
+            return pinguUserLog.send(`[**Failed**] [**${script}**]: ${message}\n${err.message}\n\n${errorLink}\n\n<@&756383446871310399>`);
+        }
+        return pinguUserLog.send(`[**Success**] [**${script}**]: ${message}`);
+    }
     public static tellLog(client: Client, sender: User, reciever: User, message: Message | MessageEmbed) {
         var tellLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'tell-log');
         if (!tellLogChannel) return this.DanhoDM(client, `Couldn't get #tell-log channel in Pingu Support, https://discord.gg/Mp4CH8eftv`)
@@ -488,23 +521,50 @@ export class PinguLibrary {
             tellLogChannel.send(message as MessageEmbed)
         }
     }
-    public static async pGuildLog(client: Client, script: string, message: string, err?: Error) {
-        var pinguGuildLog = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "pingu-guild-log");
+    public static async LatencyCheck(message: Message) {
+        //Get latency
+        let pingChannel = this.getChannel(message.client, this.SavedServers.PinguSupport(message.client).id, "ping-log");
+        if (message.channel == pingChannel || message.author.bot) return;
 
-        if (err) {
-            var errorLink = (await this.errorLog(client, `pGuild Error: "${message}"`, null, err)).url;
-            return pinguGuildLog.send(`[**Failed**] [**${script}**]: ${message}\n${err.message}\n\n${errorLink}\n\n<@&756383446871310399>`);
+        let pingChannelSent = await pingChannel.send(`Calculating ping`);
+
+        let latency = pingChannelSent.createdTimestamp - message.createdTimestamp;
+        pingChannelSent.edit(latency);
+
+        //Get outages channel
+        let outages = this.getChannel(message.client, this.SavedServers.PinguSupport(message.client).id, "outages");
+        if (!outages) return this.errorLog(message.client, `Unable to find outages channel from LatencyCheck!`);
+
+        //Set up to find last Pingu message
+        let outagesMessages = outages.messages.cache.array();
+        let outageMessagesCount = outagesMessages.length - 1;
+        let lastPinguMessage = null;
+
+        //Find Pingu message
+        for (var i = outageMessagesCount - 1; i >= 0; i--) {
+            if (outagesMessages[i].author != message.client.user) continue;
+            lastPinguMessage = outagesMessages[i];
         }
-        return pinguGuildLog.send(`[**Success**] [**${script}**]: ${message}`);
+
+        if (!lastPinguMessage) return;
+
+        let sendMessage = !lastPinguMessage.content.includes(`I have a latency delay on`);
+        if (!sendMessage) {
+            let lastMessageArgs = lastPinguMessage.content.split(` `);
+            let lastLatencyExclaim = lastMessageArgs[lastMessageArgs.length - 1];
+            let lastLatency = parseInt(lastLatencyExclaim.substring(0, lastLatencyExclaim.length - 1));
+
+            if (lastLatency > 1000)
+                return lastPinguMessage.edit(`I have a latency delay on ${latency}!`);
+        }
+
+        if (latency > 1000) PinguLibrary.outages(message.client, `I have a latency delay on ${latency}!`);
     }
-    public static async pUserLog(client: Client, script: string, message: string, err?: Error) {
-        var pinguUserLog = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "pingu-user-log");
+    public static activityLog(client: Client, message: string) {
+        let activityLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'activity-log');
+        if (!activityLogChannel) return this.DanhoDM(client, `Couldn't get #activity-log channel in Pingu Support, https://discord.gg/Mp4CH8eftv`)
 
-        if (err) {
-            var errorLink = (await this.errorLog(client, `pUser Error (**${script}**): "${message}"`, null, err)).url;
-            return pinguUserLog.send(`[**Failed**] [**${script}**]: ${message}\n${err.message}\n\n${errorLink}\n\n<@&756383446871310399>`);
-        }
-        return pinguUserLog.send(`[**Success**] [**${script}**]: ${message}`);
+        return activityLogChannel.send(message);
     }
 
     public static getEmote(client: Client, name: string, emoteGuild: Guild) {

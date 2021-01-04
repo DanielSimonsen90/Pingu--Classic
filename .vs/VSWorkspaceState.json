@@ -1,8 +1,12 @@
 {
   "ExpandedNodes": [
     "",
-    "\\commands"
+    "\\commands",
+    "\\commands\\1 Utility",
+    "\\commands\\2 Fun",
+    "\\commands\\3 Support",
+    "\\commands\\4 DevOnly"
   ],
-  "SelectedNode": "\\debugLog.json",
+  "SelectedNode": "\\commands\\2 Fun\\tell.js",
   "PreviewInSolutionExplorer": false
 }

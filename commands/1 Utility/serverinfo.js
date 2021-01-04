@@ -7,6 +7,7 @@ module.exports = {
     guildOnly: true,
     id: 1,
     example: ["", "all", "emotes", "emotes FeelsBadMan", "features"],
+    permissions: [DiscordPermissions.SPEAK, DiscordPermissions.EMBED_LINKS, DiscordPermissions.USE_EXTERNAL_EMOJIS],
     /**@param {Message} message @param {string[]} args*/
     execute(message, args) {
         const bigboiinfo = args[0] && args[0].toLowerCase() == 'all',
@@ -62,6 +63,7 @@ async function SendCallerInfo(message, bigboiinfo) {
         webhook: PinguLibrary.getEmote(message.client, 'webhook', PinguLibrary.SavedServers.PinguEmotes(message.client)),
         channelIcon: PinguLibrary.getEmote(message.client, 'channelIcon', PinguLibrary.SavedServers.PinguEmotes(message.client)),
         ownerCrown: PinguLibrary.getEmote(message.client, 'ownerCrown', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        roleIcon: PinguLibrary.getEmote(message.client, 'roleIcon', PinguLibrary.SavedServers.PinguEmotes(message.client)),
     }
 
     /**@param {string} region*/
@@ -121,7 +123,7 @@ async function SendCallerInfo(message, bigboiinfo) {
             .addField(`👥 Total members`, guild.memberCount, true)
             .addField(`🧍 Total users`, guild.members.cache.filter(gm => !gm.user.bot).size, true)
             .addField(`🤖 Total bots`, guild.members.cache.filter(gm => gm.user.bot).size, true)
-            .addField(`💂 Roles`, guild.roles.cache.size, true)
+            .addField(`${savedEmotes.roleIcon} Roles`, guild.roles.cache.size, true)
             .addField(`${savedEmotes.wumpus} Emotes`, guild.emojis.cache.size, true)
             .addField(`🚷 Maximum Members`, guild.maximumMembers, true)
             .addField(`${savedEmotes.boost} Boost level`, guild.premiumTier, true)
