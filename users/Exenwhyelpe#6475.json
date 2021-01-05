@@ -1,6 +1,12 @@
 {
   "id": "628193545240707082",
   "tag": "Exenwhyelpe#6475",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/628193545240707082/81cfc7ebddabb35912312f968f6b2cde.webp",

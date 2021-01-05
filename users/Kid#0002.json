@@ -1,6 +1,32 @@
 {
   "id": "324191949353385984",
   "tag": "Kid#0002",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    },
+    {
+      "id": "460926327269359626",
+      "name": "Danho's Misc"
+    },
+    {
+      "id": "640305503745998849",
+      "name": "Emoji's"
+    },
+    {
+      "id": "644823098260062221",
+      "name": "Discurd Butts"
+    },
+    {
+      "id": "756383096646926376",
+      "name": "Pingu Support"
+    },
+    {
+      "id": "778022031811543041",
+      "name": "The Genius Company LLC ™"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/324191949353385984/98542c2919a7c0ccbedb3a70ea8e8781.webp",

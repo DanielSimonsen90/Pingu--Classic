@@ -50,37 +50,39 @@ export class DiscordPermissions {
 }
 
 //#region JSON Classes
-export class PGuildMember {
-    constructor(member: GuildMember) {
-        this.id = member.id;
-        this.user = member.user.tag;
-    }
-    public id: string
-    public user: string
-    public toString() {
-        return `<@${this.id}>`;
-    }
-}
-export class PRole {
-    constructor(role: Role) {
-        try {
-            this.name = role.name;
-            this.id = role.id;
-        } catch { return undefined; }
-    }
-    public name: string;
-    public id: string;
-}
-export class PChannel {
-    constructor(channel: GuildChannel) {
-        this.id = channel.id;
-        this.name = channel.name;
+export class PItem {
+    constructor(object: {id: string, name: string}) {
+        this.id = object.id;
+        this.name = object.name;
     }
     public id: string
     public name: string
 }
-export class PEmote {
-    constructor(emote: GuildEmoji) {
+export class PGuildMember extends PItem {
+    constructor(member: GuildMember) {
+        super({
+            id: member.id,
+            name: member.user.tag
+        });
+    }
+    public toString() {
+        return `<@${this.id}>`;
+    }
+}
+export class PRole extends PItem {
+    constructor(role: Role) {
+        try { super(role) }
+        catch { return undefined; }
+    }
+}
+export class PChannel extends PItem {
+    constructor(channel: GuildChannel) {
+        super(channel);
+    }
+}
+export class PUser extends PItem {
+    constructor(user: User) {
+        super({ id: user.id, name: user.tag });
     }
 }
 export class PClient {
@@ -88,14 +90,6 @@ export class PClient {
         this.displayName = guild.me.displayName;
     }
     public displayName: string
-}
-export class PUser {
-    constructor(user: User) {
-        this.name = user.tag;
-        this.id = user.id;
-    }
-    public name: string
-    public id: string
 }
 
 export class PQueue {
@@ -144,31 +138,43 @@ export class PQueue {
 export class PinguUser {
     //#region Static PinguUser methods
     public static GetPUsers(): PinguUser[] {
-        return require('./users.json');
+        let userCollection = fs.readdirSync(`./users/`).filter(file => file.endsWith('.json'));
+        let pUserArr = [];
+
+        for (var userFile of userCollection)
+            pUserArr.push(require(`./users/${userFile}`));
+        return pUserArr;
     }
-    public static GetPUser(user: User): PinguUser {
+    public static GetPUser(user: User, suppressError?: boolean): PinguUser {
         var result = this.GetPUsers().find(pu => pu.id == user.id);
-        if (!result) PinguLibrary.errorLog(user.client, `Unable to find a user in pUsers with id ${user.id}`);
+        if (!result && !suppressError) PinguLibrary.errorLog(user.client, `Unable to find a user in pUsers with id ${user.id}`);
         return result;
     }
 
-    public static UpdatePUsersJSON(client: Client, script: string, succMsg: string, errMsg: string) {
-        fs.writeFile('./users.json', '', err => {
+    public static UpdatePUsersJSON(client: Client, user: User, script: string, succMsg: string, errMsg: string) {
+        let fileName = this.PUserFileName(user);
+        let path = `./users/${fileName}.json`;
+        try { var pUserObj = require(path); }
+        catch (err) { return PinguLibrary.pUserLog(client, script, `Unable to get pUser from ${fileName}`, new Error(err)); }
+
+        console.log(`----------\n${pUserObj}\n----------`)
+
+        fs.writeFile(path, '', err => {
             if (err) PinguLibrary.pUserLog(client, script, `[writeFile]: ${errMsg}`, new Error(err));
-            else fs.appendFile('./users.json', JSON.stringify(this.GetPUsers(), null, 4), err => {
+            else fs.appendFile(path, JSON.stringify(pUserObj, null, 4), err => {
                 if (err) PinguLibrary.pUserLog(client, script, `[appendFile]: ${errMsg}`, new Error(err));
                 else PinguLibrary.pUserLog(client, script, succMsg);
             });
         });
     }
-    public static async UpdatePUsersJSONAsync(client: Client, script: string, succMsg: string, errMsg: string) {
-        return await this.UpdatePUsersJSON(client, script, succMsg, errMsg);
+    public static async UpdatePUsersJSONAsync(client: Client, user: User, script: string, succMsg: string, errMsg: string) {
+        return await this.UpdatePUsersJSON(client, user, script, succMsg, errMsg);
     }
 
     public static WritePUser(user: User, client: Client, callback?: (pUser?: PinguUser) => void) {
         try {
             let pUser = new PinguUser(user, client);
-            fs.writeFile(`./users/${user.tag}.json`, JSON.stringify(pUser, null, 2), async err => {
+            fs.writeFile(`./users/${this.PUserFileName(user)}.json`, JSON.stringify(pUser, null, 2), async err => {
                 if (err) PinguLibrary.pUserLog(user.client, "WritePUser", null, new Error(err));
                 if (await callback) callback(pUser);
             });
@@ -187,36 +193,31 @@ export class PinguUser {
             console.log(ewwor);
         }
     }
+    public static PUserFileName(user: User) {
+        let specialCharacters = ["/", "\\", "<", ">"];
+        let writableName = user.tag;
+
+        for (var c of writableName) {
+            if (specialCharacters.includes(c))
+                writableName = writableName.replace(c, " ");
+        }
+        return writableName;
+    }
     //#endregion
 
     constructor(user: User, client: Client) {
         let pUser = new PUser(user);
         this.id = pUser.id;
         this.tag = pUser.name;
-        this.sharedServers = getSharedServers();
+        this.sharedServers = PinguLibrary.getSharedServers(client, user).map(guild => new PItem(guild));
         this.replyPerson = null;
         this.dailyStreak = 0;
         this.avatar = user.avatarURL();
         this.playlists = new Array<Queue>();
-
-        function getSharedServers() {
-            let servers = [];
-            client.guilds.cache.forEach(g => g.members.cache.forEach(gm => {
-                if (gm.user.id == user.id)
-                    servers.push(g.name);
-            }));
-
-            let result = `[${servers.length}]: `;
-            for (var i = 0; i < servers.length; i++) {
-                if (i == 0) result += servers[i];
-                else result += ` • ${servers[i]}`;
-            }
-            return result;
-        }
     }
     public id: string
     public tag: string
-    public sharedServers: string
+    public sharedServers: PItem[]
     public replyPerson: PUser
     public dailyStreak: number
     public avatar: string
@@ -286,7 +287,7 @@ export class PinguGuild {
         this.guildOwner = new PGuildMember(guild.owner);
         const { Prefix } = require('./config.json');
         this.botPrefix = Prefix;
-        this.embedColor = guild.me.roles.cache.find(role => role.name.includes('Pingu')) && guild.me.roles.cache.find(role => role.name.includes('Pingu')).color || 0;
+        this.embedColor = guild.me.roles.cache.find(role => role.name.includes('Pingu')) && guild.me.roles.cache.find(role => role.name.includes('Pingu')).color || PinguLibrary.DefaultEmbedColor;
         this.musicQueue = null;
         this.giveawayConfig = new GiveawayConfig();
         this.pollConfig = new PollConfig;
@@ -306,6 +307,7 @@ export class PinguGuild {
     public themeWinners: PGuildMember[]
 }
 export class PinguLibrary {
+    //#region Client
     public static setActivity(client: Client) {
         class Activity {
             constructor(text: string, type: ActivityType) {
@@ -339,11 +341,15 @@ export class PinguLibrary {
             client.user.setActivity(activity.text + ' *help', { type: activity.type })
                 .then(presence => {
                     let activity = presence.activities[presence.activities.length - 1];
-                    PinguLibrary.activityLog(client, `${activity.type} ${activity.name}`)
+                    let { announceActivity } = require('./config');
+                    if (announceActivity) PinguLibrary.activityLog(client, `${activity.type} ${activity.name}`);
                 });
         }
     }
+    public static DefaultEmbedColor = 3447003;
+    //#endregion
 
+    //#region Permissions
     public static PermissionCheck(message: Message, permissions: string[]) {
         var textChannel = message.channel as TextChannel;
         let { testingMode } = require('./config.json');
@@ -365,7 +371,9 @@ export class PinguLibrary {
         return this.PermissionGranted;
     }
     public static readonly PermissionGranted = "Permission Granted";
+    //#endregion
 
+    //#region Servers
     public static readonly SavedServers = {
         DanhoMisc(client: Client) {
             return PinguLibrary.getServer(client, '460926327269359626');
@@ -380,7 +388,17 @@ export class PinguLibrary {
     private static getServer(client: Client, id: string) {
         return client.guilds.cache.find(g => g.id == id);
     }
+    public static getSharedServers(client: Client, user: User): Guild[] {
+        let servers = [];
+        client.guilds.cache.forEach(g => g.members.cache.forEach(gm => {
+            if (gm.user.id == user.id)
+                servers.push(g);
+        }));
+        return servers;
+    }
+    //#endregion
 
+    //#region Pingu Developers
     private static readonly PinguDevelopers: string[] = [
         '245572699894710272', //Danho#2105
         '405331883157880846', //Synthy Sytro
@@ -390,7 +408,9 @@ export class PinguLibrary {
         //console.log(`[${this.PinguDevelopers.join(', ')}].includes(${user.id})`);
         return this.PinguDevelopers.includes(user.id);
     }
+    //#endregion
 
+    //#region Channels
     public static getChannel(client: Client, guildID: string, channelname: string) {
         var guild = client.guilds.cache.find(guild => guild.id == guildID);
         if (!guild) {
@@ -422,7 +442,9 @@ export class PinguLibrary {
         var DanhoDM = await DanhoMisc.owner.createDM();
         return DanhoDM.send(message)
     }
+    //#endregion
 
+    //#region Log Channels
     public static errorLog(client: Client, message: string, userContent?: string, err?: Error) {
         var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log');
         if (!errorlogChannel) return this.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
@@ -433,7 +455,7 @@ export class PinguLibrary {
         function getErrorMessage(message: string, userContent?: string, err?: Error) {
             if (!userContent) return message;
             else if (!err)
-                return ("```\n" +
+                return ("`\`\`\n" +
                     `[Provided Message]\n` +
                     `${message}\n` +
                     `\n` +
@@ -442,7 +464,7 @@ export class PinguLibrary {
                     "```"
                 );
 
-            let returnMessage = ("```" +
+            let returnMessage = ("\`\`\`" +
                 err.fileName && err.lineNumber ? `${err.fileName} threw an error at line ${err.lineNumber}!\n` : " " +
                 `[Provided Message]\n` +
                 `${message}\n` +
@@ -499,7 +521,7 @@ export class PinguLibrary {
 
             console.log(consoleLog);
 
-            var format = (ping) => `${new Date(Date.now()).toLocaleTimeString()} [<@${(ping ? sender : sender.username)}> ➡️ <@${(ping ? reciever : reciever.username)}>]`;
+            var format = (ping: boolean) => `${new Date(Date.now()).toLocaleTimeString()} [<@${(ping ? sender : sender.username)}> ➡️ <@${(ping ? reciever : reciever.username)}>]`;
 
             if (messageAsMessage.content && messageAsMessage.attachments)
                 tellLogChannel.send(format(false) + `: ||${messageAsMessage.content}||`, messageAsMessage.attachments.array())
@@ -513,7 +535,7 @@ export class PinguLibrary {
                 tellLogChannel.send(format(false), messageAsMessage.attachments.array())
                     .then(sent => sent.edit(format(true)));
 
-            else this.errorLog(client, `${sender} => ${reciever} sent something that didn't have content or attachments`)
+            else this.errorLog(client, `${sender} ➡️ ${reciever} sent something that didn't have content or attachments`)
                 .then(() => tellLogChannel.send(`Ran else statement - reported to ${tellLogChannel.guild.channels.cache.find(c => c.name == 'error-log')}`));
         }
         else if ((message as MessageEmbed).constructor.name == "MessageEmbed") {
@@ -538,12 +560,11 @@ export class PinguLibrary {
         //Set up to find last Pingu message
         let outagesMessages = outages.messages.cache.array();
         let outageMessagesCount = outagesMessages.length - 1;
-        let lastPinguMessage = null;
 
         //Find Pingu message
         for (var i = outageMessagesCount - 1; i >= 0; i--) {
             if (outagesMessages[i].author != message.client.user) continue;
-            lastPinguMessage = outagesMessages[i];
+            var lastPinguMessage = outagesMessages[i];
         }
 
         if (!lastPinguMessage) return;
@@ -566,6 +587,7 @@ export class PinguLibrary {
 
         return activityLogChannel.send(message);
     }
+    //#endregion
 
     public static getEmote(client: Client, name: string, emoteGuild: Guild) {
         for (var guild of client.guilds.cache.array()) {

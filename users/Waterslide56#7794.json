@@ -1,6 +1,16 @@
 {
   "id": "396357904950755338",
   "tag": "Waterslide56#7794",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    },
+    {
+      "id": "778022031811543041",
+      "name": "The Genius Company LLC ™"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/396357904950755338/1bf4ca9059a1c9ae44c737ffe865b846.webp",

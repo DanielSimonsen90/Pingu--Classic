@@ -1,6 +1,12 @@
 {
   "id": "361815289278627851",
   "tag": "Emsenparry#8923",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/361815289278627851/a_05cd33e9895a4e746877c8f2a4a1e0b4.webp",

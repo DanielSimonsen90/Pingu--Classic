@@ -1,6 +1,12 @@
 {
   "id": "722147428723327047",
   "tag": "Gidda#0001",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/722147428723327047/a_1ff9cb6eecf6679f8f97904ac982fa9c.webp",

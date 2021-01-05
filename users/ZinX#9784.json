@@ -1,6 +1,12 @@
 {
   "id": "155715879126958080",
   "tag": "ZinX#9784",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/155715879126958080/14feaa95254244637dba67856a49d898.webp",

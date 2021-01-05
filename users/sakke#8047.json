@@ -1,6 +1,12 @@
 {
   "id": "278537855997837312",
   "tag": "sakke#8047",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/278537855997837312/a0b3d6cebcd41148aacc1951009e549a.webp",

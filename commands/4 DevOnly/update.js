@@ -30,6 +30,6 @@ module.exports = {
             var permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.SEND_MESSAGES]);
             if (permCheck != PinguLibrary.PermissionGranted) return message.author.send(`${permCheck}\nBut I have updated my command!`)
         }
-        message.channel.send(`\`${PinguGuild.GetPGuild(message.guild).botPrefix || '*'}${commandName}\` was updated!`);
+        message.channel.send(`\`${message.guild && PinguGuild.GetPGuild(message.guild).botPrefix || '*'}${commandName}\` was updated!`);
     },
 };

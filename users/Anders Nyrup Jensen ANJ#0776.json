@@ -1,6 +1,12 @@
 {
   "id": "449623599133753345",
   "tag": "Anders Nyrup Jensen ANJ#0776",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/449623599133753345/8262c2bab731cc31900c7edcb664f885.webp",

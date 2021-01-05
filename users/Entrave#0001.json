@@ -1,6 +1,16 @@
 {
   "id": "177531618053849089",
   "tag": "Entrave#0001",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    },
+    {
+      "id": "756383096646926376",
+      "name": "Pingu Support"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/177531618053849089/da39b31348a5f624a2a95b934ff18add.webp",

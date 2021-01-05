@@ -1,8 +1,14 @@
 {
   "id": "336219860130463754",
   "tag": "The Sire.#0420",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
-  "avatar": "https://cdn.discordapp.com/avatars/336219860130463754/6027bd3d1fd2c2bc0ac8f31998b74c26.webp",
+  "avatar": "https://cdn.discordapp.com/avatars/336219860130463754/a_41706755c2117e405d9b5a9bd26152b4.webp",
   "playlists": []
 }

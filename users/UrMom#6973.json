@@ -1,6 +1,12 @@
 {
   "id": "485121392891789322",
   "tag": "UrMom#6973",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/485121392891789322/e46c0fab1bfb37f27a8dc2171b0accd1.webp",

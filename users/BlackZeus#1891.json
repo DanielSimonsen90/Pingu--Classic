@@ -1,6 +1,12 @@
 {
   "id": "324563213679067137",
   "tag": "BlackZeus#1891",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/324563213679067137/01cf5a38db19588bda9e9ba24e23283a.webp",

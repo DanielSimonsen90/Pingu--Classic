@@ -1,6 +1,20 @@
 {
   "id": "159364197602426880",
   "tag": "Bica#0001",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    },
+    {
+      "id": "460926327269359626",
+      "name": "Danho's Misc"
+    },
+    {
+      "id": "640305503745998849",
+      "name": "Emoji's"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/159364197602426880/a_26c07425402dae5fc855b9be74c8bda2.webp",

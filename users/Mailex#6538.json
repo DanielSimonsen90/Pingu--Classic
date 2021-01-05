@@ -1,6 +1,20 @@
 {
   "id": "277361003950505984",
   "tag": "Mailex#6538",
+  "sharedServers": [
+    {
+      "id": "277371194422853633",
+      "name": "Mailex' Twitch Server"
+    },
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    },
+    {
+      "id": "460926327269359626",
+      "name": "Danho's Misc"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/277361003950505984/4dc81ad57cee039c715e9c4dcdbe888b.webp",

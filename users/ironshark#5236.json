@@ -1,6 +1,12 @@
 {
   "id": "364095961703776256",
   "tag": "ironshark#5236",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/364095961703776256/58a7c049915ccf82a13081d48af0b07a.webp",

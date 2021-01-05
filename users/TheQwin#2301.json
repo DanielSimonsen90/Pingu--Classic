@@ -1,6 +1,12 @@
 {
   "id": "681711805357228155",
   "tag": "TheQwin#2301",
+  "sharedServers": [
+    {
+      "id": "778022031811543041",
+      "name": "The Genius Company LLC ™"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/681711805357228155/0148d6e67ae1b5feccc74d147a0719f9.webp",

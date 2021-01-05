@@ -1,6 +1,12 @@
 {
   "id": "317335763882737665",
   "tag": "BeeppBop#8105",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/317335763882737665/09949a71b6f86193cb3cfa1b1abcfdb8.webp",

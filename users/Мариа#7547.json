@@ -1,6 +1,24 @@
 {
   "id": "357534185604251650",
   "tag": "Мариа#7547",
+  "sharedServers": [
+    {
+      "id": "277371194422853633",
+      "name": "Mailex' Twitch Server"
+    },
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    },
+    {
+      "id": "460926327269359626",
+      "name": "Danho's Misc"
+    },
+    {
+      "id": "640305503745998849",
+      "name": "Emoji's"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/357534185604251650/e8d28d4466bc6abcdcc4fdd7cfa94664.webp",

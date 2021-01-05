@@ -1,6 +1,12 @@
 {
   "id": "131821122562818049",
   "tag": "Llama Krusid#5727",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/131821122562818049/418c2ac766718005a3f087f57f65de89.webp",

@@ -1,5 +1,5 @@
 const { Message, MessageEmbed, GuildMember, Permissions} = require('discord.js');
-const { PinguGuild, DiscordPermissions } = require('../../PinguPackage');
+const { PinguGuild, DiscordPermissions, PinguLibrary } = require('../../PinguPackage');
 module.exports = {
     name: 'whois',
     cooldown: 5,
@@ -23,7 +23,7 @@ module.exports = {
                           message.guild.members.cache.find(Member => Member.id == args[0]) ||
                           message.mentions.members.first() || 
                           message.guild.member(message.author), //No arguments provided || No member found
-            user = args[0] == null ? GuildMember.user : await message.client.users.fetch(args[0]);
+            user = GuildMember ? GuildMember.user : await message.client.users.fetch(args[0]);
 
         //Promise becomes a user
         if (args[0] != null)
@@ -35,14 +35,10 @@ module.exports = {
 
 /**@param {Message} message @param {GuildMember} GuildMember*/
 function HandleGuildMember(message, GuildMember) {
-    var GuildArray = GuildMember.client.guilds.cache.array(),
-        SharedServers = "";
+    let sharedWithClient = PinguLibrary.getSharedServers(message.client, GuildMember.user);
+    let sharedWithAuthor = sharedWithClient.filter(guild => guild.members.cache.has(message.author.id));
 
-    for (var i = 0; i < GuildArray.length; i++) 
-        if (GuildArray[i].members.cache.has(GuildArray[i].member(message.author)))
-            SharedServers += `${GuildArray[i].name}, `;
-    
-    SendGuildMessage(message, GuildMember, SharedServers);
+    SendGuildMessage(message, GuildMember, sharedWithAuthor.map(guild => guild.name).join(', '));
 }
 /**@param {Message} message @param {GuildMember} GuildMember @param {any} SharedServers*/
 function SendGuildMessage(message, GuildMember, SharedServers) {

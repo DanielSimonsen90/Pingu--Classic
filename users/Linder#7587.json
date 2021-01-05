@@ -1,6 +1,12 @@
 {
   "id": "549884726882861067",
   "tag": "Linder#7587",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/549884726882861067/5e490639678a0c01eb959a970e82f057.webp",

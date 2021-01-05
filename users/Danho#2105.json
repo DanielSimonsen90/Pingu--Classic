@@ -1,8 +1,49 @@
 {
-  "id": "245572699894710272",
-  "tag": "Danho#2105",
-  "replyPerson": null,
-  "dailyStreak": 0,
-  "avatar": "https://cdn.discordapp.com/avatars/245572699894710272/a_32f5a1030202c83468ac106becc6e53f.webp",
-  "playlists": []
+    "id": "245572699894710272",
+    "tag": "Danho#2105",
+    "sharedServers": [
+        {
+            "id": "248104299534614528",
+            "name": "The Danho Discord"
+        },
+        {
+            "id": "277371194422853633",
+            "name": "Mailex' Twitch Server"
+        },
+        {
+            "id": "405763731079823380",
+            "name": "New Years Covid Home Session"
+        },
+        {
+            "id": "460926327269359626",
+            "name": "Danho's Misc"
+        },
+        {
+            "id": "640305503745998849",
+            "name": "Emoji's"
+        },
+        {
+            "id": "644823098260062221",
+            "name": "Discurd Butts"
+        },
+        {
+            "id": "756383096646926376",
+            "name": "Pingu Support"
+        },
+        {
+            "id": "778022031811543041",
+            "name": "The Genius Company LLC ™"
+        },
+        {
+            "id": "791312245555855401",
+            "name": "Pingu Emote Server"
+        }
+    ],
+    "replyPerson": {
+        "id": "405331883157880846",
+        "name": "Synthy Sytro#5637"
+    },
+    "dailyStreak": 0,
+    "avatar": "https://cdn.discordapp.com/avatars/245572699894710272/a_32f5a1030202c83468ac106becc6e53f.webp",
+    "playlists": []
 }

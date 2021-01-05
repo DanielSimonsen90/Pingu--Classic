@@ -14,7 +14,6 @@ module.exports = {
         let Users = GetUsers(BotGuilds).filter(u => !u.bot).sort((a, b) => a.tag > b.tag ? 1 : -1);
 
         let arg = args.join(' ').toLowerCase();
-        let specialCharacters = ["/", "\\", "<", ">"];
 
         let PinguUsersArr = [];
         for (var i = 0; i < Users.length; i++) {
@@ -27,20 +26,14 @@ module.exports = {
                     .setColor(PinguGuild.GetPGuild(message.guild) && PinguGuild.GetPGuild(message.guild).embedColor || 'BLURPLE')
                     .setThumbnail(pUser.avatar)
                     .setDescription(`ID: ${pUser.id}`)
-                    .setFooter(`Servers shared: ${pUser.sharedServers}`)
+                    .setFooter(`Servers shared: ${SharedServersString(pUser.sharedServers)}`)
                     .addField('Daily Streak', pUser.dailyStreak, true)
                     .addField('Last Messaged', pUser.replyPerson && pUser.replyPerson.name | "Unset", true)
                     .addField(`Playlists`, pUser.playlists && pUser.playlists.size, true)
                 );
             if (arg && arg != "show" && ![pUser.tag.toLowerCase(), pUser.id].includes(arg)) continue;
 
-            let writableName = pUser.tag;
-            for (var c of writableName) {
-                if (specialCharacters.includes(c))
-                    writableName = writableName.replace(c, " ");
-            }
-
-            await WriteFile(message, PinguUsersArr[i], `./users/${writableName}.json`);
+            await WriteFile(message, PinguUsersArr[i], `./users/${PinguUser.PUserFileName(Users[i])}.json`);
             console.log(`Finished: ${Users[i].tag}`);
             //await PinguLibrary.pUserLog(message.client, module.exports.name, `Going through all users - just finished: ${Users[i].tag}`);
         }
@@ -83,4 +76,13 @@ async function WriteFile(message, pUser, path) {
     } catch (err) {
         PinguLibrary.pUserLog(message.client, module.exports.name, `Error while saving **${pUser.tag}**!!`, message.content, err);
     }
+}
+/**@param {string[]} sharedServers*/
+function SharedServersString(sharedServers) {
+    let result = `[${sharedServers.length}]: `;
+    for (var i = 0; i < sharedServers.length; i++) {
+        if (i == 0) result += sharedServers[i];
+        else result += ` • ${sharedServers[i]}`;
+    }
+    return result;
 }

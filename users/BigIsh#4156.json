@@ -1,6 +1,12 @@
 {
   "id": "244236544129368065",
   "tag": "BigIsh#4156",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/244236544129368065/202e233b8ecac08903bda0eabf3a9c2f.webp",

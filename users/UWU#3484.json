@@ -1,6 +1,12 @@
 {
   "id": "430782165035384833",
   "tag": "UWU#3484",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/430782165035384833/7e1439dc3ca66b4fbcc66e31bd3fe207.webp",

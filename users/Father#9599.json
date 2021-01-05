@@ -1,6 +1,24 @@
 {
   "id": "173577749330526208",
   "tag": "Father#9599",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "New Years Covid Home Session"
+    },
+    {
+      "id": "460926327269359626",
+      "name": "Danho's Misc"
+    },
+    {
+      "id": "640305503745998849",
+      "name": "Emoji's"
+    },
+    {
+      "id": "644823098260062221",
+      "name": "Discurd Butts"
+    }
+  ],
   "replyPerson": null,
   "dailyStreak": 0,
   "avatar": "https://cdn.discordapp.com/avatars/173577749330526208/a_c48d516daca72d4aaa7df391c2dbb7de.webp",
