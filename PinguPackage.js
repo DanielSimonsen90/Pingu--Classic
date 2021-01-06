@@ -49,7 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PinguUser = exports.PQueue = exports.PClient = exports.PUser = exports.PChannel = exports.PRole = exports.PGuildMember = exports.PItem = exports.DiscordPermissions = exports.Error = void 0;
+exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PinguUser = exports.PQueue = exports.PClient = exports.PGuild = exports.PUser = exports.PChannel = exports.PRole = exports.PGuildMember = exports.PItem = exports.DiscordPermissions = exports.Error = void 0;
 var fs = require("fs");
 var Error = /** @class */ (function () {
     function Error(err) {
@@ -152,6 +152,14 @@ var PUser = /** @class */ (function (_super) {
     return PUser;
 }(PItem));
 exports.PUser = PUser;
+var PGuild = /** @class */ (function (_super) {
+    __extends(PGuild, _super);
+    function PGuild(guild) {
+        return _super.call(this, guild) || this;
+    }
+    return PGuild;
+}(PItem));
+exports.PGuild = PGuild;
 var PClient = /** @class */ (function () {
     function PClient(client, guild) {
         this.displayName = guild.me.displayName;
@@ -203,7 +211,7 @@ var PinguUser = /** @class */ (function () {
         var pUser = new PUser(user);
         this.id = pUser.id;
         this.tag = pUser.name;
-        this.sharedServers = PinguLibrary.getSharedServers(client, user).map(function (guild) { return new PItem(guild); });
+        this.sharedServers = PinguLibrary.getSharedServers(client, user).map(function (guild) { return new PGuild(guild); });
         this.replyPerson = null;
         this.dailyStreak = 0;
         this.avatar = user.avatarURL();
@@ -466,22 +474,24 @@ var PinguLibrary = /** @class */ (function () {
     };
     //#endregion
     //#region Permissions
-    PinguLibrary.PermissionCheck = function (message, permissions) {
-        var textChannel = message.channel;
+    PinguLibrary.PermissionCheck = function (check, permissions) {
         var testingMode = require('./config.json').testingMode;
         if (permissions[0].length == 1) {
-            this.errorLog(message.client, "Permissions not defined correctly!", message.content);
+            this.errorLog(check.client, "Permissions not defined correctly!", check.content);
             return "Permissions for this script was not defined correctly!";
         }
         for (var x = 0; x < permissions.length; x++) {
             var permString = permissions[x].toLowerCase().replace('_', ' ');
-            if (!textChannel.permissionsFor(message.client.user).has(permissions[x]))
-                return "I don't have permission to **" + permString + "** in " + textChannel.name + ".";
-            else if (!textChannel.permissionsFor(message.author).has(permissions[x]) &&
-                (this.isPinguDev(message.author) && testingMode || !this.isPinguDev(message.author)))
-                return "<@" + message.author.id + "> you don't have permission to **" + permString + "** in #" + textChannel.name + ".";
+            if (!checkPermisson(check.channel, check.client.user, permissions[x]))
+                return "I don't have permission to **" + permString + "** in " + check.channel.name + ".";
+            else if (!checkPermisson(check.channel, check.author, permissions[x]) &&
+                (this.isPinguDev(check.author) && testingMode || !this.isPinguDev(check.author)))
+                return "<@" + check.author.id + "> you don't have permission to **" + permString + "** in #" + check.channel.name + ".";
         }
         return this.PermissionGranted;
+        function checkPermisson(channel, user, permission) {
+            return channel.permissionsFor(user).has(permission);
+        }
     };
     PinguLibrary.getServer = function (client, id) {
         return client.guilds.cache.find(function (g) { return g.id == id; });
@@ -639,7 +649,7 @@ var PinguLibrary = /** @class */ (function () {
                 consoleLog += messageAsMessage.content;
             if (messageAsMessage.attachments)
                 consoleLog += messageAsMessage.attachments.map(function (a) { return "\n" + a.url; });
-            console.log(consoleLog);
+            PinguLibrary.ConsoleLog(consoleLog);
             var format = function (ping) { return new Date(Date.now()).toLocaleTimeString() + " [<@" + (ping ? sender : sender.username) + "> \u27A1\uFE0F <@" + (ping ? reciever : reciever.username) + ">]"; };
             if (messageAsMessage.content && messageAsMessage.attachments)
                 tellLogChannel.send(format(false) + (": ||" + messageAsMessage.content + "||"), messageAsMessage.attachments.array())
@@ -719,6 +729,10 @@ var PinguLibrary = /** @class */ (function () {
         }
         PinguLibrary.errorLog(client, "Unable to find Emote **" + name + "** from " + emoteGuild.name);
         return '😵';
+    };
+    PinguLibrary.ConsoleLog = function (message) {
+        var timeFormat = "[" + new Date(Date.now()).toLocaleTimeString() + "]";
+        console.log(timeFormat + " " + message);
     };
     PinguLibrary.DefaultEmbedColor = 3447003;
     PinguLibrary.PermissionGranted = "Permission Granted";

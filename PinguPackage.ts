@@ -1,4 +1,4 @@
-﻿import { ActivityType, Channel, Client, Collection, Guild, GuildChannel, GuildEmoji, GuildMember, Message, MessageEmbed, PermissionString, Role, TextChannel, User, VoiceChannel, VoiceConnection, VoiceState } from 'discord.js';
+﻿import { ActivityType, Channel, Client, Guild, GuildChannel, GuildMember, Message, MessageEmbed, PermissionString, Role, TextChannel, User, VoiceChannel, VoiceConnection, VoiceState } from 'discord.js';
 import { MoreVideoDetails } from 'ytdl-core';
 import * as fs from 'fs';
 
@@ -83,6 +83,11 @@ export class PChannel extends PItem {
 export class PUser extends PItem {
     constructor(user: User) {
         super({ id: user.id, name: user.tag });
+    }
+}
+export class PGuild extends PItem {
+    constructor(guild: Guild) {
+        super(guild);
     }
 }
 export class PClient {
@@ -209,19 +214,19 @@ export class PinguUser {
         let pUser = new PUser(user);
         this.id = pUser.id;
         this.tag = pUser.name;
-        this.sharedServers = PinguLibrary.getSharedServers(client, user).map(guild => new PItem(guild));
+        this.sharedServers = PinguLibrary.getSharedServers(client, user).map(guild => new PGuild(guild));
         this.replyPerson = null;
         this.dailyStreak = 0;
         this.avatar = user.avatarURL();
-        this.playlists = new Array<Queue>();
+        this.playlists = new Array<PQueue>();
     }
     public id: string
     public tag: string
-    public sharedServers: PItem[]
+    public sharedServers: PGuild[]
     public replyPerson: PUser
     public dailyStreak: number
     public avatar: string
-    public playlists: Queue[]
+    public playlists: PQueue[]
     //public Achievements: Achievement[]
 }
 export class PinguGuild {
@@ -350,25 +355,28 @@ export class PinguLibrary {
     //#endregion
 
     //#region Permissions
-    public static PermissionCheck(message: Message, permissions: string[]) {
-        var textChannel = message.channel as TextChannel;
+    public static PermissionCheck(check: { author: User, channel: GuildChannel, client: Client, content: string}, permissions: string[]) {
         let { testingMode } = require('./config.json');
 
         if (permissions[0].length == 1) {
-            this.errorLog(message.client, `Permissions not defined correctly!`, message.content);
+            this.errorLog(check.client, `Permissions not defined correctly!`, check.content);
             return "Permissions for this script was not defined correctly!";
         }
 
         for (var x = 0; x < permissions.length; x++) {
             var permString = permissions[x].toLowerCase().replace('_', ' ');
 
-            if (!textChannel.permissionsFor(message.client.user).has(permissions[x] as PermissionString))
-                return `I don't have permission to **${permString}** in ${textChannel.name}.`;
-            else if (!textChannel.permissionsFor(message.author).has(permissions[x] as PermissionString) &&
-                    (this.isPinguDev(message.author) && testingMode || !this.isPinguDev(message.author)))
-                return `<@${message.author.id}> you don't have permission to **${permString}** in #${textChannel.name}.`;
+            if (!checkPermisson(check.channel, check.client.user, permissions[x]))
+                return `I don't have permission to **${permString}** in ${check.channel.name}.`;
+            else if (!checkPermisson(check.channel, check.author, permissions[x]) &&
+                (this.isPinguDev(check.author) && testingMode || !this.isPinguDev(check.author)))
+                return `<@${check.author.id}> you don't have permission to **${permString}** in #${check.channel.name}.`;
         }
         return this.PermissionGranted;
+
+        function checkPermisson(channel: GuildChannel, user: User, permission: string) {
+            return channel.permissionsFor(user).has(permission as PermissionString);
+        }
     }
     public static readonly PermissionGranted = "Permission Granted";
     //#endregion
@@ -507,7 +515,7 @@ export class PinguLibrary {
 
         if ((message as object).constructor.name == "Message") {
             var messageAsMessage = message as Message;
-            var consoleLog =
+            var consoleLog = 
                 messageAsMessage.content ?
                     `${sender.username} sent a message to ${reciever.username} saying ` :
                     messageAsMessage.attachments.array().length == 1 ?
@@ -519,7 +527,7 @@ export class PinguLibrary {
             if (messageAsMessage.content) consoleLog += messageAsMessage.content;
             if (messageAsMessage.attachments) consoleLog += messageAsMessage.attachments.map(a => `\n${a.url}`);
 
-            console.log(consoleLog);
+            PinguLibrary.ConsoleLog(consoleLog);
 
             var format = (ping: boolean) => `${new Date(Date.now()).toLocaleTimeString()} [<@${(ping ? sender : sender.username)}> ➡️ <@${(ping ? reciever : reciever.username)}>]`;
 
@@ -597,6 +605,10 @@ export class PinguLibrary {
         }
         PinguLibrary.errorLog(client, `Unable to find Emote **${name}** from ${emoteGuild.name}`);
         return '😵';
+    }
+    public static ConsoleLog(message: string) {
+        let timeFormat = `[${new Date(Date.now()).toLocaleTimeString()}]`;
+        console.log(`${timeFormat} ${message}`);
     }
 }
 //#endregion

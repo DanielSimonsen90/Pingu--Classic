@@ -51,7 +51,6 @@ client.on('message', async message => {
     //Split prefix from message content
     let args = message.content.slice(prefix.length).split(/ +/) ||
         message.content.slice(SecondaryPrefix).split(/ +/);
-    args = args.map(argument => argument.toLowerCase())
 
     //Get commandName
     let commandName = args.shift();
@@ -246,7 +245,7 @@ client.on('message', async message => {
      * @param {string} commandName 
      * @param {Command} command*/
     function ExecuteAndLogCommand(message, args, commandName, command) {
-        let ConsoleLog = `[${new Date(Date.now()).toLocaleTimeString()}] User "${message.author.username}" executed command "${commandName}", from ${(!message.guild ? `DMs and ` : `"${message.guild}", #${message.channel.name}, and `)}`;
+        let ConsoleLog = `User "${message.author.username}" executed command "${commandName}", from ${(!message.guild ? `DMs and ` : `"${message.guild}", #${message.channel.name}, and `)}`;
 
         //Attempt execution of command
         try {
@@ -255,10 +254,13 @@ client.on('message', async message => {
             command.execute(message, args);
             ConsoleLog += `succeeded!\n`;
         } catch (err) {
+            if (err.message == 'Missing Access' && message.guild.id == PinguLibrary.SavedServers.PinguEmotes(client).id && FindPermission())
+                return; //Error occured, but cycled through permissions to find missing permission
+
             ConsoleLog += `failed!\nError: ${err}`;
             PinguLibrary.errorLog(client, `Trying to execute "${command.name}"!`, message.content, err);
         }
-        console.log(ConsoleLog);
+        PinguLibrary.ConsoleLog(ConsoleLog);
         /**@param {Message} message
          * @param {string[]} args*/
         function HandleTell(message, args) {
@@ -282,6 +284,70 @@ client.on('message', async message => {
 
             let pAuthor = PinguUser.GetPUser(message.author);
             pAuthor.replyPerson = new PUser(GetMention(message, Mention));
+        }
+        /**@param {Command} command*/
+        async function FindPermission() {
+            //Find Danho and make check variable, to bypass "You don't have that permission!" (gotta abuse that PinguDev power)
+            let Danho = PinguLibrary.SavedServers.DanhoMisc(client).owner.user;
+            let check = {
+                author: Danho,
+                channel: message.channel,
+                client: client,
+                content: message.content
+            };
+
+            //Check if client has permission to Manage Roles in Pingu Emote Server
+            let hasManageRoles = PinguLibrary.PermissionCheck(check, [DiscordPermissions.MANAGE_ROLES]) == PinguLibrary.PermissionGranted;
+            if (hasManageRoles != PinguLibrary.PermissionGranted) return message.channel.send(hasManageRoles);
+
+            let roles = {
+                clientRole: message.guild.roles.cache.find(r => r.name == 'Pingu'),
+                adminRole: message.guild.roles.cache.find(r => r.name == `Pingu's Admin Permission`)
+            };
+            let permissionInfo = {
+                discordPermissions: Object.keys(DiscordPermissions).filter(permissionString => permissionString != DiscordPermissions.ADMINISTRATOR),
+                permission: "Missing Permission",
+                originalPermissions: roles.clientRole.permissions
+            };
+
+            for (let i = 0; !permissionInfo.permission != "Missing Permission" || i == permissionInfo.discordPermissions.length - 1; i++) {
+                //Find new permission and check if client already has that permission
+                let permission = permissionInfo.discordPermissions[i];
+                let hasPermission = PinguLibrary.PermissionCheck(check, [permission]) == PinguLibrary.PermissionGranted;
+                if (hasPermission) continue;
+
+                //Give Administrator permission
+                await message.guild.member(client.user).roles.add(roles.adminRole);
+
+                //Add the new permission onto original permissions
+                let newPermissions = permissionInfo.originalPermissions.add(permission);
+                await roles.clientRole.setPermissions(newPermissions);
+
+                //Execute command again
+                try {
+                    command.execute(message, args);
+
+                    //Command was executed with no error, so we have our missing permission
+                    permissionInfo.permission = permission;
+                }
+                catch (err) {
+                    //Another error occured, but we found the missing permission
+                    if (err.message != 'Missing Access') {
+                        PinguLibrary.errorLog(client, `Looked for missing permission, but ran into another error`, message.content, new Error(err));
+                        permissionInfo.permission = permission;
+                    }
+                }
+                //Reset permissions to original permisssions
+                finally { roles.clientRole.setPermissions(permissionInfo.originalPermissions); }
+            }
+
+            //If we cycled through all permissions with no luck
+            if (permissionInfo.permission == "Missing Permission") {
+                message.channel.send(`Attempted to find missing permission to execute ${command.name}, but ran out of permissions to check! Am I mising more than 1 permission?`);
+                return PinguLibrary.errorLog(client, `Trying to execute "${command.name}"!`, message.content, err);
+            }
+
+            return message.channel.send(`I'm missing the **${permissionInfo.permission}** permission to execute **${command.name}**!`);
         }
     }
 }); //Message was sent by anyone
@@ -346,7 +412,7 @@ client.on('guildMemberAdd', member => {
     AddToPinguUsers();
 
     function AddToPinguUsers() {
-        if (!PinguUser.GetPUser(member.user, true))
+        if (!member.user.bot && PinguUser.GetPUser(member.user, true))
             PinguUser.WritePUser(member.user, client, async pUser =>
                 await PinguLibrary.pUserLog(client, "index: guildMemberAdd", `Created **${pUser.tag}**.json`)
             );
@@ -422,6 +488,7 @@ async function ExecuteTellReply(message) {
 
     //Show author that reply has been sent
     message.react('✅');
+    message.channel.send(`**Sent message to __${replyPerson.tag}__**`);
 }
 /**@param {Message} message*/
 function getReplyUser(message) {
