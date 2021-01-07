@@ -1,24 +1,22 @@
 {
-    "id": "290131910091603968",
-    "sharedServers": [
-        {
-            "id": "405763731079823380",
-            "name": "New Years Covid Home Session"
-        },
-        {
-            "id": "644823098260062221",
-            "name": "Discurd Butts"
-        },
-        {
-            "id": "756383096646926376",
-            "name": "Pingu Support"
-        }
-    ],
-    "replyPerson": {
-        "id": "405331883157880846",
-        "name": "Synthy Sytro#5637"
+  "id": "290131910091603968",
+  "tag": "Slothman#7727",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "Danho's Dutch Discord"
     },
-    "dailyStreak": 0,
-    "avatar": "https://cdn.discordapp.com/avatars/290131910091603968/6c7e55d43eab8e3ab9e2a29cc4bf2a6c.webp",
-    "playlists": []
+    {
+      "id": "644823098260062221",
+      "name": "Discurd Butts"
+    },
+    {
+      "id": "756383096646926376",
+      "name": "Pingu Support"
+    }
+  ],
+  "replyPerson": null,
+  "dailyStreak": 0,
+  "avatar": "https://cdn.discordapp.com/avatars/290131910091603968/6c7e55d43eab8e3ab9e2a29cc4bf2a6c.webp",
+  "playlists": []
 }

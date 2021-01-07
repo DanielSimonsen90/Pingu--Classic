@@ -50,6 +50,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PinguUser = exports.PQueue = exports.PClient = exports.PGuild = exports.PUser = exports.PChannel = exports.PRole = exports.PGuildMember = exports.PItem = exports.DiscordPermissions = exports.Error = void 0;
+var discord_js_1 = require("discord.js");
 var fs = require("fs");
 var Error = /** @class */ (function () {
     function Error(err) {
@@ -64,6 +65,9 @@ exports.Error = Error;
 var DiscordPermissions = /** @class */ (function () {
     function DiscordPermissions() {
     }
+    DiscordPermissions.bitOf = function (value) {
+        return discord_js_1.Permissions.resolve(value);
+    };
     DiscordPermissions['CREATE_INSTANT_INVITE'] = 'CREATE_INSTANT_INVITE';
     DiscordPermissions['KICK_MEMBERS'] = 'KICK_MEMBERS';
     DiscordPermissions['BAN_MEMBERS'] = 'BAN_MEMBERS';
@@ -98,6 +102,13 @@ var DiscordPermissions = /** @class */ (function () {
     return DiscordPermissions;
 }());
 exports.DiscordPermissions = DiscordPermissions;
+var BitPermission = /** @class */ (function () {
+    function BitPermission(permString, bit) {
+        this.permString = permString;
+        this.bit = bit;
+    }
+    return BitPermission;
+}());
 //#region JSON Classes
 var PItem = /** @class */ (function () {
     function PItem(object) {
@@ -228,6 +239,8 @@ var PinguUser = /** @class */ (function () {
         return pUserArr;
     };
     PinguUser.GetPUser = function (user, suppressError) {
+        if (user.bot)
+            return null;
         var result = this.GetPUsers().find(function (pu) { return pu.id == user.id; });
         if (!result && !suppressError)
             PinguLibrary.errorLog(user.client, "Unable to find a user in pUsers with id " + user.id);
@@ -291,17 +304,16 @@ var PinguUser = /** @class */ (function () {
     PinguUser.DeletePUser = function (user, callback) {
         var _this = this;
         try {
-            var pUser_2 = this.GetPUser(user);
-            fs.unlink("./users/" + user.tag + ".json", function (err) { return __awaiter(_this, void 0, void 0, function () {
+            fs.unlink("./users/" + this.PUserFileName(user) + ".json", function (err) { return __awaiter(_this, void 0, void 0, function () {
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
                             if (err)
-                                PinguLibrary.pUserLog(user.client, "DeletePGuild", "Unable to delete json file for " + PinguUser.GetPUser(user).tag, new Error(err));
+                                PinguLibrary.pUserLog(user.client, "DeletePUser", "Unable to delete json file for **" + PinguUser.GetPUser(user).tag + "**", new Error(err));
                             return [4 /*yield*/, callback];
                         case 1:
                             if (_a.sent())
-                                callback(pUser_2);
+                                callback();
                             return [2 /*return*/];
                     }
                 });
@@ -493,6 +505,59 @@ var PinguLibrary = /** @class */ (function () {
             return channel.permissionsFor(user).has(permission);
         }
     };
+    Object.defineProperty(PinguLibrary, "Permissions", {
+        get: function () {
+            //let all = Array.from(getPermissions()).reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {});
+            var givenStrings = [
+                DiscordPermissions.MANAGE_ROLES,
+                DiscordPermissions.MANAGE_CHANNELS,
+                DiscordPermissions.CHANGE_NICKNAME,
+                DiscordPermissions.VIEW_CHANNEL,
+                DiscordPermissions.SEND_MESSAGES,
+                DiscordPermissions.SEND_TTS_MESSAGES,
+                DiscordPermissions.MANAGE_MESSAGES,
+                DiscordPermissions.EMBED_LINKS,
+                DiscordPermissions.ATTACH_FILES,
+                DiscordPermissions.READ_MESSAGE_HISTORY,
+                DiscordPermissions.USE_EXTERNAL_EMOJIS,
+                DiscordPermissions.ADD_REACTIONS,
+                DiscordPermissions.CONNECT,
+                DiscordPermissions.SPEAK,
+                DiscordPermissions.USE_VAD
+            ];
+            var given = [], missing = [], all = [];
+            for (var _i = 0, _a = Array.from(getPermissions()); _i < _a.length; _i++) {
+                var perm = _a[_i];
+                var permObj = new BitPermission(perm[0], perm[1]);
+                if (givenStrings.includes(perm[0]))
+                    given.push(permObj);
+                else
+                    missing.push(permObj);
+                all.push(permObj);
+            }
+            return { given: given, missing: missing, all: all };
+            function getPermissions() {
+                var temp = new Map();
+                var bits = getBitValues();
+                for (var prop in DiscordPermissions) {
+                    if (prop == 'bitOf')
+                        continue;
+                    temp.set(prop, bits.find(function (bits) { return bits.permString == prop; }).bit);
+                }
+                return temp;
+            }
+            function getBitValues() {
+                var permissions = Object.keys(DiscordPermissions)
+                    .map(function (permString) { return new BitPermission(permString, 0); })
+                    .filter(function (perm) { return perm.permString != 'bitOf'; });
+                for (var i = 0; i < permissions.length; i++)
+                    permissions[i].bit = i == 0 ? 1 : permissions[i - 1].bit * 2;
+                return permissions;
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
     PinguLibrary.getServer = function (client, id) {
         return client.guilds.cache.find(function (g) { return g.id == id; });
     };

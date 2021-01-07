@@ -408,6 +408,7 @@ client.on('guildDelete', guild => {
             PinguLibrary.pUserLog(client, "index: guildDelete", `Successfully removed **${pUser.tag}** from pUsers.`));
     }
 }); //Leaving a guild
+
 client.on('guildMemberAdd', member => {
     AddToPinguUsers();
 
@@ -418,6 +419,17 @@ client.on('guildMemberAdd', member => {
             );
     }
 }); //New guild member
+client.on('guildMemberUpdate', (from, to) => {
+    if (from.user == to.user) return;
+
+    PinguUser.DeletePUser(from.user, () =>
+        PinguUser.WritePUser(to.user, client, _ =>
+            PinguLibrary.pUserLog(client, "index: guildMemberUpdate",
+                `Updated **${(from.user.tag != to.user.tag ? to.user.tag : `(${from.user.tag})`)}**'s json file`
+            )
+        )
+    );
+}); //Member changed
 client.on('guildMemberRemove', member => {
     if (member.user.bot) return;
 

@@ -1,4 +1,4 @@
-﻿import { ActivityType, Channel, Client, Guild, GuildChannel, GuildMember, Message, MessageEmbed, PermissionString, Role, TextChannel, User, VoiceChannel, VoiceConnection, VoiceState } from 'discord.js';
+﻿import { ActivityType, Channel, Client, Guild, GuildChannel, GuildMember, Message, MessageEmbed, PermissionString, Role, TextChannel, User, VoiceChannel, VoiceConnection, VoiceState, Collection, Permissions, PermissionFlags, BitField} from 'discord.js';
 import { MoreVideoDetails } from 'ytdl-core';
 import * as fs from 'fs';
 
@@ -47,6 +47,17 @@ export class DiscordPermissions {
     public static 'MANAGE_ROLES' = 'MANAGE_ROLES'
     public static 'MANAGE_WEBHOOKS' = 'MANAGE_WEBHOOKS'
     public static 'MANAGE_EMOJIS' = 'MANAGE_EMOJIS'
+    public static bitOf(value: PermissionString): number {
+        return Permissions.resolve(value);
+    }
+}
+class BitPermission {
+    constructor(permString: PermissionString | string, bit: number) {
+        this.permString = permString;
+        this.bit = bit;
+    }
+    public permString: PermissionString | string
+    public bit: number
 }
 
 //#region JSON Classes
@@ -151,6 +162,7 @@ export class PinguUser {
         return pUserArr;
     }
     public static GetPUser(user: User, suppressError?: boolean): PinguUser {
+        if (user.bot) return null;
         var result = this.GetPUsers().find(pu => pu.id == user.id);
         if (!result && !suppressError) PinguLibrary.errorLog(user.client, `Unable to find a user in pUsers with id ${user.id}`);
         return result;
@@ -187,12 +199,11 @@ export class PinguUser {
             console.log(ewwor);
         }
     }
-    public static DeletePUser(user: User, callback?: (pUser?: PinguUser) => void) {
+    public static DeletePUser(user: User, callback?: () => void) {
         try {
-            let pUser = this.GetPUser(user);
-            fs.unlink(`./users/${user.tag}.json`, async err => {
-                if (err) PinguLibrary.pUserLog(user.client, "DeletePGuild", `Unable to delete json file for ${PinguUser.GetPUser(user).tag}`, new Error(err));
-                if (await callback) callback(pUser);
+            fs.unlink(`./users/${this.PUserFileName(user)}.json`, async err => {
+                if (err) PinguLibrary.pUserLog(user.client, "DeletePUser", `Unable to delete json file for **${PinguUser.GetPUser(user).tag}**`, new Error(err));
+                if (await callback) callback();
             });
         } catch (ewwor) {
             console.log(ewwor);
@@ -379,6 +390,63 @@ export class PinguLibrary {
         }
     }
     public static readonly PermissionGranted = "Permission Granted";
+
+    public static get Permissions(): {
+        given: BitPermission[],
+        missing: BitPermission[],
+        all: BitPermission[]
+    } {
+        //let all = Array.from(getPermissions()).reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {});
+        let givenStrings = [
+            DiscordPermissions.MANAGE_ROLES,
+            DiscordPermissions.MANAGE_CHANNELS,
+            DiscordPermissions.CHANGE_NICKNAME,
+            DiscordPermissions.VIEW_CHANNEL,
+            DiscordPermissions.SEND_MESSAGES,
+            DiscordPermissions.SEND_TTS_MESSAGES,
+            DiscordPermissions.MANAGE_MESSAGES,
+            DiscordPermissions.EMBED_LINKS,
+            DiscordPermissions.ATTACH_FILES,
+            DiscordPermissions.READ_MESSAGE_HISTORY,
+            DiscordPermissions.USE_EXTERNAL_EMOJIS,
+            DiscordPermissions.ADD_REACTIONS,
+            DiscordPermissions.CONNECT,
+            DiscordPermissions.SPEAK,
+            DiscordPermissions.USE_VAD
+        ];
+
+        let given = [], missing = [], all = [];
+        for (var perm of Array.from(getPermissions())) {
+            let permObj = new BitPermission(perm[0], perm[1]);
+
+            if (givenStrings.includes(perm[0]))
+                given.push(permObj);
+            else missing.push(permObj);
+            all.push(permObj);
+        }
+
+        return { given, missing, all };
+
+        function getPermissions() {
+            let temp = new Map<PermissionString, number>();
+            let bits = getBitValues();
+            for (var prop in DiscordPermissions) {
+                if (prop == 'bitOf') continue;
+                temp.set(prop as PermissionString, bits.find(bits => bits.permString == prop).bit);
+            }
+            return temp;
+        }
+        function getBitValues() {
+            let permissions = Object.keys(DiscordPermissions)
+                .map(permString => new BitPermission(permString, 0))
+                .filter(perm => perm.permString != 'bitOf');
+
+            for (var i = 0; i < permissions.length; i++)
+                permissions[i].bit = i == 0 ? 1 : permissions[i - 1].bit * 2; 
+            
+            return permissions;
+        }
+    }
     //#endregion
 
     //#region Servers
