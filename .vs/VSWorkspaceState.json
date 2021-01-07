@@ -5,8 +5,9 @@
     "\\commands\\1 Utility",
     "\\commands\\2 Fun",
     "\\commands\\3 Support",
-    "\\commands\\4 DevOnly"
+    "\\commands\\4 DevOnly",
+    "\\commands\\Archived Commands"
   ],
-  "SelectedNode": "\\commands\\4 DevOnly\\permissions.js",
+  "SelectedNode": "\\commands\\2 Fun\\activity.js",
   "PreviewInSolutionExplorer": false
 }

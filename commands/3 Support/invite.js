@@ -7,15 +7,11 @@ module.exports = {
     usage: '',
     id: 3,
     permissions: [DiscordPermissions.SEND_MESSAGES],
-    /**@param {Message} message @param {string[]} args*/
-    execute(message, args) {
-
+    /**@param {{message: Message}}*/
+    async execute({ message }) {
         let pinguPermissions = 0;
-        PinguLibrary.Permissions.given.forEach(perm => {
-            console.log(`Adding ${perm.bit} to ${pinguPermissions}`);
-            pinguPermissions += perm.bit
-        });
+        PinguLibrary.Permissions.given.forEach(perm => pinguPermissions += perm.bit);
 
-        message.channel.send(`https://discord.com/api/oauth2/authorize?client_id=562176550674366464&permissions=${pinguPermissions}&scope=bot`);
+        message.channel.send(`https://discord.com/api/oauth2/authorize?client_id=${message.client.user.id}&permissions=${pinguPermissions}&scope=bot`);
     }
 }

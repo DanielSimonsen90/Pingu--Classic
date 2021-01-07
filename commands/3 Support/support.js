@@ -1,5 +1,5 @@
 const { Message, MessageEmbed } = require('discord.js');
-const { PinguGuild, DiscordPermissions } = require('../../PinguPackage');
+const { PinguGuild, DiscordPermissions, PinguLibrary } = require('../../PinguPackage');
 
 module.exports = {
     name: 'support',
@@ -8,12 +8,12 @@ module.exports = {
     usage: '',
     id: 3,
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.EMBED_LINKS],
-    /**@param {Message} message @param {string[]} args*/
-    execute(message, args) {
+    /**@param {{message: Message, pGuild: PinguGuild}}*/
+    async execute({ message, pGuild }) {
         var Embed = new MessageEmbed()
             .setTitle('Support of Pingu')
             .setDescription('Contact information & socials about my owner')
-            .setColor(message.channel.type != 'dm' ? PinguGuild.GetPGuild(message.guild).embedColor : 15527148)
+            .setColor(message.guild ? pGuild.embedColor : PinguLibrary.DefaultEmbedColor)
             .setThumbnail(message.client.user.avatarURL)
             .setFooter(`Please don't send him pointless stuff to waste his time :)`)
             .addField('Discord', '@Danho#2105', true)

@@ -8,8 +8,8 @@ module.exports = {
     id: 4,
     example: [""],
     permissions: [DiscordPermissions.SEND_MESSAGES],
-    /**@param {Message} message @param {string[]} args*/
-    execute(message, args) {
+    /**@param {{message: Message, args: string[]}}*/
+    execute({ message, args }) {
         message.channel.send("https://dev.azure.com/SimonsenTechs/Pingu/_backlogs/backlog/Pingu%20Team/Epics/?showParents=true")
     }
 }

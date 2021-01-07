@@ -8,8 +8,8 @@ module.exports = {
     id: 1,
     examples: ["5", "10 @Danho#2105", "all"],
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.MANAGE_MESSAGES],
-    /**@param {Message} message @param {string[]} args*/
-    execute(message, args) {
+    /**@param {{message: Message, args: string[]}}*/
+    execute({ message, args }) {
         const PermCheck = PermissionCheck(message, args);
         if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
 

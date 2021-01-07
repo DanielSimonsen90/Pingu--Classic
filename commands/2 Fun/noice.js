@@ -9,17 +9,20 @@ module.exports = {
     guildOnly: true,
     id: 2,
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.MANAGE_MESSAGES],
-    /**@param {Message} message @param {string[]} args*/
-    execute(message, args) {
+    /**@param {{message: Message}}*/
+    async execute({ message }) {
         const voiceChannel = message.member.voice.channel;
         message.delete();
         message.channel.send('https://tenor.com/LgPu.gif');
 
         if (!voiceChannel) return;
-        else if (!voiceChannel.permissionsFor(message.guild.me).has(DiscordPermissions.CONNECT))
-            return message.channel.send(`I don't have permission to **connect** to ${voiceChannel.name}`);
-        else if (!voiceChannel.permissionsFor(message.guild.me).has(DiscordPermissions.SPEAK))
-            return message.channel.send(`I don't have permission to **speak** to ${voiceChannel.name}`);
+        let permCheck = PinguLibrary.PermissionCheck({
+            author: message.author,
+            channel: voiceChannel,
+            client: message.client,
+            content: message.content
+        }, [DiscordPermissions.CONNECT, DiscordPermissions.SPEAK, DiscordPermissions.VIEW_CHANNEL]);
+        if (permCheck != PinguLibrary.PermissionGranted) return message.channel.send(permCheck);
 
         voiceChannel.join().then(connection => {
             const stream = ytdl('https://www.youtube.com/watch?v=Akwm2UZJ34o', { filter: 'audioonly' });

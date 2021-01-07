@@ -336,21 +336,25 @@ var PinguUser = /** @class */ (function () {
     return PinguUser;
 }());
 exports.PinguUser = PinguUser;
-var PinguGuild = /** @class */ (function () {
+var PinguGuild = /** @class */ (function (_super) {
+    __extends(PinguGuild, _super);
     //#endregion
     function PinguGuild(guild) {
-        this.guildName = guild.name;
-        this.guildID = guild.id;
-        this.guildOwner = new PGuildMember(guild.owner);
+        var _this = _super.call(this, guild) || this;
+        _this.guildOwner = new PGuildMember(guild.owner);
         var Prefix = require('./config.json').Prefix;
-        this.botPrefix = Prefix;
-        this.embedColor = guild.me.roles.cache.find(function (role) { return role.name.includes('Pingu'); }) && guild.me.roles.cache.find(function (role) { return role.name.includes('Pingu'); }).color || PinguLibrary.DefaultEmbedColor;
-        this.musicQueue = null;
-        this.giveawayConfig = new GiveawayConfig();
-        this.pollConfig = new PollConfig;
-        this.suggestions = new Array();
+        _this.botPrefix = Prefix;
+        var welcomeChannel = guild.channels.cache.find(function (c) { return c.isText() && c.name.includes('welcome'); }) ||
+            guild.channels.cache.find(function (c) { return c.isText() && c.name == 'general'; });
+        _this.welcomeChannel = welcomeChannel ? new PChannel(welcomeChannel) : null;
+        _this.embedColor = guild.me.roles.cache.find(function (role) { return role.name.includes('Pingu'); }) && guild.me.roles.cache.find(function (role) { return role.name.includes('Pingu'); }).color || PinguLibrary.DefaultEmbedColor;
+        _this.musicQueue = null;
+        _this.giveawayConfig = new GiveawayConfig();
+        _this.pollConfig = new PollConfig;
+        _this.suggestions = new Array();
         if (guild.id == '405763731079823380')
-            this.themeWinners = new Array();
+            _this.themeWinners = new Array();
+        return _this;
     }
     //#region Static PinguGuild methods
     PinguGuild.GetPGuilds = function () {
@@ -362,10 +366,13 @@ var PinguGuild = /** @class */ (function () {
         }
         return pGuildArr;
     };
-    PinguGuild.GetPGuild = function (guild) {
-        var result = this.GetPGuilds().find(function (pg) { return pg.guildID == guild.id; });
-        if (!result)
-            PinguLibrary.errorLog(guild.client, "Unable to find a guild in pGuilds with id " + guild.id);
+    PinguGuild.GetPGuild = function (guild, suppressError) {
+        var result = this.GetPGuilds().find(function (pg) { return pg.id == guild.id; });
+        if (!result && !suppressError) {
+            var error = "Unable to find a guild in pGuilds with id " + guild.id;
+            PinguLibrary.errorLog(guild.client, error);
+            throw error;
+        }
         return result;
     };
     PinguGuild.UpdatePGuildJSON = function (client, guild, script, succMsg, errMsg) {
@@ -430,7 +437,7 @@ var PinguGuild = /** @class */ (function () {
                     switch (_a.label) {
                         case 0:
                             if (err)
-                                PinguLibrary.pGuildLog(guild.client, "DeletePGuild", "Unable to delete json file for " + pGuild_2.guildName, new Error(err));
+                                PinguLibrary.pGuildLog(guild.client, "DeletePGuild", "Unable to delete json file for " + pGuild_2.name, new Error(err));
                             return [4 /*yield*/, callback];
                         case 1:
                             if (_a.sent())
@@ -445,7 +452,7 @@ var PinguGuild = /** @class */ (function () {
         }
     };
     return PinguGuild;
-}());
+}(PItem));
 exports.PinguGuild = PinguGuild;
 var PinguLibrary = /** @class */ (function () {
     function PinguLibrary() {
@@ -484,6 +491,14 @@ var PinguLibrary = /** @class */ (function () {
             });
         }
     };
+    Object.defineProperty(PinguLibrary, "DefaultPrefix", {
+        get: function () {
+            var Prefix = require('./config.json').Prefix;
+            return Prefix;
+        },
+        enumerable: false,
+        configurable: true
+    });
     //#endregion
     //#region Permissions
     PinguLibrary.PermissionCheck = function (check, permissions) {
@@ -784,6 +799,8 @@ var PinguLibrary = /** @class */ (function () {
     };
     //#endregion
     PinguLibrary.getEmote = function (client, name, emoteGuild) {
+        if (!client || !name || !emoteGuild)
+            return '😵';
         for (var _i = 0, _a = client.guilds.cache.array(); _i < _a.length; _i++) {
             var guild = _a[_i];
             if (guild.name != emoteGuild.name)

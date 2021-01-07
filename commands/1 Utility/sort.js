@@ -8,8 +8,8 @@ module.exports = {
     id: 1,
     permissions: [DiscordPermissions.SEND_MESSAGES],
     example: [" "],
-    /**@param {Message} message @param {string[]} args*/
-    execute(message, args) {
+    /**@param {{message: Message, args: string[]}}*/
+    execute({ message, args }) {
         if (!args || args.length == 1) return message.channel.send(`Give me something to sort!`);
 
         let arguments = args.join(' ').split(',').sort((a, b) => a > b ? 1 : -1);

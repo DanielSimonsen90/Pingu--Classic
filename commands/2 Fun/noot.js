@@ -9,12 +9,12 @@ module.exports = {
     id: 2,
     example: ["Pingu said this message!"],
     permissions: [DiscordPermissions.SEND_MESSAGES],
-    /**@param {Message} message @param {string[]} args*/
-    execute(message, args) {
+    /**@param {{message: Message, args: string[]}}*/
+    async execute({ message, args }) {
         if (message.channel.type != 'dm') {
             let hasManageMessages = PinguLibrary.PermissionCheck(message, [DiscordPermissions.MANAGE_MESSAGES]) == PinguLibrary.PermissionGranted;
             if (hasManageMessages) message.delete();
         }
-        message.channel.send(args.join(" "));
+        message.channel.send(args.join(' '));
     },
 };

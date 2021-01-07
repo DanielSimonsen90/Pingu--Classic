@@ -10,12 +10,11 @@ module.exports = {
     id: 1,
     example: ["setup", "list", "10m Am I asking a question?"],
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.MANAGE_MESSAGES],
-    /**@param {Message} message @param {string[]} args*/
-    async execute(message, args) {
-        var pGuild = PinguGuild.GetPGuild(message.guild);
+    /**@param {{message: Message, args: string[], pGuild: PinguGuild}}*/
+    async execute({ message, args, pGuild }) {
         if (!pGuild) {
             await PinguLibrary.errorLog(message.client, `Couldn't find pGuild for "${message.guild.name}" (${message.guild.id})`)
-            message.channel.send(`I had an error trying to get ${message.guild.name}'s Pingu Guild! I've notified my developers.`);
+            return message.channel.send(`I had an error trying to get ${message.guild.name}'s Pingu Guild! I've notified my developers.`);
         }
 
         //Permission check
@@ -46,7 +45,7 @@ module.exports = {
         await PollMessage.react('👍')
         PollMessage.react('👎');
 
-        console.log(`${message.author.tag} hosted a poll in "${message.guild.name}": ${Question}`);
+        PinguLibrary.ConsoleLog(`${message.author.tag} hosted a poll in "${message.guild.name}": ${Question}`);
         AddPollToPGuilds(message, new Poll(Question, PollMessage.id, new PGuildMember(message.guild.member(message.author))));
 
         const interval = setInterval(() => UpdateTimer(PollMessage, EndsAt, new PGuildMember(message.guild.member(message.author))), 5000);
@@ -67,7 +66,7 @@ module.exports = {
 };
 /**@param {Message} message @param {string[]} args*/
 function PermissionCheck(message, args) {
-    const pGuild = PinguGuild.GetPGuild(message);
+    const pGuild = PinguGuild.GetPGuild(message.guild);
     if (pGuild.pollConfig.firstTimeExecuted || ['setup', "list"].includes(args[0]))
         return PinguLibrary.PermissionGranted;
 
@@ -139,7 +138,7 @@ function FirstTimeExecuted(message, args) {
             PollsRole = await MakePollsRole(message);
         PollsRole = PollsRole ? new PRole(PollsRole) : "undefined";
 
-        PinguGuild.GetPGuild(message).pollConfig = new PollConfig({
+        PinguGuild.GetPGuild(message.guild).pollConfig = new PollConfig({
             firstTimeExecuted: false,
             pollRole: PollsRole,
             polls: new Array()
@@ -174,7 +173,7 @@ function OnTimeOut(Embed, PollMessage, interval) {
 }
 /**@param {Message} message*/
 async function ListPolls(message) {
-    let Polls = PinguGuild.GetPGuild(message).pollConfig.polls,
+    let Polls = PinguGuild.GetPGuild(message.guild).pollConfig.polls,
         Embeds = CreateEmbeds(false), EmbedIndex = 0;
 
     if (!Embeds || Embeds.length == 0) return message.channel.send(`There are no polls saved!`);
@@ -252,7 +251,7 @@ async function ListPolls(message) {
         async function DeletePoll(embed) {
             const deletingPolls = Polls.find(poll => poll.id == embed.description.substring(4, embed.description.length));
             RemovePolls(message, [deletingPolls]);
-            Polls = GetPGuild(message).pollConfig.polls;
+            Polls = GetPGuild(message.guild).pollConfig.polls;
             Embeds = CreateEmbeds(true);
 
             if (!Polls.includes(deletingPolls)) {
@@ -279,7 +278,7 @@ async function ListPolls(message) {
                 Embeds[i] = new MessageEmbed()
                     .setTitle(Polls[i].value)
                     .setDescription(`ID: ${Polls[i].id}`)
-                    .setColor(GetPGuild(message).embedColor)
+                    .setColor(GetPGuild(message.guild).embedColor)
                     .addField(`Verdict`, Polls[i].approved, true)
                     .addField(`Host`, Polls[i].author.toString(), true)
                     .setFooter(`Now viewing: ${i + 1}/${Polls.length}`);
@@ -321,7 +320,7 @@ function SaveVerdictToPGuilds(message, poll) {
     const thispollman = pGuildPolls.find(p => p.id == poll.id);
     pGuildPolls[pGuildPolls.indexOf(thispollman)] = poll;
 
-    PinguGuild.UpdatePGuildJSON(message.client, message.guild, module.exports.name,
+    PinguGuild.UpdatePGuildJSON(message.client, message.guild, this.name,
         `Successfully saved the verdict for "${poll.value}" in guilds.json`,
         `I encountered an error, while saving the verdict for "${poll.value}"`
     );

@@ -7,8 +7,8 @@ module.exports = {
     usage: '',
     id: 2,
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.EMBED_LINKS],
-    /**@param {Message} message @param {string[]} args*/
-    execute(message, args) {
+    /**@param {{message: Message}}*/
+    execute({ message }) {
         const Facts = [
             //Literal Penguin facts
             "Penguins are birds but they __cannot__ fly whatsoever. Visit LearnToFly to learn more.",

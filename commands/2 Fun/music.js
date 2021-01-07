@@ -30,14 +30,14 @@ module.exports = {
         { name: "loop", alias: "repeat", cmdHandler: HandleLoop }
     ],
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.SPEAK],
-    /**@param {Message} message @param {string[]} args*/
-    async execute(message, args) {
+    /**@param {{message: Message, args: string[], pGuild: PinguGuild}}*/
+    async execute({ message, args, pGuild }) {
         const voiceChannel = message.member.voice.channel,
             PermCheck = PermissionCheck(message, voiceChannel);
         if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
 
         commandName = args.shift().toLowerCase();
-        let pQueue = PinguGuild.GetPGuild(message.guild).musicQueue;
+        let pQueue = pGuild.musicQueue;
         var queue = pQueue ? await pQueue.ToQueue(message.guild) : null;
 
         switch (commandName) {
@@ -67,11 +67,12 @@ function PermissionCheck(message, voiceChannel) {
     if (!voiceChannel)
         return `Please join a **voice channel** ${message.author}!`;
 
-    let hasPerm = (perm) => voiceChannel.permissionsFor(message.guild.me).has(perm);
-    if (!hasPerm(DiscordPermissions.CONNECT) || !hasPerm(DiscordPermissions.VIEW_CHANNEL))
-        return `I can't connect to your voice channel!`;
-
-    return PinguLibrary.PermissionGranted;
+    return PinguLibrary.PermissionCheck({
+        author: message.author,
+        channel: voiceChannel,
+        client: message.client,
+        content: message.content
+    }, [DiscordPermissions.VIEW_CHANNEL, DiscordPermissions.SPEAK])
 }
 
 //#region Command Handling

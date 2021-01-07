@@ -9,8 +9,8 @@ module.exports = {
     guildOnly: true,
     example: ["add Admin", "remove SMod @DiaGuy", "rename 778022131178405918 Discord Bot Developer"],
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.MANAGE_ROLES],
-    /**@param {Message} message @param {string[]} args*/
-    async execute(message, args) {
+    /**@param {{message: Message, args: string[]}}*/
+    async execute({ message, args }) {
         var command = args.shift(),
             getRoleResult = await getRole(message, args),
             person = message.mentions.members.first() || message.guild.member(message.author);

@@ -1,5 +1,5 @@
 const { Message } = require('discord.js');
-const { PinguLibrary, DiscordPermissions } = require('../../PinguPackage');
+const { PinguLibrary, DiscordPermissions, PinguGuild } = require('../../PinguPackage');
 
 module.exports = {
     name: 'setpfp',
@@ -7,8 +7,8 @@ module.exports = {
     usage: ' [preview] <1k | AFools | Cool | Christmas | Green | Hollywood | Blogger | Sithlord | Wiking>',
     id: 4,
     example: ["AFools", "preview Green"],
-    /**@param {Message} message @param {string[]} args*/
-    execute(message, args) {
+    /**@param {{message: Message, args: string[]}}*/
+    execute({ message, args }) {
         if (!args[0]) args[0] = "preview";
         let PFP = args[0].toLowerCase() == "preview" ? args[1] : args[0];
 
@@ -33,8 +33,8 @@ module.exports = {
         var newPFP = `./commands/4 DevOnly/pfps/${PFP}`;
 
         message.client.user.setAvatar(newPFP).then(() => {
-            PinguLibrary.SavedServers.PinguSupport(message.client).setIcon(newPFP, `${message.author.username} called *setpfp in "${message.guild.name}", #${message.channel.name}.`);
-            console.log(`${message.author.username} set profile picture to "${PFP}".`);
+            PinguLibrary.SavedServers.PinguSupport(message.client).setIcon(newPFP, `${message.author.username} called ${PinguGuild.GetPGuild(PinguLibrary.SavedServers.PinguSupport(message.client)).botPrefix}setpfp in "${message.guild.name}", #${message.channel.name}.`);
+            PinguLibrary.ConsoleLog(`${message.author.username} set profile picture to "${PFP}".`);
 
             if (message.channel.type != 'dm') {
                 var permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.SEND_MESSAGES]);
@@ -46,8 +46,8 @@ module.exports = {
     },
 };
 
-/**@param {Message} message @param {string} imageToPreview
- */
+/**@param {Message} message 
+ * @param {string} imageToPreview*/
 function HandlePreview(message, imageToPreview) {
     let permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.ATTACH_FILES]);
     if (permCheck != PinguLibrary.PermissionGranted) return message.channel.send(permCheck);

@@ -1,11 +1,15 @@
 {
-  "guildName": "Danho's Misc",
-  "guildID": "460926327269359626",
+  "id": "460926327269359626",
+  "name": "Danho's Misc",
   "guildOwner": {
     "id": "245572699894710272",
-    "user": "Danho#2105"
+    "name": "Danho#2105"
   },
   "botPrefix": "*",
+  "welcomeChannel": {
+    "id": "460939285177040897",
+    "name": "mee6-welcome"
+  },
   "embedColor": 3447003,
   "musicQueue": null,
   "giveawayConfig": {

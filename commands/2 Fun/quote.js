@@ -10,8 +10,8 @@ module.exports = {
     id: 2,
     example: ["This is a quote by me!", "Idk why he wanna quote me?? @Danho#2105"],
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.MANAGE_MESSAGES, /*DiscordPermissions.EMBED_LINKS*/],
-    /**@param {Message} message @param {string[]} args*/
-    execute(message, args) {
+    /**@param {{message: Message, args: string[]}}*/
+    execute({ message, args }) {
         let Quote = args.join(" "),
             quotee = message.mentions.users.size != 0 ?
                 message.mentions.users.first().username :

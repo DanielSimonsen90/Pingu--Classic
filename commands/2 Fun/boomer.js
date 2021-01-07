@@ -1,5 +1,5 @@
-const { Message, Permissions } = require('discord.js');
-const { PinguLibrary, DiscordPermissions } = require('../../PinguPackage');
+const { Message } = require('discord.js');
+const { DiscordPermissions } = require('../../PinguPackage');
 
 module.exports = {
     name: 'boomer',
@@ -10,8 +10,8 @@ module.exports = {
     id: 2,
     example: ["", "@Danho#1205"],
     permissions: [DiscordPermissions.READ_MESSAGE_HISTORY, DiscordPermissions.SEND_MESSAGES, DiscordPermissions.MANAGE_MESSAGES],
-    /**@param { Message } message @param {string[]} args*/
-    async execute(message, args) {
+    /**@param {{message: Message, args: string[]}}*/
+    async execute({ message, args }) {
         let Messages = await message.channel.messages.fetch();
         let LastMessage = Messages.size - 2,
             Mention = args.length >= 1 ? args.join(" ") : Messages.array()[LastMessage].author;

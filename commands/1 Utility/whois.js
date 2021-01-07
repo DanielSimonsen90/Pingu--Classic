@@ -9,8 +9,8 @@ module.exports = {
     id: 1,
     example: ['245572699894710272', '@Danho#2105'],
     permissions: [DiscordPermissions.SEND_MESSAGES],
-    /**@param {Message} message @param {string[]} args*/
-    async execute(message, args) {
+    /**@param {{message: Message, args: string[]}}*/
+    async execute({ message, args }) {
         //Permission check
         if (args[0] != null) {
             if (args[0].includes('_')) args[0] = args[0].replace('_', ' ');

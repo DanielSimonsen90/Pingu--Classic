@@ -1,11 +1,15 @@
 {
-  "guildName": "Pingu Support",
-  "guildID": "756383096646926376",
+  "id": "756383096646926376",
+  "name": "Pingu Support",
   "guildOwner": {
     "id": "245572699894710272",
-    "user": "Danho#2105"
+    "name": "Danho#2105"
   },
   "botPrefix": "*",
+  "welcomeChannel": {
+    "id": "756388498075811880",
+    "name": "welcomes"
+  },
   "embedColor": 15105570,
   "musicQueue": null,
   "giveawayConfig": {

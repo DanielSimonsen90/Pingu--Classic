@@ -8,8 +8,8 @@ module.exports = {
     usage: '<user | username | unset> <message>',
     id: 2,
     example: ["Danho Hello!", "Danho's_Super_Cool_Nickname_With_Spaces why is this so long??", "unset"],
-    /**@param {Message} message @param {string[]} args*/
-    async execute(message, args) {
+    /**@param {{message: Message, args: string[]}}*/
+    async execute({ message, args }) {
         var permCheck = ArgumentCheck(message, args);
         if (permCheck != PinguLibrary.PermissionGranted)
             return message.channel.send(permCheck);

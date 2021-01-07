@@ -1,13 +1,58 @@
 {
-  "guildName": "Danho's Dutch Discord",
-  "guildID": "405763731079823380",
+  "id": "405763731079823380",
+  "name": "Danho's Dutch Discord",
   "guildOwner": {
     "id": "245572699894710272",
     "name": "Danho#2105"
   },
   "botPrefix": "*",
+  "welcomeChannel": null,
   "embedColor": 3447003,
-  "musicQueue": null,
+  "musicQueue": {
+    "logChannel": {
+      "id": "655020851216908289",
+      "name": "music-bots📻"
+    },
+    "voiceChannel": {
+      "id": "405763731713425422",
+      "name": "Lekker Rustig of nie"
+    },
+    "connection": {
+      "guild": "405763731079823380",
+      "id": "562176550674366464",
+      "serverDeaf": false,
+      "serverMute": false,
+      "selfDeaf": true,
+      "selfMute": false,
+      "selfVideo": false,
+      "sessionID": "150a96f323ecf1b84778e45634305a46",
+      "streaming": false,
+      "channel": "405763731713425422"
+    },
+    "index": 0,
+    "songs": [
+      {
+        "link": "https://www.youtube.com/watch?v=WzYqqOrZ5ro",
+        "title": "Chicken Wrap (Bonus Track)",
+        "author": "Daniel Simonsen - Topic",
+        "length": "00.01.22",
+        "lengthMS": 82000,
+        "requestedBy": {
+          "id": "245572699894710272",
+          "name": "Danho#2105"
+        },
+        "id": 0,
+        "loop": false,
+        "endsAt": "2021-01-07T21:41:19.124Z"
+      }
+    ],
+    "volume": 0.5,
+    "client": {
+      "displayName": "Pingu"
+    },
+    "loop": false,
+    "playing": true
+  },
   "giveawayConfig": {
     "firstTimeExecuted": true
   },

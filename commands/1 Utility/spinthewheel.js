@@ -7,14 +7,14 @@ module.exports = {
     usage: '<option1>, <option2>, <option3>....',
     id: 1,
     example: ['Yes, No', 'Pizza, McDonalds, Sandwich, Noodles'],
-    /**@param {Message} message @param {string[]} args*/
-    execute(message, args) {
+    /**@param {{message: Message, args: string[]}}*/
+    execute({ message, args }) {
         var stringArgs = args.join(' ') || "Yes, No";
         const options = stringArgs.split(', ');
         const ranItem = Math.round(Math.random() * Math.floor(options.length - 1));
 
         var result = options[ranItem];
-        console.log(`Result: ${result}`);
+        PinguLibrary.ConsoleLog(`Result: ${result}`);
 
         let permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.SEND_MESSAGES]);
         if (permCheck != PinguLibrary.PermissionGranted)

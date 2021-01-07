@@ -1,4 +1,9 @@
-﻿import { ActivityType, Channel, Client, Guild, GuildChannel, GuildMember, Message, MessageEmbed, PermissionString, Role, TextChannel, User, VoiceChannel, VoiceConnection, VoiceState, Collection, Permissions, PermissionFlags, BitField} from 'discord.js';
+﻿import {
+    ActivityType, Channel, Client, Guild, GuildChannel,
+    GuildMember, Message, MessageEmbed, Permissions,
+    PermissionString, Role, TextChannel, User, VoiceChannel,
+    VoiceConnection, VoiceState
+} from 'discord.js';
 import { MoreVideoDetails } from 'ytdl-core';
 import * as fs from 'fs';
 
@@ -240,7 +245,7 @@ export class PinguUser {
     public playlists: PQueue[]
     //public Achievements: Achievement[]
 }
-export class PinguGuild {
+export class PinguGuild extends PItem {
     //#region Static PinguGuild methods
     public static GetPGuilds(): PinguGuild[] {
         let guildCollection = fs.readdirSync(`./servers/`).filter(file => file.endsWith('.json'));
@@ -250,9 +255,13 @@ export class PinguGuild {
             pGuildArr.push(require(`./servers/${guildFile}`));
         return pGuildArr;
     }
-    public static GetPGuild(guild: Guild): PinguGuild {
-        var result = this.GetPGuilds().find(pg => pg.guildID == guild.id);
-        if (!result) PinguLibrary.errorLog(guild.client, `Unable to find a guild in pGuilds with id ${guild.id}`);
+    public static GetPGuild(guild: Guild, suppressError?: boolean): PinguGuild {
+        var result = this.GetPGuilds().find(pg => pg.id == guild.id);
+        if (!result && !suppressError) {
+            let error = `Unable to find a guild in pGuilds with id ${guild.id}`
+            PinguLibrary.errorLog(guild.client, error);
+            throw error;
+        }
         return result;
     }
 
@@ -288,7 +297,7 @@ export class PinguGuild {
         try {
             let pGuild = this.GetPGuild(guild);
             fs.unlink(`./servers/${guild.name}.json`, async err => {
-                if (err) PinguLibrary.pGuildLog(guild.client, "DeletePGuild", `Unable to delete json file for ${pGuild.guildName}`, new Error(err));
+                if (err) PinguLibrary.pGuildLog(guild.client, "DeletePGuild", `Unable to delete json file for ${pGuild.name}`, new Error(err));
                 if (await callback) callback(pGuild);
             });
         } catch (ewwor) {
@@ -298,11 +307,13 @@ export class PinguGuild {
     //#endregion
 
     constructor(guild: Guild) {
-        this.guildName = guild.name;
-        this.guildID = guild.id;
+        super(guild);
         this.guildOwner = new PGuildMember(guild.owner);
         const { Prefix } = require('./config.json');
         this.botPrefix = Prefix;
+        let welcomeChannel = guild.channels.cache.find(c => c.isText() && c.name.includes('welcome')) ||
+            guild.channels.cache.find(c => c.isText() && c.name == 'general');
+        this.welcomeChannel = welcomeChannel ? new PChannel(welcomeChannel) : null;
         this.embedColor = guild.me.roles.cache.find(role => role.name.includes('Pingu')) && guild.me.roles.cache.find(role => role.name.includes('Pingu')).color || PinguLibrary.DefaultEmbedColor;
         this.musicQueue = null;
         this.giveawayConfig = new GiveawayConfig();
@@ -311,11 +322,10 @@ export class PinguGuild {
         if (guild.id == '405763731079823380')
             this.themeWinners = new Array<PGuildMember>();
     }
-    public guildName: string
-    public guildID: string
     public guildOwner: PGuildMember
     public embedColor: number
     public botPrefix: string
+    public welcomeChannel: PChannel
     public musicQueue: PQueue
     public giveawayConfig: GiveawayConfig
     public pollConfig: PollConfig
@@ -363,6 +373,10 @@ export class PinguLibrary {
         }
     }
     public static DefaultEmbedColor = 3447003;
+    public static get DefaultPrefix(): '*' {
+        let { Prefix } = require('./config.json');
+        return Prefix;
+    }
     //#endregion
 
     //#region Permissions
@@ -666,6 +680,8 @@ export class PinguLibrary {
     //#endregion
 
     public static getEmote(client: Client, name: string, emoteGuild: Guild) {
+        if (!client || !name || !emoteGuild) return '😵';
+
         for (var guild of client.guilds.cache.array()) {
             if (guild.name != emoteGuild.name) continue;
             let emote = guild.emojis.cache.find(emote => emote.name == name)

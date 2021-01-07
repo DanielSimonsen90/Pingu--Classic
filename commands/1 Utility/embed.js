@@ -9,8 +9,8 @@ module.exports = {
     id: 1,
     examples: ["create", "795961520722935808 title My Embed Title", `795961520722935808 field "Does Danho smell?", "Yes, yes he does", "true"`],
     permissions: [DiscordPermissions.EMBED_LINKS],
-    /**@param {Message} message @param {string[]} args*/
-    async execute(message, args) {
+    /**@param {{message: Message, args: string[]}}*/
+    async execute({ message, args }) {
         let messageID = args.shift();
         let command = args.shift();
         let permCheck = await PermissionsCheck(message, args, command);

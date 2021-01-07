@@ -7,8 +7,8 @@ module.exports = {
     usage: '<status type> <status message>',
     id: 4,
     example: ["listening my jam"],
-    /**@param {Message} message @param {string[]} args*/
-    execute(message, args) {
+    /**@param {{message: Message, args: string[]}}*/
+    execute({ message, args }) {
         if (!args[0] || !args[1])
             return message.channel.send(`You didn't provide me with enough arguments!`);
         else if (!['PLAYING', 'WATCHING', 'LISTENING'].includes(args[0]))

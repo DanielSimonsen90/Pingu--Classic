@@ -9,18 +9,18 @@ module.exports = {
     id: 1,
     example: ['!'],
     permissions: [DiscordPermissions.SEND_MESSAGES],
-    /**@param {Message} message @param {string[]} args*/
-    execute(message, args) {
+    /**@param {{message: Message, args: string[], pGuild: PinguGuild}}*/
+    execute({ message, args, pGuild }) {
         if (!args || !args[0])
             return message.channel.send(`My prefix is \`${PinguGuild.GetPGuild(message.guild).botPrefix}\``);
 
-        var prePrefix = PinguGuild.GetPGuild(message.guild).botPrefix;
+        var prePrefix = pGuild.botPrefix;
 
         //Set new prefix
-        PinguGuild.GetPGuild(message.guild).botPrefix = args[0];
+        pGuild.botPrefix = args[0];
 
         //Update guilds.json
-        PinguGuild.UpdatePGuildJSON(message.client, message.guild, module.exports.name,
+        PinguGuild.UpdatePGuildJSON(message.client, message.guild, this.name,
             `Prefix has been changed to \`${args[0]}\`!`,
             `I encountered and error while changing my prefix in ${message.guild.name}:\n\n`
         )

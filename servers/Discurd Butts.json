@@ -1,11 +1,12 @@
 {
-  "guildName": "Discurd Butts",
-  "guildID": "644823098260062221",
+  "id": "644823098260062221",
+  "name": "Discurd Butts",
   "guildOwner": {
     "id": "405331883157880846",
-    "user": "Synthy Sytro#5637"
+    "name": "Synthy Sytro#5637"
   },
   "botPrefix": "*",
+  "welcomeChannel": null,
   "embedColor": 3447003,
   "musicQueue": null,
   "giveawayConfig": {

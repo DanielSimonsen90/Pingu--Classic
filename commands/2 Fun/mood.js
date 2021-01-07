@@ -8,8 +8,8 @@ module.exports = {
     usage: '',
     id: 2,
     permissions: [DiscordPermissions.SEND_MESSAGES],
-    /**@param {Message} message @param {string[]} args*/
-    execute(message, args) {
+    /**@param {{message: Message}}*/
+    execute({ message }) {
         let Mood;
 
         switch (Math.floor(Math.random() * Math.floor(5))) {

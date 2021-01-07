@@ -1,12 +1,13 @@
 {
-  "guildName": "Emoji's",
-  "guildID": "640305503745998849",
+  "id": "640305503745998849",
+  "name": "Emoji's",
   "guildOwner": {
     "id": "324191949353385984",
-    "user": "Kid#0002"
+    "name": "Kid#0002"
   },
   "botPrefix": "*",
-  "embedColor": 0,
+  "welcomeChannel": null,
+  "embedColor": 3447003,
   "musicQueue": null,
   "giveawayConfig": {
     "firstTimeExecuted": true

@@ -8,8 +8,8 @@ module.exports = {
     id: 1,
     example: ["", "all", "emotes", "emotes FeelsBadMan", "features"],
     permissions: [DiscordPermissions.SPEAK, DiscordPermissions.EMBED_LINKS, DiscordPermissions.USE_EXTERNAL_EMOJIS],
-    /**@param {Message} message @param {string[]} args*/
-    execute(message, args) {
+    /**@param {{message: Message, args: string[]}}*/
+    execute({ message, args }) {
         const bigboiinfo = args[0] && args[0].toLowerCase() == 'all',
             serverGuild = message.guild,
             emote = serverGuild.emojis.cache.find(e => args.includes(e.name));

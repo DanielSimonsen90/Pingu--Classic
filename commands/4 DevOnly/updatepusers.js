@@ -1,4 +1,4 @@
-﻿const { Message, MessageEmbed, Guild, User, Client } = require("discord.js");
+﻿const { Message, MessageEmbed, Guild, User } = require("discord.js");
 const { PinguLibrary, PinguUser, PinguGuild } = require('../../PinguPackage');
 const fs = require('fs');
 
@@ -8,8 +8,8 @@ module.exports = {
     usage: '<user tag | user id | show>',
     example: [`Danho#2105`, '460926327269359626', 'show'],
     id: 4,
-    /**@param {Message} message @param {string[]} args*/
-    async execute(message, args) {
+    /**@param {{message: Message, args: string[]}}*/
+    async execute({ message, args }) {
         let BotGuilds = message.client.guilds.cache.array().sort((a, b) => a.name > b.name ? 1 : -1);
         let Users = GetUsers(BotGuilds).filter(u => !u.bot).sort((a, b) => a.tag > b.tag ? 1 : -1);
 
@@ -37,7 +37,7 @@ module.exports = {
             console.log(`Finished: ${Users[i].tag}`);
             //await PinguLibrary.pUserLog(message.client, module.exports.name, `Going through all users - just finished: ${Users[i].tag}`);
         }
-        PinguLibrary.pUserLog(message.client, module.exports.name, 'Going through users complete!');
+        PinguLibrary.pUserLog(client, module.exports.name, 'Going through users complete!');
     }
 }
 

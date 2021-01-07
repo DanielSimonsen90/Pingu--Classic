@@ -15,14 +15,13 @@ module.exports = {
         DiscordPermissions.MANAGE_MESSAGES,
         DiscordPermissions.ADD_REACTIONS
     ],
-    /**@param {Message} message @param {string[]} args*/
-    execute(message, args) {
+    /**@param {{message: Message, args: string[], pGuild: PinguGuild}}*/
+    async execute({ message, args, pGuild }) {
         // Test if all permissions are available & if all arguments are met
         let ReturnMessage = PermissionCheck(message, args);
         if (ReturnMessage != PinguLibrary.PermissionGranted) return message.author.send(ReturnMessage);
 
         //Is user trying to host a giveaway?
-        const pGuild = PinguGuild.GetPGuild(message.guild);
         if (pGuild.giveawayConfig.firstTimeExecuted || args[0] == `setup`)
             return FirstTimeExecuted(message, args);
         else if (args[0] == "list") return ListGiveaways(message);
@@ -108,10 +107,10 @@ module.exports = {
 //#region Misc Methods
 /**@param {Message} message @param {string[]} args*/
 function PermissionCheck(message, args) {
-    var permCheck = PinguLibrary.PermissionCheck(message, message.client, [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.MANAGE_MESSAGES,
-        Permissions.FLAGS.ADD_REACTIONS
+    var permCheck = PinguLibrary.PermissionCheck(message, [
+        DiscordPermissions.SEND_MESSAGES,
+        DiscordPermissions.MANAGE_MESSAGES,
+        DiscordPermissions.ADD_REACTIONS
     ]);
     if (permCheck != PinguLibrary.PermissionGranted) return permCheck;
 
@@ -438,7 +437,7 @@ async function ExecuteTimeOut(message, GiveawayMessage, Prize, Winners, embed, G
 
     //Announce Winner
     var WinnerMessage = await GiveawayMessage.channel.send(`The winner of "**${Prize}**" is no other than ${WinnerArrStringed}! Congratulations!`)
-    WinnerMessage.react(PinguLibrary.getEmote(message.client, 'hypers'));
+    WinnerMessage.react(PinguLibrary.getEmote(message.client, 'hypers', PinguLibrary.SavedServers.PinguSupport(message.client)));
 
     RemovePreviousWinners(message.guild.members.cache.filter(Member => Member.roles.cache.has(GiveawayWinnerRole.id)).array());
 

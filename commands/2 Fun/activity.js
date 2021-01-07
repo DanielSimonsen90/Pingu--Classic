@@ -12,8 +12,8 @@ module.exports = {
     id: 2,
     example: ["hug @Danho#2105"],
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.embedl],
-    /**@param {Message} message @param {string[]} args */
-    execute(message, args) {
+    /**@param {{message: Message, args: string[], pGuild: PinguGuild}}*/
+    async execute({ message, args, pGuild }) {
         //Permission check
         const PermCheck = PermissionCheck(message, args);
         if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
@@ -50,11 +50,11 @@ module.exports = {
             const embed = new MessageEmbed()
                 .setTitle(`${User} ${Activity} ${Person}`)
                 .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
-                .setColor(PinguGuild.GetPGuild(message.guild).embedColor);
+                .setColor(pGuild.embedColor);
 
             //Return the whole thing LuL
             //React with F if the user uses *activity on themselves
-            if (Person == User) message.channel.send(embed).then((NewMessage) => { NewMessage.react('🇫'); });
+            if (Person == User) message.channel.send(embed).then(NewMessage => { NewMessage.react('🇫'); });
             else message.channel.send(embed);
         });
     },

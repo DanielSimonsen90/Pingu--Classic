@@ -1,6 +1,6 @@
 const request = require('request'),
     config = require('../../config.json'),
-    { Message, MessageEmbed, Permissions } = require('discord.js');
+    { Message, MessageEmbed } = require('discord.js');
 const { PinguLibrary, PinguGuild, DiscordPermissions } = require('../../PinguPackage');
 
 module.exports = {
@@ -9,9 +9,8 @@ module.exports = {
     usage: '',
     id: 2, 
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.EMBED_LINKS],
-    /**@param {Message} message
-     * @param {string[]} args*/
-    execute(message, args) {
+    /**@param {{message: Message, args: string[], pGuild: PinguGuild}}*/
+    execute({ message, pGuild }) {
         if (!config || !config.api_key || !config.google_custom_search) {
             PinguLibrary.errorLog(message.client, 'Unable to send gif\nImage search requires both a YouTube API key and a Google Custom Search key!').then(() =>
                 message.channel.send(`I was unable to search for a gif! I have contacted my developers...`));
@@ -26,20 +25,20 @@ module.exports = {
             // "https://www.googleapis.com/customsearch/v1?key=AIzaSyAeAr2Dv1umzuLes_zhlY0lON4Pf_uAKeM&cx=013524999991164939702:z24cpkwx9nz&q=sloth&searchType=image&alt=json&num=10&start=31"
             let data;
             try { data = JSON.parse(body); }
-            catch (err) { PinguLibrary.errorLog(`Getting data in activity, request()\n${err}`); }
+            catch (err) { PinguLibrary.errorLog(message.client, `Getting data in activity, request()\n${err}`); }
 
             if (!data) {
-                PinguLibrary.errorLog(`Getting data in activity, request()\n${JSON.stringify(data)}`).then(() =>
+                PinguLibrary.errorLog(message.client, `Getting data in activity, request()\n${JSON.stringify(data)}`).then(() =>
                     message.channel.send(`I was unable to recieve a gif! I have contacted my developers...`));
             }
             else if (!data.items || data.items.length == 0) {
-                PinguLibrary.errorLog(`data for activity has no items\n${data}`).then(() =>
+                PinguLibrary.errorLog(message.client, `data for activity has no items\n${data}`).then(() =>
                     message.channel.send(`I was unable to find a gif! I have contacted my developers...`));
             }
 
             message.channel.send(new MessageEmbed()
                 .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
-                .setColor(PinguGuild.GetPGuild(message.guild).embedColor)
+                .setColor(pGuild.embedColor)
             );
         });
     },

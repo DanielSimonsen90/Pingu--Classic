@@ -1,15 +1,15 @@
 const { Message, MessageEmbed, Permissions } = require('discord.js');
 const request = require('request');
 const config = require('../../config.json');
-const { PinguLibrary, PinguGuild } = require('../../PinguPackage');
+const { PinguLibrary, PinguGuild, DiscordPermissions } = require('../../PinguPackage');
 
 module.exports = {
     name: 'gif',
     description: 'Searches google for pingu memes',
     usage: '',
     id: 2,
-    /**@param {Message} message @param {string[]} args*/
-    execute(message, args) {
+    /**@param {{message: Message, pGuild: PinguGuild}}*/
+    async execute({ message, pGuild }) {
         const PermCheck = PermissionCheck(message);
         if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
 
@@ -40,7 +40,7 @@ module.exports = {
 
             message.channel.send(new MessageEmbed()
                 .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
-                .setColor(message.channel.type != 'dm' ? PinguGuild.GetPGuild(message.guild).embedColor : 15527148)
+                .setColor(message.guild ? pGuild.embedColor : PinguLibrary.DefaultEmbedColor)
             );
         });
     },
@@ -50,8 +50,8 @@ module.exports = {
 function PermissionCheck(message) {
     if (message.channel.type != 'dm') {
         return PinguLibrary.PermissionCheck(message, [
-            Permissions.FLAGS.SEND_MESSAGES,
-            Permissions.FLAGS.EMBED_LINKS
+            DiscordPermissions.SEND_MESSAGES,
+            DiscordPermissions.EMBED_LINKS
         ]);
     }
     return PinguLibrary.PermissionGranted;

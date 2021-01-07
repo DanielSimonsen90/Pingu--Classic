@@ -1,11 +1,15 @@
 {
-  "guildName": "The Genius Company LLC ™",
-  "guildID": "778022031811543041",
+  "id": "778022031811543041",
+  "name": "The Genius Company LLC ™",
   "guildOwner": {
     "id": "396357904950755338",
-    "user": "Waterslide56#7794"
+    "name": "Waterslide56#7794"
   },
   "botPrefix": "*",
+  "welcomeChannel": {
+    "id": "778022032268853280",
+    "name": "welcome-channel"
+  },
   "embedColor": 16776960,
   "musicQueue": null,
   "giveawayConfig": {
