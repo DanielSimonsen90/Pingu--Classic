@@ -2,7 +2,7 @@
     ActivityType, Channel, Client, Guild, GuildChannel,
     GuildMember, Message, MessageEmbed, Permissions,
     PermissionString, Role, TextChannel, User, VoiceChannel,
-    VoiceConnection, VoiceState
+    VoiceConnection, VoiceState, ReactionUserManager
 } from 'discord.js';
 import { MoreVideoDetails } from 'ytdl-core';
 import * as fs from 'fs';
@@ -535,41 +535,33 @@ export class PinguLibrary {
     //#endregion
 
     //#region Log Channels
-    public static errorLog(client: Client, message: string, userContent?: string, err?: Error) {
+    public static errorLog(client: Client, message: string, messageContent?: string, err?: Error) {
         var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log');
         if (!errorlogChannel) return this.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
 
-        console.error(getErrorMessage(message.includes('`') ? message.replace('`', ' ') : message, userContent, err));
-        return errorlogChannel.send(getErrorMessage(message, userContent, err));
+        console.error(getErrorMessage(message.includes('`') ? message.replace('`', ' ') : message, messageContent, err));
+        return errorlogChannel.send(getErrorMessage(message, messageContent, err));
 
-        function getErrorMessage(message: string, userContent?: string, err?: Error) {
-            if (!userContent) return message;
-            else if (!err)
-                return ("`\`\`\n" +
-                    `[Provided Message]\n` +
-                    `${message}\n` +
-                    `\n` +
-                    `[Message content]\n` +
-                    `${userContent}\n` +
-                    "```"
-                );
+        function getErrorMessage(message: string, messageContent?: string, err?: Error) {
+            let result = {
+                format: "```\n",
+                providedMessage: `[Provided Message]\n${message}\n\n`,
+                errorMessage: `[Error message]: \n${err.message}\n\n`,
+                messageContent: `[Message content]\n${messageContent}\n\n`,
+                stack: `[Stack]\n${err.stack}\n\n\n`,
+                fileMessage: `${err.fileName} threw an error at line ${err.lineNumber}!\n\n`
+            };
 
-            let returnMessage = ("\`\`\`" +
-                err.fileName && err.lineNumber ? `${err.fileName} threw an error at line ${err.lineNumber}!\n` : " " +
-                `[Provided Message]\n` +
-                `${message}\n` +
-                `\n` +
-                `[Message content]\n` +
-                `${userContent}\n` +
-                `\n` +
-                `[Error message]: \n` +
-                `${err.message}\n` +
-                `\n` +
-                `[Stack]\n` +
-                `${err.stack}\n\n` +
-                "```"
+            let returnMessage = (
+                result.format +
+                (err.fileName && err.lineNumber ? result.fileMessage : "") +
+                result.providedMessage +
+                (messageContent ? result.messageContent : "") +
+                (err ? result.errorMessage + result.stack : "") +
+                result.format
             );
-            console.log(returnMessage);
+
+            PinguLibrary.ConsoleLog(returnMessage);
             return returnMessage
         }
     }
@@ -844,7 +836,12 @@ export class TimeLeftObject {
 //#endregion
 
 //#region Music
-export class Queue {
+interface IMuisc {
+    loop: boolean,
+    volume: number,
+    playing: boolean
+}
+export class Queue implements IMuisc {
     constructor(client: PClient, logChannel: TextChannel, voiceChannel: VoiceChannel, songs: Song[], playing = true) {
         this.logChannel = logChannel;
         this.voiceChannel = voiceChannel;
@@ -861,10 +858,10 @@ export class Queue {
     public voiceChannel: VoiceChannel
     public connection: VoiceConnection
     public songs: Song[]
+    public index: number
     public volume: number
     public playing: boolean
     public loop: boolean
-    public index: number
     public client: PClient
 
     get currentSong(): Song {
@@ -891,14 +888,18 @@ export class Queue {
         this.songs = this.songs.filter(s => s != song);
     }
     public move(posA: number, posB: number) {
-        var songToMove = this.songs[posA];
+        var songToMove = this.songs[posA - 1];
         this.songs.unshift(null);
 
         for (var i = 1; i < this.songs.length; i++) {
-            if (i == posB) this.songs[i - 1] = songToMove;
+            if (i == posB) {
+                this.songs[i - 1] = songToMove;
+                break;
+            }
             else if (i == posA + 1) continue;
             else this.songs[i - 1] = this.songs[i];
         }
+        this.songs.splice(this.songs.length - 1);
         return this;
     }
     public includes(title: string) {
@@ -909,7 +910,7 @@ export class Queue {
         return this.songs.find(s => s.title.includes(title));
     }
 }
-export class Song {
+export class Song implements IMuisc {
     constructor(author: User, songInfo: MoreVideoDetails) {
         //YouTube
         this.link = songInfo.video_url;
@@ -917,25 +918,32 @@ export class Song {
         this.author = songInfo.author && songInfo.author.name;
         this.length = this.GetLength(songInfo.lengthSeconds);
         this.lengthMS = parseInt(songInfo.lengthSeconds) * 1000;
+        this.thumbnail = songInfo.thumbnails[0].url;
 
         this.requestedBy = new PUser(author);
         this.id = 0;
+        this.volume = -1;
         this.loop = false;
         this.endsAt = null;
     }
     public id: number
     public title: string
-    public author: string
     public link: string
-    public playing: boolean
+    public author: string
+    public thumbnail: string
     public length: string
     public lengthMS: number
-    public endsAt: Date
+    public volume: number
+    public playing: boolean
     public loop: boolean
+    public endsAt: Date
     public requestedBy: PUser
 
     public play() {
         this.endsAt = new Date(Date.now() + this.lengthMS);
+    }
+    public stop() {
+        this.endsAt = null;
     }
     public getTimeLeft() {
         return new TimeLeftObject(new Date(Date.now()), this.endsAt);

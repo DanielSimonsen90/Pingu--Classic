@@ -4,8 +4,8 @@ const { PinguGuild, PinguLibrary, PinguUser } = require("../../PinguPackage");
 module.exports = {
     name: 'events: guildDelete',
     /**@param {Client} client
-     * @param {Guild} guild*/
-    execute(client, guild) {
+     * @param {{guild: Guild}}*/
+    execute(client, { guild }) {
         PinguGuild.DeletePGuild(guild, pGuild =>
             PinguLibrary.pGuildLog(client, this.name, `Successfully left "**${pGuild.name}**", owned by <@${pGuild.guildOwner.id}>`));
 

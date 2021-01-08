@@ -7,8 +7,8 @@ let updatingPGuild = false;
 module.exports = {
     name: 'events: message',
     /**@param {Client} client
-     * @param {Message} message*/
-    async execute(client, message) {
+     * @param {{message: Message}}*/
+    async execute(client, { message }) {
         //Log latency
         try { PinguLibrary.LatencyCheck(message); }
         catch (err) { PinguLibrary.errorLog(client, `LatencyCheck error`, message.content, err); }

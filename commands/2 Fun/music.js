@@ -2,7 +2,7 @@ const { Message, Guild, MessageEmbed, VoiceChannel } = require('discord.js'),
     ytdl = require('ytdl-core'),
     YouTube = require('simple-youtube-api'),
     { youtube_api } = require('../../config.json');
-const { PinguGuild, Queue, Song, PinguLibrary, PQueue, PClient, DiscordPermissions } = require('../../PinguPackage');
+const { PinguGuild, Queue, Song, PinguLibrary, PQueue, PClient, DiscordPermissions, TimeLeftObject } = require('../../PinguPackage');
 var youTube = new YouTube(youtube_api), commandName = "";
 
 
@@ -207,13 +207,13 @@ async function HandlePlay(message, args, voiceChannel, queue) {
  * @param {Queue} queue
  * @param {string[]} args*/
 async function HandlePlaySkip(message, queue, args) {
-    var skippingSong = queue.songs[0];
+    var skippingSong = queue.currentSong;
     await HandlePlay(message, args, queue.voiceChannel, queue);
     await HandleSkip(message, queue);
 
     AnnounceMessage(message, queue,
-        `Skipped ${skippingSong.title} to play ${queue.songs[0].title}`,
-        `${message.member.displayName} skipped ${skippingSong.title} to play ${queue.songs[0].title}.`
+        `Skipped **${skippingSong.title}** to play **${queue.songs[0].title}**`,
+        `${message.member.displayName} skipped **${skippingSong.title}** to play **${queue.songs[0].title}**.`
     );
 }
 /**@param {Message} message
@@ -258,6 +258,12 @@ async function HandleStop(message, queue) {
         `Stopped!`, `${message.member.displayName} stopped the radio!`
     );
 
+    queue.songs = [];
+    await UpdateQueue(message, queue, "HandleStop",
+        `Reset queue's songs for **${message.guild.name}**`,
+        `Unable to reset queue's songs for **${message.guild.name}**`
+    );
+
     try { queue.connection.dispatcher.end(); }
     catch (err) {
         if (!["Cannot read property 'dispatcher' of null", "Cannot read property 'end' of null"].includes(err.message))
@@ -298,12 +304,14 @@ function HandleNowPlaying(message, queue) {
  * @param {Message} message 
  * @param {Queue} queue
  * @param {string} newVolume*/
-function HandleVolume(message, queue, newVolume) {
-    if (!newVolume) return message.channel.send(`Volume is currently **${PinguGuild.GetPGuild(message.guild).musicQueue.volume}**`);
+async function HandleVolume(message, queue, newVolume) {
+    let { currentSong } = queue;
+
+    if (!newVolume) return message.channel.send(`Volume is currently **${currentSong.volume}**`);
 
     queue.connection.dispatcher.setVolumeLogarithmic(newVolume / 5);
-    const previousVolume = PinguGuild.GetPGuild(message.guild).musicQueue.volume;
-    queue.volume = parseInt(newVolume);
+    const previousVolume = currentSong.volume;
+    currentSong.volume = parseFloat(newVolume);
 
     AnnounceMessage(message, queue,
         `Volumed changed from **${previousVolume}** to **${newVolume}**.`,
@@ -321,15 +329,16 @@ function HandleVolume(message, queue, newVolume) {
 function HandleQueue(message, queue) {
     const embed = new MessageEmbed()
         .setTitle(`Queue for ${queue.voiceChannel.name}`)
-        .setImage(message.client.user.avatarURL())
-        .setColor(PinguGuild.GetPGuild(message.guild).embedColor);
+        .setThumbnail(message.client.user.avatarURL())
+        .setColor(PinguGuild.GetPGuild(message.guild).embedColor)
+        .setImage(queue.currentSong.thumbnail);
 
     try {
         for (var i = queue.index; i < queue.songs.length || i < 10 && queue.songs.length > 10; i++) {
             let indexSong = queue.songs[i];
 
             if (!indexSong.endsAt)
-                indexSong.endsAt = new Date(queue.songs[i - 1].endsAt + indexSong.lengthMS);
+                indexSong.endsAt = new Date(queue.songs[i - 1].endsAt.getTime() + indexSong.lengthMS);
 
             let timeLeft = indexSong.getTimeLeft();
             let songLength = {
@@ -338,39 +347,24 @@ function HandleQueue(message, queue) {
                 seconds: parseInt(indexSong.length.split('.')[2]),
             };
 
-            if (timeLeft.hours > songLength.hours) {
-                console.log(
-                    `Continue: ${timeLeft.hours} > ${songLength.hours}`,
-                    `(${timeLeft.hours}.${timeLeft.minutes}.${timeLeft.seconds}/`,
-                    `${ songLength.hours }.${ songLength.minutes }.${ songLength.seconds })`);
-                continue;
-            }
-            else if (timeLeft.minutes > songLength.minutes && songLength.hours == 0) {
-                console.log(
-                    `Continue: ${timeLeft.hours} > ${songLength.hours}`,
-                    `(${timeLeft.hours}.${timeLeft.minutes}.${timeLeft.seconds}/`,
-                    `${songLength.hours}.${songLength.minutes}.${songLength.seconds})`);
-                continue;
-            }
-            else if (timeLeft.seconds > songLength.seconds && songLength.minutes == 0 && songLength.hours == 0) {
-                console.log(
-                    `Continue: ${timeLeft.hours} > ${songLength.hours}`,
-                    `(${timeLeft.hours}.${timeLeft.minutes}.${timeLeft.seconds}/`,
-                    `${songLength.hours}.${songLength.minutes}.${songLength.seconds})`);
-                continue;
+            let formatTime = () => {
+                return [timeLeft.hours, timeLeft.minutes, timeLeft.seconds].map(number =>
+                    number < 10 ? `0${number}` : number.toString()).join('.');
             }
 
             embed.addField(
                 `[${i + 1}]: ${indexSong.title}`,
-                `Requested by: <@${indexSong.requestedBy.id}> | Time left: ${timeLeft}/${indexSong.length}`
+                `Requested by: <@${indexSong.requestedBy.id}> | Time left: **${formatTime()}**${(indexSong == queue.currentSong ? `/**${indexSong.length}**` : "")}`
             );
-            if (i != queue.index)
-                indexSong.endsAt = null;
         }
     }
     catch (err) {
-        PinguLibrary.errorLog(message.client, `Tried to send queue for ${queue.voiceChannel.guild.name}`, message.content, err);
+        PinguLibrary.errorLog(message.client, `Tried to send queue for ${message.guild.name}`, message.content, err);
         return message.channel.send(`I ran into an error trying to get the queue, and sent a message to my developers!`);
+    }
+
+    for (var i = queue.index + 1; i < queue.songs.length || i < 10 && queue.songs.length > 10; i++) {
+        queue.songs[i].endsAt = null;
     }
 
     return message.channel.send(embed);
@@ -409,6 +403,8 @@ function HandleMove(message, queue, args) {
         var newSongPosition = parseInt(args.shift());
     }
     catch (err) { return message.channel.send(err); }
+
+    if (songIndexToMove < 1 || newSongPosition < 0) return message.channel.send(`I can't move something that's already playing!`);
 
     UpdateQueue(message, queue.move(songIndexToMove, newSongPosition), "HandleMove",
         `Updated **${message.guild.name}**'s music queue positions.`,
@@ -456,13 +452,16 @@ async function Play(message, song, queue) {
 
     queue.connection.play(streamItem)
         .on('start', async () => {
+            if (song.volume == -1) song.volume = queue.volume;
+            queue.volume = song.volume;
+
             song.play();
 
             //Deafen yourself
             if (!message.guild.me.voice.selfDeaf)
                 message.guild.me.voice.setSelfDeaf(true);
 
-            console.log("Song Start");
+            PinguLibrary.ConsoleLog("Song Start");
 
             var requestedBy = message.guild.members.cache.find(m => m.id == song.requestedBy.id);
 
@@ -480,38 +479,47 @@ async function Play(message, song, queue) {
 
             //Send now plating message in logChannel
             var nowPlayingMessage = `**Now playing:** ${song.title}\n**Requested by:** `;
-            queue.logChannel.send(nowPlayingMessage + `${requestedBy.displayName}`)
-                .then(sent => sent.edit(nowPlayingMessage + `<@${song.requestedBy.id}>`));
+
+            let previousMessage = queue.logChannel.messages.cache.find(msg => msg.author == message.client.user && message.content.includes(`**Now playing:**`));
+            let lastChannelMessage = queue.logChannel.messages.cache.first();
+
+            if (previousMessage && lastChannelMessage && lastChannelMessage.id == previousMessage.id)
+                previousMessage.edit(nowPlayingMessage + `<@${song.requestedBy.id}>`);
+            else 
+                queue.logChannel.send(nowPlayingMessage + `${requestedBy.displayName}`)
+                    .then(sent => sent.edit(nowPlayingMessage + `<@${song.requestedBy.id}>`));
+
 
             //Update pGuilds queue
             UpdateQueue(message, queue, "play.on",
-                `Saved Queue to pGuilds.json`,
-                `Error while saving **${message.guild.name}**'s queue to pGuilds.json`
+                `Saved Queue to **${message.guild.name}.json**`,
+                `Error while saving **${message.guild.name}**'s queue to **${message.guild.name}.json**`
             );
         })
         .on('error', err => {
-            console.log("Song Error");
+            PinguLibrary.ConsoleLog("Song Error");
 
             PinguLibrary.errorLog(message.client, "Voice connection error", message.content, err);
             AnnounceMessage(message, queue, `I had a voice connection error! I've notified my developers.`)
 
             pGuild.musicQueue = null;
         })
-        .on('end', () => console.log("Song End"))
+        .on('end', () => PinguLibrary.ConsoleLog("Song End"))
         .on('finish', async () => {
-            console.log("Song Finished");
+            PinguLibrary.ConsoleLog("Song Finished");
+            song.stop();
 
             var pinguName = queue.client.displayName;
             queue = await PinguGuild.GetPGuild(message.guild).musicQueue.ToQueue(message.guild);
             queue.client.displayName = pinguName;
 
-            if (!queue.currentSong.loop) queue.index++;
+            if (queue.currentSong && !queue.currentSong.loop) queue.index++;
             if (queue.index == queue.songs.length && queue.loop) queue.index = 0;
 
             if (!["stop", "st"].includes(commandName))
                 Play(message, queue.currentSong, queue);
         })
-        .setVolumeLogarithmic(queue.volume / 5);
+        .setVolumeLogarithmic(queue.volume / 5)
 }
 /**@param {Message} message
  * @param {Queue} queue

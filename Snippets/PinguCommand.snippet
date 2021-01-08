@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>Pingu Command</Title>
+      <Description>Code snippet for adding a new command to Pingu the Discord bot</Description>
+      <Author>Daniel Simonsen | Danho</Author>
+      <Shortcut>pcmd</Shortcut>
+    </Header>
+    <Snippet>
+      <Code Language="JavaScript">
+        <![CDATA[const { Message } = require('discord.js');
+          const { PinguLibrary, DiscordPermissions } = require('../../PinguPackage');
+
+          module.exports = {
+              name: '$name$',
+              description: '$description$',
+              usage: '$usage$',
+              guildOnly: $guildOnly$,
+              id: $id$,
+              examples: ["$examples$"],
+              permissions: [DiscordPermissions.$permissions$],
+              /**@param {Message} message @param {string[]} args*/
+              execute(message, args) {
+                  $end$
+              }
+            }]]>
+      </Code>
+      <Declarations>
+        <Literal>
+          <ID>name</ID>
+          <ToolTip>Name of the script</ToolTip>
+          <Default>script</Default>
+        </Literal>
+        <Literal>
+          <ID>description</ID>
+          <ToolTip>Description used when user executes *help</ToolTip>
+          <Default>New Pingu Command</Default>
+        </Literal>
+        <Literal>
+          <ID>usage</ID>
+          <ToolTip>required and optional arguments</ToolTip>
+        </Literal>
+        <Literal>
+          <ID>guildOnly</ID>
+          <ToolTip>Command should only be used in guilds</ToolTip>
+          <Default>false</Default>
+        </Literal>
+        <Literal>
+          <ID>id</ID>
+          <ToolTip>Script ID for command categories</ToolTip>
+          <Default>4</Default> <!--Developer Only-->
+        </Literal>
+        <Literal>
+          <ID>examples</ID>
+          <ToolTip>Examples command could be used with good selection of usage</ToolTip>
+        </Literal>
+        <Literal>
+          <ID>permissions</ID>
+          <ToolTip>Necessary permissions to run command, excluding SEND_MESSAGES</ToolTip>
+          <Default>SEND_MESSAGES</Default>
+        </Literal>
+      </Declarations>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

@@ -1,11 +1,11 @@
-const { GuildMember, Client, GuildMember } = require("discord.js");
+const { GuildMember, Client } = require("discord.js");
 const { PinguLibrary, PinguUser } = require("../../PinguPackage");
 
 module.exports = {
     name: 'events: guildMemberRemove',
     /**@param {Client} client
-     @param {GuildMember} member*/
-    execute(client, member) {
+     @param {{member: GuildMember}}*/
+    execute(client, { member }) {
         if (member.user.bot) return;
         let welcomeChannel = require('./guildMemberAdd').getWelcomeChannel(member.guild);
         if (welcomeChannel)

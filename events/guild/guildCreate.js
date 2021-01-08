@@ -4,8 +4,8 @@ const { PinguGuild, PinguLibrary, PinguUser } = require("../../PinguPackage");
 module.exports = {
     name: 'events: guildCreate',
     /**@param {Client} client
-     * @param {Guild} guild*/
-    async execute(client, guild) {
+     * @param {{giuld: Guild}}*/
+    async execute(client, { guild }) {
         PinguGuild.WritePGuild(guild, async pGuild => await PinguLibrary.pGuildLog(client, this.name, `Successfully joined "**${pGuild.name}**", owned by <@${pGuild.guildOwner.id}>`));
 
         //Thank guild owner for adding Pingu

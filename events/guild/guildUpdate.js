@@ -4,9 +4,8 @@ const { PinguGuild, PinguLibrary } = require("../../PinguPackage");
 module.exports = {
     name: 'events: guildUpdate',
     /**@param {Client} client
-     * @param {Guild} from
-    * @param { Guild } to*/
-    execute(client, from, to) {
+     * @param {{from: Guild, to: Guild}}*/
+    execute(client, { from, to }) {
         try {
             if (from.name != to.name) throw { message: 'Cannot find module' };
             PinguGuild.UpdatePGuildJSON(client, to, this.name,

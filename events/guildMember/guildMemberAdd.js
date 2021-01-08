@@ -4,8 +4,8 @@ const { PinguGuild, PChannel, PinguLibrary, PinguUser } = require("../../PinguPa
 module.exports = {
     name: 'events: guildMemberAdd',
     /**@param {Client} client
-     * @param {GuildMember} member*/
-    execute(client, member) {
+     @param {{member: GuildMember}}*/
+    execute(client, { member }) {
         let pGuild = PinguGuild.GetPGuild(member.guild);
         let welcomeChannel = this.getWelcomeChannel();
         if (welcomeChannel)

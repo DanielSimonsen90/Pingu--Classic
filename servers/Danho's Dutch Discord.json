@@ -25,30 +25,32 @@
       "selfDeaf": true,
       "selfMute": false,
       "selfVideo": false,
-      "sessionID": "150a96f323ecf1b84778e45634305a46",
+      "sessionID": "7d7e76d9953a0180a26e3b7095888fe5",
       "streaming": false,
       "channel": "405763731713425422"
     },
     "index": 0,
     "songs": [
       {
-        "link": "https://www.youtube.com/watch?v=WzYqqOrZ5ro",
-        "title": "Chicken Wrap (Bonus Track)",
-        "author": "Daniel Simonsen - Topic",
-        "length": "00.01.22",
-        "lengthMS": 82000,
+        "link": "https://www.youtube.com/watch?v=kQ9EHL7ZM8Y",
+        "title": "[Mashup] Thomas the Tank Engine x Childish Gambino - Thomas the Bonfire",
+        "author": "Marcus Skjelseth",
+        "length": "00.02.46",
+        "lengthMS": 166000,
+        "thumbnail": "https://i.ytimg.com/vi/kQ9EHL7ZM8Y/hqdefault.jpg?sqp=-oaymwEYCKgBEF5IVfKriqkDCwgBFQAAiEIYAXAB&rs=AOn4CLBsocjNZwqjg0UWjHwLL7P-X9B-vg",
         "requestedBy": {
           "id": "245572699894710272",
           "name": "Danho#2105"
         },
         "id": 0,
+        "volume": 0.5,
         "loop": false,
-        "endsAt": "2021-01-07T21:41:19.124Z"
+        "endsAt": "2021-01-08T12:07:09.644Z"
       }
     ],
     "volume": 0.5,
     "client": {
-      "displayName": "Pingu"
+      "displayName": "[Danho Radio] Pingu"
     },
     "loop": false,
     "playing": true

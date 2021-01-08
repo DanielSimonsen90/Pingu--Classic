@@ -1,13 +1,12 @@
 {
   "ExpandedNodes": [
     "",
-    "\\commands",
-    "\\commands\\1 Utility",
     "\\commands\\2 Fun",
-    "\\commands\\3 Support",
     "\\commands\\4 DevOnly",
-    "\\commands\\Archived Commands"
+    "\\events",
+    "\\events\\guild",
+    "\\events\\guildMember"
   ],
-  "SelectedNode": "\\commands\\2 Fun\\activity.js",
+  "SelectedNode": "\\package.json",
   "PreviewInSolutionExplorer": false
 }

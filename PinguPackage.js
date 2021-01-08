@@ -643,38 +643,28 @@ var PinguLibrary = /** @class */ (function () {
     };
     //#endregion
     //#region Log Channels
-    PinguLibrary.errorLog = function (client, message, userContent, err) {
+    PinguLibrary.errorLog = function (client, message, messageContent, err) {
         var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log');
         if (!errorlogChannel)
             return this.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
-        console.error(getErrorMessage(message.includes('`') ? message.replace('`', ' ') : message, userContent, err));
-        return errorlogChannel.send(getErrorMessage(message, userContent, err));
-        function getErrorMessage(message, userContent, err) {
-            if (!userContent)
-                return message;
-            else if (!err)
-                return ("`\`\`\n" +
-                    "[Provided Message]\n" +
-                    (message + "\n") +
-                    "\n" +
-                    "[Message content]\n" +
-                    (userContent + "\n") +
-                    "```");
-            var returnMessage = ("\`\`\`" +
-                err.fileName && err.lineNumber ? err.fileName + " threw an error at line " + err.lineNumber + "!\n" : " " +
-                "[Provided Message]\n" +
-                (message + "\n") +
-                "\n" +
-                "[Message content]\n" +
-                (userContent + "\n") +
-                "\n" +
-                "[Error message]: \n" +
-                (err.message + "\n") +
-                "\n" +
-                "[Stack]\n" +
-                (err.stack + "\n\n") +
-                "```");
-            console.log(returnMessage);
+        console.error(getErrorMessage(message.includes('`') ? message.replace('`', ' ') : message, messageContent, err));
+        return errorlogChannel.send(getErrorMessage(message, messageContent, err));
+        function getErrorMessage(message, messageContent, err) {
+            var result = {
+                format: "```\n",
+                providedMessage: "[Provided Message]\n" + message + "\n\n",
+                errorMessage: "[Error message]: \n" + err.message + "\n\n",
+                messageContent: "[Message content]\n" + messageContent + "\n\n",
+                stack: "[Stack]\n" + err.stack + "\n\n\n",
+                fileMessage: err.fileName + " threw an error at line " + err.lineNumber + "!\n\n"
+            };
+            var returnMessage = (result.format +
+                (err.fileName && err.lineNumber ? result.fileMessage : "") +
+                result.providedMessage +
+                (messageContent ? result.messageContent : "") +
+                (err ? result.errorMessage + result.stack : "") +
+                result.format);
+            PinguLibrary.ConsoleLog(returnMessage);
             return returnMessage;
         }
     };
@@ -961,8 +951,6 @@ var TimeLeftObject = /** @class */ (function () {
     return TimeLeftObject;
 }());
 exports.TimeLeftObject = TimeLeftObject;
-//#endregion
-//#region Music
 var Queue = /** @class */ (function () {
     function Queue(client, logChannel, voiceChannel, songs, playing) {
         if (playing === void 0) { playing = true; }
@@ -1008,16 +996,19 @@ var Queue = /** @class */ (function () {
         this.songs = this.songs.filter(function (s) { return s != song; });
     };
     Queue.prototype.move = function (posA, posB) {
-        var songToMove = this.songs[posA];
+        var songToMove = this.songs[posA - 1];
         this.songs.unshift(null);
         for (var i = 1; i < this.songs.length; i++) {
-            if (i == posB)
+            if (i == posB) {
                 this.songs[i - 1] = songToMove;
+                break;
+            }
             else if (i == posA + 1)
                 continue;
             else
                 this.songs[i - 1] = this.songs[i];
         }
+        this.songs.splice(this.songs.length - 1);
         return this;
     };
     Queue.prototype.includes = function (title) {
@@ -1038,13 +1029,18 @@ var Song = /** @class */ (function () {
         this.author = songInfo.author && songInfo.author.name;
         this.length = this.GetLength(songInfo.lengthSeconds);
         this.lengthMS = parseInt(songInfo.lengthSeconds) * 1000;
+        this.thumbnail = songInfo.thumbnails[0].url;
         this.requestedBy = new PUser(author);
         this.id = 0;
+        this.volume = -1;
         this.loop = false;
         this.endsAt = null;
     }
     Song.prototype.play = function () {
         this.endsAt = new Date(Date.now() + this.lengthMS);
+    };
+    Song.prototype.stop = function () {
+        this.endsAt = null;
     };
     Song.prototype.getTimeLeft = function () {
         return new TimeLeftObject(new Date(Date.now()), this.endsAt);
