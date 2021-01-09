@@ -12,7 +12,11 @@
     }
   ],
   "replyPerson": null,
-  "dailyStreak": 0,
-  "avatar": "https://cdn.discordapp.com/avatars/200159441037819905/a_c7b6e7b45262dce2ac67fd20b956938a.webp",
+  "daily": {
+    "lastClaim": null,
+    "nextClaim": null,
+    "streak": 0
+  },
+  "avatar": "https://cdn.discordapp.com/avatars/200159441037819905/a_e2fea47335334a92a240678da643a949.webp",
   "playlists": []
 }

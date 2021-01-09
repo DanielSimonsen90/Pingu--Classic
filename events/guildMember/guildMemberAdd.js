@@ -31,7 +31,7 @@ module.exports = {
      * @returns {TextChannel} */
     getWelcomeChannel(guild) {
             let welcomePChannel = PinguGuild.GetPGuild(guild).welcomeChannel;
-            let welcomeChannel = guild.channels.cache.find(c => c.id == welcomePChannel.id);
+            let welcomeChannel = guild.channels.cache.find(c => c.id == welcomePChannel && welcomePChannel.id);
             if (!welcomeChannel) {
                 welcomeChannel = guild.channels.cache.find(c => c.isText() && c.name == 'welcome') ||
                     guild.channels.cache.find(c => c.isText() && c.name == 'general');

@@ -26,10 +26,10 @@ module.exports = {
                     .setColor(PinguGuild.GetPGuild(message.guild) && PinguGuild.GetPGuild(message.guild).embedColor || 'BLURPLE')
                     .setThumbnail(pUser.avatar)
                     .setDescription(`ID: ${pUser.id}`)
-                    .setFooter(`Servers shared: ${SharedServersString(pUser.sharedServers)}`)
-                    .addField('Daily Streak', pUser.dailyStreak, true)
+                    .setFooter(`Servers shared: ${SharedServersString(pUser.sharedServers.map(pg => pg.name))}`)
+                    .addField('Daily Streak', pUser.daily.streak, true)
                     .addField('Last Messaged', pUser.replyPerson && pUser.replyPerson.name | "Unset", true)
-                    .addField(`Playlists`, pUser.playlists && pUser.playlists.size, true)
+                    .addField(`Playlists`, pUser.playlists && pUser.playlists.length || null, true)
                 );
             if (arg && arg != "show" && ![pUser.tag.toLowerCase(), pUser.id].includes(arg)) continue;
 
@@ -37,7 +37,7 @@ module.exports = {
             console.log(`Finished: ${Users[i].tag}`);
             //await PinguLibrary.pUserLog(message.client, module.exports.name, `Going through all users - just finished: ${Users[i].tag}`);
         }
-        PinguLibrary.pUserLog(client, module.exports.name, 'Going through users complete!');
+        PinguLibrary.pUserLog(message.client, module.exports.name, 'Going through users complete!');
     }
 }
 

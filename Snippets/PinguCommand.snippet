@@ -10,7 +10,7 @@
     <Snippet>
       <Code Language="JavaScript">
         <![CDATA[const { Message } = require('discord.js');
-          const { PinguLibrary, DiscordPermissions } = require('../../PinguPackage');
+          const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions } = require('../../PinguPackage');
 
           module.exports = {
               name: '$name$',
@@ -20,8 +20,8 @@
               id: $id$,
               examples: ["$examples$"],
               permissions: [DiscordPermissions.$permissions$],
-              /**@param {Message} message @param {string[]} args*/
-              execute(message, args) {
+              /**@param {{message: Message, args: string[], pAuthor: PinguUser, pGuild: PinguGuild}}*/
+              execute({message, args, pAuthor, pGuild}) {
                   $end$
               }
             }]]>

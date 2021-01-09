@@ -1,17 +1,18 @@
 {
-    "id": "214108182690136064",
-    "tag": "Cherry桜~#5499",
-    "sharedServers": [
-        {
-            "id": "405763731079823380",
-            "name": "New Years Covid Home Session"
-        }
-    ],
-    "replyPerson": {
-        "id": "245572699894710272",
-        "name": "Danho#2105"
-    },
-    "dailyStreak": 0,
-    "avatar": "https://cdn.discordapp.com/avatars/214108182690136064/308f615f4fe2e05ebb4a8d2681c24194.webp",
-    "playlists": []
+  "id": "214108182690136064",
+  "tag": "Cherry桜~#5499",
+  "sharedServers": [
+    {
+      "id": "405763731079823380",
+      "name": "Danho's Dutch Discord"
+    }
+  ],
+  "replyPerson": null,
+  "daily": {
+    "lastClaim": null,
+    "nextClaim": null,
+    "streak": 0
+  },
+  "avatar": "https://cdn.discordapp.com/avatars/214108182690136064/308f615f4fe2e05ebb4a8d2681c24194.webp",
+  "playlists": []
 }

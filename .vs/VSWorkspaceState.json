@@ -1,12 +1,13 @@
 {
   "ExpandedNodes": [
     "",
+    "\\commands",
+    "\\commands\\1 Utility",
     "\\commands\\2 Fun",
+    "\\commands\\3 Support",
     "\\commands\\4 DevOnly",
-    "\\events",
-    "\\events\\guild",
-    "\\events\\guildMember"
+    "\\events"
   ],
-  "SelectedNode": "\\package.json",
+  "SelectedNode": "\\commands\\3 Support\\support.js",
   "PreviewInSolutionExplorer": false
 }

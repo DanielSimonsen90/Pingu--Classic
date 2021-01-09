@@ -8,7 +8,11 @@
     }
   ],
   "replyPerson": null,
-  "dailyStreak": 0,
+  "daily": {
+    "lastClaim": null,
+    "nextClaim": null,
+    "streak": 0
+  },
   "avatar": "https://cdn.discordapp.com/avatars/216964610471755776/8ea9b50f9346e0c2902548a51696747f.webp",
   "playlists": []
 }

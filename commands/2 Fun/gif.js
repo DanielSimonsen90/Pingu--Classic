@@ -20,9 +20,10 @@ module.exports = {
 
         // gets us a random result in first 5 pages
         const page = 1 + Math.floor(Math.random() * 5) * 10;
+        const gifType = Math.floor(Math.random() * 2) == 1 ? "Club Penguin" : "Pingu";
 
         // we request 10 items
-        request('https://www.googleapis.com/customsearch/v1?key=' + config.api_key + '&cx=' + config.google_custom_search + '&q=' + ('pingu gif') + '&searchType=image&alt=json&num=10&start=' + page, function (err, res, body) {
+        request('https://www.googleapis.com/customsearch/v1?key=' + config.api_key + '&cx=' + config.google_custom_search + '&q=' + (`${gifType} gif`) + '&searchType=image&alt=json&num=10&start=' + page, function (err, res, body) {
 
             // "https://www.googleapis.com/customsearch/v1?key=AIzaSyAeAr2Dv1umzuLes_zhlY0lON4Pf_uAKeM&cx=013524999991164939702:z24cpkwx9nz&q=sloth&searchType=image&alt=json&num=10&start=31"
             let data;
@@ -34,7 +35,7 @@ module.exports = {
                     message.channel.send(`I was unable to recieve a gif! I have contacted my developers...`));
             }
             else if (!data.items || data.items.length == 0) {
-                PinguLibrary.errorLog(`data for activity has no items\n${data}`).then(() =>
+                PinguLibrary.errorLog(`Data for activity has no items\n${data}`).then(() =>
                     message.channel.send(`I was unable to find a gif! I have contacted my developers...`));
             }
 

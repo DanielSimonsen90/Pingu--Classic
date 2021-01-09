@@ -49,7 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PinguUser = exports.PQueue = exports.PClient = exports.PGuild = exports.PUser = exports.PChannel = exports.PRole = exports.PGuildMember = exports.PItem = exports.DiscordPermissions = exports.Error = void 0;
+exports.Daily = exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PinguUser = exports.PQueue = exports.PClient = exports.PGuild = exports.PUser = exports.PChannel = exports.PRole = exports.PGuildMember = exports.PItem = exports.DiscordPermissions = exports.Error = void 0;
 var discord_js_1 = require("discord.js");
 var fs = require("fs");
 var Error = /** @class */ (function () {
@@ -224,7 +224,7 @@ var PinguUser = /** @class */ (function () {
         this.tag = pUser.name;
         this.sharedServers = PinguLibrary.getSharedServers(client, user).map(function (guild) { return new PGuild(guild); });
         this.replyPerson = null;
-        this.dailyStreak = 0;
+        this.daily = new Daily();
         this.avatar = user.avatarURL();
         this.playlists = new Array();
     }
@@ -826,7 +826,7 @@ var PinguLibrary = /** @class */ (function () {
     PinguLibrary.PinguDevelopers = [
         '245572699894710272',
         '405331883157880846',
-        '290131910091603968',
+        '795937270569631754',
     ];
     return PinguLibrary;
 }());
@@ -914,6 +914,7 @@ var TimeLeftObject = /** @class */ (function () {
         console.log(`this.minutes = Math.round(${EndsAt.getMinutes()} - ${Now.getMinutes()})`)
         console.log(`this.seconds = Math.round(${EndsAt.getSeconds()} - ${Now.getSeconds()})`)
         */
+        this.endsAt = EndsAt;
         var Minutes = this.includesMinus(Math.round(EndsAt.getSeconds() - Now.getSeconds()), 60, EndsAt.getMinutes(), Now.getMinutes());
         var Hours = this.includesMinus(Minutes[0], 60, EndsAt.getHours(), Now.getHours());
         var Days = this.includesMinus(Hours[0], 24, EndsAt.getDate(), Now.getDate());
@@ -1066,4 +1067,13 @@ var Song = /** @class */ (function () {
 }());
 exports.Song = Song;
 //#endregion
+var Daily = /** @class */ (function () {
+    function Daily() {
+        this.lastClaim = null;
+        this.nextClaim = null;
+        this.streak = 0;
+    }
+    return Daily;
+}());
+exports.Daily = Daily;
 //# sourceMappingURL=PinguPackage.js.map

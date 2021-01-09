@@ -4,7 +4,7 @@ const { PinguLibrary, DiscordPermissions, Error } = require('../../PinguPackage'
 module.exports = {
     name: 'embed',
     description: 'Creates an embed',
-    usage: '<sub-command> <channel | message ID> <...value(s)>',
+    usage: '[create [channel]] | <message ID> <sub-command> <...value(s)>',
     guildOnly: true,
     id: 1,
     examples: ["create", "795961520722935808 title My Embed Title", `795961520722935808 field "Does Danho smell?", "Yes, yes he does", "true"`],
@@ -32,6 +32,7 @@ module.exports = {
             case 'image': embed = setMedia('image'); break;
             case 'file': embed = setMedia('file'); break;
             case 'url': embed = getURL(); break;
+            case 'author': embed = getAuthor(); break;
             default: return message.channel.send(`**${command}** is not a valid embed command!`);
         }
 
@@ -123,6 +124,10 @@ module.exports = {
                     .setMessage(fetchedMessage);
             }
             return result.setReturnMessage(`Unable to find channel with message that matched message id **${messageID}**!`);
+        }
+        function getAuthor() {
+            let newAuthor = message.mentions.users.first() || message.guild.members.cache.find(gm => args[0] && (gm.id == args[0] || gm.displayName == args[0] || gm.user.username == args[0])).user;
+            return embed.setAuthor(newAuthor.tag, newAuthor.avatar);
         }
         /**@param {'created' | 'edited' | 'deleted'} type
          * @param {string} logMessage

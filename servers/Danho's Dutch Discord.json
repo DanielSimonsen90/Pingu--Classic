@@ -1,4 +1,4 @@
-{
+﻿{
   "id": "405763731079823380",
   "name": "Danho's Dutch Discord",
   "guildOwner": {
@@ -6,55 +6,12 @@
     "name": "Danho#2105"
   },
   "botPrefix": "*",
-  "welcomeChannel": null,
-  "embedColor": 3447003,
-  "musicQueue": {
-    "logChannel": {
-      "id": "655020851216908289",
-      "name": "music-bots📻"
-    },
-    "voiceChannel": {
-      "id": "405763731713425422",
-      "name": "Lekker Rustig of nie"
-    },
-    "connection": {
-      "guild": "405763731079823380",
-      "id": "562176550674366464",
-      "serverDeaf": false,
-      "serverMute": false,
-      "selfDeaf": true,
-      "selfMute": false,
-      "selfVideo": false,
-      "sessionID": "7d7e76d9953a0180a26e3b7095888fe5",
-      "streaming": false,
-      "channel": "405763731713425422"
-    },
-    "index": 0,
-    "songs": [
-      {
-        "link": "https://www.youtube.com/watch?v=kQ9EHL7ZM8Y",
-        "title": "[Mashup] Thomas the Tank Engine x Childish Gambino - Thomas the Bonfire",
-        "author": "Marcus Skjelseth",
-        "length": "00.02.46",
-        "lengthMS": 166000,
-        "thumbnail": "https://i.ytimg.com/vi/kQ9EHL7ZM8Y/hqdefault.jpg?sqp=-oaymwEYCKgBEF5IVfKriqkDCwgBFQAAiEIYAXAB&rs=AOn4CLBsocjNZwqjg0UWjHwLL7P-X9B-vg",
-        "requestedBy": {
-          "id": "245572699894710272",
-          "name": "Danho#2105"
-        },
-        "id": 0,
-        "volume": 0.5,
-        "loop": false,
-        "endsAt": "2021-01-08T12:07:09.644Z"
-      }
-    ],
-    "volume": 0.5,
-    "client": {
-      "displayName": "[Danho Radio] Pingu"
-    },
-    "loop": false,
-    "playing": true
+  "welcomeChannel": {
+    "id": "472483818893344779",
+    "name": "deur🚪"
   },
+  "embedColor": 3447003,
+  "musicQueue": null,
   "giveawayConfig": {
     "firstTimeExecuted": true
   },

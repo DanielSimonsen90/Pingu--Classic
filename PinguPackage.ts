@@ -232,7 +232,7 @@ export class PinguUser {
         this.tag = pUser.name;
         this.sharedServers = PinguLibrary.getSharedServers(client, user).map(guild => new PGuild(guild));
         this.replyPerson = null;
-        this.dailyStreak = 0;
+        this.daily = new Daily();
         this.avatar = user.avatarURL();
         this.playlists = new Array<PQueue>();
     }
@@ -240,7 +240,7 @@ export class PinguUser {
     public tag: string
     public sharedServers: PGuild[]
     public replyPerson: PUser
-    public dailyStreak: number
+    public daily: Daily
     public avatar: string
     public playlists: PQueue[]
     //public Achievements: Achievement[]
@@ -492,7 +492,7 @@ export class PinguLibrary {
     private static readonly PinguDevelopers: string[] = [
         '245572699894710272', //Danho#2105
         '405331883157880846', //Synthy Sytro
-        '290131910091603968', //Slothman
+        '795937270569631754', //Daniel Simonsen
     ];
     public static isPinguDev(user: User) {
         //console.log(`[${this.PinguDevelopers.join(', ')}].includes(${user.id})`);
@@ -791,6 +791,7 @@ export class TimeLeftObject {
         console.log(`this.seconds = Math.round(${EndsAt.getSeconds()} - ${Now.getSeconds()})`)
         */
 
+        this.endsAt = EndsAt;
         const Minutes = this.includesMinus(Math.round(EndsAt.getSeconds() - Now.getSeconds()), 60, EndsAt.getMinutes(), Now.getMinutes());
         const Hours = this.includesMinus(Minutes[0], 60, EndsAt.getHours(), Now.getHours());
         const Days = this.includesMinus(Hours[0], 24, EndsAt.getDate(), Now.getDate());
@@ -804,6 +805,7 @@ export class TimeLeftObject {
     public hours: number;
     public minutes: number;
     public seconds: number;
+    public endsAt: Date
 
     /**Minus check, cus sometimes preprop goes to minus, while preprop isn't being subtracted
      * @param preprop Previous property, for this.minutes, this would be this.seconds
@@ -970,3 +972,15 @@ export class Song implements IMuisc {
     }
 }
 //#endregion
+
+export class Daily {
+    constructor() {
+        this.lastClaim = null;
+        this.nextClaim = null;
+        this.streak = 0;
+    }
+
+    public lastClaim: Date
+    public nextClaim: TimeLeftObject
+    public streak: number
+}
