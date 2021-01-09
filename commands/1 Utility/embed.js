@@ -1,10 +1,10 @@
-﻿const { Message, MessageEmbed, GuildChannel } = require('discord.js');
+﻿const { Message, MessageEmbed, TextChannel, NewsChannel } = require('discord.js');
 const { PinguLibrary, DiscordPermissions, Error } = require('../../PinguPackage');
 
 module.exports = {
     name: 'embed',
     description: 'Creates an embed',
-    usage: '[create [channel]] | <message ID> <sub-command> <...value(s)>',
+    usage: 'create | <message ID> <sub-command> <...value(s)> | send <channel>',
     guildOnly: true,
     id: 1,
     examples: ["create", "795961520722935808 title My Embed Title", `795961520722935808 field "Does Danho smell?", "Yes, yes he does", "true"`],
@@ -33,13 +33,16 @@ module.exports = {
             case 'file': embed = setMedia('file'); break;
             case 'url': embed = getURL(); break;
             case 'author': embed = getAuthor(); break;
+            case 'send': sendEmbed(); break;
             default: return message.channel.send(`**${command}** is not a valid embed command!`);
         }
 
-        embed.setTimestamp(Date.now());
+        if (command != 'send') {
+            embed.setTimestamp(Date.now());
+            await embedMessage.edit(embed);
+            LogChanges('edited', `Added ${command}`);
+        }
 
-        await embedMessage.edit(embed);
-        LogChanges('edited', `Added ${command}`);
         message.react('✅');
 
         //#region Baisc functions
@@ -57,12 +60,12 @@ module.exports = {
             let getEmbedResult = await getEmbed();
             if (!getEmbedResult.embed) return getEmbedResult.returnMessage;
 
-            if (!getEmbedResult.embed.author.name == message.author.tag)
+            if (!getEmbedResult.embed.author.name == message.author.tag && !PinguLibrary.isPinguDev(message.author))
                 return `You're not the author of that embed! Please contact **${getEmbedResult.embed.author.name}**.`;
 
             return PinguLibrary.PermissionGranted;
         }
-        /**@returns {GuildChannel}*/
+        /**@returns {TextChannel | NewsChannel}*/
         function getChannel() {
             let search = args.shift();
             if (!search) return message.channel;
@@ -98,6 +101,8 @@ module.exports = {
                 }
             };
 
+            if (isNaN(messageID)) return result.setReturnMessage(`Please provide the **message id** of the embed you wish to edit!`);
+
             for (var channel of message.guild.channels.cache.array()) {
                 if (!channel.isText()) continue;
 
@@ -126,10 +131,18 @@ module.exports = {
             return result.setReturnMessage(`Unable to find channel with message that matched message id **${messageID}**!`);
         }
         function getAuthor() {
-            let newAuthor = message.mentions.users.first() || message.guild.members.cache.find(gm => args[0] && (gm.id == args[0] || gm.displayName == args[0] || gm.user.username == args[0])).user;
-            return embed.setAuthor(newAuthor.tag, newAuthor.avatar);
+            try {
+                let newAuthor = message.mentions.users.first() || message.guild.members.cache.find(gm => args[0] && (gm.id == args[0] || gm.displayName == args[0] || gm.user.username == args[0])).user;
+                return embed.setAuthor(newAuthor.tag, newAuthor.avatarURL());
+            }
+            catch (err) {
+                if (err.message == `Cannot read property 'user' of undefined`)
+                    message.channel.send(`Please tag a valid user!`);
+                else PinguLibrary.errorLog(message.client, `Unable to set embed author`, message.content, new Error(err));
+                return embed;
+            }
         }
-        /**@param {'created' | 'edited' | 'deleted'} type
+        /**@param {'created' | 'edited' | 'deleted' | 'sent'} type
          * @param {string} logMessage
          * @returns {`[12.34.56] Author typed their embed: logMessage`}*/
         function LogChanges(type, logMessage) {
@@ -139,16 +152,15 @@ module.exports = {
 
         //#region Embed editing
         async function EmbedCreate() {
-            args.unshift(command);
-            let channel = getChannel(message, args);
             let embed = new MessageEmbed()
                 .setTitle(`${message.member.displayName}'s embed`)
                 .setColor(message.member.displayColor)
-                .setAuthor(message.author.tag, message.author.avatarURL());
+                .setAuthor(message.author.tag, message.author.avatarURL())
+                .setFooter(`Last Updated`);
 
-            let embedMessage = await channel.send(embed);
+            let embedMessage = await message.channel.send(embed);
+            embedMessage.edit(`Message ID: ${embedMessage.id}`, embed);
 
-            if (channel.id != message.channel.id) message.channel.send(`Embed created! Your message ID is **${embedMessage.id}**`)
             LogChanges('created', embedMessage.id)
         }
         async function EmbedDelete() {
@@ -211,6 +223,21 @@ module.exports = {
                 return embed;
             }
             return embed.setURL(url);
+        }
+        async function sendEmbed() {
+            let channel = getChannel(message, args);
+
+            let permCheck = PinguLibrary.PermissionCheck({
+                author: message.author,
+                channel,
+                client: message.client,
+                content: message.content
+            }, [DiscordPermissions.VIEW_CHANNEL, DiscordPermissions.SEND_MESSAGES]);
+            if (permCheck != PinguLibrary.PermissionGranted) return message.channel.send(permCheck);
+
+            await channel.send(embed);
+            LogChanges('sent', '#' + channel.name);
+            return message.channel.send(`Embed sent this to ${channel}`, embed);
         }
         //#endregion
     }

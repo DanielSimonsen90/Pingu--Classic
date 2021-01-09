@@ -63,8 +63,7 @@ module.exports = {
         /**@param {Message} message*/
         async function fromEmojiServer(message) {
             let guild = message.guild && message.guild.id == PinguLibrary.SavedServers.PinguEmotes(client).id && message.guild;
-            if (!guild || message.author.bot) return false;
-            if (message.channel.name != 'emotes') return false;
+            if (!guild || message.author.bot || message.channel.name != 'emotes') return false;
 
             let permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.MANAGE_EMOJIS, DiscordPermissions.SEND_MESSAGES])
             if (permCheck != PinguLibrary.PermissionGranted) {
@@ -133,14 +132,14 @@ module.exports = {
 
                 //Save Index of pGuild & log the change
                 const pGuildIndex = pGuilds.indexOf(pGuild);
-                console.log(`Embedcolor updated from ${pGuild.embedColor} to ${guildRoleColor}`);
+                PinguLibrary.ConsoleLog(`[${guild.name}]: Embedcolor updated from ${pGuild.embedColor} to ${guildRoleColor}`);
 
                 //Update pGuild.EmbedColor with guild's Pingu role color & put pGuild back into pGuilds
                 pGuild.embedColor = guildRoleColor;
                 pGuilds[pGuildIndex] = pGuild;
 
                 //Update guilds.json
-                PinguGuild.UpdatePGuildJSON(client, guild, "Index: CheckRoleChange",
+                PinguGuild.UpdatePGuildJSON(client, guild, `${this.name}: CheckRoleChange`,
                     `Successfully updated role color from "${guild.name}"`,
                     `I encountered and error while updating my role color in "${guild.name}"`
                 );

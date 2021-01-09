@@ -94,6 +94,8 @@ async function HandleDisconnect(message, queue) {
     message.guild.me.voice.connection.disconnect();
     await AnnounceMessage(message, queue, `Disconnected!`, `**${message.member.displayName}** disconnected me!`);
 
+    if (!PinguGuild.GetPGuild(message.guild).musicQueue) return;
+
     queue.playing = false;
 
     return await UpdateQueue(message, queue, "HandleDisconnect",

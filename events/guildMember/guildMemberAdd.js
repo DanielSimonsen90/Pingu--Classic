@@ -7,15 +7,15 @@ module.exports = {
      @param {{member: GuildMember}}*/
     execute(client, { member }) {
         let pGuild = PinguGuild.GetPGuild(member.guild);
-        let welcomeChannel = this.getWelcomeChannel();
+        let welcomeChannel = this.getWelcomeChannel(client, member.guild);
         if (welcomeChannel)
             welcomeChannel.send(new MessageEmbed()
-                .setTitle(`Welcome ${member}!`)
+                .setTitle(`Welcome ${member.user.username}!`)
                 .setDescription(`${member} entered ${member.guild.name}.`)
                 .setColor(pGuild.embedColor || PinguLibrary.DefaultEmbedColor)
-                .setFooter(`${member.user.tag} is member #${member.guild.members.cache.size}`)
-                .setAuthor(member.displayName, member.user.avatar)
-                .setThumbnail(member.guild.icon)
+                .setFooter(`${member.user.tag} is member **#${member.guild.members.cache.size}**`)
+                .setAuthor(member.displayName, member.user.avatarURL())
+                .setThumbnail(member.guild.iconURL())
             );
 
         AddToPinguUsers();
@@ -27,13 +27,14 @@ module.exports = {
                 );
         }
     },
-    /**@param {Guild} guild
+    /**@param {Client} client
+     * @param {Guild} guild
      * @returns {TextChannel} */
-    getWelcomeChannel(guild) {
+    getWelcomeChannel(client, guild) {
             let welcomePChannel = PinguGuild.GetPGuild(guild).welcomeChannel;
-            let welcomeChannel = guild.channels.cache.find(c => c.id == welcomePChannel && welcomePChannel.id);
+            let welcomeChannel = guild.channels.cache.find(c => c.id == (welcomePChannel && welcomePChannel.id));
             if (!welcomeChannel) {
-                welcomeChannel = guild.channels.cache.find(c => c.isText() && c.name == 'welcome') ||
+                welcomeChannel = guild.channels.cache.find(c => c.isText() && c.name.includes('welcome')) ||
                     guild.channels.cache.find(c => c.isText() && c.name == 'general');
                 if (welcomeChannel) {
                     PinguGuild.GetPGuild(guild).welcomeChannel = new PChannel(welcomeChannel);
