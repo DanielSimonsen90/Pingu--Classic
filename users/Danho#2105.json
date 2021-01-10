@@ -41,15 +41,15 @@
     ],
     "replyPerson": null,
     "daily": {
-        "lastClaim": "2021-01-09T21:52:25.139Z",
+        "lastClaim": "2021-01-10T20:31:36.120Z",
         "nextClaim": {
-            "endsAt": "2021-01-10T15:52:25.139Z",
-            "seconds": 0,
-            "minutes": 0,
-            "hours": 18,
+            "endsAt": "2021-01-11T14:31:36.120Z",
+            "seconds": 42,
+            "minutes": 59,
+            "hours": 17,
             "days": 0
         },
-        "streak": 1
+        "streak": 2
     },
     "avatar": "https://cdn.discordapp.com/avatars/245572699894710272/a_71a20e6aa0fe351b2053e5b397b3ef4b.webp",
     "playlists": []

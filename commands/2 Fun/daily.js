@@ -21,9 +21,19 @@ module.exports = {
         if (!daily.lastClaim) return ClaimDaily(1);
 
         let { lastClaim, nextClaim } = daily;
-        let hourDiff = (now.getDate() > lastClaim.getDate() ? 24 : 0) - now.getHours() - lastClaim.getHours();
+        let endsAt = new Date(nextClaim.endsAt);
+        let lastClaimDate = new Date(lastClaim);
 
-        if (hourDiff < 18) return message.channel.send(`You've already claimed your daily! Come back in ${nextClaim.toString()} (${nextClaim.endsAt.toLocaleTimeString()}, ${nextClaim.endsAt.toLocaleDateString().replace('.','/').replace('.','/')})`);
+        daily.nextClaim = new TimeLeftObject(now, endsAt);
+
+        PinguUser.UpdatePUsersJSONAsync(message.client, message.author, "daily",
+            `Successfully updated **${message.author.tag}**'s daily endsAt.`,
+            `Failed updating **${message.author.tag}**'s daily endsAt`
+        );
+
+        let hourDiff = (now.getDate() > lastClaimDate.getDate() ? 24 : 0) - now.getHours() - lastClaimDate.getHours();
+
+        if (daily.nextClaim.hours < 18 && daily.nextClaim.days > -1) return message.channel.send(`You've already claimed your daily! Come back in ${nextClaim.toString()} (**${endsAt.toLocaleTimeString()}**, **${endsAt.toLocaleDateString().replace('.', '/').replace('.', '/')}**)`);
         else if (nextClaim.hours + 36 > hourDiff)
             return ClaimDaily(daily.streak += 1);
         return ClaimDaily(1);

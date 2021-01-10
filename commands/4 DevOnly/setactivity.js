@@ -11,7 +11,7 @@ module.exports = {
     execute({ message, args }) {
         if (!args[0] || !args[1])
             return message.channel.send(`You didn't provide me with enough arguments!`);
-        else if (!['PLAYING', 'WATCHING', 'LISTENING'].includes(args[0]))
+        else if (!['PLAYING', 'WATCHING', 'LISTENING', 'COMPETING'].includes(args[0]))
             return message.channel.send(`What am I supposed to do? Play? Listen? Watch?`); 
 
         let Activity = args.shift(),
