@@ -533,6 +533,7 @@ var PinguLibrary = /** @class */ (function () {
                 DiscordPermissions.MANAGE_MESSAGES,
                 DiscordPermissions.EMBED_LINKS,
                 DiscordPermissions.ATTACH_FILES,
+                DiscordPermissions.MANAGE_EMOJIS,
                 DiscordPermissions.READ_MESSAGE_HISTORY,
                 DiscordPermissions.USE_EXTERNAL_EMOJIS,
                 DiscordPermissions.ADD_REACTIONS,

@@ -1,6 +1,6 @@
-﻿const { Command, Client, Guild, Message, MessageEmbed, User } = require("discord.js");
+﻿const { Command, Client, Guild, Message } = require("discord.js");
 const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error, PUser } = require("../PinguPackage");
-const { musicCommands } = require('../commands/2 Fun/music'), { GetMention } = require('../commands/2 Fun/tell');
+const { musicCommands } = require('../commands/2 Fun/music'), { HandleTell, ExecuteTellReply } = require('../commands/2 Fun/tell');
 const { Prefix } = require('../config'), SecondaryPrefix = '562176550674366464';
 let updatingPGuild = false;
 
@@ -13,7 +13,7 @@ module.exports = {
         try { PinguLibrary.LatencyCheck(message); }
         catch (err) { PinguLibrary.errorLog(client, `LatencyCheck error`, message.content, err); }
 
-        if (await fromEmojiServer(message)) return;
+        if (await fromEmotesChannel(message)) return;
 
         //Assign prefix
         let prefix = message.guild ? HandlePGuild(message.guild) : Prefix;
@@ -61,9 +61,8 @@ module.exports = {
         ExecuteAndLogCommand(message, args, commandName, command);
 
         /**@param {Message} message*/
-        async function fromEmojiServer(message) {
-            let guild = message.guild && message.guild.id == PinguLibrary.SavedServers.PinguEmotes(client).id && message.guild;
-            if (!guild || message.author.bot || message.channel.name != 'emotes') return false;
+        async function fromEmotesChannel(message) {
+            if (!message.guild || message.author.bot || message.channel.name != 'emotes') return false;
 
             let permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.MANAGE_EMOJIS, DiscordPermissions.SEND_MESSAGES])
             if (permCheck != PinguLibrary.PermissionGranted) {
@@ -86,7 +85,7 @@ module.exports = {
                     return false;
                 }
 
-                let newEmote = await guild.emojis.create(emote, name);
+                let newEmote = await message.guild.emojis.create(emote, name);
                 message.channel.send(`${newEmote} was created!`);
             }
             return true;
@@ -235,30 +234,6 @@ module.exports = {
                 PinguLibrary.errorLog(client, `Trying to execute "${command.name}"!`, message.content, err);
             }
             PinguLibrary.ConsoleLog(ConsoleLog);
-            /**@param {Message} message
-             * @param {string[]} args*/
-            function HandleTell(message, args) {
-                if (args[0] == 'unset') {
-                    let replyUser = getReplyUser(message);
-
-                    PinguLibrary.tellLog(client, message.author, replyUser, new MessageEmbed()
-                        .setTitle(`Link between **${message.author.username}** & **${replyUser.username}** was unset.`)
-                        .setColor(PinguGuild.GetPGuild(PinguLibrary.SavedServers.PinguSupport(client)).embedColor)
-                        .setDescription(`**${message.author}** unset the link.`)
-                        .setThumbnail(message.author.avatarURL())
-                        .setFooter(new Date(Date.now()).toLocaleTimeString())
-                    );
-
-                    message.author.send(`Your link to **${replyUser.username}** was unset.`);
-                    return;
-                }
-                else if (args[0] == "info") return;
-                let Mention = args[0];
-                while (Mention.includes('_')) Mention = Mention.replace('_', ' ');
-
-                let pAuthor = PinguUser.GetPUser(message.author);
-                pAuthor.replyPerson = new PUser(GetMention(message, Mention));
-            }
             async function FindPermission() {
                 //Find Danho and make check variable, to bypass "You don't have that permission!" (gotta abuse that PinguDev power)
                 let Danho = PinguLibrary.SavedServers.DanhoMisc(client).owner.user;
@@ -325,75 +300,3 @@ module.exports = {
         }
     }
 }
-
-//#region Tell command related
-/**@param {Message} message*/
-async function ExecuteTellReply(message) {
-    //Pingu sent message in PM
-    if (message.author.id == message.client.user.id) return;
-
-    //Get author's replyPerson
-    let replyPersonPUser = PinguUser.GetPUser(message.author).replyPerson;
-    if (!replyPersonPUser) return PinguLibrary.ConsoleLog(`No replyPerson found for ${message.author.username}.`);
-
-    //Find replyPerson as Discord User
-    let replyPerson = getReplyUser(message);
-
-    //Find replyPerson as PinguUser
-    let replyPersonPinguUser = PinguUser.GetPUser(replyPerson);
-
-    //If replyPerson's replyPerson isn't author anymore, re-bind them again (replyPerson is talking to multiple people through Pingu)
-    if (replyPersonPinguUser.replyPerson.id != message.author.id) {
-        replyPersonPinguUser.replyPerson = new PUser(message.author);
-        PinguUser.UpdatePUsersJSONAsync(message.client, replyPerson, "index: Message.ExecuteTellReply",
-            `Successfully re-binded **${replyPerson.tag}**'s replyPerson to **${message.author.tag}**`,
-            `Failed re-binding **${replyPerson.tag}**'s replyPerson to **${message.author.tag}**!`
-        );
-    }
-
-    //Log conversation
-    try { PinguLibrary.tellLog(message.client, message.author, replyPerson, message); }
-    catch (err) { PinguLibrary.errorLog(message.client, 'Tell reply failed', message.content, err); }
-
-    //Error happened while sending reply
-    var cantMessage = async err => {
-        if (err.message == 'Cannot send messages to this user')
-            return message.channel.send(`Unable to send message to ${Mention.username}, as they have \`Allow direct messages from server members\` disabled!`);
-
-        await PinguLibrary.errorLog(message.client, `${message.author} attempted to *tell ${Mention}`, message.content, err)
-        return message.channel.send(`Attempted to message ${Mention.username} but couldn't.. I've contacted my developers.`);
-    }
-    //Create DM to replyPerson
-    let replyPersonDM = await replyPerson.createDM();
-    if (!replyPersonDM) return cantMessage({ message: "Unable to create DM from ln: 366" });
-
-    //Add "Conversation with" header to message's content
-    message.content = `**Conversation with __${message.author.username}__**\n` + message.content;
-
-    //Send author's reply to replyPerson
-    if (message.content && message.attachments.size > 0) replyPersonDM.send(message.content, message.attachments.array()).catch(async err => cantMessage(err)); //Message and files
-    else if (message.content) replyPersonDM.send(message.content).catch(async err => cantMessage(err)); //Message only
-    else PinguLibrary.errorLog(client, `${message.author} ➡️ ${replyPerson} used else statement from ExecuteTellReply, Index`, message.content);
-
-    //Show author that reply has been sent
-    message.react('✅');
-    message.channel.send(`**Sent message to __${replyPerson.tag}__**`);
-}
-/**@param {Message} message*/
-function getReplyUser(message) {
-    let { replyPerson } = PinguUser.GetPUser(message.author);
-    return getGuildUsers().find(user => user.id == replyPerson.id);
-
-    /**@returns {User[]} */
-    function getGuildUsers() {
-        let guildUsersArr = message.client.guilds.cache.map(guild => guild.members.cache.map(gm => !gm.user.bot && gm.user));
-        let guildUsersSorted = [];
-
-        guildUsersArr.forEach(guildUsers => guildUsers.forEach(user => {
-            if (!guildUsersSorted.includes(user))
-                guildUsersSorted.push(user);
-        }));
-        return guildUsersSorted;
-    }
-}
-//#endregion

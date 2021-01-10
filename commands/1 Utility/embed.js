@@ -101,18 +101,26 @@ module.exports = {
                 }
             };
 
-            if (isNaN(messageID)) return result.setReturnMessage(`Please provide the **message id** of the embed you wish to edit!`);
+            //Message ID not provided
+            if (isNaN(messageID)) {
+                let embedMessage = message.channel.messages.cache.find(msg => msg.author == message.client.user && msg.embeds[0])
+                result.setValue(embedMessage.embeds[0]);
+                if (!result.embed) {
+
+                    let permCheck = PinguLibrary.PermissionCheck({
+                        author: message.client.user,
+                        channel: embedMessage.channel,
+                        client: message.client,
+                        content: message.content
+                    }, [DiscordPermissions.READ_MESSAGE_HISTORY]);
+                    if (permCheck != PinguLibrary.PermissionGranted) return result.setReturnMessage(permCheck);
+                    return result.setReturnMessage(`Unable to find an embed in ${embedMessage.channel}! Try giving me a message id`);
+                }
+                return result.setMessage(embedMessage).setReturnMessage(PinguLibrary.PermissionGranted);
+            }
 
             for (var channel of message.guild.channels.cache.array()) {
                 if (!channel.isText()) continue;
-
-                let HistoryPermission = PinguLibrary.PermissionCheck({
-                    author: message.author,
-                    channel: channel,
-                    client: message.client,
-                    content: message.content
-                }, [DiscordPermissions.READ_MESSAGE_HISTORY]);
-                if (HistoryPermission != PinguLibrary.PermissionGranted) return message.channel.send(HistoryPermission);
 
                 try { var fetchedMessage = await channel.messages.fetch(messageID); }
                 catch (err) {
@@ -159,7 +167,7 @@ module.exports = {
                 .setFooter(`Last Updated`);
 
             let embedMessage = await message.channel.send(embed);
-            embedMessage.edit(`Message ID: ${embedMessage.id}`, embed);
+            embedMessage.edit(`Message ID: **${embedMessage.id}**`, embed);
 
             LogChanges('created', embedMessage.id)
         }
@@ -237,7 +245,7 @@ module.exports = {
 
             await channel.send(embed);
             LogChanges('sent', '#' + channel.name);
-            return message.channel.send(`Embed sent this to ${channel}`, embed);
+            return message.channel.send(`Sent this to ${channel}`, embed);
         }
         //#endregion
     }

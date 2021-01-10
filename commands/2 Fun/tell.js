@@ -83,18 +83,81 @@ module.exports = {
             message.channel.send(`Attempted to message ${Mention.username} but couldn't.. I've contacted my developers.`);
         })
     },
-    /**Returns Mention whether it's @Mentioned, username or nickname
-    * @param {Message} message 
-    * @param {string} UserMention*/
-    GetMention(message, UserMention) {
-        if (!message.mentions.users.first()) {
-            for (var Guild of message.client.guilds.cache.array())
-                for (var Member of Guild.members.cache.array())
-                    if ([Member.user.username.toLowerCase(), Member.nickname && Member.nickname.toLowerCase(), Member.id].includes(UserMention.toLowerCase()))
-                        return Member.user;
-            return null;
+    /**@param {Message} message*/
+    async ExecuteTellReply(message) {
+        //Pingu sent message in PM
+        if (message.author.id == message.client.user.id) return;
+
+        //Get author's replyPerson
+        let replyPersonPUser = PinguUser.GetPUser(message.author).replyPerson;
+        if (!replyPersonPUser) return PinguLibrary.ConsoleLog(`No replyPerson found for ${message.author.username}.`);
+
+        //Find replyPerson as Discord User
+        let replyPerson = getReplyUser(message);
+
+        //Find replyPerson as PinguUser
+        let replyPersonPinguUser = PinguUser.GetPUser(replyPerson);
+
+        //If replyPerson's replyPerson isn't author anymore, re-bind them again (replyPerson is talking to multiple people through Pingu)
+        if (replyPersonPinguUser.replyPerson.id != message.author.id) {
+            replyPersonPinguUser.replyPerson = new PUser(message.author);
+            PinguUser.UpdatePUsersJSONAsync(message.client, replyPerson, "index: Message.ExecuteTellReply",
+                `Successfully re-binded **${replyPerson.tag}**'s replyPerson to **${message.author.tag}**`,
+                `Failed re-binding **${replyPerson.tag}**'s replyPerson to **${message.author.tag}**!`
+            );
         }
-        return message.mentions.users.first();
+
+        //Log conversation
+        try { PinguLibrary.tellLog(message.client, message.author, replyPerson, message); }
+        catch (err) { PinguLibrary.errorLog(message.client, 'Tell reply failed', message.content, err); }
+
+        //Error happened while sending reply
+        var cantMessage = async err => {
+            if (err.message == 'Cannot send messages to this user')
+                return message.channel.send(`Unable to send message to ${Mention.username}, as they have \`Allow direct messages from server members\` disabled!`);
+
+            await PinguLibrary.errorLog(message.client, `${message.author} attempted to *tell ${Mention}`, message.content, err)
+            return message.channel.send(`Attempted to message ${Mention.username} but couldn't.. I've contacted my developers.`);
+        }
+        //Create DM to replyPerson
+        let replyPersonDM = await replyPerson.createDM();
+        if (!replyPersonDM) return cantMessage({ message: "Unable to create DM from ln: 366" });
+
+        //Add "Conversation with" header to message's content
+        message.content = `**Conversation with __${message.author.username}__**\n` + message.content;
+
+        //Send author's reply to replyPerson
+        if (message.content && message.attachments.size > 0) replyPersonDM.send(message.content, message.attachments.array()).catch(async err => cantMessage(err)); //Message and files
+        else if (message.content) replyPersonDM.send(message.content).catch(async err => cantMessage(err)); //Message only
+        else PinguLibrary.errorLog(client, `${message.author} ➡️ ${replyPerson} used else statement from ExecuteTellReply, Index`, message.content);
+
+        //Show author that reply has been sent
+        message.react('✅');
+        message.channel.send(`**Sent message to __${replyPerson.tag}__**`);
+    },
+    /**@param {Message} message
+     * @param {string[]} args*/
+    HandleTell(message, args) {
+        if (args[0] == 'unset') {
+            let replyUser = getReplyUser(message);
+
+            PinguLibrary.tellLog(client, message.author, replyUser, new MessageEmbed()
+                .setTitle(`Link between **${message.author.username}** & **${replyUser.username}** was unset.`)
+                .setColor(PinguGuild.GetPGuild(PinguLibrary.SavedServers.PinguSupport(client)).embedColor)
+                .setDescription(`**${message.author}** unset the link.`)
+                .setThumbnail(message.author.avatarURL())
+                .setFooter(new Date(Date.now()).toLocaleTimeString())
+            );
+
+            message.author.send(`Your link to **${replyUser.username}** was unset.`);
+            return;
+        }
+        else if (args[0] == "info") return;
+        let Mention = args[0];
+        while (Mention.includes('_')) Mention = Mention.replace('_', ' ');
+
+        let pAuthor = PinguUser.GetPUser(message.author);
+        pAuthor.replyPerson = new PUser(GetMention(message, Mention));
     }
 };
 
@@ -108,4 +171,34 @@ function ArgumentCheck(message, args) {
     while (Mention.includes('_')) Mention = Mention.replace('_', ' ');
 
     return module.exports.GetMention(message, Mention) || args[0] == "info" ? PinguLibrary.PermissionGranted : `No mention provided`;
+}
+/**@param {Message} message*/
+function getReplyUser(message) {
+    let { replyPerson } = PinguUser.GetPUser(message.author);
+    return getGuildUsers().find(user => user.id == replyPerson.id);
+
+    /**@returns {User[]} */
+    function getGuildUsers() {
+        let guildUsersArr = message.client.guilds.cache.map(guild => guild.members.cache.map(gm => !gm.user.bot && gm.user));
+        let guildUsersSorted = [];
+
+        guildUsersArr.forEach(guildUsers => guildUsers.forEach(user => {
+            if (!guildUsersSorted.includes(user))
+                guildUsersSorted.push(user);
+        }));
+        return guildUsersSorted;
+    }
+}
+/**Returns Mention whether it's @Mentioned, username or nickname
+* @param {Message} message 
+* @param {string} UserMention*/
+function GetMention(message, UserMention) {
+    if (!message.mentions.users.first()) {
+        for (var Guild of message.client.guilds.cache.array())
+            for (var Member of Guild.members.cache.array())
+                if ([Member.user.username.toLowerCase(), Member.nickname && Member.nickname.toLowerCase(), Member.id].includes(UserMention.toLowerCase()))
+                    return Member.user;
+        return null;
+    }
+    return message.mentions.users.first();
 }

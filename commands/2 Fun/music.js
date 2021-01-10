@@ -447,7 +447,7 @@ async function HandleRestart(message, queue, args) {
         `Failed saving new indexes for restarting`
     );
 
-    queue.connection.dispatcher.end();
+    return Play(message, queue.currentSong, queue);
 }
 //#endregion
 
@@ -471,8 +471,8 @@ async function Play(message, song, queue) {
 
     var streamItem = ytdl(song.link, { filter: 'audioonly' });
 
-    let previousMessage = queue.logChannel.messages.cache.find(msg => msg.author == message.client.user && message.content.includes(`**Now playing:**`));
-    let lastChannelMessage = queue.logChannel.messages.cache.last();
+    let previousMessage = message.channel.messages.cache.find(msg => msg.author.id == message.client.user.id && message.content.startsWith(`**Now playing:**`));
+    let lastChannelMessage = message.channel.messages.cache.last();
 
     queue.connection.play(streamItem)
         .on('start', async () => {

@@ -3,11 +3,10 @@
     "",
     "\\commands",
     "\\commands\\1 Utility",
-    "\\commands\\2 Fun",
-    "\\commands\\3 Support",
     "\\commands\\4 DevOnly",
-    "\\events"
+    "\\events",
+    "\\events\\guildMember"
   ],
-  "SelectedNode": "\\commands\\3 Support\\support.js",
+  "SelectedNode": "\\commands\\1 Utility\\embed.js",
   "PreviewInSolutionExplorer": false
 }
