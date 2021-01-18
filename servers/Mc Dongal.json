@@ -1,17 +1,15 @@
 {
   "id": "405763731079823380",
-  "name": "Danho's Dutch Discord",
+  "name": "Mc Dongal",
   "guildOwner": {
     "id": "245572699894710272",
     "name": "Danho#2105"
   },
   "botPrefix": "*",
-  "welcomeChannel": {
-    "id": "472483818893344779",
-    "name": "deur🚪"
-  },
+  "welcomeChannel": null,
   "embedColor": 3447003,
   "musicQueue": null,
+  "reactionRoles": [],
   "giveawayConfig": {
     "firstTimeExecuted": true
   },

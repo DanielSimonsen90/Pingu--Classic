@@ -12,7 +12,7 @@
         },
         {
             "id": "405763731079823380",
-            "name": "Danho's Dutch Discord"
+            "name": "America 2021"
         },
         {
             "id": "460926327269359626",
@@ -41,15 +41,15 @@
     ],
     "replyPerson": null,
     "daily": {
-        "lastClaim": "2021-01-10T20:31:36.120Z",
+        "lastClaim": "2021-01-18T10:07:56.097Z",
         "nextClaim": {
-            "endsAt": "2021-01-11T14:31:36.120Z",
-            "seconds": 42,
-            "minutes": 59,
-            "hours": 17,
+            "endsAt": "2021-01-19T07:07:56.098Z",
+            "seconds": 0,
+            "minutes": 0,
+            "hours": 21,
             "days": 0
         },
-        "streak": 2
+        "streak": 3
     },
     "avatar": "https://cdn.discordapp.com/avatars/245572699894710272/a_71a20e6aa0fe351b2053e5b397b3ef4b.webp",
     "playlists": []

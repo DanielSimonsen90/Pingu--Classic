@@ -1,15 +1,20 @@
 {
     "id": "795937270569631754",
     "tag": "Daniel Simonsen#1965",
-    "sharedServers": [],
+    "sharedServers": [
+        {
+            "id": "756383096646926376",
+            "name": "Pingu Support"
+        }
+    ],
     "replyPerson": null,
     "daily": {
-        "lastClaim": "2021-01-09T21:52:20.049Z",
+        "lastClaim": "2021-01-15T14:35:03.387Z",
         "nextClaim": {
-            "endsAt": "2021-01-10T15:52:20.049Z",
+            "endsAt": "2021-01-16T11:35:03.387Z",
             "seconds": 0,
             "minutes": 0,
-            "hours": 18,
+            "hours": 21,
             "days": 0
         },
         "streak": 1

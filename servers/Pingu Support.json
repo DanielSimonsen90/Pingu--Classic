@@ -12,6 +12,56 @@
   },
   "embedColor": 3447003,
   "musicQueue": null,
+  "reactionRoles": [
+    {
+      "emoteName": "🤖",
+      "pRole": {
+        "id": "756456585043247156",
+        "name": "Discord Bot Developer"
+      },
+      "channel": {
+        "id": "756387084272664576",
+        "name": "roles"
+      },
+      "messageID": "800388177923145738"
+    },
+    {
+      "emoteName": "📊",
+      "pRole": {
+        "id": "799646768580919296",
+        "name": "[Hide Stats]"
+      },
+      "channel": {
+        "id": "756387084272664576",
+        "name": "roles"
+      },
+      "messageID": "800388177923145738"
+    },
+    {
+      "emoteName": "🤝",
+      "pRole": {
+        "id": "799647485160718357",
+        "name": "[Hide Partners]"
+      },
+      "channel": {
+        "id": "756387084272664576",
+        "name": "roles"
+      },
+      "messageID": "800388177923145738"
+    },
+    {
+      "emoteName": "⛔",
+      "pRole": {
+        "id": "766144891624357889",
+        "name": "Pingu Staff"
+      },
+      "channel": {
+        "id": "756387084272664576",
+        "name": "roles"
+      },
+      "messageID": "800388177923145738"
+    }
+  ],
   "giveawayConfig": {
     "firstTimeExecuted": true
   },

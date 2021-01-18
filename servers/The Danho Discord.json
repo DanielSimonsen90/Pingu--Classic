@@ -9,6 +9,7 @@
   "welcomeChannel": null,
   "embedColor": 3447003,
   "musicQueue": null,
+  "reactionRoles": [],
   "giveawayConfig": {
     "firstTimeExecuted": true
   },

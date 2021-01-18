@@ -7,7 +7,7 @@ module.exports = {
     usage: ' Option1, Option number 2, option3, and so on idk man',
     id: 1,
     permissions: [DiscordPermissions.SEND_MESSAGES],
-    example: [" "],
+    example: [""],
     /**@param {{message: Message, args: string[]}}*/
     execute({ message, args }) {
         if (!args || args.length == 1) return message.channel.send(`Give me something to sort!`);

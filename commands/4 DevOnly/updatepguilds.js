@@ -25,7 +25,7 @@ module.exports = {
                     .setDescription(`ID: ${PinguGuildsArr[i].id}`)
                     .setFooter(`Owner: ${PinguGuildsArr[i].guildOwner.user} | ${PinguGuildsArr[i].guildOwner.id}`)
                     .addField('Prefix', PinguGuildsArr[i].botPrefix));
-            if (arg && arg != "show" && ![PinguGuildsArr[i].tag.toLowerCase(), PinguGuildsArr[i].id].includes(arg)) continue;
+            if (arg && arg != "show" && ![PinguGuildsArr[i].name.toLowerCase(), PinguGuildsArr[i].id].includes(arg)) continue;
 
             WriteFile(message, PinguGuildsArr[i], `./servers/${PinguGuildsArr[i].name}.json`);
         }

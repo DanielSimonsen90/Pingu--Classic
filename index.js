@@ -25,36 +25,37 @@ for (var x = 1; x < CategoryNames.length; x++) {
 }
 
 //Am I ready to launch?
-client.once('ready', () => HandleEvent('ready', {})); //Bot is ready to be (ab)used
+client.once('ready', () => HandleEvent('onready', {})); //Bot is ready to be (ab)used
 client.on('error', err => PinguLibrary.errorLog(client, `Called from client.on('error')`, null, err));
 
-//Message response
-client.on('message', message => {
-    HandleEvent('message', { message });
-    //try { require('./events/message').execute(client, message); }
-    //catch (err) { PinguLibrary.errorLog(client, 'message event error', message.content, new Error(err)); }
-}); //Message was sent by anyone 
 
 //#region Guild Events
-client.on('guildCreate', guild => HandleEvent('guild/guildCreate', { guild })); //First time joining a guild
-client.on('guildUpdate', (from, to) => HandleEvent('guild/guildUpdate', { from, to })); //Guild was updated with new data
-client.on('guildDelete', guild => HandleEvent('guild/guildDelete', { guild })); //Leaving a guild
+const Guild = `guild`;
+client.on('guildCreate', guild => HandleEvent(`${Guild}/${Guild}Create`, { guild })); //First time joining a guild
+client.on('guildUpdate', (from, to) => HandleEvent(`${Guild}/${Guild}Update`, { from, to })); //Guild was updated with new data
+client.on('guildDelete', guild => HandleEvent(`${Guild}/${Guild}Delete`, { guild })); //Leaving a guild
+//#endregion
 
-client.on('guildMemberAdd', member => HandleEvent('guildMember/guildMemberAdd', { member })); //New guild member
-client.on('guildMemberUpdate', (from, to) => {
-    HandleEvent('guildMember/guildMemberUpdate', { from, to });
+//#region Guild Member Events
+const guildMember = `guildMember`;
+client.on('guildMemberAdd', member => HandleEvent(`${guildMember}/${guildMember}Add`, { member })); //New guild member
+client.on('guildMemberUpdate', (from, to) => HandleEvent(`${guildMember}/${guildMember}Update`, { from, to })); //Member changed
+client.on('guildMemberRemove', member => HandleEvent(`${guildMember}/${guildMember}Remove`, { member })); //Guild member left
+//#endregion
 
-    //let event = require('./events/guildMember/guildMemberUpdate');
-    //try { event.execute(client, from, to); }
-    //catch (err) { PinguLibrary.errorLog(client, `${event.name} error`, null, new Error(err)); }
-}); //Member changed
-client.on('guildMemberRemove', member => {
-    HandleEvent('guildMember/guildMemberRemove', { member });
+//#region Message
+const Message = `message`;
+client.on('message', message => HandleEvent(`${Message}/${Message}`, { message })); //Message was sent by anyone 
+client.on('messageDelete', message => HandleEvent(`${Message}/${Message}Delete`, { message })); //Message was deleted
 
-    //let event = require('./events/guildMember/guildMemberRemove');
-    //try { event.execute(client, member); }
-    //catch (err) { PinguLibrary.errorLog(client, `${event.name} error`, null, new Error(err)); }
-}); //Guild member left
+//#region Message Reaction
+const messageReaction = `${Message}Reaction`;
+client.on('messageReactionAdd', (reaction, user) => HandleEvent(`${Message}/${messageReaction}/${messageReaction}Add`, { reaction, user })) //User reacted to message
+client.on('messageReactionRemove', (reaction, user) => HandleEvent(`${Message}/${messageReaction}/${messageReaction}Remove`, { reaction, user })) //User unreacted to message
+client.on('messageReactionRemoveEmoji', reaction => HandleEvent(`${Message}/${messageReaction}/${messageReaction}RemoveEmoji`, { reaction })) //All reactions to an emoji was removed
+client.on('messageReactionRemoveAll', message => HandleEvent(`${Message}/${messageReaction}/${messageReaction}RemoveAll`, { message })) //ALl reactions were removed from message
+//#endregion
+
 //#endregion
 
 /**@param {string} path

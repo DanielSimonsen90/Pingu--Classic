@@ -1,10 +1,10 @@
-const { Client, Guild } = require("discord.js");
+const { Client, Guild, CategoryChannel } = require("discord.js");
 const { PinguGuild, PinguLibrary, PinguUser } = require("../../PinguPackage");
 
 module.exports = {
     name: 'events: guildCreate',
     /**@param {Client} client
-     * @param {{giuld: Guild}}*/
+     * @param {{guild: Guild}}*/
     async execute(client, { guild }) {
         PinguGuild.WritePGuild(guild, async pGuild => await PinguLibrary.pGuildLog(client, this.name, `Successfully joined "**${pGuild.name}**", owned by <@${pGuild.guildOwner.id}>`));
 

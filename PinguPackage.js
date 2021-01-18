@@ -3,7 +3,7 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
@@ -49,7 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Daily = exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PinguUser = exports.PQueue = exports.PClient = exports.PGuild = exports.PUser = exports.PChannel = exports.PRole = exports.PGuildMember = exports.PItem = exports.DiscordPermissions = exports.Error = void 0;
+exports.ReactionRole = exports.Daily = exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PinguUser = exports.PQueue = exports.PClient = exports.PGuild = exports.PUser = exports.PChannel = exports.PRole = exports.PGuildMember = exports.PItem = exports.DiscordPermissions = exports.Error = void 0;
 var discord_js_1 = require("discord.js");
 var fs = require("fs");
 var Error = /** @class */ (function () {
@@ -349,6 +349,7 @@ var PinguGuild = /** @class */ (function (_super) {
         _this.welcomeChannel = welcomeChannel ? new PChannel(welcomeChannel) : null;
         _this.embedColor = guild.me.roles.cache.find(function (role) { return role.name.includes('Pingu'); }) && guild.me.roles.cache.find(function (role) { return role.name.includes('Pingu'); }).color || PinguLibrary.DefaultEmbedColor;
         _this.musicQueue = null;
+        _this.reactionRoles = new Array();
         _this.giveawayConfig = new GiveawayConfig();
         _this.pollConfig = new PollConfig;
         _this.suggestions = new Array();
@@ -467,7 +468,14 @@ var PinguLibrary = /** @class */ (function () {
             return Activity;
         }());
         internalSetActivity();
+        UpdateStats();
         setInterval(internalSetActivity, 86400000);
+        try {
+            setInterval(UpdateStats, 86400000);
+        }
+        catch (err) {
+            PinguLibrary.errorLog(client, "Updating Stats failed", null, err);
+        }
         function internalSetActivity() {
             var date = {
                 day: new Date(Date.now()).getDate(),
@@ -489,6 +497,95 @@ var PinguLibrary = /** @class */ (function () {
                 if (announceActivity)
                     PinguLibrary.activityLog(client, activity.type + " " + activity.name);
             });
+        }
+        function UpdateStats() {
+            var getChannel = function (client, channelID) { return PinguLibrary.SavedServers.PinguSupport(client).channels.cache.get(channelID); };
+            var channels = [
+                getChannel(client, '799596588859129887'),
+                getChannel(client, '799597092107583528'),
+                getChannel(client, '799597689792757771'),
+                getChannel(client, '799598372217683978'),
+                getChannel(client, '799598024971518002'),
+                getChannel(client, '799598765187137537') //Most known member
+            ];
+            var setName = function (channel) {
+                var getInfo = function (channel) {
+                    switch (channel.id) {
+                        case '799596588859129887': return getServersInfo(); //Servers
+                        case '799597092107583528': return getUsersInfo(); //Users
+                        case '799597689792757771': return getDailyLeader(); //Daily Leader
+                        case '799598372217683978': return getRandomServer(); //Server of the Day
+                        case '799598024971518002': return getRandomUser(); //User of the Day
+                        case '799598765187137537': return getMostKnownUser(); //Most known User
+                        default:
+                            PinguLibrary.errorLog(client, "ID of " + channel.name + " was not recognized!");
+                            return "No Info";
+                    }
+                    function getServersInfo() {
+                        return client.guilds.cache.size.toString();
+                    }
+                    function getUsersInfo() {
+                        return client.users.cache.size.toString();
+                    }
+                    function getDailyLeader() {
+                        try {
+                            var pUser = PinguUser.GetPUsers().sort(function (a, b) {
+                                try {
+                                    return b.daily.streak - a.daily.streak;
+                                }
+                                catch (err) {
+                                    PinguLibrary.errorLog(client, "Unable to get daily streak difference between " + a.tag + " and " + b.tag, null, err);
+                                }
+                            })[0];
+                            return pUser.tag + " #" + pUser.daily.streak;
+                        }
+                        catch (err) {
+                            PinguLibrary.errorLog(client, "Unable to get Daily Leader", null, err);
+                        }
+                    }
+                    function getRandomServer() {
+                        var availableGuilds = client.guilds.cache.array().map(function (g) { return ![
+                            PinguLibrary.SavedServers.DanhoMisc(client).id,
+                            PinguLibrary.SavedServers.PinguEmotes(client).id,
+                            PinguLibrary.SavedServers.PinguSupport(client).id,
+                        ].includes(g.id) && g.name != undefined && g; }).filter(function (v) { return v; });
+                        var index = Math.floor(Math.random() * availableGuilds.length);
+                        return availableGuilds[index].name;
+                    }
+                    function getRandomUser() {
+                        var availableUsers = client.users.cache.array().map(function (u) { return !u.bot && u; }).filter(function (v) { return v; });
+                        return availableUsers[Math.floor(Math.random() * availableUsers.length)].tag;
+                    }
+                    function getMostKnownUser() {
+                        var Users = new discord_js_1.Collection();
+                        client.guilds.cache.forEach(function (guild) {
+                            guild.members.cache.forEach(function (gm) {
+                                var user = gm.user;
+                                if (user.bot)
+                                    return;
+                                if (!Users.has(user))
+                                    return Users.set(user, 1);
+                                var userServers = Users.get(user) + 1;
+                                Users.delete(user);
+                                Users.set(user, userServers);
+                            });
+                        });
+                        var sorted = Users.sort(function (a, b) { return b - a; });
+                        var strings = sorted.filter(function (v, u) { return sorted.first() == v; }).map(function (v, u) { return u.tag + " | #" + v; });
+                        return strings[Math.floor(Math.random() * strings.length)];
+                    }
+                };
+                var channelName = channel.name.split(':')[0];
+                var info = getInfo(channel);
+                var newName = channelName + ": " + info;
+                if (channel.name == newName)
+                    return;
+                return channel.setName(newName);
+            };
+            for (var _i = 0, channels_1 = channels; _i < channels_1.length; _i++) {
+                var channel = channels_1[_i];
+                setName(channel);
+            }
         }
     };
     Object.defineProperty(PinguLibrary, "DefaultPrefix", {
@@ -654,10 +751,10 @@ var PinguLibrary = /** @class */ (function () {
             var result = {
                 format: "```\n",
                 providedMessage: "[Provided Message]\n" + message + "\n\n",
-                errorMessage: "[Error message]: \n" + err.message + "\n\n",
+                errorMessage: "[Error message]: \n" + (err && err.message) + "\n\n",
                 messageContent: "[Message content]\n" + messageContent + "\n\n",
-                stack: "[Stack]\n" + err.stack + "\n\n\n",
-                fileMessage: err.fileName + " threw an error at line " + err.lineNumber + "!\n\n"
+                stack: "[Stack]\n" + (err && err.stack) + "\n\n\n",
+                fileMessage: (err && err.fileName) + " threw an error at line " + (err && err.lineNumber) + "!\n\n"
             };
             var returnMessage = (result.format +
                 (err.fileName && err.lineNumber ? result.fileMessage : "") +
@@ -959,7 +1056,7 @@ var Queue = /** @class */ (function () {
         this.logChannel = logChannel;
         this.voiceChannel = voiceChannel;
         this.songs = songs;
-        this.volume = .5;
+        this.volume = .7;
         this.connection = null;
         this.playing = playing;
         this.client = client;
@@ -1077,4 +1174,37 @@ var Daily = /** @class */ (function () {
     return Daily;
 }());
 exports.Daily = Daily;
+var ReactionRole = /** @class */ (function () {
+    function ReactionRole(message, reactionName, role) {
+        this.emoteName = reactionName;
+        this.pRole = new PRole(role);
+        this.channel = new PChannel(message.channel);
+        this.messageID = message.id;
+    }
+    ReactionRole.GetReactionRole = function (client, reaction, user) {
+        var guild = reaction.message.guild;
+        var pGuild = PinguGuild.GetPGuild(guild);
+        var rr = pGuild.reactionRoles.find(function (rr) {
+            return rr.messageID == reaction.message.id &&
+                (rr.emoteName == reaction.emoji.name) &&
+                rr.channel.id == reaction.message.channel.id;
+        });
+        var pRole = rr.pRole;
+        var member = guild.member(user);
+        var permCheck = PinguLibrary.PermissionCheck({
+            author: client.user,
+            client: client,
+            channel: reaction.message.channel,
+            content: "No content provided"
+        }, [DiscordPermissions.MANAGE_ROLES]);
+        if (permCheck != PinguLibrary.PermissionGranted) {
+            guild.owner.send("I tried to give " + member.displayName + " the " + pRole.name + ", as " + permCheck);
+            user.send("I'm unable to give you the reactionrole at the moment! I've contacted " + user.username + " about this.");
+            return null;
+        }
+        return guild.roles.fetch(pRole.id);
+    };
+    return ReactionRole;
+}());
+exports.ReactionRole = ReactionRole;
 //# sourceMappingURL=PinguPackage.js.map

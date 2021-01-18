@@ -5,8 +5,8 @@
     "\\commands\\1 Utility",
     "\\commands\\4 DevOnly",
     "\\events",
-    "\\events\\guildMember"
+    "\\events\\guild"
   ],
-  "SelectedNode": "\\commands\\1 Utility\\embed.js",
+  "SelectedNode": "\\PinguPackage.js",
   "PreviewInSolutionExplorer": false
 }

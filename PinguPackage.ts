@@ -1,11 +1,13 @@
 ﻿import {
-    ActivityType, Channel, Client, Guild, GuildChannel,
-    GuildMember, Message, MessageEmbed, Permissions,
-    PermissionString, Role, TextChannel, User, VoiceChannel,
-    VoiceConnection, VoiceState, ReactionUserManager
+    ActivityType, Channel, Client, Collection,
+    Guild, GuildChannel, GuildEmoji, GuildMember,
+    Message, MessageEmbed, MessageReaction,
+    Permissions, PermissionString, ReactionCollector,
+    Role, TextChannel, User, VoiceChannel,
+    VoiceConnection, VoiceState
 } from 'discord.js';
-import { MoreVideoDetails } from 'ytdl-core';
 import * as fs from 'fs';
+import { MoreVideoDetails } from 'ytdl-core';
 
 export class Error {
     constructor(err: { message: string, stack: string, fileName: string, lineNumber: string } | any) {
@@ -67,7 +69,7 @@ class BitPermission {
 
 //#region JSON Classes
 export class PItem {
-    constructor(object: {id: string, name: string}) {
+    constructor(object: { id: string, name: string }) {
         this.id = object.id;
         this.name = object.name;
     }
@@ -316,6 +318,7 @@ export class PinguGuild extends PItem {
         this.welcomeChannel = welcomeChannel ? new PChannel(welcomeChannel) : null;
         this.embedColor = guild.me.roles.cache.find(role => role.name.includes('Pingu')) && guild.me.roles.cache.find(role => role.name.includes('Pingu')).color || PinguLibrary.DefaultEmbedColor;
         this.musicQueue = null;
+        this.reactionRoles = new Array<ReactionRole>();
         this.giveawayConfig = new GiveawayConfig();
         this.pollConfig = new PollConfig;
         this.suggestions = new Array<Suggestion>();
@@ -327,6 +330,7 @@ export class PinguGuild extends PItem {
     public botPrefix: string
     public welcomeChannel: PChannel
     public musicQueue: PQueue
+    public reactionRoles: ReactionRole[];
     public giveawayConfig: GiveawayConfig
     public pollConfig: PollConfig
     public suggestions: Suggestion[]
@@ -345,8 +349,11 @@ export class PinguLibrary {
         }
 
         internalSetActivity();
-        setInterval(internalSetActivity, 86400000);
+        UpdateStats();
 
+        setInterval(internalSetActivity, 86400000);
+        try { setInterval(UpdateStats, 86400000) }
+        catch (err) { PinguLibrary.errorLog(client, `Updating Stats failed`, null, err); }
         function internalSetActivity() {
             let date = {
                 day: new Date(Date.now()).getDate(),
@@ -371,6 +378,89 @@ export class PinguLibrary {
                     if (announceActivity) PinguLibrary.activityLog(client, `${activity.type} ${activity.name}`);
                 });
         }
+        function UpdateStats() {
+            let getChannel = (client: Client, channelID: string) => PinguLibrary.SavedServers.PinguSupport(client).channels.cache.get(channelID) as VoiceChannel;
+            let channels = [
+                getChannel(client, '799596588859129887'), //Servers
+                getChannel(client, '799597092107583528'), //Users
+                getChannel(client, '799597689792757771'), //Daily Leader
+                getChannel(client, '799598372217683978'), //Server of the Day
+                getChannel(client, '799598024971518002'), //User of the Day
+                getChannel(client, '799598765187137537')  //Most known member
+            ]
+            let setName = (channel: VoiceChannel) => {
+                let getInfo = (channel: VoiceChannel) => {
+                    switch (channel.id) {
+                        case '799596588859129887': return getServersInfo(); //Servers
+                        case '799597092107583528': return getUsersInfo(); //Users
+                        case '799597689792757771': return getDailyLeader(); //Daily Leader
+                        case '799598372217683978': return getRandomServer(); //Server of the Day
+                        case '799598024971518002': return getRandomUser(); //User of the Day
+                        case '799598765187137537': return getMostKnownUser(); //Most known User
+                        default: PinguLibrary.errorLog(client, `ID of ${channel.name} was not recognized!`); return "No Info";
+                    }
+
+                    function getServersInfo() {
+                        return client.guilds.cache.size.toString();
+                    }
+                    function getUsersInfo() {
+                        return client.users.cache.size.toString();
+                    }
+                    function getDailyLeader() {
+                        try {
+                            let pUser = PinguUser.GetPUsers().sort((a, b) => {
+                                try { return b.daily.streak - a.daily.streak }
+                                catch (err) { PinguLibrary.errorLog(client, `Unable to get daily streak difference between ${a.tag} and ${b.tag}`, null, err); }
+
+                            })[0];
+                            return `${pUser.tag} #${pUser.daily.streak}`;
+                        }
+                        catch (err) { PinguLibrary.errorLog(client, `Unable to get Daily Leader`, null, err); }
+                    }
+                    function getRandomServer() {
+                        let availableGuilds = client.guilds.cache.array().map(g => ![
+                            PinguLibrary.SavedServers.DanhoMisc(client).id,
+                            PinguLibrary.SavedServers.PinguEmotes(client).id,
+                            PinguLibrary.SavedServers.PinguSupport(client).id,
+                        ].includes(g.id) && g.name != undefined && g).filter(v => v);
+                        let index = Math.floor(Math.random() * availableGuilds.length);
+                        return availableGuilds[index].name;
+                    }
+                    function getRandomUser() {
+                        let availableUsers = client.users.cache.array().map(u => !u.bot && u).filter(v => v);
+                        return availableUsers[Math.floor(Math.random() * availableUsers.length)].tag;
+                    }
+                    function getMostKnownUser() {
+                        let Users = new Collection<User, number>();
+
+                        client.guilds.cache.forEach(guild => {
+                            guild.members.cache.forEach(gm => {
+                                let { user } = gm;
+                                if (user.bot) return;
+
+                                if (!Users.has(user))
+                                    return Users.set(user, 1);
+
+                                let userServers = Users.get(user) + 1;
+                                Users.delete(user);
+                                Users.set(user, userServers);
+                            })
+                        });
+
+                        let sorted = Users.sort((a, b) => b - a);
+                        let strings = sorted.filter((v, u) => sorted.first() == v).map((v, u) => `${u.tag} | #${v}`);
+                        return strings[Math.floor(Math.random() * strings.length)];
+                    }
+                };
+                let channelName = channel.name.split(':')[0];
+                let info = getInfo(channel);
+                let newName = `${channelName}: ${info}`;
+                if (channel.name == newName) return;
+                return channel.setName(newName);
+            }
+
+            for (var channel of channels) setName(channel);
+        }
     }
     public static DefaultEmbedColor = 3447003;
     public static get DefaultPrefix(): '*' {
@@ -380,7 +470,7 @@ export class PinguLibrary {
     //#endregion
 
     //#region Permissions
-    public static PermissionCheck(check: { author: User, channel: GuildChannel, client: Client, content: string}, permissions: string[]) {
+    public static PermissionCheck(check: { author: User, channel: GuildChannel, client: Client, content: string }, permissions: string[]) {
         let { testingMode } = require('./config.json');
 
         if (permissions[0].length == 1) {
@@ -457,8 +547,8 @@ export class PinguLibrary {
                 .filter(perm => perm.permString != 'bitOf');
 
             for (var i = 0; i < permissions.length; i++)
-                permissions[i].bit = i == 0 ? 1 : permissions[i - 1].bit * 2; 
-            
+                permissions[i].bit = i == 0 ? 1 : permissions[i - 1].bit * 2;
+
             return permissions;
         }
     }
@@ -547,10 +637,10 @@ export class PinguLibrary {
             let result = {
                 format: "```\n",
                 providedMessage: `[Provided Message]\n${message}\n\n`,
-                errorMessage: `[Error message]: \n${err.message}\n\n`,
+                errorMessage: `[Error message]: \n${err && err.message}\n\n`,
                 messageContent: `[Message content]\n${messageContent}\n\n`,
-                stack: `[Stack]\n${err.stack}\n\n\n`,
-                fileMessage: `${err.fileName} threw an error at line ${err.lineNumber}!\n\n`
+                stack: `[Stack]\n${err && err.stack}\n\n\n`,
+                fileMessage: `${err && err.fileName} threw an error at line ${err && err.lineNumber}!\n\n`
             };
 
             let returnMessage = (
@@ -590,7 +680,7 @@ export class PinguLibrary {
 
         if ((message as object).constructor.name == "Message") {
             var messageAsMessage = message as Message;
-            var consoleLog = 
+            var consoleLog =
                 messageAsMessage.content ?
                     `${sender.username} sent a message to ${reciever.username} saying ` :
                     messageAsMessage.attachments.array().length == 1 ?
@@ -849,7 +939,7 @@ export class Queue implements IMuisc {
         this.logChannel = logChannel;
         this.voiceChannel = voiceChannel;
         this.songs = songs;
-        this.volume = .5;
+        this.volume = .7;
         this.connection = null;
         this.playing = playing;
         this.client = client;
@@ -984,4 +1074,43 @@ export class Daily {
     public lastClaim: Date
     public nextClaim: TimeLeftObject
     public streak: number
+}
+export class ReactionRole {
+    constructor(message: Message, reactionName: string, role: Role) {
+        this.emoteName = reactionName;
+        this.pRole = new PRole(role);
+        this.channel = new PChannel(message.channel as GuildChannel);
+        this.messageID = message.id;
+    }
+
+    public channel: PChannel
+    public messageID: string
+    public emoteName: string
+    public pRole: PRole
+
+    public static GetReactionRole(client: Client, reaction: MessageReaction, user: User) {
+        let guild = reaction.message.guild;
+        let pGuild = PinguGuild.GetPGuild(guild);
+        var rr = pGuild.reactionRoles.find(rr =>
+            rr.messageID == reaction.message.id &&
+            (rr.emoteName == reaction.emoji.name) &&
+            rr.channel.id == reaction.message.channel.id
+        ); 
+        let { pRole } = rr;
+        let member = guild.member(user);
+
+        let permCheck = PinguLibrary.PermissionCheck({
+            author: client.user,
+            client,
+            channel: reaction.message.channel as GuildChannel,
+            content: "No content provided"
+        }, [DiscordPermissions.MANAGE_ROLES]);
+        if (permCheck != PinguLibrary.PermissionGranted) {
+            guild.owner.send(`I tried to give ${member.displayName} the ${pRole.name}, as ${permCheck}`);
+            user.send(`I'm unable to give you the reactionrole at the moment! I've contacted ${user.username} about this.`);
+            return null;
+        }
+
+        return guild.roles.fetch(pRole.id);
+    }
 }

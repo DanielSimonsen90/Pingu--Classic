@@ -1,7 +1,7 @@
 ﻿const { Command, Client, Guild, Message } = require("discord.js");
-const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error, PUser } = require("../PinguPackage");
-const { musicCommands } = require('../commands/2 Fun/music'), { HandleTell, ExecuteTellReply } = require('../commands/2 Fun/tell');
-const { Prefix } = require('../config'), SecondaryPrefix = '562176550674366464';
+const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error } = require("../../PinguPackage");
+const { musicCommands } = require('../../commands/2 Fun/music'), { HandleTell, ExecuteTellReply } = require('../../commands/2 Fun/tell');
+const { Prefix } = require('../../config'), SecondaryPrefix = '562176550674366464';
 let updatingPGuild = false;
 
 module.exports = {
@@ -84,9 +84,11 @@ module.exports = {
                     message.channel.send(errMsg);
                     return false;
                 }
-
-                let newEmote = await message.guild.emojis.create(emote, name);
+                var newEmote = await message.guild.emojis.create(emote, name).catch(err => {
+                    return message.channel.send(err.message);
+                });
                 message.channel.send(`${newEmote} was created!`);
+                PinguLibrary.ConsoleLog(`Created :${newEmote.name}: for ${message.guild.name}`);
             }
             return true;
         }

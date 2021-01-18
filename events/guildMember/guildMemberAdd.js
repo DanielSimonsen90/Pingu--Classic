@@ -13,7 +13,7 @@ module.exports = {
                 .setTitle(`Welcome ${member.user.username}!`)
                 .setDescription(`${member} entered ${member.guild.name}.`)
                 .setColor(pGuild.embedColor || PinguLibrary.DefaultEmbedColor)
-                .setFooter(`${member.user.tag} is member **#${member.guild.members.cache.size}**`)
+                .setFooter(`${member.user.tag} is member #${member.guild.members.cache.size}`)
                 .setAuthor(member.displayName, member.user.avatarURL())
                 .setThumbnail(member.guild.iconURL())
             );
