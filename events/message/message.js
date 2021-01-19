@@ -88,7 +88,7 @@ module.exports = {
                     return message.channel.send(err.message);
                 });
                 message.channel.send(`${newEmote} was created!`);
-                PinguLibrary.ConsoleLog(`Created :${newEmote.name}: for ${message.guild.name}`);
+                PinguLibrary.consoleLog(client, `Created :${newEmote.name}: for ${message.guild.name}`);
             }
             return true;
         }
@@ -133,7 +133,7 @@ module.exports = {
 
                 //Save Index of pGuild & log the change
                 const pGuildIndex = pGuilds.indexOf(pGuild);
-                PinguLibrary.ConsoleLog(`[${guild.name}]: Embedcolor updated from ${pGuild.embedColor} to ${guildRoleColor}`);
+                PinguLibrary.consoleLog(client, `[${guild.name}]: Embedcolor updated from ${pGuild.embedColor} to ${guildRoleColor}`);
 
                 //Update pGuild.EmbedColor with guild's Pingu role color & put pGuild back into pGuilds
                 pGuild.embedColor = guildRoleColor;
@@ -215,7 +215,7 @@ module.exports = {
          * @param {string} commandName 
          * @param {Command} command*/
         function ExecuteAndLogCommand(message, args, commandName, command) {
-            let ConsoleLog = `User "${message.author.username}" executed command "${commandName}", from ${(!message.guild ? `DMs and ` : `"${message.guild}", #${message.channel.name}, and `)}`;
+            let ConsoleLog = `User **${message.author.username}** executed command **${commandName}**, from ${(!message.guild ? `DMs and ` : `"${message.guild}", #${message.channel.name}, and `)}`;
 
             //Attempt execution of command
             try {
@@ -227,15 +227,15 @@ module.exports = {
                     pAuthor: PinguUser.GetPUser(message.author),
                     pGuild: message.guild ? PinguGuild.GetPGuild(message.guild) : null,
                 });
-                ConsoleLog += `succeeded!\n`;
+                ConsoleLog += `**succeeded!**\n`;
             } catch (err) {
                 if (err.message == 'Missing Access' && message.guild.id == PinguLibrary.SavedServers.PinguEmotes(client).id && FindPermission())
                     return; //Error occured, but cycled through permissions to find missing permission
 
-                ConsoleLog += `failed!\nError: ${err}`;
+                ConsoleLog += `**failed!**\nError: ${err}`;
                 PinguLibrary.errorLog(client, `Trying to execute "${command.name}"!`, message.content, err);
             }
-            PinguLibrary.ConsoleLog(ConsoleLog);
+            PinguLibrary.consoleLog(client, ConsoleLog);
             async function FindPermission() {
                 //Find Danho and make check variable, to bypass "You don't have that permission!" (gotta abuse that PinguDev power)
                 let Danho = PinguLibrary.SavedServers.DanhoMisc(client).owner.user;

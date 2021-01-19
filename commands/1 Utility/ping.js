@@ -12,7 +12,7 @@ module.exports = {
     async execute({ message }) {
         let sent = await message.channel.send(`Calculating...`);
         let latency = sent.createdTimestamp - message.createdTimestamp;
-        PinguLibrary.ConsoleLog(`Ping: ${latency}ms`);
+        PinguLibrary.consoleLog(message.client, `Ping: ${latency}ms`);
 
         sent.edit(
             `My latency: ${latency}ms\n` +

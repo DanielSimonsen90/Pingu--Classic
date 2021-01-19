@@ -20,7 +20,7 @@ module.exports = {
             `Use \`*help\`, if you don't know how I work!`
         )
             .catch(err => PinguLibrary.errorLog(client, `Failed to send ${guild.owner} a DM`, null, err))
-            .then(PinguLibrary.ConsoleLog(`Sent ${guild.owner.user.tag} my "thank you" message.`));
+            .then(PinguLibrary.consoleLog(guild.client, `Sent ${guild.owner.user.tag} my "thank you" message.`));
 
         guild.members.cache.forEach(member => {
             if (!PinguUser.GetPUser(member.user)) {

@@ -181,8 +181,6 @@ export class PinguUser {
         try { var pUserObj = require(path); }
         catch (err) { return PinguLibrary.pUserLog(client, script, `Unable to get pUser from ${fileName}`, new Error(err)); }
 
-        console.log(`----------\n${pUserObj}\n----------`)
-
         fs.writeFile(path, '', err => {
             if (err) PinguLibrary.pUserLog(client, script, `[writeFile]: ${errMsg}`, new Error(err));
             else fs.appendFile(path, JSON.stringify(pUserObj, null, 4), err => {
@@ -203,8 +201,11 @@ export class PinguUser {
                 if (await callback) callback(pUser);
             });
         } catch (ewwor) {
-            console.log(ewwor);
+            PinguLibrary.errorLog(client, `WritePUser Error`, null, ewwor);
         }
+    }
+    public static UpdatePUser(from: User, to: User, callback?: (updatedUser?: User) => void) {
+        throw "Not Implemented yet"
     }
     public static DeletePUser(user: User, callback?: () => void) {
         try {
@@ -213,7 +214,7 @@ export class PinguUser {
                 if (await callback) callback();
             });
         } catch (ewwor) {
-            console.log(ewwor);
+            PinguLibrary.errorLog(user.client, `DeletePUser Error`, null, ewwor);
         }
     }
     public static PUserFileName(user: User) {
@@ -292,8 +293,11 @@ export class PinguGuild extends PItem {
                 if (await callback) callback(pGuild);
             });
         } catch (ewwor) {
-            console.log(ewwor);
+            PinguLibrary.errorLog(guild.client, `WritePGuild Error`, null, ewwor);
         }
+    }
+    public static UpdatePGuild(from: Guild, to: Guild, callback?: (updatedGuild?: Guild) => void) {
+        throw "Not Implemented yet"
     }
     public static DeletePGuild(guild: Guild, callback?: (pGuild?: PinguGuild) => void) {
         try {
@@ -303,7 +307,7 @@ export class PinguGuild extends PItem {
                 if (await callback) callback(pGuild);
             });
         } catch (ewwor) {
-            console.log(ewwor);
+            PinguLibrary.errorLog(guild.client, `DeletePGuild Error`, null, ewwor);
         }
     }
     //#endregion
@@ -608,7 +612,7 @@ export class PinguLibrary {
     public static async outages(client: Client, message: string) {
         var outageChannel = this.getChannel(client, '756383096646926376', 'outages');
         if (!outageChannel) return this.DanhoDM(client, `Couldn't get #outage channel in Pingu Support, https://discord.gg/Mp4CH8eftv`);
-        console.log(message);
+        this.consoleLog(client, message);
         let sent = await outageChannel.send(message);
         return sent.crosspost();
     }
@@ -645,14 +649,14 @@ export class PinguLibrary {
 
             let returnMessage = (
                 result.format +
-                (err.fileName && err.lineNumber ? result.fileMessage : "") +
+                (err && err.fileName && err.lineNumber ? result.fileMessage : "") +
                 result.providedMessage +
                 (messageContent ? result.messageContent : "") +
                 (err ? result.errorMessage + result.stack : "") +
                 result.format
             );
 
-            PinguLibrary.ConsoleLog(returnMessage);
+            PinguLibrary.consoleLog(client, returnMessage);
             return returnMessage
         }
     }
@@ -674,9 +678,24 @@ export class PinguLibrary {
         }
         return pinguUserLog.send(`[**Success**] [**${script}**]: ${message}`);
     }
+    public static consoleLog(client: Client, message: string) {
+        let timeFormat = `[${new Date(Date.now()).toLocaleTimeString()}]`;
+        console.log(`${timeFormat} ${message}`);
+
+        let consoleLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "console-log");
+        if (!consoleLogChannel) return this.DanhoDM(client, 'Unable to find #console-log in Pingu Support');
+
+        consoleLogChannel.send(message);
+    }
+    public static eventLog(client: Client, event: string, emitter: string, emitterType: string) {
+        let eventLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "event-log");
+        if (!eventLogChannel) return this.DanhoDM(client, `Couldn't get #event-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh`)
+
+        eventLogChannel.send(`[**${event}**] {**${emitterType}**} Emitted by **${emitter}**`);
+    }
     public static tellLog(client: Client, sender: User, reciever: User, message: Message | MessageEmbed) {
         var tellLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'tell-log');
-        if (!tellLogChannel) return this.DanhoDM(client, `Couldn't get #tell-log channel in Pingu Support, https://discord.gg/Mp4CH8eftv`)
+        if (!tellLogChannel) return this.DanhoDM(client, `Couldn't get #tell-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh`)
 
         if ((message as object).constructor.name == "Message") {
             var messageAsMessage = message as Message;
@@ -692,7 +711,7 @@ export class PinguLibrary {
             if (messageAsMessage.content) consoleLog += messageAsMessage.content;
             if (messageAsMessage.attachments) consoleLog += messageAsMessage.attachments.map(a => `\n${a.url}`);
 
-            PinguLibrary.ConsoleLog(consoleLog);
+            PinguLibrary.consoleLog(client, consoleLog);
 
             var format = (ping: boolean) => `${new Date(Date.now()).toLocaleTimeString()} [<@${(ping ? sender : sender.username)}> ➡️ <@${(ping ? reciever : reciever.username)}>]`;
 
@@ -712,7 +731,7 @@ export class PinguLibrary {
                 .then(() => tellLogChannel.send(`Ran else statement - reported to ${tellLogChannel.guild.channels.cache.find(c => c.name == 'error-log')}`));
         }
         else if ((message as MessageEmbed).constructor.name == "MessageEmbed") {
-            console.log(`The link between ${sender.username} & ${reciever.username} was unset.`);
+            this.consoleLog(client, `The link between ${sender.username} & ${reciever.username} was unset.`);
             tellLogChannel.send(message as MessageEmbed)
         }
     }
@@ -756,7 +775,7 @@ export class PinguLibrary {
     }
     public static activityLog(client: Client, message: string) {
         let activityLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'activity-log');
-        if (!activityLogChannel) return this.DanhoDM(client, `Couldn't get #activity-log channel in Pingu Support, https://discord.gg/Mp4CH8eftv`)
+        if (!activityLogChannel) return this.DanhoDM(client, `Couldn't get #activity-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh`)
 
         return activityLogChannel.send(message);
     }
@@ -772,10 +791,6 @@ export class PinguLibrary {
         }
         PinguLibrary.errorLog(client, `Unable to find Emote **${name}** from ${emoteGuild.name}`);
         return '😵';
-    }
-    public static ConsoleLog(message: string) {
-        let timeFormat = `[${new Date(Date.now()).toLocaleTimeString()}]`;
-        console.log(`${timeFormat} ${message}`);
     }
 }
 //#endregion

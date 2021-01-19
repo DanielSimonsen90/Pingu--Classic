@@ -154,7 +154,7 @@ module.exports = {
          * @param {string} logMessage
          * @returns {`[12.34.56] Author typed their embed: logMessage`}*/
         function LogChanges(type, logMessage) {
-            PinguLibrary.ConsoleLog(`${message.author.tag} ${type} their embed${(logMessage ? `: ${logMessage}` : "")}`);
+            PinguLibrary.consoleLog(message.client, `${message.author.tag} ${type} their embed${(logMessage ? `: ${logMessage}` : "")}`);
         }
         //#endregion
 
@@ -243,9 +243,9 @@ module.exports = {
             }, [DiscordPermissions.VIEW_CHANNEL, DiscordPermissions.SEND_MESSAGES]);
             if (permCheck != PinguLibrary.PermissionGranted) return message.channel.send(permCheck);
 
-            await channel.send(embed);
+            let sent = await channel.send(embed);
             LogChanges('sent', '#' + channel.name);
-            return message.channel.send(`Sent this to ${channel}`, embed);
+            return message.channel.send(`Sent this to ${channel} | Message ID: **${sent.id}**`, embed);
         }
         //#endregion
     }

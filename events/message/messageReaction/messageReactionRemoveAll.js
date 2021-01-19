@@ -8,7 +8,7 @@ module.exports = {
     execute(client, { message }) {
         RemoveReactionRoles(message)
 
-        PinguLibrary.ConsoleLog(`${this.name} called`)
+        PinguLibrary.consoleLog(client, `${this.name} called`)
     }
 }
 
@@ -21,9 +21,9 @@ function RemoveReactionRoles(message) {
         if (rr.messageID != message.id) continue;
 
         let i = pGuild.reactionRoles.indexOf(rr)
-        pGuild.reactionRoles[i] = null;
+        pGuild.reactionRoles.splice(i, 1);
 
-        PinguLibrary.ConsoleLog(`Removed ${rr.emoteName} => ${rr.pRole.name}`);
+        PinguLibrary.consoleLog(message.client, `Removed ${rr.emoteName} => ${rr.pRole.name}`);
     }
 
     PinguGuild.UpdatePGuildJSON(message.client, message.guild, `${this.name}, RemoveReactionRoles()`,

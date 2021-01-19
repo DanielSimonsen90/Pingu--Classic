@@ -8,6 +8,7 @@ module.exports = {
     execute(client, { reaction, user }) {
         if (user == client.user) return;
         ReactionRoleUser(client, reaction, user);
+        
     }
 }
 
@@ -23,7 +24,7 @@ async function ReactionRoleUser(client, reaction, user) {
 
         try {
             member.roles.add(role, `ReactionRole in ${reaction.message.channel.name}.`);
-            PinguLibrary.ConsoleLog(`Gave ${user.username} ${role.name} for ReactionRole`);
+            PinguLibrary.consoleLog(client, `Gave ${user.username} ${role.name} for ReactionRole`);
         } catch (err) {
             PinguLibrary.errorLog(message.client, `Unable to give ${user.username} the ${role.name} role for reacting!`, null, err);
         }

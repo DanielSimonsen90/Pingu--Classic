@@ -82,7 +82,7 @@ module.exports = {
         GiveawayChannel.send(`**Giveawayy woo**`, embed)
             .then(GiveawayMessage => {
                 GiveawayMessage.react('🤞');
-                console.log(`${GiveawayCreator.user.username} hosted a giveaway in ${message.guild.name}, #${message.channel.name}, giving "${Prize}" away`);
+                PinguLibrary.consoleLog(message.client, `${GiveawayCreator.user.username} hosted a giveaway in ${message.guild.name}, #${message.channel.name}, giving "${Prize}" away`);
                 SaveGiveawayToPGuilds(GiveawayMessage, Prize, GiveawayCreator, GiveawayChannel);
 
                 const interval = setInterval(() => UpdateTimer(GiveawayMessage, EndsAt, GiveawayCreator), 5000);
@@ -161,11 +161,11 @@ function PermissionCheck(message, args) {
 /**@param {Message} message @param {string[]} args*/
 function FirstTimeExecuted(message, args) {
     if (args[0] != `setup`) message.channel.send(`**Hold on fella!**\nWe need to get ${message.guild.name} set up first!`);
-    let collectorCount = 0,
-        collector = message.channel.createMessageCollector(m => m.author.id == message.author.id, { maxMatches: 1 });
+    let collectorCount = 0, collector = message.channel.createMessageCollector(m => m.author.id == message.author.id, { maxMatches: 1 });
+    let GiveawayHostRole, GiveawayWinnerRole, Reply, LastInput, LFRole, RoleName = "Giveaway Host", HostDone = false, Channel;
 
-    let GiveawayHostRole, GiveawayWinnerRole, Reply, LastInput, LFRole,
-        RoleName = "Giveaway Host", HostDone = false, Channel;
+
+
     message.channel.send(`Firstly, I need to know if there's a **${RoleName}** role. You can reply \`Yes\` or \`No\` (without prefix).`)
 
     collector.on('collect', userInput => {
@@ -465,7 +465,7 @@ async function ExecuteTimeOut(message, GiveawayMessage, Prize, Winners, embed, G
     );
 
     UpdatePGuildWinner(GiveawayMessage, WinnerArr);
-    console.log(`Winner of "${Prize}" (hosted by ${GiveawayCreator.user.username}) was won by: ${WinnerArrStringed}.`);
+    PinguLibrary.consoleLog(message.client, `Winner of "${Prize}" (hosted by ${GiveawayCreator.user.username}) was won by: ${WinnerArrStringed}.`);
 
     /**@param {Message} message @param {Message} GiveawayMessage*/
     function FindWinner(message) {
@@ -590,7 +590,7 @@ async function RemoveGiveaways(message, giveaways) {
 
     pGuild.giveawayConfig.giveaways = pGuild.giveawayConfig.giveaways.filter(ga => !giveaways.includes(ga));
 
-    console.log(`The giveaway, ${giveaways[0].value} (${giveaways[0].id}) was removed.`);
+    PinguLibrary.consoleLog(message.client, `The giveaway, ${giveaways[0].value} (${giveaways[0].id}) was removed.`);
 
     await PinguGuild.UpdatePGuildJSONAsync(message.client, message.guild, module.exports.name,
         `Removed ${giveaways.length} giveaways from **${message.guild.name}**'s giveaway list.`,

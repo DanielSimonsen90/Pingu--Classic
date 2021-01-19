@@ -9,12 +9,12 @@ module.exports = {
     examples: ["5", "10 @Danho#2105", "all"],
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.MANAGE_MESSAGES],
     /**@param {{message: Message, args: string[]}}*/
-    execute({ message, args }) {
+    async execute({ message, args }) {
         const PermCheck = PermissionCheck(message, args);
         if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
 
         if (args[0].toLowerCase() == "all")
-            return message.author.send(ClearAll(message, args[1]));
+            return message.author.send(await ClearAll(message, args[1]));
         else if (args[0].toLowerCase() == "log" && PinguLibrary.isPinguDev(message.author)) {
             console.clear();
             return message.channel.send('I have cleared the log!');
@@ -62,12 +62,14 @@ async function ClearAll(message, channel) {
         `<#${c.id}>` == channel
     );
 
-    if (message.guild.rulesChannelID == channel.id || !['text', 'voice'].includes(channel.type))
+    if (message.guild.rulesChannelID == channel.id || !['text', 'voice', 'news'].includes(channel.type))
         return `I cannot replace that channel!`;
 
 
     channel.delete(`Requested by ${message.author.username}`);
+    let pos = channel.position;
     var newChannel = await channel.clone();
+    await newChannel.setPosition(pos);
     return `I've deleted the previous #${channel.name}, and replaced it with ${(`${newChannel}` ||  `a new one!`)}!`;
 }
 /**@param {Message} message 

@@ -90,7 +90,7 @@ module.exports = {
 
         //Get author's replyPerson
         let replyPersonPUser = PinguUser.GetPUser(message.author).replyPerson;
-        if (!replyPersonPUser) return PinguLibrary.ConsoleLog(`No replyPerson found for ${message.author.username}.`);
+        if (!replyPersonPUser) return PinguLibrary.consoleLog(message.client, `No replyPerson found for ${message.author.username}.`);
 
         //Find replyPerson as Discord User
         let replyPerson = getReplyUser(message);

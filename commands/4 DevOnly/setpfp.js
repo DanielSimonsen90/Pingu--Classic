@@ -34,7 +34,7 @@ module.exports = {
 
         message.client.user.setAvatar(newPFP).then(() => {
             PinguLibrary.SavedServers.PinguSupport(message.client).setIcon(newPFP, `${message.author.username} called ${PinguGuild.GetPGuild(PinguLibrary.SavedServers.PinguSupport(message.client)).botPrefix}setpfp in "${message.guild.name}", #${message.channel.name}.`);
-            PinguLibrary.ConsoleLog(`${message.author.username} set profile picture to "${PFP}".`);
+            PinguLibrary.consoleLog(message.client, `${message.author.username} set profile picture to "${PFP}".`);
 
             if (message.channel.type != 'dm') {
                 var permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.SEND_MESSAGES]);

@@ -6,7 +6,7 @@ module.exports = {
     /**@param {Client} client
      @param {{reaction: MessageReaction}}*/
     execute(client, { reaction }) {
-        console.log(`${this.name} called`);
+        PinguLibrary.consoleLog(client, `${this.name} called`);
         TestForReactionRole(reaction);
     }
 }

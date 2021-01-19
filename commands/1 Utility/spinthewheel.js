@@ -14,7 +14,7 @@ module.exports = {
         const ranItem = Math.round(Math.random() * Math.floor(options.length - 1));
 
         var result = options[ranItem];
-        PinguLibrary.ConsoleLog(`Result: ${result}`);
+        PinguLibrary.consoleLog(message.client, `Result: ${result}`);
 
         let permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.SEND_MESSAGES]);
         if (permCheck != PinguLibrary.PermissionGranted)

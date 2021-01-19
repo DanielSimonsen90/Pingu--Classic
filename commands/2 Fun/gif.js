@@ -23,7 +23,7 @@ module.exports = {
         const gifType = Math.floor(Math.random() * 2) == 1 ? "Club Penguin" : "Pingu";
 
         // we request 10 items
-        request('https://www.googleapis.com/customsearch/v1?key=' + config.api_key + '&cx=' + config.google_custom_search + '&q=' + (`${gifType} gif`) + '&searchType=image&alt=json&num=10&start=' + page, function (err, res, body) {
+        request('https://www.googleapis.com/customsearch/v1?key=' + config.api_key + '&cx=' + config.google_custom_search + '&q=' + (`${gifType} gif`) + '&searchType=image&alt=json&num=10&start=' + page + "&fileType=gif", function (err, res, body) {
 
             // "https://www.googleapis.com/customsearch/v1?key=AIzaSyAeAr2Dv1umzuLes_zhlY0lON4Pf_uAKeM&cx=013524999991164939702:z24cpkwx9nz&q=sloth&searchType=image&alt=json&num=10&start=31"
             let data;
@@ -39,8 +39,12 @@ module.exports = {
                     message.channel.send(`I was unable to find a gif! I have contacted my developers...`));
             }
 
+            let item = data.items[Math.floor(Math.random() * data.items.length)];
+            while (item.fileFormat != 'image/gif') 
+                item = data.items[Math.floor(Math.random() * data.items.length)];
+
             message.channel.send(new MessageEmbed()
-                .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
+                .setImage(item.link)
                 .setColor(message.guild ? pGuild.embedColor : PinguLibrary.DefaultEmbedColor)
             );
         });

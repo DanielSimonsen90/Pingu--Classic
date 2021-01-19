@@ -255,7 +255,6 @@ var PinguUser = /** @class */ (function () {
         catch (err) {
             return PinguLibrary.pUserLog(client, script, "Unable to get pUser from " + fileName, new Error(err));
         }
-        console.log("----------\n" + pUserObj + "\n----------");
         fs.writeFile(path, '', function (err) {
             if (err)
                 PinguLibrary.pUserLog(client, script, "[writeFile]: " + errMsg, new Error(err));
@@ -298,8 +297,11 @@ var PinguUser = /** @class */ (function () {
             }); });
         }
         catch (ewwor) {
-            console.log(ewwor);
+            PinguLibrary.errorLog(client, "WritePUser Error", null, ewwor);
         }
+    };
+    PinguUser.UpdatePUser = function (from, to, callback) {
+        throw "Not Implemented yet";
     };
     PinguUser.DeletePUser = function (user, callback) {
         var _this = this;
@@ -320,7 +322,7 @@ var PinguUser = /** @class */ (function () {
             }); });
         }
         catch (ewwor) {
-            console.log(ewwor);
+            PinguLibrary.errorLog(user.client, "DeletePUser Error", null, ewwor);
         }
     };
     PinguUser.PUserFileName = function (user) {
@@ -426,8 +428,11 @@ var PinguGuild = /** @class */ (function (_super) {
             }); });
         }
         catch (ewwor) {
-            console.log(ewwor);
+            PinguLibrary.errorLog(guild.client, "WritePGuild Error", null, ewwor);
         }
+    };
+    PinguGuild.UpdatePGuild = function (from, to, callback) {
+        throw "Not Implemented yet";
     };
     PinguGuild.DeletePGuild = function (guild, callback) {
         var _this = this;
@@ -449,7 +454,7 @@ var PinguGuild = /** @class */ (function (_super) {
             }); });
         }
         catch (ewwor) {
-            console.log(ewwor);
+            PinguLibrary.errorLog(guild.client, "DeletePGuild Error", null, ewwor);
         }
     };
     return PinguGuild;
@@ -710,7 +715,7 @@ var PinguLibrary = /** @class */ (function () {
                         outageChannel = this.getChannel(client, '756383096646926376', 'outages');
                         if (!outageChannel)
                             return [2 /*return*/, this.DanhoDM(client, "Couldn't get #outage channel in Pingu Support, https://discord.gg/Mp4CH8eftv")];
-                        console.log(message);
+                        this.consoleLog(client, message);
                         return [4 /*yield*/, outageChannel.send(message)];
                     case 1:
                         sent = _a.sent();
@@ -757,12 +762,12 @@ var PinguLibrary = /** @class */ (function () {
                 fileMessage: (err && err.fileName) + " threw an error at line " + (err && err.lineNumber) + "!\n\n"
             };
             var returnMessage = (result.format +
-                (err.fileName && err.lineNumber ? result.fileMessage : "") +
+                (err && err.fileName && err.lineNumber ? result.fileMessage : "") +
                 result.providedMessage +
                 (messageContent ? result.messageContent : "") +
                 (err ? result.errorMessage + result.stack : "") +
                 result.format);
-            PinguLibrary.ConsoleLog(returnMessage);
+            PinguLibrary.consoleLog(client, returnMessage);
             return returnMessage;
         }
     };
@@ -800,10 +805,24 @@ var PinguLibrary = /** @class */ (function () {
             });
         });
     };
+    PinguLibrary.consoleLog = function (client, message) {
+        var timeFormat = "[" + new Date(Date.now()).toLocaleTimeString() + "]";
+        console.log(timeFormat + " " + message);
+        var consoleLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "console-log");
+        if (!consoleLogChannel)
+            return this.DanhoDM(client, 'Unable to find #console-log in Pingu Support');
+        consoleLogChannel.send(message);
+    };
+    PinguLibrary.eventLog = function (client, event, emitter, emitterType) {
+        var eventLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "event-log");
+        if (!eventLogChannel)
+            return this.DanhoDM(client, "Couldn't get #event-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh");
+        eventLogChannel.send("[**" + event + "**] {**" + emitterType + "**} Emitted by **" + emitter + "**");
+    };
     PinguLibrary.tellLog = function (client, sender, reciever, message) {
         var tellLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'tell-log');
         if (!tellLogChannel)
-            return this.DanhoDM(client, "Couldn't get #tell-log channel in Pingu Support, https://discord.gg/Mp4CH8eftv");
+            return this.DanhoDM(client, "Couldn't get #tell-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh");
         if (message.constructor.name == "Message") {
             var messageAsMessage = message;
             var consoleLog = messageAsMessage.content ?
@@ -817,7 +836,7 @@ var PinguLibrary = /** @class */ (function () {
                 consoleLog += messageAsMessage.content;
             if (messageAsMessage.attachments)
                 consoleLog += messageAsMessage.attachments.map(function (a) { return "\n" + a.url; });
-            PinguLibrary.ConsoleLog(consoleLog);
+            PinguLibrary.consoleLog(client, consoleLog);
             var format = function (ping) { return new Date(Date.now()).toLocaleTimeString() + " [<@" + (ping ? sender : sender.username) + "> \u27A1\uFE0F <@" + (ping ? reciever : reciever.username) + ">]"; };
             if (messageAsMessage.content && messageAsMessage.attachments)
                 tellLogChannel.send(format(false) + (": ||" + messageAsMessage.content + "||"), messageAsMessage.attachments.array())
@@ -833,7 +852,7 @@ var PinguLibrary = /** @class */ (function () {
                     .then(function () { return tellLogChannel.send("Ran else statement - reported to " + tellLogChannel.guild.channels.cache.find(function (c) { return c.name == 'error-log'; })); });
         }
         else if (message.constructor.name == "MessageEmbed") {
-            console.log("The link between " + sender.username + " & " + reciever.username + " was unset.");
+            this.consoleLog(client, "The link between " + sender.username + " & " + reciever.username + " was unset.");
             tellLogChannel.send(message);
         }
     };
@@ -882,7 +901,7 @@ var PinguLibrary = /** @class */ (function () {
     PinguLibrary.activityLog = function (client, message) {
         var activityLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'activity-log');
         if (!activityLogChannel)
-            return this.DanhoDM(client, "Couldn't get #activity-log channel in Pingu Support, https://discord.gg/Mp4CH8eftv");
+            return this.DanhoDM(client, "Couldn't get #activity-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh");
         return activityLogChannel.send(message);
     };
     //#endregion
@@ -899,10 +918,6 @@ var PinguLibrary = /** @class */ (function () {
         }
         PinguLibrary.errorLog(client, "Unable to find Emote **" + name + "** from " + emoteGuild.name);
         return '😵';
-    };
-    PinguLibrary.ConsoleLog = function (message) {
-        var timeFormat = "[" + new Date(Date.now()).toLocaleTimeString() + "]";
-        console.log(timeFormat + " " + message);
     };
     PinguLibrary.DefaultEmbedColor = 3447003;
     PinguLibrary.PermissionGranted = "Permission Granted";

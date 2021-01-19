@@ -516,7 +516,7 @@ async function Play(message, song, queue) {
             if (!message.guild.me.voice.selfDeaf)
                 message.guild.me.voice.setSelfDeaf(true);
 
-            PinguLibrary.ConsoleLog(`Start: ${song.title}`);
+            PinguLibrary.consoleLog(message.client, `Start: ${song.title}`);
 
             var requestedBy = message.guild.members.cache.find(m => m.id == song.requestedBy.id);
 
@@ -548,16 +548,16 @@ async function Play(message, song, queue) {
             );
         })
         .on('error', err => {
-            PinguLibrary.ConsoleLog(`Error: ${song.title}`);
+            PinguLibrary.consoleLog(message.client, `Error: ${song.title}`);
 
             PinguLibrary.errorLog(message.client, "Voice connection error", message.content, err);
             AnnounceMessage(message, queue, `I had a voice connection error! I've notified my developers.`)
 
             pGuild.musicQueue = null;
         })
-        .on('end', () => PinguLibrary.ConsoleLog(`End: ${song.title}`))
+        .on('end', () => PinguLibrary.consoleLog(message.client, `End: ${song.title}`))
         .on('finish', async () => {
-            PinguLibrary.ConsoleLog(`Finish: ${song.title}`);
+            PinguLibrary.consoleLog(message.client, `Finish: ${song.title}`);
 
             song.stop();
 

@@ -25,21 +25,21 @@ for (var x = 1; x < CategoryNames.length; x++) {
 }
 
 //Am I ready to launch?
-client.once('ready', () => HandleEvent('onready', {})); //Bot is ready to be (ab)used
+client.once('ready', () => HandleEvent('onready', { user: client.user })); //Bot is ready to be (ab)used
 client.on('error', err => PinguLibrary.errorLog(client, `Called from client.on('error')`, null, err));
 
 
 //#region Guild Events
 const Guild = `guild`;
 client.on('guildCreate', guild => HandleEvent(`${Guild}/${Guild}Create`, { guild })); //First time joining a guild
-client.on('guildUpdate', (from, to) => HandleEvent(`${Guild}/${Guild}Update`, { from, to })); //Guild was updated with new data
+client.on('guildUpdate', (preGuild, guild) => HandleEvent(`${Guild}/${Guild}Update`, { preGuild, guild })); //Guild was updated with new data
 client.on('guildDelete', guild => HandleEvent(`${Guild}/${Guild}Delete`, { guild })); //Leaving a guild
 //#endregion
 
 //#region Guild Member Events
 const guildMember = `guildMember`;
 client.on('guildMemberAdd', member => HandleEvent(`${guildMember}/${guildMember}Add`, { member })); //New guild member
-client.on('guildMemberUpdate', (from, to) => HandleEvent(`${guildMember}/${guildMember}Update`, { from, to })); //Member changed
+client.on('guildMemberUpdate', (preMember, member) => HandleEvent(`${guildMember}/${guildMember}Update`, { preMember, member })); //Member changed
 client.on('guildMemberRemove', member => HandleEvent(`${guildMember}/${guildMember}Remove`, { member })); //Guild member left
 //#endregion
 
@@ -67,8 +67,22 @@ async function HandleEvent(path, parameters) {
     try {
         var event = require(`./events/${path}`);
         event.execute(client, parameters);
+        SendToLog();
     }
     catch (err) { await PinguLibrary.errorLog(client, `${eventName} error`, null, new Error(err)); }
+
+    function SendToLog() {
+        let emitter = parameters.guild ? parameters.guild.name : parameters.message ? parameters.message.author.tag : parameters.member ? parameters.member.user.tag :
+            parameters.user ? parameters.user.tag : parameters.reaction ? parameters.reaction.users.cache.last().tag : "Not recognized";
+
+        let emitterType = parameters.guild ? 'guild' : 'user';
+
+        //if (emitter == client.user.tag && event.name == 'events: message') console.log(parameters.message.content);
+
+        if (emitter == 'Not recognized') PinguLibrary.errorLog(client, `Event parameter not recognized!`);
+        if (parameters.message && ['event-log', 'ping-log', 'console-log'].includes(parameters.message.channel.name)) return;
+        PinguLibrary.eventLog(client, event.name, emitter, emitterType);
+    }
 }
 
 client.login(token);

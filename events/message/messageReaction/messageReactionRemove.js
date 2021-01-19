@@ -48,7 +48,7 @@ async function ReactionRoleUser(client, reaction, user) {
 
         try {
             member.roles.remove(role, `ReactionRole in ${reaction.message.channel.name}.`);
-            PinguLibrary.ConsoleLog(`Removed ${user.username}'s ${role.name} role for ReactionRole`);
+            PinguLibrary.consoleLog(client, `Removed ${user.username}'s ${role.name} role for ReactionRole`);
         } catch (err) {
             PinguLibrary.errorLog(message.client, `Unable to remove ${user.username}'s ${role.name} role for unreacting!`, null, err);
         }

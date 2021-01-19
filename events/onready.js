@@ -10,7 +10,7 @@ module.exports = {
         catch (err) { PinguLibrary.errorLog(client, `Unable to cache reactionrole messages!`, null, err); }
 
         if (announceOutages) PinguLibrary.outages(client, `\nI'm back online!\n`);
-        console.log(`\nI'm back online!\n`);
+        PinguLibrary.consoleLog(client, `\nI'm back online!\n`);
         PinguLibrary.setActivity(client);
     }
 }
@@ -29,7 +29,7 @@ function CacheReactionRoles(client) {
             let channel = ToTextChannel(gChannel);
             channel.messages.fetch(rr.messageID);
 
-            //PinguLibrary.ConsoleLog(`Cached ${rr.messageID} from #${channel.name}, ${guild.name}`)
+            //PinguLibrary.ConsoleLog(client, `Cached ${rr.messageID} from #${channel.name}, ${guild.name}`)
         });
     })
 }

@@ -45,7 +45,7 @@ module.exports = {
         await PollMessage.react('👍')
         PollMessage.react('👎');
 
-        PinguLibrary.ConsoleLog(`${message.author.tag} hosted a poll in "${message.guild.name}": ${Question}`);
+        PinguLibrary.consoleLog(message.client, `${message.author.tag} hosted a poll in "${message.guild.name}": ${Question}`);
         AddPollToPGuilds(message, new Poll(Question, PollMessage.id, new PGuildMember(message.guild.member(message.author))));
 
         const interval = setInterval(() => UpdateTimer(PollMessage, EndsAt, new PGuildMember(message.guild.member(message.author))), 5000);
@@ -120,7 +120,7 @@ function FirstTimeExecuted(message, args) {
     });
     collector.on('end', () => {
         message.channel.send(`Alright you're good to go!`)
-        console.log(`"${message.guild.name}" was successfully sat up with *poll.`);
+        PinguLibrary.consoleLog(message.client, `"${message.guild.name}" was successfully sat up with *poll.`);
     });
 
     /**@param {Message} message @returns {Promise<Role>}*/

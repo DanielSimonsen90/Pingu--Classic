@@ -1,5 +1,5 @@
 const { Message } = require('discord.js');
-const { DiscordPermissions } = require('../../PinguPackage');
+const { DiscordPermissions, PinguLibrary } = require('../../PinguPackage');
 
 module.exports = {
     name: 'sort',
@@ -16,6 +16,6 @@ module.exports = {
         let result = arguments.join(', ');
 
         message.channel.send(result);
-        console.log(`Arguments:\n${arguments}\n\nResult:\n${result}`);
+        PinguLibrary.consoleLog(message.client, `Arguments:\n${arguments}\n\nResult:\n${result}`);
     }
 }

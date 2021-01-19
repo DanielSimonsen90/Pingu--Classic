@@ -1,5 +1,4 @@
-const { Message, GuildChannel, TextChannel, GuildEmoji, Role, Collection, MessageEmbed } = require('discord.js');
-const { FORMERR } = require('dns');
+const { Message, GuildChannel, TextChannel, GuildEmoji, Role, MessageEmbed} = require('discord.js');
 const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions, ReactionRole } = require('../../PinguPackage');
 
 module.exports = {
@@ -138,7 +137,7 @@ async function SetReactionRoles(pGuild, rrMessage, emote, role) {
     pGuild.reactionRoles.push(new ReactionRole(rrMessage, emote && emote.name || emote, role));
 
     await PinguGuild.UpdatePGuildJSONAsync(rrMessage.client, rrMessage.guild, `ReactionRoles: SetReactionRoles`,
-        `Successfully saved **${rrMessage.guild.name}**'s ReactionRole using ${emote.name} giving ${role.name}.`,
+        `Successfully saved **${rrMessage.guild.name}**'s ReactionRole using ${emote.name || emote} giving ${role.name}.`,
         `Failed saving **${rrMessage.guild.name}**'s ReactionRole!`
     );
 
@@ -148,23 +147,23 @@ async function SetReactionRoles(pGuild, rrMessage, emote, role) {
 /**@param {Message} message
  * @param {TextChannel} channel
  * @param {Message} rrMessage
- * @param {string} emoteName
+ * @param {string | GuildEmoji} emote
  * @param {string[]} args*/
-async function Delete(message, channel, rrMessage, emoteName, args) {
+async function Delete(message, channel, rrMessage, emote, args) {
     let removeFromUsers = args[0] && args.shift().toLowerCase() == `true`;
 
     let reactionRoles = PinguGuild.GetPGuild(rrMessage.guild).reactionRoles;
-    let rr = reactionRoles.find(rr => rr.channel.id == channel.id && rr.messageID == rrMessage.id && rr.emoteName == emoteName);
+    let rr = reactionRoles.find(rr => rr.channel.id == channel.id && rr.messageID == rrMessage.id && (rr.emoteName == emote.name || rr.emoteName == emote));
     if (!rr) return message.channel.send(`I wasn't able to find that reactionrole in your pGuild!`);
 
-    if (!rrMessage.reactions.cache.array().find(reaction => reaction.emoji.name == emoteName))
-        return message.channel.send(`No one has reacted with ${emoteName} on that message!\n${rrMessage.url}`);
+    if (!rrMessage.reactions.cache.array().find(reaction => reaction.emoji.name == rr.emoteName))
+        return message.channel.send(`No one has reacted with ${emote} on that message!\n${rrMessage.url}`);
 
     if (removeFromUsers) {
         let role = await rrMessage.guild.roles.fetch(rr.pRole.id);
 
         let gMembers = rrMessage.reactions.cache.array().map(reaction =>
-            reaction.emoji.name == emoteName && reaction.users.cache.array().map(u =>
+            reaction.emoji.name == rr.emoteName && reaction.users.cache.array().map(u =>
                 rrMessage.guild.member(u)
             )
         )[0];
@@ -176,14 +175,14 @@ async function Delete(message, channel, rrMessage, emoteName, args) {
     }
 
     for (var reaction of rrMessage.reactions.cache.array()) {
-        if (reaction.emoji.name == emoteName)
+        if (reaction.emoji.name == rr.emoteName)
             await reaction.remove();
     }
 
     await PinguGuild.UpdatePGuildJSONAsync(message.client, message.guild, `reactionroles: Delete()`,
-        `Successfully deleted **${rrMessage.guild.name}**'s ${emote.name} ReactionRole`,
-        `Failed deleting **${rrMessage.guild.name}**'s ${emote.name} ReactionRole`
+        `Successfully deleted **${rrMessage.guild.name}**'s ${rr.emoteName} ReactionRole`,
+        `Failed deleting **${rrMessage.guild.name}**'s ${rr.emoteName} ReactionRole`
     );
 
-    return message.channel.send(`Reaction role for ${emoteName} was removed.`);
+    return message.channel.send(`Reaction role for ${emote} was removed.`);
 }

@@ -26,6 +26,7 @@ async function IsReactionRole(message) {
     let rrEmotes = rrFromMessage.map(rr => rr.emoteName);
 
     let warningMessageInfoPromise = rrFromMessage.map(rr => `${guild.emojis.cache.find(e => e.name == rr.emoteName)}: ${guild.roles.cache.find(r => r.id == rr.pRole.id)}`);
+    if (!warningMessageInfoPromise[0]) return;
 
     for (var reaction of message.reactions.cache.array()) {
         if (!rrEmotes.includes(reaction.emoji.name)) continue;

@@ -34,7 +34,7 @@ module.exports = {
             if (arg && arg != "show" && ![pUser.tag.toLowerCase(), pUser.id].includes(arg)) continue;
 
             await WriteFile(message, PinguUsersArr[i], `./users/${PinguUser.PUserFileName(Users[i])}.json`);
-            console.log(`Finished: ${Users[i].tag}`);
+            PinguLibrary.consoleLog(message.client, `Finished: ${Users[i].tag}`);
             //await PinguLibrary.pUserLog(message.client, module.exports.name, `Going through all users - just finished: ${Users[i].tag}`);
         }
         PinguLibrary.pUserLog(message.client, module.exports.name, 'Going through users complete!');
