@@ -1096,6 +1096,8 @@ export class ReactionRole {
             (rr.emoteName == reaction.emoji.name) &&
             rr.channel.id == reaction.message.channel.id
         ); 
+        if (!rr) return null;
+
         let { pRole } = rr;
         let member = guild.member(user);
 

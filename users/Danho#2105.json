@@ -39,17 +39,20 @@
             "name": "Pingu Emote Server"
         }
     ],
-    "replyPerson": null,
+    "replyPerson": {
+        "id": "405331883157880846",
+        "name": "Synthy Sytro#5637"
+    },
     "daily": {
-        "lastClaim": "2021-01-18T10:07:56.097Z",
+        "lastClaim": "2021-01-19T08:47:25.998Z",
         "nextClaim": {
-            "endsAt": "2021-01-19T07:07:56.098Z",
+            "endsAt": "2021-01-20T05:47:25.998Z",
             "seconds": 0,
             "minutes": 0,
             "hours": 21,
             "days": 0
         },
-        "streak": 3
+        "streak": 4
     },
     "avatar": "https://cdn.discordapp.com/avatars/245572699894710272/a_71a20e6aa0fe351b2053e5b397b3ef4b.webp",
     "playlists": []

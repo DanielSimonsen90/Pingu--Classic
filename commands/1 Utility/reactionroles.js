@@ -92,7 +92,7 @@ function GetChannel(message, args) {
 function GetEmote(message, args) {
     let emoteString = args.shift();
 
-    if (emoteString.match('<:\w{2,}:\d{18}>')) {
+    if (emoteString.match(/<:\w{2,}:\d{18}>/g)) {
         let emoteID = emoteString.split(':')[2];
         emoteID = emoteID.substring(0, emoteID.length - 1);
         var emote = message.guild.emojis.cache.get(emoteID);

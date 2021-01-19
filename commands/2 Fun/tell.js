@@ -135,6 +135,19 @@ module.exports = {
         message.react('✅');
         message.channel.send(`**Sent message to __${replyPerson.tag}__**`);
     },
+    /**Returns Mention whether it's @Mentioned, username or nickname
+    * @param {Message} message 
+    * @param {string} UserMention*/
+    GetMention(message, UserMention) {
+        if (!message.mentions.users.first()) {
+            for (var Guild of message.client.guilds.cache.array())
+                for (var Member of Guild.members.cache.array())
+                    if ([Member.user.username.toLowerCase(), Member.nickname && Member.nickname.toLowerCase(), Member.id].includes(UserMention.toLowerCase()))
+                        return Member.user;
+            return null;
+        }
+        return message.mentions.users.first();
+    },
     /**@param {Message} message
      * @param {string[]} args*/
     HandleTell(message, args) {
@@ -157,8 +170,8 @@ module.exports = {
         while (Mention.includes('_')) Mention = Mention.replace('_', ' ');
 
         let pAuthor = PinguUser.GetPUser(message.author);
-        pAuthor.replyPerson = new PUser(GetMention(message, Mention));
-    }
+        pAuthor.replyPerson = new PUser(module.exports.GetMention(message, Mention));
+    },
 };
 
 /**Checks if arguments are correct
@@ -188,17 +201,4 @@ function getReplyUser(message) {
         }));
         return guildUsersSorted;
     }
-}
-/**Returns Mention whether it's @Mentioned, username or nickname
-* @param {Message} message 
-* @param {string} UserMention*/
-function GetMention(message, UserMention) {
-    if (!message.mentions.users.first()) {
-        for (var Guild of message.client.guilds.cache.array())
-            for (var Member of Guild.members.cache.array())
-                if ([Member.user.username.toLowerCase(), Member.nickname && Member.nickname.toLowerCase(), Member.id].includes(UserMention.toLowerCase()))
-                    return Member.user;
-        return null;
-    }
-    return message.mentions.users.first();
 }

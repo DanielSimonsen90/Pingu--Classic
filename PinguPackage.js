@@ -1189,6 +1189,8 @@ var ReactionRole = /** @class */ (function () {
                 (rr.emoteName == reaction.emoji.name) &&
                 rr.channel.id == reaction.message.channel.id;
         });
+        if (!rr)
+            return null;
         var pRole = rr.pRole;
         var member = guild.member(user);
         var permCheck = PinguLibrary.PermissionCheck({

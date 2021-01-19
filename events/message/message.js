@@ -35,7 +35,7 @@ module.exports = {
         var startsWithPrefix = () => message.content.startsWith(prefix) && !message.author.bot || message.content.includes(SecondaryPrefix);
 
         //If I'm not interacted with don't do anything
-        if (message.channel.type == 'dm' && (message.author.bot || PinguUser.GetPUser(message.author).replyPerson) && !startsWithPrefix()) {
+        if (message.channel.type == 'dm' && (message.author.bot || PinguUser.GetPUser(message.author).replyPerson) && (!startsWithPrefix() || commandName.includes(prefix))) {
             try { return ExecuteTellReply(message); }
             catch (err) { return PinguLibrary.errorLog(client, `Failed to execute tell reply`, message.content, err); }
         }

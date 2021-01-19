@@ -12,8 +12,6 @@ module.exports = {
 
 /**@param {Message} message*/
 async function IsReactionRole(message) {
-    if (!message.reactions.cache.first()) return;
-
     let { guild } = message;
     if (!guild) return;
 
@@ -22,6 +20,9 @@ async function IsReactionRole(message) {
 
     let { reactionRoles } = pGuild;
     let rrFromMessage = reactionRoles.map(rr => rr.messageID == message.id && rr);
+
+    if (!rrFromMessage) return;
+
     let rrEmotes = rrFromMessage.map(rr => rr.emoteName);
 
     let warningMessageInfoPromise = rrFromMessage.map(rr => `${guild.emojis.cache.find(e => e.name == rr.emoteName)}: ${guild.roles.cache.find(r => r.id == rr.pRole.id)}`);
