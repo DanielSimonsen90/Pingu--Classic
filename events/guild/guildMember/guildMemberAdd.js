@@ -1,5 +1,5 @@
 const { GuildMember, TextChannel, MessageEmbed, Client, Guild } = require("discord.js");
-const { PinguGuild, PChannel, PinguLibrary, PinguUser } = require("../../PinguPackage");
+const { PinguGuild, PChannel, PinguLibrary, PinguUser } = require("../../../PinguPackage");
 
 module.exports = {
     name: 'events: guildMemberAdd',
@@ -22,7 +22,7 @@ module.exports = {
 
         function AddToPinguUsers() {
             if (!member.user.bot && !PinguUser.GetPUser(member.user, true))
-                PinguUser.WritePUser(member.user, client, async pUser =>
+                PinguUser.WritePUser(member.user, async pUser =>
                     await PinguLibrary.pUserLog(client, module.exports.name, `Created **${pUser.tag}**.json`)
                 );
         }

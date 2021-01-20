@@ -193,19 +193,30 @@ export class PinguUser {
         return await this.UpdatePUsersJSON(client, user, script, succMsg, errMsg);
     }
 
-    public static WritePUser(user: User, client: Client, callback?: (pUser?: PinguUser) => void) {
+    public static WritePUser(user: User, callback?: (pUser?: PinguUser) => void) {
         try {
-            let pUser = new PinguUser(user, client);
+            let pUser = new PinguUser(user, user.client);
             fs.writeFile(`./users/${this.PUserFileName(user)}.json`, JSON.stringify(pUser, null, 2), async err => {
                 if (err) PinguLibrary.pUserLog(user.client, "WritePUser", null, new Error(err));
                 if (await callback) callback(pUser);
             });
         } catch (ewwor) {
-            PinguLibrary.errorLog(client, `WritePUser Error`, null, ewwor);
+            PinguLibrary.errorLog(user.client, `WritePUser Error`, null, ewwor);
         }
     }
-    public static UpdatePUser(from: User, to: User, callback?: (updatedUser?: User) => void) {
-        throw "Not Implemented yet"
+    public static UpdatePUser(from: User, to: User, callback?: (updatedUser?: PinguUser) => void) {
+        let data = this.GetPUser(from);
+
+        this.DeletePUser(from, () => {
+            try {
+                fs.writeFile(`./users/${this.PUserFileName(to)}.json`, JSON.stringify(data, null, 2), async err => {
+                    if (err) PinguLibrary.pUserLog(to.client, "UpdatePUser", null, new Error(err));
+                    if (await callback) callback(data);
+                });
+            } catch (ewwor) {
+                PinguLibrary.errorLog(to.client, `UpdatePUser Error`, null, ewwor);
+            }
+        })
     }
     public static DeletePUser(user: User, callback?: () => void) {
         try {
@@ -296,8 +307,19 @@ export class PinguGuild extends PItem {
             PinguLibrary.errorLog(guild.client, `WritePGuild Error`, null, ewwor);
         }
     }
-    public static UpdatePGuild(from: Guild, to: Guild, callback?: (updatedGuild?: Guild) => void) {
-        throw "Not Implemented yet"
+    public static UpdatePGuild(from: Guild, to: Guild, callback?: (updatedGuild?: PinguGuild) => void) {
+        let data = this.GetPGuild(from);
+
+        this.DeletePGuild(from, () => {
+            try {
+                fs.writeFile(`./servers/${to.name}.json`, JSON.stringify(data, null, 2), async err => {
+                    if (err) PinguLibrary.pGuildLog(to.client, "UpdatePGuild", null, new Error(err));
+                    if (await callback) callback(data);
+                });
+            } catch (ewwor) {
+                PinguLibrary.errorLog(to.client, `UpdatePGuild Error`, null, ewwor);
+            }
+        })
     }
     public static DeletePGuild(guild: Guild, callback?: (pGuild?: PinguGuild) => void) {
         try {
@@ -521,7 +543,8 @@ export class PinguLibrary {
             DiscordPermissions.ADD_REACTIONS,
             DiscordPermissions.CONNECT,
             DiscordPermissions.SPEAK,
-            DiscordPermissions.USE_VAD
+            DiscordPermissions.USE_VAD,
+            DiscordPermissions.VIEW_AUDIT_LOG
         ];
 
         let given = [], missing = [], all = [];
@@ -687,11 +710,11 @@ export class PinguLibrary {
 
         consoleLogChannel.send(message);
     }
-    public static eventLog(client: Client, event: string, emitter: string, emitterType: string) {
+    public static eventLog(client: Client, content: MessageEmbed) {
         let eventLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "event-log");
         if (!eventLogChannel) return this.DanhoDM(client, `Couldn't get #event-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh`)
 
-        eventLogChannel.send(`[**${event}**] {**${emitterType}**} Emitted by **${emitter}**`);
+        eventLogChannel.send(content);
     }
     public static tellLog(client: Client, sender: User, reciever: User, message: Message | MessageEmbed) {
         var tellLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'tell-log');

@@ -24,7 +24,7 @@ module.exports = {
 
         guild.members.cache.forEach(member => {
             if (!PinguUser.GetPUser(member.user)) {
-                PinguUser.WritePUser(member.user, client, async pUser => await PinguLibrary.pUserLog(client, this.name, `Created **${pUser.tag}.json**`))
+                PinguUser.WritePUser(member.user, async pUser => await PinguLibrary.pUserLog(client, this.name, `Created **${pUser.tag}.json**`))
             }
         })
     }

@@ -1,6 +1,6 @@
 const { Client, GuildChannel, TextChannel } = require("discord.js");
-const { PinguLibrary, PinguGuild } = require("../PinguPackage");
-const { announceOutages } = require('../config');
+const { PinguLibrary, PinguGuild } = require("../../PinguPackage");
+const { announceOutages } = require('../../config');
 
 module.exports = {
     name: 'events: ready',

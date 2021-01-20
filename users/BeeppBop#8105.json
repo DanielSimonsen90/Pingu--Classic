@@ -1,22 +1,25 @@
 {
-  "id": "317335763882737665",
-  "tag": "BeeppBop#8105",
-  "sharedServers": [
-    {
-      "id": "405763731079823380",
-      "name": "America 2021"
+    "id": "317335763882737665",
+    "tag": "BeeppBop#8105",
+    "sharedServers": [
+        {
+            "id": "405763731079823380",
+            "name": "America 2021"
+        },
+        {
+            "id": "778022031811543041",
+            "name": "The Genius Company LLC ™"
+        }
+    ],
+    "replyPerson": {
+        "id": "290131910091603968",
+        "name": "Slothman#7727"
     },
-    {
-      "id": "778022031811543041",
-      "name": "The Genius Company LLC ™"
-    }
-  ],
-  "replyPerson": null,
-  "daily": {
-    "lastClaim": null,
-    "nextClaim": null,
-    "streak": 0
-  },
-  "avatar": "https://cdn.discordapp.com/avatars/317335763882737665/09949a71b6f86193cb3cfa1b1abcfdb8.webp",
-  "playlists": []
+    "daily": {
+        "lastClaim": null,
+        "nextClaim": null,
+        "streak": 0
+    },
+    "avatar": "https://cdn.discordapp.com/avatars/317335763882737665/09949a71b6f86193cb3cfa1b1abcfdb8.webp",
+    "playlists": []
 }

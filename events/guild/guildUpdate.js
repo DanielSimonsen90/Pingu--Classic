@@ -15,12 +15,13 @@ module.exports = {
         }
         catch (err) {
             if (err.message.includes('Cannot find module')) {
-                return;
-                return PinguGuild.DeletePGuild(preGuild, pFGuild => PinguGuild.WritePGuild(guild, pTGuild => PinguLibrary.pGuildLog(client,
-                    this.name, `Renamed **${pFGuild.name}**'s pGuild name to **${pTGuild.name}**.`)));
+                return PinguGuild.UpdatePGuild(preGuild, guild, _ =>
+                    PinguLibrary.pGuildLog(client, this.name,
+                        `Renamed **${preGuild.name}**'s Pingu Guild name to **${guild.name}**.`)
+                )
             }
 
-            PinguLibrary.errorLog(client, "Unable to update pGuild", null, err);
+            PinguLibrary.errorLog(client, "Unable to update Pingu Guild", null, err);
         }
     }
 }

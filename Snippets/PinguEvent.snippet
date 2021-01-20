@@ -9,15 +9,15 @@
     </Header>
     <Snippet>
       <Code Language="JavaScript">
-        <![CDATA[const { Client, GuildMember } = require("discord.js");
+        <![CDATA[const { Client } = require("discord.js");
           const { PinguLibrary, PinguUser } = require("../../PinguPackage");
 
           module.exports = {
               name: 'events: $name$',
               /**@param {Client} client
                @param {{$parameterSummary$}}*/
-              execute(client, { $parameter$ }) {
-                $end$
+              execute(client, { $end$ }) {
+                
               }
           }]]>
       </Code>
@@ -29,10 +29,6 @@
         <Literal>
           <ID>parameterSummary</ID>
           <ToolTip>Additional parameter options</ToolTip>
-        </Literal>
-        <Literal>
-          <ID>parameter</ID>
-          <ToolTip>Additional parameter options from summary</ToolTip>
         </Literal>
       </Declarations>
     </Snippet>

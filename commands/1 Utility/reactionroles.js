@@ -4,10 +4,10 @@ const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions, ReactionRole } 
 module.exports = {
     name: 'reactionroles',
     description: 'Gives/Removes roles for Users who reacted to a message',
-    usage: '<create [channel] <message id> <emoji> <role id> | delete [channel] <message id> <emoji> <remove from users? true/false>',
+    usage: '<create [channel] <message id> <emoji> <role id> | delete [channel] <message id> <emoji> [remove from users? true/false]',
     guildOnly: true,
     id: 1,
-    examples: [""],
+    examples: ["*reactionroles create #role-select 801055604222984223 :movie_camera: @Content Creators"],
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.ADD_REACTIONS, DiscordPermissions.MANAGE_ROLES],
     /**@param {{message: Message, args: string[], pAuthor: PinguUser, pGuild: PinguGuild}}*/
     async execute({ message, args, pAuthor, pGuild }) {
@@ -137,7 +137,7 @@ async function SetReactionRoles(pGuild, rrMessage, emote, role) {
     pGuild.reactionRoles.push(new ReactionRole(rrMessage, emote && emote.name || emote, role));
 
     await PinguGuild.UpdatePGuildJSONAsync(rrMessage.client, rrMessage.guild, `ReactionRoles: SetReactionRoles`,
-        `Successfully saved **${rrMessage.guild.name}**'s ReactionRole using ${emote.name || emote} giving ${role.name}.`,
+        `Successfully saved **${rrMessage.guild.name}**'s ReactionRole using ${(emote.name || emote)} giving ${role.name}.`,
         `Failed saving **${rrMessage.guild.name}**'s ReactionRole!`
     );
 

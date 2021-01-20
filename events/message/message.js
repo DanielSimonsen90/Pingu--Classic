@@ -1,6 +1,7 @@
 ﻿const { Command, Client, Guild, Message } = require("discord.js");
 const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error } = require("../../PinguPackage");
 const { musicCommands } = require('../../commands/2 Fun/music'), { HandleTell, ExecuteTellReply } = require('../../commands/2 Fun/tell');
+const { CheckRoleChange } = require("../guild/role/roleUpdate");
 const { Prefix } = require('../../config'), SecondaryPrefix = '562176550674366464';
 let updatingPGuild = false;
 
@@ -116,35 +117,9 @@ module.exports = {
                 }, guild);
             }
 
-            CheckRoleChange(guild, pGuild);
+            if (pGuild.embedColor != guild.me.roles.cache.find(botRoles => botRoles.managed).color)
+                CheckRoleChange(guild, pGuild);
             return pGuild.botPrefix || Prefix;
-
-            /**Checks if role color was changed, to update embed colors  
-            * @param {Guild} guild
-            * @param {PinguGuild} pGuild*/
-            function CheckRoleChange(guild, pGuild) {
-                const pGuilds = PinguGuild.GetPGuilds();
-
-                //Get the color of the Pingu role in message.guild
-                const guildRoleColor = guild.me.roles.cache.find(botRoles => botRoles.managed).color;
-
-                //If color didn't change
-                if (guildRoleColor == pGuild.embedColor) return;
-
-                //Save Index of pGuild & log the change
-                const pGuildIndex = pGuilds.indexOf(pGuild);
-                PinguLibrary.consoleLog(client, `[${guild.name}]: Embedcolor updated from ${pGuild.embedColor} to ${guildRoleColor}`);
-
-                //Update pGuild.EmbedColor with guild's Pingu role color & put pGuild back into pGuilds
-                pGuild.embedColor = guildRoleColor;
-                pGuilds[pGuildIndex] = pGuild;
-
-                //Update guilds.json
-                PinguGuild.UpdatePGuildJSON(client, guild, `${this.name}: CheckRoleChange`,
-                    `Successfully updated role color from "${guild.name}"`,
-                    `I encountered and error while updating my role color in "${guild.name}"`
-                );
-            }
         }
         /**@param {string} commandName 
          * @param {string[]} args*/

@@ -3,10 +3,12 @@
     "",
     "\\commands",
     "\\commands\\1 Utility",
-    "\\commands\\4 DevOnly",
+    "\\commands\\2 Fun",
     "\\events",
-    "\\events\\guild"
+    "\\events\\guild",
+    "\\events\\guildMember",
+    "\\servers"
   ],
-  "SelectedNode": "\\PinguPackage.js",
+  "SelectedNode": "\\.gitattributes",
   "PreviewInSolutionExplorer": false
 }

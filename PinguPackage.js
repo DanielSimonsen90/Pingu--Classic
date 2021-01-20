@@ -277,10 +277,10 @@ var PinguUser = /** @class */ (function () {
             });
         });
     };
-    PinguUser.WritePUser = function (user, client, callback) {
+    PinguUser.WritePUser = function (user, callback) {
         var _this = this;
         try {
-            var pUser_1 = new PinguUser(user, client);
+            var pUser_1 = new PinguUser(user, user.client);
             fs.writeFile("./users/" + this.PUserFileName(user) + ".json", JSON.stringify(pUser_1, null, 2), function (err) { return __awaiter(_this, void 0, void 0, function () {
                 return __generator(this, function (_a) {
                     switch (_a.label) {
@@ -297,11 +297,33 @@ var PinguUser = /** @class */ (function () {
             }); });
         }
         catch (ewwor) {
-            PinguLibrary.errorLog(client, "WritePUser Error", null, ewwor);
+            PinguLibrary.errorLog(user.client, "WritePUser Error", null, ewwor);
         }
     };
     PinguUser.UpdatePUser = function (from, to, callback) {
-        throw "Not Implemented yet";
+        var _this = this;
+        var data = this.GetPUser(from);
+        this.DeletePUser(from, function () {
+            try {
+                fs.writeFile("./users/" + _this.PUserFileName(to) + ".json", JSON.stringify(data, null, 2), function (err) { return __awaiter(_this, void 0, void 0, function () {
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                if (err)
+                                    PinguLibrary.pUserLog(to.client, "UpdatePUser", null, new Error(err));
+                                return [4 /*yield*/, callback];
+                            case 1:
+                                if (_a.sent())
+                                    callback(data);
+                                return [2 /*return*/];
+                        }
+                    });
+                }); });
+            }
+            catch (ewwor) {
+                PinguLibrary.errorLog(to.client, "UpdatePUser Error", null, ewwor);
+            }
+        });
     };
     PinguUser.DeletePUser = function (user, callback) {
         var _this = this;
@@ -432,7 +454,29 @@ var PinguGuild = /** @class */ (function (_super) {
         }
     };
     PinguGuild.UpdatePGuild = function (from, to, callback) {
-        throw "Not Implemented yet";
+        var _this = this;
+        var data = this.GetPGuild(from);
+        this.DeletePGuild(from, function () {
+            try {
+                fs.writeFile("./servers/" + to.name + ".json", JSON.stringify(data, null, 2), function (err) { return __awaiter(_this, void 0, void 0, function () {
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                if (err)
+                                    PinguLibrary.pGuildLog(to.client, "UpdatePGuild", null, new Error(err));
+                                return [4 /*yield*/, callback];
+                            case 1:
+                                if (_a.sent())
+                                    callback(data);
+                                return [2 /*return*/];
+                        }
+                    });
+                }); });
+            }
+            catch (ewwor) {
+                PinguLibrary.errorLog(to.client, "UpdatePGuild Error", null, ewwor);
+            }
+        });
     };
     PinguGuild.DeletePGuild = function (guild, callback) {
         var _this = this;
@@ -641,7 +685,8 @@ var PinguLibrary = /** @class */ (function () {
                 DiscordPermissions.ADD_REACTIONS,
                 DiscordPermissions.CONNECT,
                 DiscordPermissions.SPEAK,
-                DiscordPermissions.USE_VAD
+                DiscordPermissions.USE_VAD,
+                DiscordPermissions.VIEW_AUDIT_LOG
             ];
             var given = [], missing = [], all = [];
             for (var _i = 0, _a = Array.from(getPermissions()); _i < _a.length; _i++) {
@@ -813,11 +858,11 @@ var PinguLibrary = /** @class */ (function () {
             return this.DanhoDM(client, 'Unable to find #console-log in Pingu Support');
         consoleLogChannel.send(message);
     };
-    PinguLibrary.eventLog = function (client, event, emitter, emitterType) {
+    PinguLibrary.eventLog = function (client, content) {
         var eventLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "event-log");
         if (!eventLogChannel)
             return this.DanhoDM(client, "Couldn't get #event-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh");
-        eventLogChannel.send("[**" + event + "**] {**" + emitterType + "**} Emitted by **" + emitter + "**");
+        eventLogChannel.send(content);
     };
     PinguLibrary.tellLog = function (client, sender, reciever, message) {
         var tellLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'tell-log');
