@@ -28,15 +28,15 @@
         "name": "Danho#2105"
     },
     "daily": {
-        "lastClaim": "2021-01-19T08:47:17.032Z",
+        "lastClaim": "2021-01-20T14:19:30.618Z",
         "nextClaim": {
-            "endsAt": "2021-01-20T05:47:17.032Z",
-            "seconds": 0,
-            "minutes": 0,
-            "hours": 21,
+            "endsAt": "2021-01-21T11:19:30.619Z",
+            "seconds": 14,
+            "minutes": 5,
+            "hours": 19,
             "days": 0
         },
-        "streak": 1
+        "streak": 2
     },
     "avatar": "https://cdn.discordapp.com/avatars/405331883157880846/4a99aedfb1c139417223cdd24b266c97.webp",
     "playlists": []

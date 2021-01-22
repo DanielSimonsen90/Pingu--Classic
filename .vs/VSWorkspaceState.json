@@ -3,12 +3,12 @@
     "",
     "\\commands",
     "\\commands\\1 Utility",
-    "\\commands\\2 Fun",
+    "\\commands\\4 DevOnly",
     "\\events",
+    "\\events\\channel",
     "\\events\\guild",
-    "\\events\\guildMember",
     "\\servers"
   ],
-  "SelectedNode": "\\.gitattributes",
+  "SelectedNode": "\\config.json",
   "PreviewInSolutionExplorer": false
 }

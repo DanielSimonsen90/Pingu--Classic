@@ -40,19 +40,19 @@
         }
     ],
     "replyPerson": {
-        "id": "405331883157880846",
-        "name": "Synthy Sytro#5637"
+        "id": "317335763882737665",
+        "name": "BeeppBop#8105"
     },
     "daily": {
-        "lastClaim": "2021-01-20T10:14:32.328Z",
+        "lastClaim": "2021-01-21T18:31:49.901Z",
         "nextClaim": {
-            "endsAt": "2021-01-21T07:14:32.329Z",
+            "endsAt": "2021-01-22T15:31:49.901Z",
             "seconds": 0,
             "minutes": 0,
             "hours": 21,
             "days": 0
         },
-        "streak": 5
+        "streak": 6
     },
     "avatar": "https://cdn.discordapp.com/avatars/245572699894710272/a_71a20e6aa0fe351b2053e5b397b3ef4b.webp",
     "playlists": []

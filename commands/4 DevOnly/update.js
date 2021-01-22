@@ -12,25 +12,34 @@ module.exports = {
     execute({ message, args, pGuild }) {
         if (!args.length) return message.channel.send(`What am I supposed to update, ${message.author}?`);
 
-        const commandName = args[0].toLowerCase(),
-            command = message.client.commands.get(commandName) ||
-                message.client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+        let script = args[0],
+            command = message.client.commands.get(script) || message.client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(script));
+        if (!command) var event = message.client.events.get(script);
 
-        if (!command) return message.channel.send(`There is no command with name or alias \`${commandName}\`, ${message.author}!`);
+        if (!command && !event) return message.channel.send(`Unable to find file \`${script}.js\`!`);
 
-        delete require.cache[require.resolve(`../${command.id} ${this.CategoryNames[command.id]}/${commandName}.js`)];
+        if (command) delete require.cache[require.resolve(`../${command.id} ${this.CategoryNames[command.id]}/${script}.js`)];
+        else delete require.cache[require.resolve(`../../${event.path}`)];
 
         try {
-            const newCommand = require(`../${command.id} ${this.CategoryNames[command.id]}/${commandName}.js`);
-            message.client.commands.set(newCommand.name, newCommand);
+            if (command) {
+                const newCommand = require(`../${command.id} ${this.CategoryNames[command.id]}/${script}.js`);
+                message.client.commands.set(newCommand.name, newCommand);
+            }
+            else {
+                const newEvent = require(`../../${event.path}`);
+                newEvent.path = event.path;
+                newEvent.name = event.name;
+                message.client.events.set(newEvent.name, newEvent);
+            }
         } catch (error) {
-            PinguLibrary.errorLog(message.client, `Error creating updated version of ${commandName}`, message.content, new Error(error));
-            return message.channel.send(`There was an error while updating \`${commandName}\`!\n\n\`${error.message}\``);
+            PinguLibrary.errorLog(message.client, `Error creating updated version of ${script}`, message.content, new Error(error));
+            return message.channel.send(`There was an error while updating \`${script}\`!\n\n\`${error.message}\``);
         }
         if (message.channel.type != 'dm') {
             var permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.SEND_MESSAGES]);
             if (permCheck != PinguLibrary.PermissionGranted) return message.author.send(`${permCheck}\nBut I have updated my command!`)
         }
-        message.channel.send(`\`${message.guild && pGuild.botPrefix || Prefix}${commandName}\` was updated!`);
+        message.channel.send(`\`${(command ? message.guild && pGuild.botPrefix || Prefix : "")}${script}\` was updated!`);
     },
 };

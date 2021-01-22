@@ -49,7 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ReactionRole = exports.Daily = exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguLibrary = exports.PinguGuild = exports.PinguUser = exports.PQueue = exports.PClient = exports.PGuild = exports.PUser = exports.PChannel = exports.PRole = exports.PGuildMember = exports.PItem = exports.DiscordPermissions = exports.Error = void 0;
+exports.ReactionRole = exports.Daily = exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguEvents = exports.PinguLibrary = exports.PinguGuild = exports.PinguUser = exports.PQueue = exports.PClient = exports.PGuild = exports.PUser = exports.PChannel = exports.PRole = exports.PGuildMember = exports.PItem = exports.DiscordPermissions = exports.Error = void 0;
 var discord_js_1 = require("discord.js");
 var fs = require("fs");
 var Error = /** @class */ (function () {
@@ -517,7 +517,9 @@ var PinguLibrary = /** @class */ (function () {
             return Activity;
         }());
         internalSetActivity();
-        UpdateStats();
+        var updateStats = require('./config.json').updateStats;
+        if (updateStats)
+            UpdateStats();
         setInterval(internalSetActivity, 86400000);
         try {
             setInterval(UpdateStats, 86400000);
@@ -532,7 +534,6 @@ var PinguLibrary = /** @class */ (function () {
                 year: new Date(Date.now()).getFullYear()
             };
             var activity = new Activity('your screams for', 'LISTENING');
-            //date.getMonth is 0-indexed
             if (date.month == 12)
                 activity = date.day < 26 ?
                     new Activity('Jingle Bells...', 'LISTENING') :
@@ -859,10 +860,25 @@ var PinguLibrary = /** @class */ (function () {
         consoleLogChannel.send(message);
     };
     PinguLibrary.eventLog = function (client, content) {
-        var eventLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "event-log");
-        if (!eventLogChannel)
-            return this.DanhoDM(client, "Couldn't get #event-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh");
-        eventLogChannel.send(content);
+        return __awaiter(this, void 0, void 0, function () {
+            var eventLogChannel, lastCache;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        eventLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "event-log");
+                        if (!eventLogChannel)
+                            return [2 /*return*/, this.DanhoDM(client, "Couldn't get #event-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh")];
+                        if (!PinguEvents.LoggedCache)
+                            PinguEvents.LoggedCache = new Array();
+                        lastCache = PinguEvents.LoggedCache[0];
+                        if (lastCache && lastCache == content.description)
+                            return [2 /*return*/];
+                        PinguEvents.LoggedCache.unshift(content.description);
+                        return [4 /*yield*/, eventLogChannel.send(content)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
     };
     PinguLibrary.tellLog = function (client, sender, reciever, message) {
         var tellLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'tell-log');
@@ -989,6 +1005,89 @@ var PinguLibrary = /** @class */ (function () {
     return PinguLibrary;
 }());
 exports.PinguLibrary = PinguLibrary;
+var PinguEvents = /** @class */ (function () {
+    function PinguEvents() {
+    }
+    PinguEvents.GetAuditLogs = function (guild, type, key, target, seconds) {
+        if (target === void 0) { target = null; }
+        if (seconds === void 0) { seconds = 1; }
+        return __awaiter(this, void 0, void 0, function () {
+            var now, logs, filteredLogs;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!guild.me.hasPermission(DiscordPermissions.VIEW_AUDIT_LOG))
+                            return [2 /*return*/, this.noAuditLog];
+                        now = new Date(Date.now());
+                        return [4 /*yield*/, guild.fetchAuditLogs({ type: type })];
+                    case 1:
+                        logs = (_a.sent());
+                        now.setSeconds(now.getSeconds() - seconds);
+                        filteredLogs = logs.entries.filter(function (e) { return e.createdTimestamp > now.getTime(); });
+                        try {
+                            return [2 /*return*/, key ? filteredLogs.find(function (e) { return e.changes.find(function (change) { return change.key == key; }) && (target ? e.target == target : true); }).executor.tag : filteredLogs.first().executor.tag];
+                        }
+                        catch (err) {
+                            if (err.message == "Cannot read property 'executor' of undefined")
+                                return [2 /*return*/, this.noAuditLog];
+                        }
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    PinguEvents.UnknownUpdate = function (old, current) {
+        var oldArr = Object.keys(old);
+        var currentArr = Object.keys(current);
+        for (var i = 0; i < currentArr.length || i < oldArr.length; i++) {
+            if (currentArr[i] != oldArr[i])
+                return this.SetDescriptionValues('Unknown', oldArr[i], currentArr[i]);
+        }
+        return "Unknown Update: Unable to find what updated";
+    };
+    PinguEvents.SetDescription = function (type, description) {
+        return "[**" + type + "**]\n" + description;
+    };
+    PinguEvents.SetRemove = function (type, oldValue, newValue, SetString, RemoveString, descriptionMethod) {
+        return newValue && !oldValue ? this.SetDescription(type, SetString) :
+            !newValue && oldValue ? this.SetDescription(type, RemoveString) : descriptionMethod(type, oldValue, newValue);
+    };
+    PinguEvents.SetDescriptionValues = function (type, oldValue, newValue) {
+        return "[**" + type + "**]\nOld: " + oldValue + "\nNew: " + newValue;
+    };
+    PinguEvents.SetDescriptionValuesLink = function (type, oldValue, newValue) {
+        return "[**" + type + "**]\n[Old](" + oldValue + ")\n[New](" + newValue + ")";
+    };
+    PinguEvents.GoThroughArrays = function (type, preArr, newArr, callback) {
+        var updateMessage = "[**" + type + "**] ";
+        var removed = [], added = [];
+        for (var _i = 0, newArr_1 = newArr; _i < newArr_1.length; _i++) {
+            var newItem = newArr_1[_i];
+            var old = preArr.find(function (i) { return callback(i, newItem); });
+            if (!old)
+                added.push(newItem);
+        }
+        for (var _a = 0, preArr_1 = preArr; _a < preArr_1.length; _a++) {
+            var oldItem = preArr_1[_a];
+            var add = newArr.find(function (i) { return callback(i, newItem); });
+            if (!add)
+                removed.push(oldItem);
+        }
+        if (added.length == 0 && removed.length != 0)
+            return updateMessage += removed.join(", ").substring(removed.join(', ').length - 2);
+        else if (removed.length == 0 && added.length != 0)
+            return updateMessage += added.join(", ").substring(added.join(', ').length - 2);
+        return updateMessage += "Unable to find out what changed!";
+    };
+    PinguEvents.Colors = {
+        Create: "#18f151",
+        Update: "#ddfa00",
+        Delete: "#db1108"
+    };
+    PinguEvents.noAuditLog = "**No Audit Log Permissions**";
+    return PinguEvents;
+}());
+exports.PinguEvents = PinguEvents;
 //#endregion
 var Decidable = /** @class */ (function () {
     function Decidable(value, id, author, channel) {

@@ -1,6 +1,6 @@
 ﻿import {
-    ActivityType, Channel, Client, Collection,
-    Guild, GuildChannel, GuildEmoji, GuildMember,
+    ActivityType, BitFieldResolvable, Channel, Client, Collection,
+    Guild, GuildAuditLogsAction, GuildChannel, GuildEmoji, GuildMember,
     Message, MessageEmbed, MessageReaction,
     Permissions, PermissionString, ReactionCollector,
     Role, TextChannel, User, VoiceChannel,
@@ -375,7 +375,8 @@ export class PinguLibrary {
         }
 
         internalSetActivity();
-        UpdateStats();
+        let { updateStats } = require('./config.json');
+        if (updateStats) UpdateStats();
 
         setInterval(internalSetActivity, 86400000);
         try { setInterval(UpdateStats, 86400000) }
@@ -389,7 +390,6 @@ export class PinguLibrary {
 
             let activity = new Activity('your screams for', 'LISTENING');
 
-            //date.getMonth is 0-indexed
             if (date.month == 12)
                 activity = date.day < 26 ?
                     new Activity('Jingle Bells...', 'LISTENING') :
@@ -710,11 +710,16 @@ export class PinguLibrary {
 
         consoleLogChannel.send(message);
     }
-    public static eventLog(client: Client, content: MessageEmbed) {
+    public static async eventLog(client: Client, content: MessageEmbed) {
         let eventLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "event-log");
         if (!eventLogChannel) return this.DanhoDM(client, `Couldn't get #event-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh`)
 
-        eventLogChannel.send(content);
+        if (!PinguEvents.LoggedCache) PinguEvents.LoggedCache = new Array<string>();
+        let lastCache = PinguEvents.LoggedCache[0];
+        if (lastCache && lastCache == content.description) return;
+
+        PinguEvents.LoggedCache.unshift(content.description);
+        return await eventLogChannel.send(content);
     }
     public static tellLog(client: Client, sender: User, reciever: User, message: Message | MessageEmbed) {
         var tellLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'tell-log');
@@ -814,6 +819,73 @@ export class PinguLibrary {
         }
         PinguLibrary.errorLog(client, `Unable to find Emote **${name}** from ${emoteGuild.name}`);
         return '😵';
+    }
+}
+export class PinguEvents {
+    public static Colors = {
+        Create: `#18f151`,
+        Update: `#ddfa00`,
+        Delete: `#db1108`
+    };
+    public static noAuditLog = `**No Audit Log Permissions**`;
+    public static LoggedCache: string[];
+
+    public static async GetAuditLogs(guild: Guild, type: GuildAuditLogsAction, key?: string, target: User = null, seconds: number = 1) {
+        if (!guild.me.hasPermission(DiscordPermissions.VIEW_AUDIT_LOG as BitFieldResolvable<PermissionString>))
+            return this.noAuditLog;
+
+        let now = new Date(Date.now());
+        let logs = (await guild.fetchAuditLogs({ type }));
+        now.setSeconds(now.getSeconds() - seconds);
+        let filteredLogs = logs.entries.filter(e => e.createdTimestamp > now.getTime());
+
+        try { return key ? filteredLogs.find(e => e.changes.find(change => change.key == key) && (target ? e.target == target : true)).executor.tag : filteredLogs.first().executor.tag; }
+        catch (err) { if (err.message == `Cannot read property 'executor' of undefined`) return this.noAuditLog; }
+    }
+    public static UnknownUpdate(old: object, current: object) {
+        let oldArr = Object.keys(old);
+        let currentArr = Object.keys(current);
+
+        for (var i = 0; i < currentArr.length || i < oldArr.length; i++) {
+            if (currentArr[i] != oldArr[i])
+                return this.SetDescriptionValues('Unknown', oldArr[i], currentArr[i]);
+        }
+
+        return `Unknown Update: Unable to find what updated`;
+    }
+
+    public static SetDescription(type: string, description: string) {
+        return `[**${type}**]\n${description}`;
+    }
+    public static SetRemove(type: string, oldValue: object, newValue: object, SetString: string, RemoveString: string, descriptionMethod: (type: string, oldValue: object, newValue: object) => string) {
+        return newValue && !oldValue ? this.SetDescription(type, SetString) :
+            !newValue && oldValue ? this.SetDescription(type, RemoveString) : descriptionMethod(type, oldValue, newValue);
+    }
+    public static SetDescriptionValues(type: string, oldValue: any, newValue: any) {
+        return `[**${type}**]\nOld: ${oldValue}\nNew: ${newValue}`;
+    }
+    public static SetDescriptionValuesLink(type: string, oldValue: any, newValue: any) {
+        return `[**${type}**]\n[Old](${oldValue})\n[New](${newValue})`;
+    }
+    public static GoThroughArrays<T>(type: string, preArr: T[], newArr: T[], callback: (item: T, loopItem: T) => T) {
+        let updateMessage = `[**${type}**] `;
+        let removed = [], added = [];
+
+        for (var newItem of newArr) {
+            let old = preArr.find(i => callback(i, newItem));
+
+            if (!old) added.push(newItem);
+        }
+
+        for (var oldItem of preArr) {
+            let add = newArr.find(i => callback(i, newItem));
+
+            if (!add) removed.push(oldItem);
+        }
+
+        if (added.length == 0 && removed.length != 0) return updateMessage += removed.join(`, `).substring(removed.join(', ').length - 2);
+        else if (removed.length == 0 && added.length != 0) return updateMessage += added.join(`, `).substring(added.join(', ').length - 2);
+        return updateMessage += `Unable to find out what changed!`;
     }
 }
 //#endregion

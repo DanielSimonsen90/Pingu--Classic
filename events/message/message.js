@@ -1,4 +1,4 @@
-﻿const { Command, Client, Guild, Message } = require("discord.js");
+﻿const { Command, Client, Guild, Message, MessageEmbed } = require("discord.js");
 const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error } = require("../../PinguPackage");
 const { musicCommands } = require('../../commands/2 Fun/music'), { HandleTell, ExecuteTellReply } = require('../../commands/2 Fun/tell');
 const { CheckRoleChange } = require("../guild/role/roleUpdate");
@@ -7,6 +7,35 @@ let updatingPGuild = false;
 
 module.exports = {
     name: 'events: message',
+    /**@param {{message: Message}}*/
+    setContent({ message }) {
+        return module.exports.content = new MessageEmbed()
+            .setDescription(message.content ? `"${message.content}"` : "")
+            .addField(`ID`, message.id, true)
+            .addField(`URL`, message.url, true)
+            .addField(`Channel`, message.channel, true)
+            .addField(`Type`, message.type, true)
+            .addField(`Guild`, message.guild && message.guild.name || "DMs", true)
+            .addField(`Attachments?`, message.attachments.first() != null, true)
+            .addField(`Embeds?`, message.embeds[0] != null, true)
+            .addField(`TTS?`, message.tts, true)
+            .addField(`Mentions?`, GetMentions(), true)
+
+        function GetMentions() {
+            let result = [];
+            if (message.mentions.channels.first()) result.push(`${message.mentions.channels.size} channel${(message.mentions.channels.size > 1 ? 's' : '')}`);
+            if (message.mentions.members && message.mentions.members.first()) result.push(`${message.mentions.members.size} members${(message.mentions.members.size > 1 ? 's' : '')}`);
+            if (message.mentions.roles.first()) result.push(`${message.mentions.roles.size} roles${(message.mentions.roles.size > 1 ? 's' : '')}`);
+            if (message.mentions.users.first()) result.push(`${message.mentions.users.size} users${(message.mentions.users.size > 1 ? 's' : '')}`);
+            if (message.mentions.everyone) result.push(`\`@everyone\``);
+
+            if (result.length > 0) {
+                let resultString = `Mentioned ` + result.join(`, `);
+                return resultString.substring(0, result.length - 2);
+            }
+            return `No mentions`;
+        }
+    },
     /**@param {Client} client
      * @param {{message: Message}}*/
     async execute(client, { message }) {

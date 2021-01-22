@@ -1,14 +1,15 @@
 //#region Variables
 const { Client, Collection, Guild, GuildAuditLogs, MessageEmbed } = require('discord.js'),
     { token } = require('./config.json'),
-    { CategoryNames } = require('./commands/4 DevOnly/update'),
-    { PinguLibrary, Error, DiscordPermissions, PinguGuild } = require('./PinguPackage'),
+    { CategoryNames, execute } = require('./commands/4 DevOnly/update'),
+    { PinguLibrary, Error, DiscordPermissions, PinguGuild, PinguEvents } = require('./PinguPackage'),
     fs = require('fs'),
     client = new Client();
 client.commands = new Collection();
+client.events = new Collection();
 //#endregion
 
-//Does individual command work?
+//#region Set Commands & Events
 for (var x = 1; x < CategoryNames.length; x++) {
     let path = `${x} ${CategoryNames[x]}`;
 
@@ -18,11 +19,27 @@ for (var x = 1; x < CategoryNames.length; x++) {
         try {
             const command = require(`./commands/${path}/${file}`);
             client.commands.set(command.name, command);
-        } catch (err) {
-            PinguLibrary.DanhoDM(client, `"${file}" threw an exception:\n${err.message}\n${err.stack}\n`)
-        }
+        } catch (err) { PinguLibrary.DanhoDM(client, `"${file}" threw an exception:\n${err.message}\n${err.stack}\n`); }
     }
 }
+
+/**@param {string} path*/
+function HandlePath(path) {
+    try {
+        let collection = fs.readdirSync(path);
+        for (var file of collection) {
+            if (file.endsWith(`.js`)) {
+                let event = require(`${path}/${file}`);
+                event.path = `${path}/${file}`;
+                event.name = event.name.split(':')[1];
+                event.name = event.name.substring(1, event.name.length);;
+                client.events.set(event.name, event);
+            } else HandlePath(`${path}/${file}`);
+        }
+    } catch (err) { PinguLibrary.DanhoDM(client, `"${file}" threw an exception:\n${err.message}\n${err.stack}\n`) }
+}
+HandlePath(`./events`);
+//#endregion
 
 //#region General Client events
 const ClientString = `client`;
@@ -57,7 +74,7 @@ client.on('webhookUpdate', channel => HandleEvent(`${ChannelString}/webhookUpdat
 
 //#region Guild, GuildMember, Emoji, Invite, Role & VoiceState
 
-//#region Guild
+//#region Guild & presence
 const GuildString = `guild`;
 client.on('guildCreate', guild => HandleEvent(`${GuildString}/${GuildString}Create`, { guild })); //First time joining a guild
 client.on('guildUpdate', (preGuild, guild) => HandleEvent(`${GuildString}/${GuildString}Update`, { preGuild, guild })); //Guild was updated with new data
@@ -68,7 +85,7 @@ client.on('guildBanAdd', (guild, user) => HandleEvent(`${GuildString}/${GuildStr
 client.on('guildBanRemove', (guild, user) => HandleEvent(`${GuildString}/${GuildString}BanRemove`, { guild, user })) //Member was unbanned from Guild
 client.on('guildIntegrationsUpdate', guild => HandleEvent(`${GuildString}/${GuildString}IntegrationsUpdate`, { guild })) //Guild integration (new bot, webhook, channel followed)
 
-//client.on('presenceUpdate', (prePresence, presence) => HandleEvent(`${GuildString}/presenceUpdate`, { prePresence, presence })); //Activity Updated
+client.on('presenceUpdate', (prePresence, presence) => HandleEvent(`${GuildString}/presenceUpdate`, { prePresence, presence })); //Activity Updated
 //#endregion
 
 //#region Guild Member
@@ -77,7 +94,7 @@ client.on('guildMemberAdd', member => HandleEvent(`${GuildString}/${GuildMemberS
 client.on('guildMemberUpdate', (preMember, member) => HandleEvent(`${GuildString}/${GuildMemberString}/${GuildMemberString}Update`, { preMember, member })); //Member changed
 client.on('guildMemberRemove', member => HandleEvent(`${GuildString}/${GuildMemberString}/${GuildMemberString}Remove`, { member })); //Guild member left
 
-client.on('guildMemberAvailable', member => HandleEvent(`${GuildString}/${GuildMemberString}/${GuildMemberString}Available`, { member })) //Member becomes available/online
+//client.on('guildMemberAvailable', member => HandleEvent(`${GuildString}/${GuildMemberString}/${GuildMemberString}Available`, { member })) //Member becomes available/online
 client.on('guildMembersChunk', (members, guild, collectionInfo) => HandleEvent(`${GuildString}/${GuildMemberString}/${GuildMemberString}sChunk`, { members, guild, collectionInfo })) //Chunk of members recieved
 client.on('guildMemberSpeaking', (member, speakingState) => HandleEvent(`${GuildString}/${GuildMemberString}/${GuildMemberString}Speaking`, { member, speakingState })) //Member changes speaking state
 //#endregion
@@ -135,40 +152,40 @@ async function HandleEvent(path, parameters) {
         var event = require(`./events/${path}`);
         console.log(`Emitting ${event.name}`);
         event.execute(client, parameters);
-        SendToLog();
+        await SendToLog();
     }
     catch (err) { await PinguLibrary.errorLog(client, `${eventName} error`, null, new Error(err)); }
 
     async function SendToLog() {
         let emitAssociator = parameters.guild ? parameters.guild.name : parameters.message ? parameters.message.author.tag : parameters.member ? parameters.member.user.tag :
             parameters.user ? parameters.user.tag : parameters.reaction ? parameters.reaction.users.cache.last().tag : parameters.messages ? parameters.messages.last().tag :
-                parameters.emote ? parameters.emote.author.tag : parameters.client ? client.user.tag : parameters.invite ? parameters.invite.inviter :
+                parameters.emote ? parameters.emote.author.tag : parameters.client ? client.user.tag : parameters.invite ? parameters.invite.inviter.tag :
                     parameters.presence ? parameters.presence.user.tag : parameters.role ? parameters.role.guild.name : parameters.state ? parameters.state.member.user.tag : "Unknown";
 
-        let specialEvents = ['channelUpdate', 'roleUpdate', 'guildUpdate', 'emojiUpdate', 'webhookUpdate', 'guildMemberUpdate'].map(e => `events: ${e}`);
+        let specialEvents = ['channelCreate', 'channelUpdate', 'channelPinsUpdate', 'roleUpdate', 'guildUpdate', 'emojiUpdate', 'webhookUpdate', 'guildMemberUpdate'];
         if (specialEvents.includes(event.name)) emitAssociator = await GetFromAuditLog();
         
 
-        let emitterType = parameters.guild ? 'guild' : 'user';
-
+        //let emitterType = parameters.guild ? 'guild' : 'user';
         //if (emitter == client.user.tag && event.name == 'events: message') console.log(parameters.message.content);
 
         if (emitAssociator == 'Unknown') PinguLibrary.errorLog(client, `Event parameter for ${event.name} was not recognized!`);
         if (parameters.message && ['event-log', 'ping-log', 'console-log'].includes(parameters.message.channel.name)) return;
-        PinguLibrary.eventLog(client, CreateEmbed());
+        let embed = await CreateEmbed();
+        if (embed) return await PinguLibrary.eventLog(client, embed);
 
         async function GetFromAuditLog() {
-            let eventName = event.name.split(':')[1];
-            eventName = eventName.substring(1, eventName.length);
             const noAuditLog = `**No Audit Log Permissions**`;
 
-            switch (eventName) {
+            switch (event.name) {
+                case 'channelCreate': return !parameters.channel.guild ? parameters.channel.recipient.tag : await GetInfo(parameters.channel.guild, 'CHANNEL_CREATE');
                 case 'channelUpdate': return !parameters.channel.guild ? parameters.channel.recipient.tag : await GetInfo(parameters.channel.guild, 'CHANNEL_UPDATE');
+                case 'channelPinsUpdate': return !parameters.channel.guild ? parameters.channel.recipient.tag : (await GetInfo(parameters.channel.guild, 'MESSAGE_PIN') || await GetInfo(parameters.channel.guild, 'MESSAGE_UNPIN'));
                 case 'roleUpdate': return await GetInfo(parameters.role.guild, 'ROLE_UPDATE');
-                case 'guildUpadte': return await GetInfo(parameters.guild, 'GUILD_UPDATE');
+                case 'guildUpdate': return await GetInfo(parameters.guild, 'GUILD_UPDATE');
                 case 'emojiUpdate': return await GetInfo(parameters.emote.guild, 'EMOJI_UPDATE');
                 case 'webhookUpdate': return await GetInfo(parameters.webhook.guild, 'WEBHOOK_UPDATE');
-                case 'guildMemberUpdate': return await GetInfo(parameters.member.guild, 'GUILD_UPDATE');
+                case 'guildMemberUpdate': return await GetInfo(parameters.member.guild, 'MEMBER_UPDATE');
                 default: PinguLibrary.errorLog(client, `"${eventName}" was not recognized as an event name when searching from audit log`); return "Unknown";
             }
 
@@ -178,7 +195,7 @@ async function HandleEvent(path, parameters) {
             async function GetInfo(guild, auditLogEvent) {
                 let auditLogs = await getAuditLogs(guild, auditLogEvent);
                 if (auditLogs == noAuditLog) return noAuditLog;
-                return auditLogs.entries.last().executor.tag;
+                return auditLogs.entries.first().executor.tag;
             }
             /**@param {Guild} guild
              @param {import('discord.js').GuildAuditLogsAction} type
@@ -190,28 +207,41 @@ async function HandleEvent(path, parameters) {
                 return await guild.fetchAuditLogs({ type });
             }
         }
-        function CreateEmbed() {
-            let eventName = event.name.split(':')[1];
-            eventName = eventName.substring(1, eventName.length);
+        async function CreateEmbed() {
+            let user = client.users.cache.find(u => u.tag == emitAssociator);
+            let guild = client.guilds.cache.find(g => g.name == emitAssociator);
 
+            let executed = new Date(Date.now());
+            function getDoubleDigit(num) {
+                return num < 10 ? `0${num}` : `${num}`;
+            }
             let defaultEmbed = new MessageEmbed()
-                .setTitle(eventName)
+                .setTitle(event.name)
                 .setAuthor(emitAssociator, (emitAssociator == "Unknown" ? null :
-                    emitAssociator.match(`/#\d{4}$/g`) ?
-                        client.users.cache.find(u => u.tag == emitAssociator).avatarURL() :
-                        client.guilds.cache.find(g => g.name == emitAssociator).iconURL()))
+                    emitAssociator.match(/#\d{4}$/g) ?
+                        user && user.avatarURL() :
+                        guild && guild.iconURL()))
                 .setColor(getColor())
-                .setTimestamp(Date.now());
-            if (event.content) {
-                defaultEmbed.setDescription(event.content.description);
-                defaultEmbed.addFields(event.content.fields);
+                .setFooter(`${getDoubleDigit(executed.getHours())}.${getDoubleDigit(executed.getMinutes())}.${getDoubleDigit(executed.getSeconds())}:${executed.getMilliseconds()}`);
+            if (event.setContent) {
+                await event.setContent(parameters);
+
+                if (!event.content) return null;
+                defaultEmbed = CombineEmbeds();
+
+                function CombineEmbeds() {
+                    for (var key in event.content)
+                        if (event.content[key])
+                            defaultEmbed[key] = event.content[key];
+                    return defaultEmbed;
+                }
             }
             return defaultEmbed;
 
             function getColor() {
-                if (eventName.includes('Create')) return `#18f151`;
-                else if (eventName.includes('Delete')) return `#db1108`;
-                else if (eventName.includes('Update')) return `#ddfa00`;
+                if (eventName.includes('Create')) return PinguEvents.Colors.Create;
+                else if (eventName.includes('Delete')) return PinguEvents.Colors.Delete;
+                else if (eventName.includes('Update')) return PinguEvents.Colors.Update;
                 else return PinguGuild.GetPGuild(PinguLibrary.SavedServers.PinguSupport(client)).embedColor || PinguLibrary.DefaultEmbedColor;
             }
         }

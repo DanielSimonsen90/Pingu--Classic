@@ -11,13 +11,8 @@ module.exports = {
     permissions: [DiscordPermissions.SEND_MESSAGES],
     /**@param {{message: Message, args: string[], pAuthor: PinguUser, pGuild: PinguGuild}}*/
     execute({ message, args, pAuthor, pGuild }) {
-        let msg = "";
-        let limit = 0;
-        message.guild.channels.cache.forEach(channel => {
-            if (limit == 10) return;
-            msg += `${channel}: ${channel.position}\n`
-            limit++;
+        message.guild.fetchAuditLogs().then(log => {
+            console.log(log);
         })
-        message.channel.send(msg);
     }
 }

@@ -1,22 +1,18 @@
 {
-  "id": "607825289371844610",
-  "tag": "Nikolai Jensen#8832",
-  "sharedServers": [
-    {
-      "id": "405763731079823380",
-      "name": "America 2021"
+    "id": "607825289371844610",
+    "tag": "Nikolai Jensen#8832",
+    "sharedServers": [
+        {
+            "id": "644823098260062221",
+            "name": "Discurd Butts"
+        }
+    ],
+    "replyPerson": null,
+    "daily": {
+        "lastClaim": null,
+        "nextClaim": null,
+        "streak": 0
     },
-    {
-      "id": "644823098260062221",
-      "name": "Discurd Butts"
-    }
-  ],
-  "replyPerson": null,
-  "daily": {
-    "lastClaim": null,
-    "nextClaim": null,
-    "streak": 0
-  },
-  "avatar": "https://cdn.discordapp.com/avatars/607825289371844610/f288e23d9c2761502b9a3cd759cfb5dc.webp",
-  "playlists": []
+    "avatar": "https://cdn.discordapp.com/avatars/607825289371844610/f288e23d9c2761502b9a3cd759cfb5dc.webp",
+    "playlists": []
 }

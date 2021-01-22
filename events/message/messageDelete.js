@@ -3,11 +3,16 @@ const { PinguGuild } = require("../../PinguPackage");
 
 module.exports = {
     name: 'events: messageDelete',
+     /**@param {{message: Message}}*/
+    setContent({ message }) {
+        return module.exports.content = new MessageEmbed().setDescription(`> ${message.content}\n- ${message.author}\n\n...was deleted from ${message.channel}.`);
+    },
     /**@param {Client} client
      @param {{message: Message}}*/
     execute(client, { message }) {
         IsReactionRole(message);
-    }
+    },
+
 }
 
 /**@param {Message} message*/

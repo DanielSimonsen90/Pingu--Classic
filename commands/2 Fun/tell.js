@@ -154,9 +154,9 @@ module.exports = {
         if (args[0] == 'unset') {
             let replyUser = getReplyUser(message);
 
-            PinguLibrary.tellLog(client, message.author, replyUser, new MessageEmbed()
+            PinguLibrary.tellLog(message.client, message.author, replyUser, new MessageEmbed()
                 .setTitle(`Link between **${message.author.username}** & **${replyUser.username}** was unset.`)
-                .setColor(PinguGuild.GetPGuild(PinguLibrary.SavedServers.PinguSupport(client)).embedColor)
+                .setColor(PinguGuild.GetPGuild(PinguLibrary.SavedServers.PinguSupport(message.client)).embedColor)
                 .setDescription(`**${message.author}** unset the link.`)
                 .setThumbnail(message.author.avatarURL())
                 .setFooter(new Date(Date.now()).toLocaleTimeString())
@@ -177,7 +177,7 @@ module.exports = {
 /**Checks if arguments are correct
  * @param {Message} message @param {string[]} args*/
 function ArgumentCheck(message, args) {
-    if ((!args[0] || !args[1] && args[0] != "info") && !message.attachments.first())
+    if ((!args[0] || !args[1] && ["info", "unset"].includes(args[0].toLowerCase())) && !message.attachments.first())
         return `Not enough arguments provided`;
 
     let Mention = args[0];
