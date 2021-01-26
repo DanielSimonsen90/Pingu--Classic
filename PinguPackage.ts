@@ -886,7 +886,7 @@ export class PinguEvents {
 
         for (var i = 0; i < currentArr.length || i < oldArr.length; i++) {
             if (currentArr[i] != oldArr[i])
-                return this.SetDescriptionValues('Unknown', oldArr[i], currentArr[i]);
+                return PinguEvents.SetDescriptionValues('Unknown', oldArr[i], currentArr[i]);
         }
 
         return null;
@@ -896,14 +896,14 @@ export class PinguEvents {
         return `[**${type}**]\n\n${description}`;
     }
     public static SetRemove(type: string, oldValue: object, newValue: object, SetString: string, RemoveString: string, descriptionMethod: (type: string, oldValue: object, newValue: object) => string) {
-        return newValue && !oldValue ? this.SetDescription(type, SetString) :
-            !newValue && oldValue ? this.SetDescription(type, RemoveString) : descriptionMethod(type, oldValue, newValue);
+        return newValue && !oldValue ? PinguEvents.SetDescription(type, SetString) :
+            !newValue && oldValue ? PinguEvents.SetDescription(type, RemoveString) : descriptionMethod(type, oldValue, newValue);
     }
     public static SetDescriptionValues(type: string, oldValue: any, newValue: any) {
-        return this.SetDescription(type, `Old: ${oldValue}\n\nNew: ${newValue}`)
+        return PinguEvents.SetDescription(type, `Old: ${oldValue}\n\nNew: ${newValue}`)
     }
     public static SetDescriptionValuesLink(type: string, oldValue: any, newValue: any) {
-        return this.SetDescription(type, `[Old](${oldValue})\n[New](${newValue})`)
+        return PinguEvents.SetDescription(type, `[Old](${oldValue})\n[New](${newValue})`)
     }
     public static GoThroughArrays<T>(type: string, preArr: T[], newArr: T[], callback: (item: T, loopItem: T) => T) {
         let updateMessage = `[**${type}**] `;
@@ -929,16 +929,16 @@ export class PinguEvents {
 //#endregion
 
 abstract class Decidable {
-    constructor(value: string, id: string, author: PGuildMember, channel: Channel) {
+    constructor(value: string, id: string, author: PGuildMember, channel: GuildChannel) {
         this.value = value;
         this.id = id;
         this.author = author;
-        this.channel = channel;
+        this.channel = new PChannel(channel);
     }
     public value: string
     public id: string
     public author: PGuildMember
-    public channel: Channel
+    public channel: PChannel
 }
 
 //#region extends Decideables
@@ -955,7 +955,7 @@ export class Poll extends Decidable {
     }
 }
 export class Giveaway extends Decidable {
-    constructor(value: string, id: string, author: PGuildMember, channel: Channel) {
+    constructor(value: string, id: string, author: PGuildMember, channel: GuildChannel) {
         super(value, id, author, channel);
         this.winners = new Array<PGuildMember>();
     }
@@ -972,8 +972,7 @@ export class Suggestion extends Decidable {
 //#endregion
 
 interface IDecidableConfigOptions {
-    firstTimeExecuted: boolean;
-    channel: Channel;
+    channel: PChannel;
 }
 
 //#region PollConfig
@@ -983,15 +982,13 @@ interface IPollConfigOptions extends IDecidableConfigOptions {
 }
 export class PollConfig implements IPollConfigOptions {
     constructor(options?: IPollConfigOptions) {
-        this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
         this.pollRole = options ? options.pollRole : undefined;
         this.channel = options ? options.channel : undefined;
         if (options) this.polls = options.polls;
     }
-    firstTimeExecuted: boolean;
     pollRole: PRole;
     polls: Poll[];
-    channel: Channel;
+    channel: PChannel;
 }
 //#endregion
 
@@ -1004,19 +1001,17 @@ interface IGiveawayConfigOptions extends IDecidableConfigOptions {
 }
 export class GiveawayConfig implements IGiveawayConfigOptions {
     constructor(options?: IGiveawayConfigOptions) {
-        this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
         this.allowSameWinner = options ? options.allowSameWinner : undefined;
         this.hostRole = options ? options.hostRole : undefined;
         this.winnerRole = options ? options.winnerRole : undefined;
         this.channel = options ? options.channel : undefined;
         if (options) this.giveaways = options.giveaways;
     }
-    firstTimeExecuted: boolean;
     allowSameWinner: boolean;
     hostRole: PRole;
     winnerRole: PRole;
     giveaways: Giveaway[];
-    channel: Channel;
+    channel: PChannel;
 }
 export class TimeLeftObject {
     constructor(Now: Date, EndsAt: Date) {

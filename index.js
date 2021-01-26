@@ -1,5 +1,5 @@
 //#region Variables
-const { Client, Collection, Guild, GuildAuditLogs, MessageEmbed } = require('discord.js'),
+const { Client, Collection, Guild, GuildAuditLogs, MessageEmbed, GuildAuditLogsEntry } = require('discord.js'),
     { token } = require('./config.json'),
     { CategoryNames, execute } = require('./commands/4 DevOnly/update'),
     { PinguLibrary, Error, DiscordPermissions, PinguGuild, PinguEvents } = require('./PinguPackage'),
@@ -212,16 +212,16 @@ async function HandleEvent(path, parameters) {
             async function GetInfo(guild, auditLogEvent) {
                 let auditLogs = await getAuditLogs(guild, auditLogEvent);
                 if (auditLogs == noAuditLog) return noAuditLog;
-                return auditLogs.entries.first().executor.tag;
+                return auditLogs.last().executor.tag;
             }
             /**@param {Guild} guild
              @param {import('discord.js').GuildAuditLogsAction} type
-             @returns {Promise<GuildAuditLogs | string>}*/
+             @returns {Promise<Collection<string, GuildAuditLogsEntry> | string>}*/
             async function getAuditLogs(guild, type) {
                 if (!guild.me.hasPermission(DiscordPermissions.VIEW_AUDIT_LOG))
                     return noAuditLog;
 
-                return await guild.fetchAuditLogs({ type });
+                return (await guild.fetchAuditLogs({ type })).entries.filter(e => new Date(Date.now()).getSeconds() - e.createdAt.getSeconds() <= 1);
             }
         }
         async function CreateEmbed() {

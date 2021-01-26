@@ -1,12 +1,12 @@
 const { GuildMember, Client, MessageEmbed } = require("discord.js");
-const DPermissions = require('discord.js').Permissions
 const { PinguEvents } = require("../../../PinguPackage");
 
 module.exports = {
     name: 'events: guildMemberUpdate',
     /**@param {{preMember: GuildMember, member: GuildMember}}*/
     setContent({ preMember, member }) {
-        return module.exports.content = new MessageEmbed().setDescription(GetDescription());
+        let description = GetDescription();
+        return module.exports.content = description ? new MessageEmbed().setDescription(description) : null;
 
         function GetDescription() {
             if (member.nickname != preMember.nickname) return PinguEvents.SetRemove(

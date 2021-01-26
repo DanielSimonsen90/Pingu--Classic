@@ -51,10 +51,78 @@
     }
   ],
   "giveawayConfig": {
-    "firstTimeExecuted": true
+    "allowSameWinner": false,
+    "hostRole": {
+      "id": "782605688290803724",
+      "name": "Giveaway Host"
+    },
+    "winnerRole": {
+      "id": "782605689474121748",
+      "name": "Giveaway Winner"
+    },
+    "channel": {
+      "id": "797589805729841152",
+      "name": "giveaways"
+    },
+    "giveaways": [
+      {
+        "value": "Free swag",
+        "id": "803632294819528724",
+        "author": {
+          "id": "245572699894710272",
+          "name": "Danho#2105"
+        },
+        "channel": {
+          "id": "797589805729841152",
+          "name": "giveaways"
+        },
+        "winners": [
+          {
+            "id": "245572699894710272",
+            "name": "Danho#2105"
+          }
+        ]
+      }
+    ]
   },
   "pollConfig": {
-    "firstTimeExecuted": true
+    "pollRole": {
+      "id": "803608813013827604",
+      "name": "Polls"
+    },
+    "channel": {
+      "id": "797530990658584617",
+      "name": "polls"
+    },
+    "polls": [
+      {
+        "value": "Do a giveaway test?",
+        "id": "803630068039286837",
+        "author": {
+          "id": "245572699894710272",
+          "name": "Danho#2105"
+        },
+        "channel": {
+          "id": "797530990658584617",
+          "name": "polls"
+        },
+        "YesVotes": 2,
+        "NoVotes": 1,
+        "approved": "Yes"
+      },
+      {
+        "value": "this is test",
+        "id": "803635303868530718",
+        "author": {
+          "id": "245572699894710272",
+          "name": "Danho#2105"
+        },
+        "channel": {
+          "id": "756387369388605570",
+          "name": "dev-testing"
+        }
+      }
+    ]
   },
   "suggestions": []
 }

@@ -1075,7 +1075,7 @@ var PinguEvents = /** @class */ (function () {
         var currentArr = Object.keys(current);
         for (var i = 0; i < currentArr.length || i < oldArr.length; i++) {
             if (currentArr[i] != oldArr[i])
-                return this.SetDescriptionValues('Unknown', oldArr[i], currentArr[i]);
+                return PinguEvents.SetDescriptionValues('Unknown', oldArr[i], currentArr[i]);
         }
         return null;
     };
@@ -1083,14 +1083,14 @@ var PinguEvents = /** @class */ (function () {
         return "[**" + type + "**]\n\n" + description;
     };
     PinguEvents.SetRemove = function (type, oldValue, newValue, SetString, RemoveString, descriptionMethod) {
-        return newValue && !oldValue ? this.SetDescription(type, SetString) :
-            !newValue && oldValue ? this.SetDescription(type, RemoveString) : descriptionMethod(type, oldValue, newValue);
+        return newValue && !oldValue ? PinguEvents.SetDescription(type, SetString) :
+            !newValue && oldValue ? PinguEvents.SetDescription(type, RemoveString) : descriptionMethod(type, oldValue, newValue);
     };
     PinguEvents.SetDescriptionValues = function (type, oldValue, newValue) {
-        return this.SetDescription(type, "Old: " + oldValue + "\n\nNew: " + newValue);
+        return PinguEvents.SetDescription(type, "Old: " + oldValue + "\n\nNew: " + newValue);
     };
     PinguEvents.SetDescriptionValuesLink = function (type, oldValue, newValue) {
-        return this.SetDescription(type, "[Old](" + oldValue + ")\n[New](" + newValue + ")");
+        return PinguEvents.SetDescription(type, "[Old](" + oldValue + ")\n[New](" + newValue + ")");
     };
     PinguEvents.GoThroughArrays = function (type, preArr, newArr, callback) {
         var updateMessage = "[**" + type + "**] ";
@@ -1128,7 +1128,7 @@ var Decidable = /** @class */ (function () {
         this.value = value;
         this.id = id;
         this.author = author;
-        this.channel = channel;
+        this.channel = new PChannel(channel);
     }
     return Decidable;
 }());
@@ -1172,7 +1172,6 @@ var Suggestion = /** @class */ (function (_super) {
 exports.Suggestion = Suggestion;
 var PollConfig = /** @class */ (function () {
     function PollConfig(options) {
-        this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
         this.pollRole = options ? options.pollRole : undefined;
         this.channel = options ? options.channel : undefined;
         if (options)
@@ -1183,7 +1182,6 @@ var PollConfig = /** @class */ (function () {
 exports.PollConfig = PollConfig;
 var GiveawayConfig = /** @class */ (function () {
     function GiveawayConfig(options) {
-        this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
         this.allowSameWinner = options ? options.allowSameWinner : undefined;
         this.hostRole = options ? options.hostRole : undefined;
         this.winnerRole = options ? options.winnerRole : undefined;
