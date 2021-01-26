@@ -14,7 +14,7 @@ module.exports = {
 
         OwnerDM.send(
             `Hi, ${guild.owner.user}!\n` +
-            `I've successfully joined your server, "**${guild.name}**"!\n\n` +
+            `I've successfully joined your server, **${guild.name}**!\n\n` +
 
             `Thank you for adding me!\n` +
             `Use \`*help\`, if you don't know how I work!`

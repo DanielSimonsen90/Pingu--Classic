@@ -44,15 +44,15 @@
         "name": "BeeppBop#8105"
     },
     "daily": {
-        "lastClaim": "2021-01-21T18:31:49.901Z",
+        "lastClaim": "2021-01-25T10:08:27.444Z",
         "nextClaim": {
-            "endsAt": "2021-01-22T15:31:49.901Z",
+            "endsAt": "2021-01-26T07:08:27.445Z",
             "seconds": 0,
             "minutes": 0,
             "hours": 21,
             "days": 0
         },
-        "streak": 6
+        "streak": 9
     },
     "avatar": "https://cdn.discordapp.com/avatars/245572699894710272/a_71a20e6aa0fe351b2053e5b397b3ef4b.webp",
     "playlists": []

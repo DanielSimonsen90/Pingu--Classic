@@ -5,13 +5,13 @@ module.exports = {
     name: 'events: guildUpdate',
     /**@param {{preGuild: Guild, guild: Guild}}*/
     async setContent({ preGuild, guild }) {
-        return module.exports.content = new MessageEmbed().setDescription(await GetDifference());
+        return module.exports.content = await GetDifference() ? new MessageEmbed().setDescription(await GetDifference()) : null;
 
         async function GetDifference() {
             let now = new Date(Date.now());
             now.setSeconds(now.getSeconds() - 1);
 
-            let lastBoostMessage = await guild.systemChannel && guild.systemChannel.messages.cache.find(m => [
+            let lastBoostMessage = guild.systemChannel && guild.systemChannel.messages.cache.find(m => [
                 'USER_PREMIUM_GUILD_SUBSCRIPTION',
                 'USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_1',
                 'USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_2',
@@ -19,7 +19,9 @@ module.exports = {
             ].includes(m.type) && m.createdTimestamp > now.getTime());
             if (lastBoostMessage) var lastBooster = lastBoostMessage.author.tag;
 
-            if (guild.afkChannelID != preGuild.afkChannelID) return PinguEvents.SetRemove(
+            if (!preGuild.region) return null;
+            if (guild.afkChannelID != preGuild.afkChannelID)
+                return PinguEvents.SetRemove(
                 'AFK Channel',
                 preGuild.afkChannelID,
                 guild.afkChannelID,
@@ -178,6 +180,27 @@ module.exports = {
         try {
             if (!guild.name) return;
             if (preGuild.name != guild.name) throw { message: 'Cannot find module' };
+
+            let shouldReturn = true;
+
+            let pGuild = PinguGuild.GetPGuild(guild);
+
+            let welcomePChannel = pGuild.welcomeChannel;
+            let welcomeChannel = guild.channels.cache.find(c => c.id == welcomePChannel.id)
+            if (!welcomeChannel || welcomeChannel.name != welcomePChannel.name) shouldReturn = false;
+
+            let rrPChannels = pGuild.reactionRoles.map(rr => rr.channel.id);
+            let rrChannels = guild.channels.cache.filter(c => rrPChannels.includes(c.id));
+
+            rrChannels.array().forEach((c, i) => {
+                if (c.name != pGuild.reactionRoles[i].channel.name)
+                    shouldReturn = false;
+            });
+
+            if (guild.ownerID != pGuild.guildOwner.id) shouldReturn = false;
+
+            if (shouldReturn) return;
+
             PinguGuild.UpdatePGuildJSON(client, guild, this.name,
                 `Successfully updated **${guild.name}**'s ${(preGuild.name != guild.name ? `(${preGuild.name}) ` : "")}Pingu Guild.`,
                 `Unable to update **${guild.name}**'s ${(preGuild.name != guild.name ? `(${preGuild.name})` : "")} Pingu Guild.`

@@ -29,13 +29,17 @@ module.exports = {
                     for (let permission of perms.array()) {
                         let oldPerm = prePerms.find(p => p.id == permission.id);
 
-                        for (let allow of permission.allow.toArray()) {
-                            let oldAllows = oldPerm.allow.toArray().find(a => a == allow);
-                            if (!oldAllows) return updateMessage += `Allowed ${allow} for ${permission.type}`;
+                        if (permission.allow) {
+                            for (let allow of permission.allow.toArray()) {
+                                let oldAllows = oldPerm.allow.toArray().find(a => a == allow);
+                                if (!oldAllows) return updateMessage += `Allowed ${allow} for ${permission.type}`;
+                            }
                         }
-                        for (let deny of permission.deny.toArray()) {
-                            let oldDenys = oldPerm.deny.toArray().find(d => d == deny);
-                            if (!oldDenys) return updateMessage += `Denied ${deny} for ${permission.type}`;
+                        if (permission.deny) {
+                            for (let deny of permission.deny.toArray()) {
+                                let oldDenys = oldPerm.deny.toArray().find(d => d == deny);
+                                if (!oldDenys) return updateMessage += `Denied ${deny} for ${permission.type}`;
+                            }
                         }
                     }
                     return updateMessage += `Unable to find out what changed!`;

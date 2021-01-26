@@ -3,6 +3,10 @@ const { PinguGuild, PChannel, PinguLibrary, PinguUser } = require("../../../Ping
 
 module.exports = {
     name: 'events: guildMemberAdd',
+    /**@param {{member: GuildMember}}*/
+    setContent({ member }) {
+        return module.exports.content = new MessageEmbed().setDescription(`${member.displayName} joined **${member.guild.name}**`);
+    },
     /**@param {Client} client
      @param {{member: GuildMember}}*/
     execute(client, { member }) {

@@ -37,7 +37,17 @@ module.exports = {
                 member.roles.cache.array(),
                 ((i, l) => i.id == l.id)
             );
-            return PinguEvents.UnknownUpdate(preMember, member);
+            else if (member.voice.channelID != preMember.voice.channelID) PinguEvents.SetRemove(
+                'Voice',
+                preMember.voice.channel.name,
+                member.voice.channel.name,
+                `${member} joined VC ${member.voice.channel.name}`,
+                `${member} left VC ${member.voice.channel.name}`,
+                PinguEvents.SetDescriptionValues
+            );
+            let unknown = PinguEvents.UnknownUpdate(preMember, member);
+            if (unknown == `Unknown Update: Unable to find what updated`)
+                member.client.emit('userUpdate', preMember.user, member.user);
         }
     },
     /**@param {Client} client

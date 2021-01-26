@@ -9,9 +9,6 @@ module.exports = {
         //let typical = ['STREAMING', 'PLAYING', 'LISTENING', 'CUSTOM_STATUS'];
 
         function FindActivity() {
-            if (user == 'Danho#2105')
-                console.log(`Danho Found`);
-
             if (!prePresence || !presence) return null;
 
             let activies = presence.activities.map(a => a.type);
@@ -58,25 +55,40 @@ module.exports = {
 
         function GetDescription() {
             if (!prePresence || !activity || presence && presence.status != prePresence.status)
-                return `**${presence.user.tag}** is ${(prePresence && prePresence.status == 'offline' ? `online as` : "")} **${presence.status}**`; //Just got online || status changed
+                return `**${presence.user.tag}** is ${(prePresence && prePresence.status == 'offline' ? `online as` : "")} **${presence.status}**${(activity && presence.status != 'offline' ? `, ${GetActivity(true, false)}` : "")}`; //Just got online || status changed
             else if (presence.user.bot) return null; //Bot changed its activity; not status
-            else if (presence.activities.length < prePresence.activities.length) {
-                switch (preActivityType) {
-                    case 'listening to': `**${user}** stopped ${activityType} **${activity.details}** by ${activity.state && activity.state.includes(';') ? activity.state.split(';').join(', ') : activity.state}`;
-                    case 'custom_status': return `**${user}** stopped ${preActivityType} ${(preActivity.emoji ? preActivity.emoji : "")} ${activity.state ? `**${activity.state}**` : ""}`;
-                    default: return `**${user}** stopped ${preActivityType} **${preActivity.details || (`${preActivity.name}${(preActivity.state ? `, ${preActivity.state}` : "")}`)}**`;
+            else if (presence.activities.length < prePresence.activities.length) 
+                GetActivity(false, true);
+            /*else (activity.index > preActivity.index)*/
+            return GetActivity(true, true);
+        }
+        /**@param {boolean} started
+         * @param {boolean} includeUserMessage*/
+        function GetActivity(started, includeUserMessage) {
+            function getActivity() {
+                if (started)
+                    switch (activityType) {
+                        case 'listening to': return `**${activity.details}** by ${activity.state && activity.state.includes(';') ? activity.state.split(';').join(', ') : activity.state}`;
+                        case 'competing in': return `**${activity.details}**`;
+                        case 'custom_status': return `${(preActivity.emoji ? preActivity.emoji : "")} ${activity.state ? `${activity.state}` : ""}`;
+                        default: return `**${activity.details || (`${activity.name}${(activity.state ? `, ${activity.state}` : "")}`)}** ${(prePresence && prePresence.guild && presence.guild && prePresence.guild.id != presence.guild.id ? `in ${presence.guild.name}` : "")}`;
+                    }
+                else switch (preActivityType) {
+                    case 'listening to': `**${activity.details}** by ${activity.state && activity.state.includes(';') ? activity.state.split(';').join(', ') : activity.state}`;
+                    case 'custom_status': return `${(preActivity.emoji ? preActivity.emoji : "")} ${activity.state ? `**${activity.state}**` : ""}`;
+                    default: return `**${preActivity.details || (`${preActivity.name}${(preActivity.state ? `, ${preActivity.state}` : "")}`)}**`;
                 }
             }
-            /*else (activity.index > preActivity.index)*/
-            switch (activityType) {
-                case 'listening to': return `**${user}** started ${activityType} **${activity.details}** by ${activity.state && activity.state.includes(';') ? activity.state.split(';').join(', ') : activity.state}`;
-                case 'competing in': return `**${user}** started ${activityType} **${activity.details}**`;
-                case 'custom_status': return `**${user}** has ${(prePresence.activities.find(a => a == activity) ? `gone back to` : `started`)} their custom status: ${(preActivity.emoji ? preActivity.emoji : "")} ${activity.state ? `${activity.state}` : ""}`;
-                default: return `**${user}** started ${activityType} **${activity.details || (`${activity.name}${(activity.state ? `, ${activity.state}` : "")}`)}** ${(prePresence && prePresence.guild && presence.guild && prePresence.guild.id != presence.guild.id ? `in ${presence.guild.name}` : "")}`;
-            }
+
+            let userMessage = started && activityType == 'custom_status' ?
+                `**${user}** has ${(prePresence.activities.find(a => a == activity) ? `gone back to` : `started`)} their custom status: ` :
+                started ? `**${user}** started ${activityType} ` : `**${user}** stopped ${preActivityType} `;
+            let userActivity = getActivity();
+            return includeUserMessage ? userMessage + userActivity : userActivity;
         }
         function GetColor() {
             if (activityType == 'listening to' && presence.status == prePresence.status) return '#1ED760';
+            if (activityType == 'streaming' && presence.status == prePresence.status) return '#593695';
 
             switch (presence.status) {
                 case 'online': return '#43B581';

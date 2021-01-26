@@ -96,7 +96,7 @@ client.on('guildMemberRemove', member => HandleEvent(`${GuildString}/${GuildMemb
 
 //client.on('guildMemberAvailable', member => HandleEvent(`${GuildString}/${GuildMemberString}/${GuildMemberString}Available`, { member })) //Member becomes available/online
 client.on('guildMembersChunk', (members, guild, collectionInfo) => HandleEvent(`${GuildString}/${GuildMemberString}/${GuildMemberString}sChunk`, { members, guild, collectionInfo })) //Chunk of members recieved
-client.on('guildMemberSpeaking', (member, speakingState) => HandleEvent(`${GuildString}/${GuildMemberString}/${GuildMemberString}Speaking`, { member, speakingState })) //Member changes speaking state
+//client.on('guildMemberSpeaking', (member, speakingState) => HandleEvent(`${GuildString}/${GuildMemberString}/${GuildMemberString}Speaking`, { member, speakingState })) //Member changes speaking state
 //#endregion
 
 //#region Emoji
@@ -150,7 +150,6 @@ async function HandleEvent(path, parameters) {
 
     try {
         var event = require(`./events/${path}`);
-        console.log(`Emitting ${event.name}`);
         event.execute(client, parameters);
         await SendToLog();
     }
@@ -162,7 +161,13 @@ async function HandleEvent(path, parameters) {
                 parameters.emote ? parameters.emote.author.tag : parameters.client ? client.user.tag : parameters.invite ? parameters.invite.inviter.tag :
                     parameters.presence ? parameters.presence.user.tag : parameters.role ? parameters.role.guild.name : parameters.state ? parameters.state.member.user.tag : "Unknown";
 
-        let specialEvents = ['channelCreate', 'channelUpdate', 'channelPinsUpdate', 'roleUpdate', 'guildUpdate', 'emojiUpdate', 'webhookUpdate', 'guildMemberUpdate'];
+        let specialEvents = [
+            'channelCreate', 'channelUpdate', 'channelDelete', 'channelPinsUpdate', 'webhookUpdate',
+            'emojiCreate', 'emojiUpdate', 'emojiDelete',
+            'guildBanAdd', 'guildBanRemove', 'guildMemberUpdate',
+            'guildUpdate', 'guildIntergrationsUpdate',
+            'roleCreate', 'roleUpdate', 'roleDelete'
+        ];
         if (specialEvents.includes(event.name)) emitAssociator = await GetFromAuditLog();
         
 
@@ -175,17 +180,29 @@ async function HandleEvent(path, parameters) {
         if (embed) return await PinguLibrary.eventLog(client, embed);
 
         async function GetFromAuditLog() {
-            const noAuditLog = `**No Audit Log Permissions**`;
+            const noAuditLog = PinguEvents.noAuditLog;
 
             switch (event.name) {
                 case 'channelCreate': return !parameters.channel.guild ? parameters.channel.recipient.tag : await GetInfo(parameters.channel.guild, 'CHANNEL_CREATE');
                 case 'channelUpdate': return !parameters.channel.guild ? parameters.channel.recipient.tag : await GetInfo(parameters.channel.guild, 'CHANNEL_UPDATE');
+                case 'channelDelete': return !parameters.channel.guild ? parameters.channel.recipient.tag : await GetInfo(parameters.channel.guild, 'CHANNEL_DELETE');
                 case 'channelPinsUpdate': return !parameters.channel.guild ? parameters.channel.recipient.tag : (await GetInfo(parameters.channel.guild, 'MESSAGE_PIN') || await GetInfo(parameters.channel.guild, 'MESSAGE_UNPIN'));
-                case 'roleUpdate': return await GetInfo(parameters.role.guild, 'ROLE_UPDATE');
-                case 'guildUpdate': return await GetInfo(parameters.guild, 'GUILD_UPDATE');
+                case 'webhookUpdate': return await GetInfo(parameters.channel.guild, 'WEBHOOK_UPDATE') || await GetInfo(parameters.channel.guild, 'WEBHOOK_CREATE');
+
+                case 'emojiCreate': return await GetInfo(parameters.emote.guild, 'EMOJI_CREATE');
                 case 'emojiUpdate': return await GetInfo(parameters.emote.guild, 'EMOJI_UPDATE');
-                case 'webhookUpdate': return await GetInfo(parameters.webhook.guild, 'WEBHOOK_UPDATE');
+                case 'emojiDelete': return await GetInfo(parameters.emote.guild, 'EMOJI_DELETE');
+
+                case 'guildBanAdd': return await GetInfo(parameters.guild, 'MEMBER_BAN_ADD');
                 case 'guildMemberUpdate': return await GetInfo(parameters.member.guild, 'MEMBER_UPDATE');
+                case 'guildBanRemove': return await GetInfo(parameters.guild, 'MEMBER_BAN_REMOVE');
+
+                case 'guildUpdate': return await GetInfo(parameters.guild, 'GUILD_UPDATE');
+                case 'guildIntegrationsUpdate': return await GetInfo(parameters.guild, 'INTEGRATION_UPDATE');
+
+                case 'roleCreate': return await GetInfo(parameters.role.guild, 'ROLE_CREATE');
+                case 'roleUpdate': return await GetInfo(parameters.role.guild, 'ROLE_UPDATE');
+                case 'roleDelete': return await GetInfo(parameters.role.guild, 'ROLE_DELETE');
                 default: PinguLibrary.errorLog(client, `"${eventName}" was not recognized as an event name when searching from audit log`); return "Unknown";
             }
 
@@ -239,8 +256,8 @@ async function HandleEvent(path, parameters) {
             return defaultEmbed;
 
             function getColor() {
-                if (eventName.includes('Create')) return PinguEvents.Colors.Create;
-                else if (eventName.includes('Delete')) return PinguEvents.Colors.Delete;
+                if (eventName.includes('Create') || eventName.includes('Add')) return PinguEvents.Colors.Create;
+                else if (eventName.includes('Delete') || eventName.includes('Remove')) return PinguEvents.Colors.Delete;
                 else if (eventName.includes('Update')) return PinguEvents.Colors.Update;
                 else return PinguGuild.GetPGuild(PinguLibrary.SavedServers.PinguSupport(client)).embedColor || PinguLibrary.DefaultEmbedColor;
             }

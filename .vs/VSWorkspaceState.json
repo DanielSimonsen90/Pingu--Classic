@@ -2,13 +2,15 @@
   "ExpandedNodes": [
     "",
     "\\commands",
-    "\\commands\\1 Utility",
+    "\\commands\\2 Fun",
     "\\commands\\4 DevOnly",
     "\\events",
     "\\events\\channel",
     "\\events\\guild",
-    "\\servers"
+    "\\events\\guild\\emoji",
+    "\\servers",
+    "\\users"
   ],
-  "SelectedNode": "\\config.json",
+  "SelectedNode": "\\events\\guild\\presenceUpdate.js",
   "PreviewInSolutionExplorer": false
 }

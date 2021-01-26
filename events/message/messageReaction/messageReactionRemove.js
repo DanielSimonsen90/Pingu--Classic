@@ -5,7 +5,7 @@ module.exports = {
     name: 'events: messageReactionRemove',
     /**@param {{reaction: MessageReaction, user: User}}*/
     setContent({ reaction, user }) {
-        module.exports.content = new MessageEmbed()
+        return module.exports.content = new MessageEmbed()
             .setDescription(`"${reaction.message.content}"`)
             .setURL(reaction.message.url)
             .addField(`User`, user.tag, true)

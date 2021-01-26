@@ -205,7 +205,7 @@ export class PinguUser {
         }
     }
     public static UpdatePUser(from: User, to: User, callback?: (updatedUser?: PinguUser) => void) {
-        let data = this.GetPUser(from);
+        let data = SetDifference();
 
         this.DeletePUser(from, () => {
             try {
@@ -217,6 +217,15 @@ export class PinguUser {
                 PinguLibrary.errorLog(to.client, `UpdatePUser Error`, null, ewwor);
             }
         })
+
+        function SetDifference() {
+            let result = PinguUser.GetPUser(from);
+            let diff = new PinguUser(to, to.client);
+
+            if (result.avatar != diff.avatar) result.avatar = diff.avatar;
+            if (result.tag != diff.tag) result.tag = diff.tag;
+            return result;
+        }
     }
     public static DeletePUser(user: User, callback?: () => void) {
         try {
@@ -308,7 +317,7 @@ export class PinguGuild extends PItem {
         }
     }
     public static UpdatePGuild(from: Guild, to: Guild, callback?: (updatedGuild?: PinguGuild) => void) {
-        let data = this.GetPGuild(from);
+        let data = SetDifference();
 
         this.DeletePGuild(from, () => {
             try {
@@ -320,6 +329,32 @@ export class PinguGuild extends PItem {
                 PinguLibrary.errorLog(to.client, `UpdatePGuild Error`, null, ewwor);
             }
         })
+
+        function SetDifference() {
+            let result = PinguGuild.GetPGuild(from);
+            let diff = new PinguGuild(to);
+
+            if (result.name != diff.name) result.name = diff.name;
+            if (result.botPrefix != diff.botPrefix) result.botPrefix = diff.botPrefix;
+            if (result.embedColor != diff.embedColor) result.embedColor = diff.embedColor;
+            if (result.guildOwner != diff.guildOwner) result.guildOwner = diff.guildOwner;
+            
+            let resultChannels = result.reactionRoles.map(rr => rr.channel.id);
+            let guildChannels = to.channels.cache.filter(c => resultChannels.includes(c.id));
+
+            guildChannels.array().forEach((c, i) => {
+                if (c.name != result.reactionRoles[i].channel.name)
+                    result.reactionRoles[i] = null;
+            });
+            result.reactionRoles = result.reactionRoles.filter(v => v);
+
+            let welcomePChannel = result.welcomeChannel;
+            let welcomeChannel = to.channels.cache.find(c => c.id == welcomePChannel.id)
+            if (!welcomeChannel || welcomeChannel.name != welcomePChannel.name) 
+                result.welcomeChannel = null;
+            
+            return result;
+        }
     }
     public static DeletePGuild(guild: Guild, callback?: (pGuild?: PinguGuild) => void) {
         try {
@@ -714,11 +749,14 @@ export class PinguLibrary {
         let eventLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "event-log");
         if (!eventLogChannel) return this.DanhoDM(client, `Couldn't get #event-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh`)
 
-        if (!PinguEvents.LoggedCache) PinguEvents.LoggedCache = new Array<string>();
+        if (!PinguEvents.LoggedCache) PinguEvents.LoggedCache = new Array<MessageEmbed>();
         let lastCache = PinguEvents.LoggedCache[0];
-        if (lastCache && lastCache == content.description) return;
+        if (lastCache && (
+            lastCache.description && lastCache.description == content.description ||
+            lastCache.fields[0] && content.fields[0] && lastCache.fields[0].value == content.fields[0].value)
+        ) return;
 
-        PinguEvents.LoggedCache.unshift(content.description);
+        PinguEvents.LoggedCache.unshift(content);
         return await eventLogChannel.send(content);
     }
     public static tellLog(client: Client, sender: User, reciever: User, message: Message | MessageEmbed) {
@@ -828,7 +866,7 @@ export class PinguEvents {
         Delete: `#db1108`
     };
     public static noAuditLog = `**No Audit Log Permissions**`;
-    public static LoggedCache: string[];
+    public static LoggedCache: MessageEmbed[];
 
     public static async GetAuditLogs(guild: Guild, type: GuildAuditLogsAction, key?: string, target: User = null, seconds: number = 1) {
         if (!guild.me.hasPermission(DiscordPermissions.VIEW_AUDIT_LOG as BitFieldResolvable<PermissionString>))
@@ -851,21 +889,21 @@ export class PinguEvents {
                 return this.SetDescriptionValues('Unknown', oldArr[i], currentArr[i]);
         }
 
-        return `Unknown Update: Unable to find what updated`;
+        return null;
     }
 
     public static SetDescription(type: string, description: string) {
-        return `[**${type}**]\n${description}`;
+        return `[**${type}**]\n\n${description}`;
     }
     public static SetRemove(type: string, oldValue: object, newValue: object, SetString: string, RemoveString: string, descriptionMethod: (type: string, oldValue: object, newValue: object) => string) {
         return newValue && !oldValue ? this.SetDescription(type, SetString) :
             !newValue && oldValue ? this.SetDescription(type, RemoveString) : descriptionMethod(type, oldValue, newValue);
     }
     public static SetDescriptionValues(type: string, oldValue: any, newValue: any) {
-        return `[**${type}**]\nOld: ${oldValue}\nNew: ${newValue}`;
+        return this.SetDescription(type, `Old: ${oldValue}\n\nNew: ${newValue}`)
     }
     public static SetDescriptionValuesLink(type: string, oldValue: any, newValue: any) {
-        return `[**${type}**]\n[Old](${oldValue})\n[New](${newValue})`;
+        return this.SetDescription(type, `[Old](${oldValue})\n[New](${newValue})`)
     }
     public static GoThroughArrays<T>(type: string, preArr: T[], newArr: T[], callback: (item: T, loopItem: T) => T) {
         let updateMessage = `[**${type}**] `;

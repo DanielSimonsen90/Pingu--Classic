@@ -302,7 +302,7 @@ var PinguUser = /** @class */ (function () {
     };
     PinguUser.UpdatePUser = function (from, to, callback) {
         var _this = this;
-        var data = this.GetPUser(from);
+        var data = SetDifference();
         this.DeletePUser(from, function () {
             try {
                 fs.writeFile("./users/" + _this.PUserFileName(to) + ".json", JSON.stringify(data, null, 2), function (err) { return __awaiter(_this, void 0, void 0, function () {
@@ -324,6 +324,15 @@ var PinguUser = /** @class */ (function () {
                 PinguLibrary.errorLog(to.client, "UpdatePUser Error", null, ewwor);
             }
         });
+        function SetDifference() {
+            var result = PinguUser.GetPUser(from);
+            var diff = new PinguUser(to, to.client);
+            if (result.avatar != diff.avatar)
+                result.avatar = diff.avatar;
+            if (result.tag != diff.tag)
+                result.tag = diff.tag;
+            return result;
+        }
     };
     PinguUser.DeletePUser = function (user, callback) {
         var _this = this;
@@ -455,7 +464,7 @@ var PinguGuild = /** @class */ (function (_super) {
     };
     PinguGuild.UpdatePGuild = function (from, to, callback) {
         var _this = this;
-        var data = this.GetPGuild(from);
+        var data = SetDifference();
         this.DeletePGuild(from, function () {
             try {
                 fs.writeFile("./servers/" + to.name + ".json", JSON.stringify(data, null, 2), function (err) { return __awaiter(_this, void 0, void 0, function () {
@@ -477,6 +486,30 @@ var PinguGuild = /** @class */ (function (_super) {
                 PinguLibrary.errorLog(to.client, "UpdatePGuild Error", null, ewwor);
             }
         });
+        function SetDifference() {
+            var result = PinguGuild.GetPGuild(from);
+            var diff = new PinguGuild(to);
+            if (result.name != diff.name)
+                result.name = diff.name;
+            if (result.botPrefix != diff.botPrefix)
+                result.botPrefix = diff.botPrefix;
+            if (result.embedColor != diff.embedColor)
+                result.embedColor = diff.embedColor;
+            if (result.guildOwner != diff.guildOwner)
+                result.guildOwner = diff.guildOwner;
+            var resultChannels = result.reactionRoles.map(function (rr) { return rr.channel.id; });
+            var guildChannels = to.channels.cache.filter(function (c) { return resultChannels.includes(c.id); });
+            guildChannels.array().forEach(function (c, i) {
+                if (c.name != result.reactionRoles[i].channel.name)
+                    result.reactionRoles[i] = null;
+            });
+            result.reactionRoles = result.reactionRoles.filter(function (v) { return v; });
+            var welcomePChannel = result.welcomeChannel;
+            var welcomeChannel = to.channels.cache.find(function (c) { return c.id == welcomePChannel.id; });
+            if (!welcomeChannel || welcomeChannel.name != welcomePChannel.name)
+                result.welcomeChannel = null;
+            return result;
+        }
     };
     PinguGuild.DeletePGuild = function (guild, callback) {
         var _this = this;
@@ -871,9 +904,10 @@ var PinguLibrary = /** @class */ (function () {
                         if (!PinguEvents.LoggedCache)
                             PinguEvents.LoggedCache = new Array();
                         lastCache = PinguEvents.LoggedCache[0];
-                        if (lastCache && lastCache == content.description)
+                        if (lastCache && (lastCache.description && lastCache.description == content.description ||
+                            lastCache.fields[0] && content.fields[0] && lastCache.fields[0].value == content.fields[0].value))
                             return [2 /*return*/];
-                        PinguEvents.LoggedCache.unshift(content.description);
+                        PinguEvents.LoggedCache.unshift(content);
                         return [4 /*yield*/, eventLogChannel.send(content)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
@@ -1043,20 +1077,20 @@ var PinguEvents = /** @class */ (function () {
             if (currentArr[i] != oldArr[i])
                 return this.SetDescriptionValues('Unknown', oldArr[i], currentArr[i]);
         }
-        return "Unknown Update: Unable to find what updated";
+        return null;
     };
     PinguEvents.SetDescription = function (type, description) {
-        return "[**" + type + "**]\n" + description;
+        return "[**" + type + "**]\n\n" + description;
     };
     PinguEvents.SetRemove = function (type, oldValue, newValue, SetString, RemoveString, descriptionMethod) {
         return newValue && !oldValue ? this.SetDescription(type, SetString) :
             !newValue && oldValue ? this.SetDescription(type, RemoveString) : descriptionMethod(type, oldValue, newValue);
     };
     PinguEvents.SetDescriptionValues = function (type, oldValue, newValue) {
-        return "[**" + type + "**]\nOld: " + oldValue + "\nNew: " + newValue;
+        return this.SetDescription(type, "Old: " + oldValue + "\n\nNew: " + newValue);
     };
     PinguEvents.SetDescriptionValuesLink = function (type, oldValue, newValue) {
-        return "[**" + type + "**]\n[Old](" + oldValue + ")\n[New](" + newValue + ")";
+        return this.SetDescription(type, "[Old](" + oldValue + ")\n[New](" + newValue + ")");
     };
     PinguEvents.GoThroughArrays = function (type, preArr, newArr, callback) {
         var updateMessage = "[**" + type + "**] ";

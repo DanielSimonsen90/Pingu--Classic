@@ -1,8 +1,12 @@
-const { Client, Message } = require("discord.js");
+const { Client, Message, MessageEmbed } = require("discord.js");
 const { PinguLibrary, PinguGuild } = require("../../../PinguPackage");
 
 module.exports = {
     name: 'events: messageReactionRemoveAll',
+    /**@param {{message: Message}}*/
+    setContent({ message }) {
+        return module.exports.content = new MessageEmbed().setDescription(`Removed all reactions from message, ${message.id}`);
+    },
     /**@param {Client} client
      @param {{message: Message}}*/
     execute(client, { message }) {
