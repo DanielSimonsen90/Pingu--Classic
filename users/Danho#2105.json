@@ -39,6 +39,13 @@
             "name": "Pingu Emote Server"
         }
     ],
+    "marry": {
+        "partner": {
+            "id": "405331883157880846",
+            "name": "Synthy Sytro#5637"
+        },
+        "internalDate": "2021-01-27T11:32:28.202Z"
+    },
     "replyPerson": {
         "id": "317335763882737665",
         "name": "BeeppBop#8105"

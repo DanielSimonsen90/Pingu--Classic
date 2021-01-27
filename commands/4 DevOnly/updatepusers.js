@@ -31,7 +31,7 @@ module.exports = {
                     .addField('Last Messaged', pUser.replyPerson && pUser.replyPerson.name | "Unset", true)
                     .addField(`Playlists`, pUser.playlists && pUser.playlists.length || null, true)
                 );
-            if (arg && arg != "show" && ![pUser.tag.toLowerCase(), pUser.id].includes(arg)) continue;
+            if (arg && arg != "show" && (![pUser.tag.toLowerCase(), pUser.id, `<@${pUser.id}>`, `<@!${pUser.id}>`].includes(arg))) continue;
 
             await WriteFile(message, PinguUsersArr[i], `./users/${PinguUser.PUserFileName(Users[i])}.json`);
             PinguLibrary.consoleLog(message.client, `Finished: ${Users[i].tag}`);

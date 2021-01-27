@@ -49,7 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ReactionRole = exports.Daily = exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguEvents = exports.PinguLibrary = exports.PinguGuild = exports.PinguUser = exports.PQueue = exports.PClient = exports.PGuild = exports.PUser = exports.PChannel = exports.PRole = exports.PGuildMember = exports.PItem = exports.DiscordPermissions = exports.Error = void 0;
+exports.Marry = exports.ReactionRole = exports.Daily = exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguEvents = exports.PinguLibrary = exports.PinguGuild = exports.PinguUser = exports.PMarry = exports.PQueue = exports.PClient = exports.PGuild = exports.PUser = exports.PChannel = exports.PRole = exports.PGuildMember = exports.PItem = exports.DiscordPermissions = exports.Error = void 0;
 var discord_js_1 = require("discord.js");
 var fs = require("fs");
 var Error = /** @class */ (function () {
@@ -213,6 +213,17 @@ var PQueue = /** @class */ (function () {
     return PQueue;
 }());
 exports.PQueue = PQueue;
+var PMarry = /** @class */ (function () {
+    function PMarry(marry) {
+        this.partner = marry.partner;
+        this.internalDate = marry.internalDate.toString();
+    }
+    PMarry.prototype.ToMarry = function () {
+        return new Marry(this.partner, this.internalDate);
+    };
+    return PMarry;
+}());
+exports.PMarry = PMarry;
 //#endregion
 //#region Custom Pingu classes 
 var PinguUser = /** @class */ (function () {
@@ -222,6 +233,7 @@ var PinguUser = /** @class */ (function () {
         this.id = pUser.id;
         this.tag = pUser.name;
         this.sharedServers = PinguLibrary.getSharedServers(client, user).map(function (guild) { return new PGuild(guild); });
+        this.marry = new Marry();
         this.replyPerson = null;
         this.daily = new Daily();
         this.avatar = user.avatarURL();
@@ -241,8 +253,11 @@ var PinguUser = /** @class */ (function () {
         if (user.bot)
             return null;
         var result = this.GetPUsers().find(function (pu) { return pu.id == user.id; });
-        if (!result && !suppressError)
-            PinguLibrary.errorLog(user.client, "Unable to find a user in pUsers with id " + user.id);
+        if (!result && !suppressError) {
+            PinguLibrary.errorLog(user.client, "Unable to find a user in pUsers with id " + user.id + " - Created one...");
+            PinguUser.WritePUser(user);
+            result = new PinguUser(user, user.client);
+        }
         return result;
     };
     PinguUser.UpdatePUsersJSON = function (client, user, script, succMsg, errMsg) {
@@ -1002,16 +1017,14 @@ var PinguLibrary = /** @class */ (function () {
     PinguLibrary.getEmote = function (client, name, emoteGuild) {
         if (!client || !name || !emoteGuild)
             return '😵';
-        for (var _i = 0, _a = client.guilds.cache.array(); _i < _a.length; _i++) {
-            var guild = _a[_i];
-            if (guild.name != emoteGuild.name)
-                continue;
-            var emote = guild.emojis.cache.find(function (emote) { return emote.name == name; });
-            if (emote)
-                return emote;
-        }
+        var emote = client.guilds.cache.find(function (g) { return g.id == emoteGuild.id; }).emojis.cache.find(function (e) { return e.name == name; });
+        if (emote)
+            return emote;
         PinguLibrary.errorLog(client, "Unable to find Emote **" + name + "** from " + emoteGuild.name);
         return '😵';
+    };
+    PinguLibrary.getImage = function (script, imageName) {
+        return "./embedImages/" + script + "_" + imageName + ".png";
     };
     PinguLibrary.DefaultEmbedColor = 3447003;
     PinguLibrary.PermissionGranted = "Permission Granted";
@@ -1026,6 +1039,9 @@ var PinguLibrary = /** @class */ (function () {
         },
         PinguEmotes: function (client) {
             return PinguLibrary.getServer(client, '791312245555855401');
+        },
+        DeadlyNinja: function (client) {
+            return PinguLibrary.getServer(client, '405763731079823380');
         }
     };
     //#endregion
@@ -1034,6 +1050,7 @@ var PinguLibrary = /** @class */ (function () {
         '245572699894710272',
         '405331883157880846',
         '795937270569631754',
+        '803903863706484756' //Slothman
     ];
     return PinguLibrary;
 }());
@@ -1399,4 +1416,27 @@ var ReactionRole = /** @class */ (function () {
     return ReactionRole;
 }());
 exports.ReactionRole = ReactionRole;
+var Marry = /** @class */ (function () {
+    function Marry(partner, internalDate) {
+        this.partner = partner;
+        this.internalDate = new Date(internalDate);
+    }
+    Object.defineProperty(Marry.prototype, "marriedMessage", {
+        get: function () {
+            return "You have been " + (this.partner ? "married to <@" + this.partner.id + "> since" : "single since") + " **" + this.internalDate.toLocaleTimeString() + ", " + this.internalDate.toLocaleDateString().split('.').join('/') + "**";
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Marry.prototype.marry = function (partner) {
+        this.internalDate = new Date(Date.now());
+        this.partner = new PUser(partner);
+    };
+    Marry.prototype.divorce = function () {
+        this.internalDate = new Date(Date.now());
+        this.partner = null;
+    };
+    return Marry;
+}());
+exports.Marry = Marry;
 //# sourceMappingURL=PinguPackage.js.map

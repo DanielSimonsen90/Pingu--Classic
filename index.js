@@ -1,7 +1,7 @@
 //#region Variables
-const { Client, Collection, Guild, GuildAuditLogs, MessageEmbed, GuildAuditLogsEntry } = require('discord.js'),
+const { Client, Collection, Guild, MessageEmbed, GuildAuditLogsEntry } = require('discord.js'),
     { token } = require('./config.json'),
-    { CategoryNames, execute } = require('./commands/4 DevOnly/update'),
+    { CategoryNames } = require('./commands/4 DevOnly/update'),
     { PinguLibrary, Error, DiscordPermissions, PinguGuild, PinguEvents } = require('./PinguPackage'),
     fs = require('fs'),
     client = new Client();

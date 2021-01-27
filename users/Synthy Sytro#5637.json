@@ -8,7 +8,7 @@
         },
         {
             "id": "405763731079823380",
-            "name": "America 2021"
+            "name": "The Gym"
         },
         {
             "id": "460926327269359626",
@@ -23,20 +23,18 @@
             "name": "Pingu Support"
         }
     ],
-    "replyPerson": {
-        "id": "245572699894710272",
-        "name": "Danho#2105"
-    },
-    "daily": {
-        "lastClaim": "2021-01-20T14:19:30.618Z",
-        "nextClaim": {
-            "endsAt": "2021-01-21T11:19:30.619Z",
-            "seconds": 14,
-            "minutes": 5,
-            "hours": 19,
-            "days": 0
+    "marry": {
+        "partner": {
+            "id": "245572699894710272",
+            "name": "Danho#2105"
         },
-        "streak": 2
+        "internalDate": "2021-01-27T11:32:28.202Z"
+    },
+    "replyPerson": null,
+    "daily": {
+        "lastClaim": null,
+        "nextClaim": null,
+        "streak": 0
     },
     "avatar": "https://cdn.discordapp.com/avatars/405331883157880846/4a99aedfb1c139417223cdd24b266c97.webp",
     "playlists": []

@@ -153,6 +153,19 @@ export class PQueue {
         return queue;
     }
 }
+export class PMarry {
+    constructor(marry: Marry) {
+        this.partner = marry.partner;
+        this.internalDate = marry.internalDate.toString();
+    }
+
+    public partner: PUser
+    public internalDate: string
+
+    public ToMarry() {
+        return new Marry(this.partner, this.internalDate);
+    }
+}
 //#endregion
 
 //#region Custom Pingu classes 
@@ -169,7 +182,11 @@ export class PinguUser {
     public static GetPUser(user: User, suppressError?: boolean): PinguUser {
         if (user.bot) return null;
         var result = this.GetPUsers().find(pu => pu.id == user.id);
-        if (!result && !suppressError) PinguLibrary.errorLog(user.client, `Unable to find a user in pUsers with id ${user.id}`);
+        if (!result && !suppressError) {
+            PinguLibrary.errorLog(user.client, `Unable to find a user in pUsers with id ${user.id} - Created one...`);
+            PinguUser.WritePUser(user);
+            result = new PinguUser(user, user.client);
+        }
         return result;
     }
 
@@ -252,6 +269,7 @@ export class PinguUser {
         this.id = pUser.id;
         this.tag = pUser.name;
         this.sharedServers = PinguLibrary.getSharedServers(client, user).map(guild => new PGuild(guild));
+        this.marry = new Marry();
         this.replyPerson = null;
         this.daily = new Daily();
         this.avatar = user.avatarURL();
@@ -260,6 +278,7 @@ export class PinguUser {
     public id: string
     public tag: string
     public sharedServers: PGuild[]
+    public marry: Marry
     public replyPerson: PUser
     public daily: Daily
     public avatar: string
@@ -624,6 +643,9 @@ export class PinguLibrary {
         },
         PinguEmotes(client: Client) {
             return PinguLibrary.getServer(client, '791312245555855401');
+        },
+        DeadlyNinja(client: Client) {
+            return PinguLibrary.getServer(client, '405763731079823380');
         }
     }
     private static getServer(client: Client, id: string) {
@@ -644,6 +666,7 @@ export class PinguLibrary {
         '245572699894710272', //Danho#2105
         '405331883157880846', //Synthy Sytro
         '795937270569631754', //Daniel Simonsen
+        '803903863706484756' //Slothman
     ];
     public static isPinguDev(user: User) {
         //console.log(`[${this.PinguDevelopers.join(', ')}].includes(${user.id})`);
@@ -848,13 +871,13 @@ export class PinguLibrary {
     public static getEmote(client: Client, name: string, emoteGuild: Guild) {
         if (!client || !name || !emoteGuild) return '😵';
 
-        for (var guild of client.guilds.cache.array()) {
-            if (guild.name != emoteGuild.name) continue;
-            let emote = guild.emojis.cache.find(emote => emote.name == name)
-            if (emote) return emote;
-        }
+        let emote = client.guilds.cache.find(g => g.id == emoteGuild.id).emojis.cache.find(e => e.name == name);
+        if (emote) return emote;
         PinguLibrary.errorLog(client, `Unable to find Emote **${name}** from ${emoteGuild.name}`);
         return '😵';
+    }
+    public static getImage(script: string, imageName: string) {
+        return `./embedImages/${script}_${imageName}.png`;
     }
 }
 export class PinguEvents {
@@ -1255,5 +1278,26 @@ export class ReactionRole {
         }
 
         return guild.roles.fetch(pRole.id);
+    }
+}
+export class Marry {
+    constructor(partner?: PUser, internalDate?: string) {
+        this.partner = partner;
+        this.internalDate = new Date(internalDate);
+    }
+
+    public partner: PUser
+    public internalDate: Date
+    public get marriedMessage(): string {
+        return `You have been ${(this.partner ? `married to <@${this.partner.id}> since` : `single since`)} **${this.internalDate.toLocaleTimeString()}, ${this.internalDate.toLocaleDateString().split('.').join('/')}**`;
+    }
+
+    public marry(partner: User) {
+        this.internalDate = new Date(Date.now());
+        this.partner = new PUser(partner);
+    }
+    public divorce() {
+        this.internalDate = new Date(Date.now());
+        this.partner = null;
     }
 }
