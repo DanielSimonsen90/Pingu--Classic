@@ -5,12 +5,12 @@ module.exports = {
     name: 'events: channelDelete',
     /**@param {{channel: DMChannel | GuildChannel}}*/
     async setContent({ channel }) {
-        if (!channel.guild) return module.exports.content = new MessageEmbed().setDescription(`${channel} was deleted.`);
+        if (!channel.guild) return module.exports.content = new MessageEmbed().setDescription(`${channel.name} was deleted.`);
 
         let audits = await channel.guild.fetchAuditLogs({ type: 'CHANNEL_DELETE' });
         let { executor } = audits.entries.first();
 
-        return module.exports.content = new MessageEmbed().setDescription(`${channel} was deleted by ${executor}`)
+        return module.exports.content = new MessageEmbed().setDescription(`${channel.name} was deleted by ${executor}`)
     },
     /**@param {Client} client
      @param {{channel: DMChannel | GuildChannel}}*/

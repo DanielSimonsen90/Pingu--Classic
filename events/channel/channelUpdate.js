@@ -31,13 +31,13 @@ module.exports = {
 
                         if (permission.allow) {
                             for (let allow of permission.allow.toArray()) {
-                                let oldAllows = oldPerm.allow.toArray().find(a => a == allow);
+                                let oldAllows = oldPerm && oldPerm.allow.toArray().find(a => a == allow);
                                 if (!oldAllows) return updateMessage += `Allowed ${allow} for ${permission.type}`;
                             }
                         }
                         if (permission.deny) {
                             for (let deny of permission.deny.toArray()) {
-                                let oldDenys = oldPerm.deny.toArray().find(d => d == deny);
+                                let oldDenys = oldPerm && oldPerm.deny.toArray().find(d => d == deny);
                                 if (!oldDenys) return updateMessage += `Denied ${deny} for ${permission.type}`;
                             }
                         }

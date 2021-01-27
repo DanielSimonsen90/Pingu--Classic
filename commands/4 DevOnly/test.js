@@ -11,8 +11,22 @@ module.exports = {
     permissions: [DiscordPermissions.SEND_MESSAGES],
     /**@param {{message: Message, args: string[], pAuthor: PinguUser, pGuild: PinguGuild}}*/
     execute({ message, args, pAuthor, pGuild }) {
-        message.guild.fetchAuditLogs().then(log => {
-            console.log(log);
+        let channelsToView = [
+            'server-announcements',
+            `Pingu's Broadcasting Channel`,
+            'pingu-beta-testing',
+            'error-log',
+            'console-log',
+            'pingu-guild-log',
+            'pingu-user-log'
+        ];
+        message.guild.channels.cache.forEach(c => {
+            if (!channelsToView.includes(c.name))
+                c.overwritePermissions([{
+                    type: 'role',
+                    id: '783365374165909556',
+                    deny: [DiscordPermissions.VIEW_CHANNEL]
+                }], 'Removing Pingu BETA Access from from everything');
         })
     }
 }

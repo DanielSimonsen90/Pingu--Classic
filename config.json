@@ -5,7 +5,7 @@
   "youtube_api": "AIzaSyCYt2-w4knZTFswSECkNOV_79HMXyQXeWw",
   "google_custom_search": "013524999991164939702:z24cpkwx9nz",
   "testingMode": false,
-  "announceOutages": false,
+  "announceOutages": true,
   "announceActivity": true,
   "updateStats": true
 }
