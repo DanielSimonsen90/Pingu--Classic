@@ -6,6 +6,6 @@
   "google_custom_search": "013524999991164939702:z24cpkwx9nz",
   "testingMode": false,
   "announceOutages": false,
-  "announceActivity": false,
-  "updateStats": false
+  "announceActivity": true,
+  "updateStats": true
 }
