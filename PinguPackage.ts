@@ -119,7 +119,6 @@ export class PQueue {
     constructor(queue: Queue) {
         this.logChannel = new PChannel(queue.logChannel);
         this.voiceChannel = new PChannel(queue.voiceChannel);
-        this.connection = queue.connection.voice;
         this.index = queue.index;
         this.songs = queue.songs;
         this.volume = queue.volume;
@@ -131,7 +130,6 @@ export class PQueue {
     public logChannel: PChannel
     public voiceChannel: PChannel
     public client: PClient
-    public connection: VoiceState
     public index: number
     public songs: Song[]
     public volume: number
@@ -1082,7 +1080,7 @@ export class Queue implements IMuisc {
         this.logChannel = logChannel;
         this.voiceChannel = voiceChannel;
         this.songs = songs;
-        this.volume = .7;
+        this.volume = 1;
         this.connection = null;
         this.playing = playing;
         this.client = client;

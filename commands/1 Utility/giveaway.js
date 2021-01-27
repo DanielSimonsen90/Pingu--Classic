@@ -578,7 +578,7 @@ function UpdatePGuildWinner(GiveawayMessage, WinnerArr) {
     for (var i = 0; i < WinnerArr.length; i++)
         Giveaway.winners.push(new PGuildMember(GiveawayMessage.guild.member(WinnerArr[i])));
 
-    PinguGuild.UpdatePGuildJSON(GiveawayMessage.client, message.guild, module.exports.name,
+    PinguGuild.UpdatePGuildJSON(GiveawayMessage.client, GiveawayMessage.guild, module.exports.name,
         `Successfully updated **${GiveawayMessage.guild.name}**'s "${Giveaway.value}" giveaway winner in guilds.json!`,
         `Saving **${GiveawayMessage.guild.name}**'s "${Giveaway.value}" giveaway winner in guilds.json!`
     );

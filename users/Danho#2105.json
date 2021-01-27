@@ -47,9 +47,9 @@
         "lastClaim": "2021-01-26T11:57:35.608Z",
         "nextClaim": {
             "endsAt": "2021-01-27T08:57:35.609Z",
-            "seconds": 0,
-            "minutes": 0,
-            "hours": 21,
+            "seconds": 26,
+            "minutes": 9,
+            "hours": 1,
             "days": 0
         },
         "streak": 10

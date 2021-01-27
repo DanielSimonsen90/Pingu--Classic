@@ -2,15 +2,12 @@
   "ExpandedNodes": [
     "",
     "\\commands",
-    "\\commands\\2 Fun",
-    "\\commands\\4 DevOnly",
+    "\\commands\\1 Utility",
     "\\events",
-    "\\events\\channel",
     "\\events\\guild",
-    "\\events\\guild\\emoji",
-    "\\servers",
-    "\\users"
+    "\\events\\guild\\guildMember",
+    "\\events\\message"
   ],
-  "SelectedNode": "\\events\\guild\\presenceUpdate.js",
+  "SelectedNode": "\\events\\message\\messageDelete.js",
   "PreviewInSolutionExplorer": false
 }

@@ -40,7 +40,13 @@ module.exports = {
 
         commandName = args.shift().toLowerCase();
         let pQueue = pGuild.musicQueue;
-        var queue = pQueue ? await pQueue.ToQueue(message.guild) : null;
+        try { var queue = pQueue ? await pQueue.ToQueue(message.guild) : null; }
+        catch {
+            UpdateQueue(message, null, `Auto-Queue Delete`,
+                `Successfully reset queue, after encounting a queue error`,
+                `Could not reset queue!`
+            );
+        }
 
         switch (commandName) {
             case "join": case "summon": return HandleJoin(message, args.join(' '));
@@ -110,7 +116,7 @@ async function HandleDisconnect(message, queue) {
  * @param {VoiceChannel} voiceChannel
  * @param {Queue} queue*/
 async function HandlePlay(message, args, voiceChannel, queue) {
-    if (!args[0] && !queue.songs[0]) return message.channel.send(`You didn't give me something to play!`);
+    if (!args[0] && (!queue || !queue.songs[0])) return message.channel.send(`You didn't give me something to play!`);
 
     var searchType = 'video';
     if (args[0] && args[0].toLowerCase() == 'playlist')
@@ -460,21 +466,21 @@ async function HandleRestart(message, queue, args) {
  * @param {Queue} queue
  * @param {string[]} args*/
 function HandleShuffle(message, queue, args) {
-    let queueSongs = queue.songs.map(v => v.id != queue.currentSong.id && v);
+    let queueSongs = queue.songs.map(v => v.id != queue.currentSong.id && v).filter(v => v);
 
     for (var i = 0; i < Math.round(Math.random() * queue.songs.length); i++) {
         queueSongs.sort(() => Math.round(Math.random() * 2) == 1 ? 1 : -1);
     }
 
     queue.songs = [queue.currentSong];
-    queue.songs.push(queueSongs);
+    queueSongs.forEach(song => queue.add(song));
 
     UpdateQueue(message, queue, "HandleShuffle",
         `Successfully shuffled **${queue.voiceChannel.name}**'s queue`,
         `Failed shuffling **${queue.voiceChannel.name}**'s queue!`
     );
 
-    return AnnounceMessage(message, queue
+    return AnnounceMessage(message, queue,
         `Shuffled!`,
         `**${message.author.tag}** shuffled the queue!`
     );
