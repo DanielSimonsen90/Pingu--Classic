@@ -440,14 +440,18 @@ export class PinguLibrary {
                 year: new Date(Date.now()).getFullYear()
             };
 
-            let activity = new Activity('your screams for', 'LISTENING');
+            var activity = new Activity('your screams for', 'LISTENING');
 
             if (date.month == 12)
                 activity = date.day < 26 ?
                     new Activity('Jingle Bells...', 'LISTENING') :
                     new Activity('fireworks go boom', 'WATCHING');
-            else if (date.month == 5 && date.day == 3)
-                activity = new Activity(`Danho's birthday wishes`, 'LISTENING');
+            else if (date.month == 5)
+                activity =
+                    date.day == 3 ? new Activity(`Danho's birthday wishes`, 'LISTENING') :
+                    date.day == 4 ? new Activity('Star Wars', 'WATCHING') : null;
+
+            if (!activity) activity = new Activity('your screams for', 'LISTENING');
 
             client.user.setActivity(activity.text + ' *help', { type: activity.type })
                 .then(presence => {
