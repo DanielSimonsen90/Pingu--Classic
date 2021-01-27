@@ -591,13 +591,8 @@ var PinguLibrary = /** @class */ (function () {
                         date.day == 4 ? new Activity('Star Wars', 'WATCHING') : null;
             if (!activity)
                 activity = new Activity('your screams for', 'LISTENING');
-            client.user.setActivity(activity.text + ' *help', { type: activity.type })
-                .then(function (presence) {
-                var activity = presence.activities[presence.activities.length - 1];
-                var announceActivity = require('./config').announceActivity;
-                if (announceActivity)
-                    PinguLibrary.activityLog(client, activity.type + " " + activity.name);
-            });
+            client.user.setActivity(activity.text + ' *help', { type: activity.type });
+            PinguLibrary.raspberryLog(client);
         }
         function UpdateStats() {
             var getChannel = function (client, channelID) { return PinguLibrary.SavedServers.PinguSupport(client).channels.cache.get(channelID); };
@@ -916,6 +911,8 @@ var PinguLibrary = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        if (client.user.id == PinguLibrary.Clients.BetaID)
+                            return [2 /*return*/];
                         eventLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "event-log");
                         if (!eventLogChannel)
                             return [2 /*return*/, this.DanhoDM(client, "Couldn't get #event-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh")];
@@ -933,6 +930,8 @@ var PinguLibrary = /** @class */ (function () {
         });
     };
     PinguLibrary.tellLog = function (client, sender, reciever, message) {
+        if (client.user.id == PinguLibrary.Clients.BetaID)
+            return;
         var tellLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'tell-log');
         if (!tellLogChannel)
             return this.DanhoDM(client, "Couldn't get #tell-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh");
@@ -1011,11 +1010,14 @@ var PinguLibrary = /** @class */ (function () {
             });
         });
     };
-    PinguLibrary.activityLog = function (client, message) {
-        var activityLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'activity-log');
+    PinguLibrary.raspberryLog = function (client) {
+        if (client.user.id == PinguLibrary.Clients.BetaID)
+            return;
+        var activityLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'raspberry-log');
         if (!activityLogChannel)
-            return this.DanhoDM(client, "Couldn't get #activity-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh");
-        return activityLogChannel.send(message);
+            return this.DanhoDM(client, "Couldn't get #raspberry-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh");
+        var version = require('./config.json').version;
+        return activityLogChannel.send("Pulled from Repository - Now running version " + version);
     };
     //#endregion
     PinguLibrary.getEmote = function (client, name, emoteGuild) {
@@ -1031,6 +1033,10 @@ var PinguLibrary = /** @class */ (function () {
         return "./embedImages/" + script + "_" + imageName + ".png";
     };
     PinguLibrary.DefaultEmbedColor = 3447003;
+    PinguLibrary.Clients = {
+        PinguID: '562176550674366464',
+        BetaID: '778288722055659520'
+    };
     PinguLibrary.PermissionGranted = "Permission Granted";
     //#endregion
     //#region Servers

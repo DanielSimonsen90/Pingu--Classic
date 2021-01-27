@@ -67,7 +67,7 @@ module.exports = {
         pGuild.embedColor = guildRoleColor;
 
         //Save Index of pGuild & log the change
-        PinguLibrary.consoleLog(guild.client, `[${guild.name}]: Embedcolor updated from ${pGuild.embedColor} to ${guildRoleColor}`);
+        PinguLibrary.consoleLog(guild.client, `[**${guild.name}**]: Embedcolor updated from ${pGuild.embedColor} to ${guildRoleColor}`);
 
         //Update guilds.json
         PinguGuild.UpdatePGuildJSON(guild.client, guild, `${scriptName}: CheckRoleChange`,

@@ -136,7 +136,7 @@ module.exports = {
             if (!pGuild) {
                 if (updatingPGuild) return;
                 updatingPGuild = true;
-                PinguLibrary.pGuildLog(client, this.name, `Unable to find pGuild for **${guild.name}**! Creating one now...`)
+                PinguLibrary.pGuildLog(client, module.exports.name, `Unable to find pGuild for **${guild.name}**! Creating one now...`)
                 PinguGuild.WritePGuild(message.guild, PinguLibrary.pGuildLog(client, this.name, `Created pGuild for **${guild.name}**`));
                 return Prefix;
             }

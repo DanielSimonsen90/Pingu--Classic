@@ -19,12 +19,16 @@ function CacheReactionRoles(client) {
         let pGuild = PinguGuild.GetPGuild(guild);
         if (!pGuild) return;
 
+
         let { reactionRoles } = pGuild;
         reactionRoles.forEach(rr => {
             let gChannel = guild.channels.cache.get(rr.channel.id);
             if (!gChannel) return;
 
             let channel = ToTextChannel(gChannel);
+
+            if (client.user.id == PinguLibrary.Clients.BetaID && guild.name == 'Pingu Support' && channel.name == 'roles') return;
+
             channel.messages.fetch(rr.messageID);
 
             //PinguLibrary.ConsoleLog(client, `Cached ${rr.messageID} from #${channel.name}, ${guild.name}`)

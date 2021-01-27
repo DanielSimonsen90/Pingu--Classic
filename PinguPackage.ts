@@ -454,11 +454,7 @@ export class PinguLibrary {
             if (!activity) activity = new Activity('your screams for', 'LISTENING');
 
             client.user.setActivity(activity.text + ' *help', { type: activity.type })
-                .then(presence => {
-                    let activity = presence.activities[presence.activities.length - 1];
-                    let { announceActivity } = require('./config');
-                    if (announceActivity) PinguLibrary.activityLog(client, `${activity.type} ${activity.name}`);
-                });
+            PinguLibrary.raspberryLog(client);
         }
         function UpdateStats() {
             let getChannel = (client: Client, channelID: string) => PinguLibrary.SavedServers.PinguSupport(client).channels.cache.get(channelID) as VoiceChannel;
@@ -548,6 +544,10 @@ export class PinguLibrary {
     public static get DefaultPrefix(): '*' {
         let { Prefix } = require('./config.json');
         return Prefix;
+    }
+    public static Clients = {
+        PinguID: '562176550674366464',
+        BetaID: '778288722055659520'
     }
     //#endregion
 
@@ -771,6 +771,8 @@ export class PinguLibrary {
         consoleLogChannel.send(message);
     }
     public static async eventLog(client: Client, content: MessageEmbed) {
+        if (client.user.id == PinguLibrary.Clients.BetaID) return;
+
         let eventLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "event-log");
         if (!eventLogChannel) return this.DanhoDM(client, `Couldn't get #event-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh`)
 
@@ -785,6 +787,8 @@ export class PinguLibrary {
         return await eventLogChannel.send(content);
     }
     public static tellLog(client: Client, sender: User, reciever: User, message: Message | MessageEmbed) {
+        if (client.user.id == PinguLibrary.Clients.BetaID) return;
+
         var tellLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'tell-log');
         if (!tellLogChannel) return this.DanhoDM(client, `Couldn't get #tell-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh`)
 
@@ -864,11 +868,15 @@ export class PinguLibrary {
 
         if (latency > 1000) PinguLibrary.outages(message.client, `I have a latency delay on ${latency}!`);
     }
-    public static activityLog(client: Client, message: string) {
-        let activityLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'activity-log');
-        if (!activityLogChannel) return this.DanhoDM(client, `Couldn't get #activity-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh`)
+    public static raspberryLog(client: Client) {
+        if (client.user.id == PinguLibrary.Clients.BetaID) return;
 
-        return activityLogChannel.send(message);
+        let activityLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'raspberry-log');
+        if (!activityLogChannel) return this.DanhoDM(client, `Couldn't get #raspberry-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh`)
+
+        let { version } = require('./config.json');
+
+        return activityLogChannel.send(`Pulled from Repository - Now running version ${version}`);
     }
     //#endregion
 

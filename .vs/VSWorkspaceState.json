@@ -3,11 +3,12 @@
     "",
     "\\commands",
     "\\commands\\1 Utility",
+    "\\commands\\2 Fun",
+    "\\commands\\4 DevOnly",
     "\\events",
-    "\\events\\guild",
-    "\\events\\guild\\guildMember",
+    "\\events\\client",
     "\\events\\message"
   ],
-  "SelectedNode": "\\events\\message\\messageDelete.js",
+  "SelectedNode": "\\config.json",
   "PreviewInSolutionExplorer": false
 }

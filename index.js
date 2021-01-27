@@ -1,6 +1,5 @@
 //#region Variables
 const { Client, Collection, Guild, MessageEmbed, GuildAuditLogsEntry } = require('discord.js'),
-    { token } = require('./config.json'),
     { CategoryNames } = require('./commands/4 DevOnly/update'),
     { PinguLibrary, Error, DiscordPermissions, PinguGuild, PinguEvents } = require('./PinguPackage'),
     fs = require('fs'),
@@ -126,7 +125,7 @@ client.on('voiceStateUpdate', (preState, state) => HandleEvent(`${GuildString}/v
 //#region Message & Message Reaction
 const MessageString = `message`;
 client.on('message', message => HandleEvent(`${MessageString}/${MessageString}`, { message })); //Message was sent by anyone 
-client.on('messageUpdate', (preMessage, message) => HandleEvent(`${MessageString}/${MessageString}Update`, {preMessage, message})) //Message was edited
+client.on('messageUpdate', (preMessage, message) => HandleEvent(`${MessageString}/${MessageString}Update`, { preMessage, message })) //Message was edited
 client.on('messageDelete', message => HandleEvent(`${MessageString}/${MessageString}Delete`, { message })); //Message was deleted
 client.on('messageDeleteBulk', messages => HandleEvent(`${MessageString}/${MessageString}DeleteBulk`, { messages })) //Messages was deleted in bulk
 
@@ -169,7 +168,7 @@ async function HandleEvent(path, parameters) {
             'roleCreate', 'roleUpdate', 'roleDelete'
         ];
         if (specialEvents.includes(event.name)) emitAssociator = await GetFromAuditLog();
-        
+
 
         //let emitterType = parameters.guild ? 'guild' : 'user';
         //if (emitter == client.user.tag && event.name == 'events: message') console.log(parameters.message.content);
@@ -265,4 +264,6 @@ async function HandleEvent(path, parameters) {
     }
 }
 
-client.login(token);
+try { var { token } = require('../../PinguBetaToken.json') }
+catch { token = require('./config.json').token; }
+finally { client.login(token); }
