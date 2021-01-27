@@ -149,7 +149,7 @@ module.exports = {
             }
 
             if (pGuild.embedColor != guild.me.roles.cache.find(botRoles => botRoles.managed).color)
-                CheckRoleChange(guild, pGuild);
+                CheckRoleChange(guild, pGuild, module.exports.name);
             return pGuild.botPrefix || Prefix;
         }
         /**@param {string} commandName 

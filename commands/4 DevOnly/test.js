@@ -20,8 +20,9 @@ module.exports = {
             'pingu-guild-log',
             'pingu-user-log'
         ];
+
         message.guild.channels.cache.forEach(c => {
-            if (!channelsToView.includes(c.name))
+            if (!channelsToView.includes(c.name) && c.permissionsFor(message.guild.roles.cache.find(r => r.id == '783365374165909556')).has(DiscordPermissions.VIEW_CHANNEL))
                 c.overwritePermissions([{
                     type: 'role',
                     id: '783365374165909556',

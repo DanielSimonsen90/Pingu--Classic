@@ -50,12 +50,13 @@ module.exports = {
     execute(client, { preRole, role }) {
         let guild = role.guild;
         let pGuild = PinguGuild.GetPGuild(guild);
-        this.CheckRoleChange(guild, pGuild);
+        this.CheckRoleChange(guild, pGuild, this.name);
     },
     /**Checks if role color was changed, to update embed colors
      * @param {Guild} guild
-    * @param {PinguGuild} pGuild*/
-    CheckRoleChange(guild, pGuild) {
+     * @param {PinguGuild} pGuild
+     * @param {string} scriptName*/
+    CheckRoleChange(guild, pGuild, scriptName) {
         //Get the color of the Pingu role in message.guild
         const guildRoleColor = guild.me.roles.cache.find(botRoles => botRoles.managed).color;
 
@@ -69,9 +70,9 @@ module.exports = {
         PinguLibrary.consoleLog(guild.client, `[${guild.name}]: Embedcolor updated from ${pGuild.embedColor} to ${guildRoleColor}`);
 
         //Update guilds.json
-        PinguGuild.UpdatePGuildJSON(guild.client, guild, `${this.name}: CheckRoleChange`,
-            `Successfully updated role color from "${guild.name}"`,
-            `I encountered and error while updating my role color in "${guild.name}"`
+        PinguGuild.UpdatePGuildJSON(guild.client, guild, `${scriptName}: CheckRoleChange`,
+            `Successfully updated role color from **${guild.name}**`,
+            `I encountered and error while updating my role color in **${guild.name}**`
         );
     }
 }

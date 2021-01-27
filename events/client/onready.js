@@ -1,6 +1,5 @@
 const { Client, GuildChannel, TextChannel } = require("discord.js");
 const { PinguLibrary, PinguGuild } = require("../../PinguPackage");
-const { announceOutages } = require('../../config');
 
 module.exports = {
     name: 'events: ready',
@@ -9,7 +8,6 @@ module.exports = {
         try { CacheReactionRoles(client); }
         catch (err) { PinguLibrary.errorLog(client, `Unable to cache reactionrole messages!`, null, err); }
 
-        if (announceOutages) PinguLibrary.outages(client, `\nI'm back online!\n`);
         PinguLibrary.consoleLog(client, `\nI'm back online!\n`);
         PinguLibrary.setActivity(client);
     }
