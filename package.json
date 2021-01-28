@@ -13,8 +13,9 @@
     "@types/node": "^14.14.21",
     "discord.js": "^12.5.1",
     "ffmpeg": "0.0.4",
+    "mongoose": "^5.11.13",
+    "request": "^2.88.2",
     "simple-youtube-api": "^5.2.1",
-    "ytdl-core": "^4.4.3",
-    "request": "^2.88.2"
+    "ytdl-core": "^4.4.3"
   }
 }
