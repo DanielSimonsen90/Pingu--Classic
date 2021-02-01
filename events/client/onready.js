@@ -4,21 +4,24 @@ const { PinguLibrary, PinguGuild } = require("../../PinguPackage");
 module.exports = {
     name: 'events: ready',
     /**@param {Client} client*/
-    execute(client) {
+    async execute(client) {
         try { CacheReactionRoles(client); }
         catch (err) { PinguLibrary.errorLog(client, `Unable to cache reactionrole messages!`, null, err); }
 
-        PinguLibrary.consoleLog(client, `\nI'm back online!\n`);
+        console.log(' ');
+        await PinguLibrary.DBExecute(client, () => PinguLibrary.consoleLog(client, `Connected to MongolDB!`));
+        PinguLibrary.consoleLog(client, `I'm back online!\n`);
+        console.log(`Logged in as ${client.user.username}`);
+
         PinguLibrary.setActivity(client);
     }
 }
 
 /**@param {Client} client*/
 function CacheReactionRoles(client) {
-    client.guilds.cache.forEach(guild => {
-        let pGuild = PinguGuild.GetPGuild(guild);
+    client.guilds.cache.forEach(async guild => {
+        let pGuild = await PinguGuild.GetPGuild(guild);
         if (!pGuild) return;
-
 
         let { reactionRoles } = pGuild;
         reactionRoles.forEach(rr => {
@@ -31,7 +34,7 @@ function CacheReactionRoles(client) {
 
             channel.messages.fetch(rr.messageID);
 
-            //PinguLibrary.ConsoleLog(client, `Cached ${rr.messageID} from #${channel.name}, ${guild.name}`)
+            PinguLibrary.ConsoleLog(client, `Cached ${rr.messageID} from #${channel.name}, ${guild.name}`)
         });
     })
 }

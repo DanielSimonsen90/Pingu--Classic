@@ -1,5 +1,5 @@
 const { Client, Message, MessageEmbed } = require("discord.js");
-const { PinguGuild } = require("../../PinguPackage");
+const { PinguGuild, PinguLibrary } = require("../../PinguPackage");
 
 module.exports = {
     name: 'events: messageDelete',
@@ -20,8 +20,10 @@ async function IsReactionRole(message) {
     let { guild } = message;
     if (!guild) return;
 
-    let pGuild = PinguGuild.GetPGuild(guild);
+    let pGuild = await PinguGuild.GetPGuild(guild);
     if (!pGuild) return;
+
+    let pGuildClient = PinguGuild.GetPClient(message.client, pGuild);
 
     let { reactionRoles } = pGuild;
     let rrFromMessage = reactionRoles.map(rr => rr.messageID == message.id && rr);
@@ -45,7 +47,7 @@ async function IsReactionRole(message) {
 
     message.author.send(new MessageEmbed()
         .setTitle(`ReactionRole message deleted!`)
-        .setColor(pGuild.embedColor)
+        .setColor(pGuildClient.embedColor)
         .setTimestamp(Date.now())
         .setDescription(
             `**Your reactionrole message in ${message.channel} was deleted!**\n` +

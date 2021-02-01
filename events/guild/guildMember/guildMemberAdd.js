@@ -1,5 +1,5 @@
 const { GuildMember, TextChannel, MessageEmbed, Client, Guild } = require("discord.js");
-const { PinguGuild, PChannel, PinguLibrary, PinguUser } = require("../../../PinguPackage");
+const { PinguGuild, PChannel, PinguLibrary, PinguUser, PClient } = require("../../../PinguPackage");
 
 module.exports = {
     name: 'events: guildMemberAdd',
@@ -8,15 +8,14 @@ module.exports = {
         return module.exports.content = new MessageEmbed().setDescription(`${member.displayName} joined **${member.guild.name}**`);
     },
     /**@param {Client} client
-     @param {{member: GuildMember}}*/
-    execute(client, { member }) {
-        let pGuild = PinguGuild.GetPGuild(member.guild);
+     @param {{member: GuildMember, pGuildClient: PClient}}*/
+    execute(client, { member, pGuildClient }) {
         let welcomeChannel = this.getWelcomeChannel(client, member.guild);
         if (welcomeChannel)
             welcomeChannel.send(new MessageEmbed()
                 .setTitle(`Welcome ${member.user.username}!`)
                 .setDescription(`${member} entered ${member.guild.name}.`)
-                .setColor(pGuild.embedColor || PinguLibrary.DefaultEmbedColor)
+                .setColor(pGuildClient.embedColor || PinguLibrary.DefaultEmbedColor)
                 .setFooter(`${member.user.tag} is member #${member.guild.members.cache.size}`)
                 .setAuthor(member.displayName, member.user.avatarURL())
                 .setThumbnail(member.guild.iconURL())

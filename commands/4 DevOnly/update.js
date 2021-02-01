@@ -1,5 +1,5 @@
 ﻿const { Message } = require("discord.js");
-const { PinguLibrary, PinguGuild, DiscordPermissions, Error } = require("../../PinguPackage");
+const { PinguLibrary, PinguGuild, DiscordPermissions, Error, PClient } = require("../../PinguPackage");
 const { Prefix } = require('../../config');
 
 module.exports = {
@@ -8,8 +8,8 @@ module.exports = {
     usage: '<script/command>',
     id: 4,
     CategoryNames: ["", "Utility", "Fun", "Support", "DevOnly"],
-    /**@param {{message: Message, args: string[], pGuild: PinguGuild}}*/
-    execute({ message, args, pGuild }) {
+    /**@param {{message: Message, args: string[], pGuildClient: PClient}}*/
+    execute({ message, args, pGuildClient }) {
         if (!args.length) return message.channel.send(`What am I supposed to update, ${message.author}?`);
 
         let script = args[0],
@@ -40,6 +40,6 @@ module.exports = {
             var permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.SEND_MESSAGES]);
             if (permCheck != PinguLibrary.PermissionGranted) return message.author.send(`${permCheck}\nBut I have updated my command!`)
         }
-        message.channel.send(`\`${(command ? message.guild && pGuild.botPrefix || Prefix : "")}${script}\` was updated!`);
+        message.channel.send(`\`${(command ? message.guild && pGuildClient.prefix || Prefix : "")}${script}\` was updated!`);
     },
 };

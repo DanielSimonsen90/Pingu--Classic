@@ -1,9 +1,8 @@
 ﻿const { Command, Client, Guild, Message, MessageEmbed } = require("discord.js");
-const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error } = require("../../PinguPackage");
+const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error, PClient } = require("../../PinguPackage");
 const { musicCommands } = require('../../commands/2 Fun/music'), { HandleTell, ExecuteTellReply } = require('../../commands/2 Fun/tell');
 const { CheckRoleChange } = require("../guild/role/roleUpdate");
-const { Prefix } = require('../../config'), SecondaryPrefix = '562176550674366464';
-let updatingPGuild = false;
+const { Prefix, BetaPrefix } = require('../../config');
 
 module.exports = {
     name: 'events: message',
@@ -48,26 +47,26 @@ module.exports = {
         if (await fromEmotesChannel(message)) return;
 
         //Assign prefix
-        let prefix = message.guild ? HandlePGuild(message.guild) : Prefix;
+        let prefix = message.guild ? await HandlePGuild(message.guild) : PinguLibrary.DefaultPrefix(message.client);
 
         //Split prefix from message content
         let args = message.content.slice(prefix.length).split(/ +/) ||
-            message.content.slice(SecondaryPrefix).split(/ +/);
+            message.content.slice(client.user.id).split(/ +/);
 
         //Get commandName
         let commandName = args.shift();
 
         //If mentioned without prefix
-        if (message.content.includes(SecondaryPrefix) && args.length == 0 && !message.author.bot)
+        if (message.content.includes(client.user.id) && args.length == 0 && !message.author.bot)
             return message.channel.send(`My prefix is \`${prefix}\``);
 
         //If interacted via @
         commandName = TestTagInteraction(commandName, args);
 
-        var startsWithPrefix = () => message.content.startsWith(prefix) && !message.author.bot || message.content.includes(SecondaryPrefix);
+        var startsWithPrefix = () => message.content.startsWith(prefix) && !message.author.bot || message.content.includes(client.user.id);
 
         //If I'm not interacted with don't do anything
-        if (message.channel.type == 'dm' && (message.author.bot || PinguUser.GetPUser(message.author).replyPerson) && (!startsWithPrefix() || commandName.includes(prefix))) {
+        if (message.channel.type == 'dm' && (message.author.bot || (await PinguUser.GetPUser(message.author)).replyPerson) && (!startsWithPrefix() || commandName.includes(prefix))) {
             try { return ExecuteTellReply(message); }
             catch (err) { return PinguLibrary.errorLog(client, `Failed to execute tell reply`, message.content, err); }
         }
@@ -83,7 +82,7 @@ module.exports = {
         if (!command) return;
 
         //If I'm not interacted with don't do anything
-        if ((!message.content.startsWith(prefix) || message.author.bot) && !message.content.includes(SecondaryPrefix)) return;
+        if ((!message.content.startsWith(prefix) || message.author.bot) && !message.content.includes(client.user.id)) return;
 
         //Decode command
         let decoded = DecodeCommand(message, command);
@@ -125,19 +124,19 @@ module.exports = {
             return true;
         }
         /**@param {Guild} guild
-         * @returns {string} */
-        function HandlePGuild(guild) {
+         * @returns {Promise<string>} */
+        async function HandlePGuild(guild) {
             //Find pGuild in servers folder
-            if (updatingPGuild) updatingPGuild = false;
-
-            let pGuild = PinguGuild.GetPGuild(guild);
+            let pGuild = await PinguGuild.GetPGuild(guild);
 
             //If pGuild wasn't found, create pGuild
             if (!pGuild) {
-                if (updatingPGuild) return;
-                updatingPGuild = true;
                 PinguLibrary.pGuildLog(client, module.exports.name, `Unable to find pGuild for **${guild.name}**! Creating one now...`)
-                PinguGuild.WritePGuild(message.guild, PinguLibrary.pGuildLog(client, this.name, `Created pGuild for **${guild.name}**`));
+                await PinguGuild.WritePGuild(client, message.guild, module.exports.name,
+                    `Successfully created PinguGuild for **${message.guild.name}**`,
+                    `Failed creating PinguGuild for **${message.guild.name}**`
+                );
+                PinguLibrary.pGuildLog(client, module.exports.name, `Created pGuild for **${guild.name}**`);
                 return Prefix;
             }
             else if (pGuild.name != guild.name) {
@@ -148,14 +147,25 @@ module.exports = {
                 }, guild);
             }
 
-            if (pGuild.embedColor != guild.me.roles.cache.find(botRoles => botRoles.managed).color)
+            let pGuildClient = PinguGuild.GetPClient(client, pGuild);
+            let clientIndex = guild.client.user.id == PinguLibrary.Clients.PinguID ? 0 : 1;
+
+            if (!pGuildClient) {
+                pGuild.clients[clientIndex] = new PClient(client, guild);
+
+                const PinguGuildSchema = require('../../MongoSchemas/PinguGuild');
+                await PinguLibrary.DBExecute(client, () => PinguGuildSchema.updateOne({ _id: guild.id }, { clients: pGuild.clients }));
+                pGuildClient = pGuild.clients[clientIndex];
+            }
+
+            if (pGuildClient.embedColor != guild.me.roles.cache.find(botRoles => botRoles.managed).color)
                 CheckRoleChange(guild, pGuild, module.exports.name);
-            return pGuild.botPrefix || Prefix;
+            return pGuildClient.prefix || PinguLibrary.DefaultPrefix(client);
         }
         /**@param {string} commandName 
          * @param {string[]} args*/
         function TestTagInteraction(commandName, args) {
-            if (commandName.includes(SecondaryPrefix))
+            if (commandName.includes(client.user.id))
                 commandName = args.shift();
             return commandName;
         }
@@ -181,7 +191,6 @@ module.exports = {
          * @param {Command} command
          * @returns {{value: boolean, message: string, type: "text" | "dm"}}*/
         function DecodeCommand(message, command) {
-
             let returnValue = {
                 type: message.channel.type,
                 value: false,
@@ -220,7 +229,7 @@ module.exports = {
          * @param {string} Prefix 
          * @param {string} commandName 
          * @param {Command} command*/
-        function ExecuteAndLogCommand(message, args, commandName, command) {
+        async function ExecuteAndLogCommand(message, args, commandName, command) {
             let ConsoleLog = `User **${message.author.username}** executed command **${commandName}**, from ${(!message.guild ? `DMs and ` : `"${message.guild}", #${message.channel.name}, and `)}`;
 
             //Attempt execution of command
@@ -230,8 +239,9 @@ module.exports = {
                 command.execute({
                     message,
                     args,
-                    pAuthor: PinguUser.GetPUser(message.author),
-                    pGuild: message.guild ? PinguGuild.GetPGuild(message.guild) : null,
+                    pAuthor: await PinguUser.GetPUser(message.author),
+                    pGuild: message.guild ? await PinguGuild.GetPGuild(message.guild) : null,
+                    pGuildClient: message.guild ? PinguGuild.GetPClient(client, (await PinguGuild.GetPGuild(message.guild))) : null
                 });
                 ConsoleLog += `**succeeded!**\n`;
             } catch (err) {

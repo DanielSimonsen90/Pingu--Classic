@@ -6,8 +6,9 @@ module.exports = {
     /**@param {{reaction: MessageReaction, user: User}}*/
     setContent({ reaction, user }) {
         return module.exports.content = new MessageEmbed()
-            .setDescription(`"${reaction.message.content}"`)
+            .setDescription(reaction.message.content ? `"${reaction.message.content}"` : null)
             .setURL(reaction.message.url)
+            .setImage(reaction.message.attachments.first())
             .addField(`User`, user.tag, true)
             .addField(`Reaction`, reaction.emoji, true)
             .addField("\u200B", "\u200B", true)

@@ -1,13 +1,15 @@
 ﻿import {
-    ActivityType, BitFieldResolvable, Channel, Client, Collection,
-    Guild, GuildAuditLogsAction, GuildChannel, GuildEmoji, GuildMember,
-    Message, MessageEmbed, MessageReaction,
-    Permissions, PermissionString, ReactionCollector,
-    Role, TextChannel, User, VoiceChannel,
-    VoiceConnection, VoiceState
+    ActivityType, BitFieldResolvable, Client, Collection,
+    Guild, GuildAuditLogsAction, GuildChannel, GuildMember,
+    Message, MessageEmbed, MessageReaction, Permissions,
+    PermissionString, Role, TextChannel, User, VoiceChannel,
+    VoiceConnection
 } from 'discord.js';
-import * as fs from 'fs';
 import { MoreVideoDetails } from 'ytdl-core';
+import * as mongoose from 'mongoose';
+
+import * as PinguGuildSchema from './MongoSchemas/PinguGuild';
+import * as PinguUserSchema from './MongoSchemas/PinguUser';
 
 export class Error {
     constructor(err: { message: string, stack: string, fileName: string, lineNumber: string } | any) {
@@ -110,9 +112,18 @@ export class PGuild extends PItem {
 }
 export class PClient {
     constructor(client: Client, guild: Guild) {
+        this.id = client.user.id;
         this.displayName = guild.me.displayName;
+
+        let clientIndex = guild.client.user.id == PinguLibrary.Clients.PinguID ? 0 : 1;
+        const { Prefix } = require('./config.json');
+        this.embedColor = guild.me.roles.cache.find(role => role.managed).color || PinguLibrary.DefaultEmbedColor;
+        this.prefix = clientIndex == 1 ? 'b' + Prefix : Prefix;
     }
     public displayName: string
+    public embedColor: number
+    public prefix: string
+    public id: string
 }
 
 export class PQueue {
@@ -170,105 +181,35 @@ export class PMarry {
 
 //#region Custom Pingu classes 
 export class PinguUser {
-    //#region Static PinguUser methods
-    public static GetPUsers(): PinguUser[] {
-        let userCollection = fs.readdirSync(`./users/`).filter(file => file.endsWith('.json'));
-        let pUserArr = [];
-
-        for (var userFile of userCollection)
-            pUserArr.push(require(`./users/${userFile}`));
-        return pUserArr;
-    }
-    public static GetPUser(user: User, suppressError?: boolean): PinguUser {
-        if (user.bot) return null;
-        var result = this.GetPUsers().find(pu => pu.id == user.id);
-        if (!result && !suppressError) {
-            PinguLibrary.errorLog(user.client, `Unable to find a user in pUsers with id ${user.id} - Created one...`);
-            PinguUser.WritePUser(user);
-            result = new PinguUser(user, user.client);
-        }
-        return result;
-    }
-
-    public static UpdatePUsersJSON(client: Client, user: User, script: string, succMsg: string, errMsg: string) {
-        let fileName = this.PUserFileName(user);
-        let path = `./users/${fileName}.json`;
-        try { var pUserObj = require(path); }
-        catch (err) { return PinguLibrary.pUserLog(client, script, `Unable to get pUser from ${fileName}`, new Error(err)); }
-
-        fs.writeFile(path, '', err => {
-            if (err) PinguLibrary.pUserLog(client, script, `[writeFile]: ${errMsg}`, new Error(err));
-            else fs.appendFile(path, JSON.stringify(pUserObj, null, 4), err => {
-                if (err) PinguLibrary.pUserLog(client, script, `[appendFile]: ${errMsg}`, new Error(err));
-                else PinguLibrary.pUserLog(client, script, succMsg);
-            });
+    public static async WritePUser(client: Client, user: User, scriptName: string, succMsg: string, errMsg: string) {
+        PinguLibrary.DBExecute(client, async mongoose => {
+            let doc = Object.assign({ _id: user.id }, new PinguUser(user));
+            let created = await new PinguUserSchema(doc).save();
+            if (!created) PinguLibrary.pUserLog(client, scriptName, errMsg);
+            else PinguLibrary.pUserLog(client, scriptName, succMsg);
         });
     }
-    public static async UpdatePUsersJSONAsync(client: Client, user: User, script: string, succMsg: string, errMsg: string) {
-        return await this.UpdatePUsersJSON(client, user, script, succMsg, errMsg);
+    public static async GetPUser(user: User): Promise<mongoose.Document<PinguUser>> {
+        return await PinguUserSchema.findOne({ _id: user.id });
     }
-
-    public static WritePUser(user: User, callback?: (pUser?: PinguUser) => void) {
-        try {
-            let pUser = new PinguUser(user, user.client);
-            fs.writeFile(`./users/${this.PUserFileName(user)}.json`, JSON.stringify(pUser, null, 2), async err => {
-                if (err) PinguLibrary.pUserLog(user.client, "WritePUser", null, new Error(err));
-                if (await callback) callback(pUser);
-            });
-        } catch (ewwor) {
-            PinguLibrary.errorLog(user.client, `WritePUser Error`, null, ewwor);
-        }
-    }
-    public static UpdatePUser(from: User, to: User, callback?: (updatedUser?: PinguUser) => void) {
-        let data = SetDifference();
-
-        this.DeletePUser(from, () => {
-            try {
-                fs.writeFile(`./users/${this.PUserFileName(to)}.json`, JSON.stringify(data, null, 2), async err => {
-                    if (err) PinguLibrary.pUserLog(to.client, "UpdatePUser", null, new Error(err));
-                    if (await callback) callback(data);
-                });
-            } catch (ewwor) {
-                PinguLibrary.errorLog(to.client, `UpdatePUser Error`, null, ewwor);
-            }
+    public static async UpdatePUser(client: Client, updatedProperty: object, pUser: PinguUser, scriptName: string, succMsg: string, errMsg: string): Promise<PinguUser> {
+        return await PinguUserSchema.updateOne({ _id: pUser.id }, updatedProperty, null, err => {
+            if (err) PinguLibrary.pUserLog(client, scriptName, errMsg, err);
+            else PinguLibrary.pUserLog(client, scriptName, succMsg);
         })
-
-        function SetDifference() {
-            let result = PinguUser.GetPUser(from);
-            let diff = new PinguUser(to, to.client);
-
-            if (result.avatar != diff.avatar) result.avatar = diff.avatar;
-            if (result.tag != diff.tag) result.tag = diff.tag;
-            return result;
-        }
     }
-    public static DeletePUser(user: User, callback?: () => void) {
-        try {
-            fs.unlink(`./users/${this.PUserFileName(user)}.json`, async err => {
-                if (err) PinguLibrary.pUserLog(user.client, "DeletePUser", `Unable to delete json file for **${PinguUser.GetPUser(user).tag}**`, new Error(err));
-                if (await callback) callback();
-            });
-        } catch (ewwor) {
-            PinguLibrary.errorLog(user.client, `DeletePUser Error`, null, ewwor);
-        }
+    public static async DeletePUser(client: Client, user: User, scriptName: string, succMsg: string, errMsg: string): Promise<PinguUser> {
+        return await PinguUserSchema.deleteOne({ _id: user.id }, null, err => {
+            if (err) PinguLibrary.pUserLog(client, scriptName, errMsg, new Error(err));
+            else PinguLibrary.pUserLog(client, scriptName, succMsg);
+        });
     }
-    public static PUserFileName(user: User) {
-        let specialCharacters = ["/", "\\", "<", ">"];
-        let writableName = user.tag;
 
-        for (var c of writableName) {
-            if (specialCharacters.includes(c))
-                writableName = writableName.replace(c, " ");
-        }
-        return writableName;
-    }
-    //#endregion
-
-    constructor(user: User, client: Client) {
+    constructor(user: User) {
         let pUser = new PUser(user);
         this.id = pUser.id;
         this.tag = pUser.name;
-        this.sharedServers = PinguLibrary.getSharedServers(client, user).map(guild => new PGuild(guild));
+        this.sharedServers = PinguLibrary.getSharedServers(user.client, user).map(guild => new PGuild(guild));
         this.marry = new Marry();
         this.replyPerson = null;
         this.daily = new Daily();
@@ -286,116 +227,53 @@ export class PinguUser {
     //public Achievements: Achievement[]
 }
 export class PinguGuild extends PItem {
-    //#region Static PinguGuild methods
-    public static GetPGuilds(): PinguGuild[] {
-        let guildCollection = fs.readdirSync(`./servers/`).filter(file => file.endsWith('.json'));
-        let pGuildArr = [];
-
-        for (var guildFile of guildCollection)
-            pGuildArr.push(require(`./servers/${guildFile}`));
-        return pGuildArr;
-    }
-    public static GetPGuild(guild: Guild, suppressError?: boolean): PinguGuild {
-        var result = this.GetPGuilds().find(pg => pg.id == guild.id);
-        if (!result && !suppressError) {
-            let error = `Unable to find a guild in pGuilds with id ${guild.id}`
-            PinguLibrary.errorLog(guild.client, error);
-            throw error;
-        }
-        return result;
-    }
-
-    public static UpdatePGuildJSON(client: Client, guild: Guild, script: string, succMsg: string, errMsg: string) {
-        let path = `./servers/${guild.name}.json`;
-        try { var pGuildObj = require(path); }
-        catch (err) { return PinguLibrary.pGuildLog(client, script, `Unable to get pGuild from ${guild.name}`, err); }
-
-        fs.writeFile(path, '', null, err => {
-            if (err) PinguLibrary.pGuildLog(client, script, `[writeFile]: ${errMsg}`, new Error(err));
-            else fs.appendFile(path, JSON.stringify(pGuildObj, null, 2), err => {
-                if (err) PinguLibrary.pGuildLog(client, script, `[appendFile]: ${errMsg}`, new Error(err));
-                else PinguLibrary.pGuildLog(client, script, succMsg);
-            })
+    public static async WritePGuild(client: Client, guild: Guild, scriptName: string, succMsg: string, errMsg: string) {
+        PinguLibrary.DBExecute(client, async mongoose => {
+            let doc = Object.assign({ _id: guild.id }, new PinguGuild(guild));
+            let created = await new PinguGuildSchema(doc).save();
+            if (!created) PinguLibrary.pGuildLog(client, scriptName, errMsg);
+            else PinguLibrary.pGuildLog(client, scriptName, succMsg);
         });
     }
-    public static async UpdatePGuildJSONAsync(client: Client, guild: Guild, script: string, succMsg: string, errMsg: string) {
-        return await this.UpdatePGuildJSON(client, guild, script, succMsg, errMsg);
+    public static async GetPGuild(guild: Guild): Promise<PinguGuild> {
+        return await PinguGuildSchema.findOne({ _id: guild.id });
+    }
+    public static async UpdatePGuild(client: Client, updatedProperty: object, pGuild: PinguGuild, scriptName: string, succMsg: string, errMsg: string) {
+        let guild = await client.guilds.fetch(pGuild.id);
+        if (!guild) throw new Error({ message: `Guild not found!` });
+
+        PinguGuildSchema.updateOne({ _id: pGuild.id }, updatedProperty, null, err => {
+            if (err) PinguLibrary.pGuildLog(client, scriptName, errMsg, err);
+            else PinguLibrary.pGuildLog(client, scriptName, succMsg);
+        });
+    }
+    public static async DeletePGuild(client: Client, guild: Guild, scriptName: string, succMsg: string, errMsg: string): Promise<PinguGuild> {
+        return await PinguGuildSchema.deleteOne({ _id: guild.id }, null, err => {
+            if (err) PinguLibrary.pGuildLog(client, scriptName, errMsg, new Error(err));
+            else PinguLibrary.pGuildLog(client, scriptName, succMsg);
+        });
     }
 
-    public static WritePGuild(guild: Guild, callback?: (pGuild?: PinguGuild) => void) {
-        try {
-            let pGuild = new PinguGuild(guild);
-            fs.writeFile(`./servers/${guild.name}.json`, JSON.stringify(pGuild, null, 2), async err => {
-                if (err) PinguLibrary.pGuildLog(guild.client, "WritePGuild", null, new Error(err));
-                if (await callback) callback(pGuild);
-            });
-        } catch (ewwor) {
-            PinguLibrary.errorLog(guild.client, `WritePGuild Error`, null, ewwor);
-        }
+    public static GetPClient(client: Client, pGuild: PinguGuild) {
+        return pGuild.clients.find(c => c && c.id == client.user.id);
     }
-    public static UpdatePGuild(from: Guild, to: Guild, callback?: (updatedGuild?: PinguGuild) => void) {
-        let data = SetDifference();
-
-        this.DeletePGuild(from, () => {
-            try {
-                fs.writeFile(`./servers/${to.name}.json`, JSON.stringify(data, null, 2), async err => {
-                    if (err) PinguLibrary.pGuildLog(to.client, "UpdatePGuild", null, new Error(err));
-                    if (await callback) callback(data);
-                });
-            } catch (ewwor) {
-                PinguLibrary.errorLog(to.client, `UpdatePGuild Error`, null, ewwor);
-            }
-        })
-
-        function SetDifference() {
-            let result = PinguGuild.GetPGuild(from);
-            let diff = new PinguGuild(to);
-
-            if (result.name != diff.name) result.name = diff.name;
-            if (result.botPrefix != diff.botPrefix) result.botPrefix = diff.botPrefix;
-            if (result.embedColor != diff.embedColor) result.embedColor = diff.embedColor;
-            if (result.guildOwner != diff.guildOwner) result.guildOwner = diff.guildOwner;
-            
-            let resultChannels = result.reactionRoles.map(rr => rr.channel.id);
-            let guildChannels = to.channels.cache.filter(c => resultChannels.includes(c.id));
-
-            guildChannels.array().forEach((c, i) => {
-                if (c.name != result.reactionRoles[i].channel.name)
-                    result.reactionRoles[i] = null;
-            });
-            result.reactionRoles = result.reactionRoles.filter(v => v);
-
-            let welcomePChannel = result.welcomeChannel;
-            let welcomeChannel = to.channels.cache.find(c => c.id == welcomePChannel.id)
-            if (!welcomeChannel || welcomeChannel.name != welcomePChannel.name) 
-                result.welcomeChannel = null;
-            
-            return result;
-        }
-    }
-    public static DeletePGuild(guild: Guild, callback?: (pGuild?: PinguGuild) => void) {
-        try {
-            let pGuild = this.GetPGuild(guild);
-            fs.unlink(`./servers/${guild.name}.json`, async err => {
-                if (err) PinguLibrary.pGuildLog(guild.client, "DeletePGuild", `Unable to delete json file for ${pGuild.name}`, new Error(err));
-                if (await callback) callback(pGuild);
-            });
-        } catch (ewwor) {
-            PinguLibrary.errorLog(guild.client, `DeletePGuild Error`, null, ewwor);
-        }
-    }
-    //#endregion
 
     constructor(guild: Guild) {
         super(guild);
-        this.guildOwner = new PGuildMember(guild.owner);
-        const { Prefix } = require('./config.json');
-        this.botPrefix = Prefix;
+
+        if (guild.owner) this.guildOwner = new PGuildMember(guild.owner);
+        else guild.client.users.fetch(guild.ownerID).then(owner => this.guildOwner = new PGuildMember(guild.member(owner)));
+
+        this.clients = new Array<PClient>();
+        let clientIndex = guild.client.user.id == PinguLibrary.Clients.PinguID ? 0 : 1;
+        if (clientIndex != 0) this.clients.push(null);
+        this.clients[clientIndex] = new PClient(guild.client, guild);
+
         let welcomeChannel = guild.channels.cache.find(c => c.isText() && c.name.includes('welcome')) ||
             guild.channels.cache.find(c => c.isText() && c.name == 'general');
-        this.welcomeChannel = welcomeChannel ? new PChannel(welcomeChannel) : null;
-        this.embedColor = guild.me.roles.cache.find(role => role.name.includes('Pingu')) && guild.me.roles.cache.find(role => role.name.includes('Pingu')).color || PinguLibrary.DefaultEmbedColor;
-        this.musicQueue = null;
+
+        if (welcomeChannel) this.welcomeChannel = new PChannel(welcomeChannel);
+
         this.reactionRoles = new Array<ReactionRole>();
         this.giveawayConfig = new GiveawayConfig();
         this.pollConfig = new PollConfig;
@@ -404,8 +282,7 @@ export class PinguGuild extends PItem {
             this.themeWinners = new Array<PGuildMember>();
     }
     public guildOwner: PGuildMember
-    public embedColor: number
-    public botPrefix: string
+    public clients: PClient[]
     public welcomeChannel: PChannel
     public musicQueue: PQueue
     public reactionRoles: ReactionRole[];
@@ -441,6 +318,7 @@ export class PinguLibrary {
             };
 
             var activity = new Activity('your screams for', 'LISTENING');
+            if (client.user.id == PinguLibrary.Clients.BetaID) activity = new Activity('Danho cry over bad code', 'WATCHING');
 
             if (date.month == 12)
                 activity = date.day < 26 ?
@@ -453,7 +331,7 @@ export class PinguLibrary {
 
             if (!activity) activity = new Activity('your screams for', 'LISTENING');
 
-            client.user.setActivity(activity.text + ' *help', { type: activity.type })
+            client.user.setActivity(activity.text + ` ${PinguLibrary.DefaultPrefix(client)}help`, { type: activity.type })
             PinguLibrary.raspberryLog(client);
         }
         function UpdateStats() {
@@ -486,12 +364,13 @@ export class PinguLibrary {
                     }
                     function getDailyLeader() {
                         try {
-                            let pUser = PinguUser.GetPUsers().sort((a, b) => {
-                                try { return b.daily.streak - a.daily.streak }
-                                catch (err) { PinguLibrary.errorLog(client, `Unable to get daily streak difference between ${a.tag} and ${b.tag}`, null, err); }
+                            //let pUser = PinguUser.GetPUsers().sort((a, b) => {
+                            //    try { return b.daily.streak - a.daily.streak }
+                            //    catch (err) { PinguLibrary.errorLog(client, `Unable to get daily streak difference between ${a.tag} and ${b.tag}`, null, err); }
 
-                            })[0];
-                            return `${pUser.tag} #${pUser.daily.streak}`;
+                            //})[0];
+                            //return `${pUser.tag} #${pUser.daily.streak}`;
+                            return "Under Construction"
                         }
                         catch (err) { PinguLibrary.errorLog(client, `Unable to get Daily Leader`, null, err); }
                     }
@@ -541,9 +420,10 @@ export class PinguLibrary {
         }
     }
     public static DefaultEmbedColor = 3447003;
-    public static get DefaultPrefix(): '*' {
-        let { Prefix } = require('./config.json');
-        return Prefix;
+    public static DefaultPrefix(client: Client): '*' | 'b*' {
+        return client.user.id == PinguLibrary.Clients.PinguID ?
+            require('./config.json').Prefix :
+            require('./config.json').BetaPrefix;
     }
     public static Clients = {
         PinguID: '562176550674366464',
@@ -669,7 +549,6 @@ export class PinguLibrary {
     private static readonly PinguDevelopers: string[] = [
         '245572699894710272', //Danho#2105
         '405331883157880846', //Synthy Sytro
-        '795937270569631754', //Daniel Simonsen
         '803903863706484756' //Slothman
     ];
     public static isPinguDev(user: User) {
@@ -713,12 +592,14 @@ export class PinguLibrary {
     //#endregion
 
     //#region Log Channels
-    public static errorLog(client: Client, message: string, messageContent?: string, err?: Error) {
+    public static async errorLog(client: Client, message: string, messageContent?: string, err?: Error) {
         var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log');
         if (!errorlogChannel) return this.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
 
         console.error(getErrorMessage(message.includes('`') ? message.replace('`', ' ') : message, messageContent, err));
-        return errorlogChannel.send(getErrorMessage(message, messageContent, err));
+        let sent = await errorlogChannel.send(getErrorMessage(message, messageContent, err));
+        await sent.react(PinguLibrary.SavedServers.DanhoMisc(client).emojis.cache.find(e => e.name == 'Checkmark'));
+        return sent;
 
         function getErrorMessage(message: string, messageContent?: string, err?: Error) {
             let result = {
@@ -761,7 +642,7 @@ export class PinguLibrary {
         }
         return pinguUserLog.send(`[**Success**] [**${script}**]: ${message}`);
     }
-    public static consoleLog(client: Client, message: string) {
+    public static async consoleLog(client: Client, message: string) {
         let timeFormat = `[${new Date(Date.now()).toLocaleTimeString()}]`;
         console.log(`${timeFormat} ${message}`);
 
@@ -786,7 +667,7 @@ export class PinguLibrary {
         PinguEvents.LoggedCache.unshift(content);
         return await eventLogChannel.send(content);
     }
-    public static tellLog(client: Client, sender: User, reciever: User, message: Message | MessageEmbed) {
+    public static async tellLog(client: Client, sender: User, reciever: User, message: Message | MessageEmbed) {
         if (client.user.id == PinguLibrary.Clients.BetaID) return;
 
         var tellLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'tell-log');
@@ -868,15 +749,13 @@ export class PinguLibrary {
 
         if (latency > 1000) PinguLibrary.outages(message.client, `I have a latency delay on ${latency}!`);
     }
-    public static raspberryLog(client: Client) {
+    public static async raspberryLog(client: Client) {
         if (client.user.id == PinguLibrary.Clients.BetaID) return;
 
-        let activityLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'raspberry-log');
-        if (!activityLogChannel) return this.DanhoDM(client, `Couldn't get #raspberry-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh`)
+        let raspberryLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'raspberry-log');
+        if (!raspberryLogChannel) return this.DanhoDM(client, `Couldn't get #raspberry-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh`)
 
-        let { version } = require('./config.json');
-
-        return activityLogChannel.send(`Pulled from Repository - Now running version ${version}`);
+        return raspberryLogChannel.send(`Pulled version ${require('./config.json').version} from Github`);
     }
     //#endregion
 
@@ -890,6 +769,17 @@ export class PinguLibrary {
     }
     public static getImage(script: string, imageName: string) {
         return `./embedImages/${script}_${imageName}.png`;
+    }
+    public static async DBExecute(client: Client, callback: (mongoose: typeof import('mongoose')) => void) {
+        try {
+            const { mongoPass } = require('./config.json')
+            await mongoose.connect(`mongodb+srv://Pingu:${mongoPass}@pingudb.kh2uq.mongodb.net/PinguDB?retryWrites=true&w=majority`, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true
+            });
+            await callback(mongoose);
+        } catch (err) { PinguLibrary.errorLog(client, 'Mongo error', null, new Error(err)); }
+        //finally { mongoose.connection.close(); }
     }
 }
 export class PinguEvents {
@@ -1264,9 +1154,9 @@ export class ReactionRole {
     public emoteName: string
     public pRole: PRole
 
-    public static GetReactionRole(client: Client, reaction: MessageReaction, user: User) {
+    public static async GetReactionRole(client: Client, reaction: MessageReaction, user: User) {
         let guild = reaction.message.guild;
-        let pGuild = PinguGuild.GetPGuild(guild);
+        let pGuild = await PinguGuild.GetPGuild(guild);
         var rr = pGuild.reactionRoles.find(rr =>
             rr.messageID == reaction.message.id &&
             (rr.emoteName == reaction.emoji.name) &&
@@ -1295,7 +1185,7 @@ export class ReactionRole {
 export class Marry {
     constructor(partner?: PUser, internalDate?: string) {
         this.partner = partner;
-        this.internalDate = new Date(internalDate);
+        this.internalDate = internalDate ? new Date(internalDate) : null;
     }
 
     public partner: PUser

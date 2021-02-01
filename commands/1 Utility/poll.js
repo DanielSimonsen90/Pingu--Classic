@@ -1,5 +1,5 @@
 ﻿const { Message, MessageEmbed, Role, GuildChannel, TextChannel, Channel } = require('discord.js'),
-    { PinguGuild, Poll, PollConfig, PRole, TimeLeftObject, PGuildMember, PinguLibrary, DiscordPermissions, PChannel } = require('../../PinguPackage');
+    { PinguGuild, Poll, PollConfig, PRole, TimeLeftObject, PGuildMember, PinguLibrary, DiscordPermissions, PChannel, PClient } = require('../../PinguPackage');
 const { disconnect } = require('process');
 ms = require('ms');
 
@@ -15,8 +15,8 @@ module.exports = {
         DiscordPermissions.ADD_REACTIONS,
         DiscordPermissions.MANAGE_MESSAGES
     ],
-    /**@param {{message: Message, args: string[], pGuild: PinguGuild}}*/
-    async execute({ message, args, pGuild }) {
+    /**@param {{message: Message, args: string[], pGuild: PinguGuild, pGuildClient: PClient}}*/
+    async execute({ message, args, pGuild, pGuildClient }) {
         if (!pGuild) {
             await PinguLibrary.errorLog(message.client, `Couldn't find pGuild for "${message.guild.name}" (${message.guild.id})`)
             return message.channel.send(`I had an error trying to get ${message.guild.name}'s Pingu Guild! I've notified my developers.`);
@@ -52,7 +52,7 @@ module.exports = {
         if (channelPerms != PinguLibrary.PermissionGranted) return message.channel.send(channelPerms);
         
         let Question = args.join(" ");
-        const color = pGuild.embedColor, EndsAt = new Date(Date.now() + ms(Time));
+        const color = pGuildClient.embedColor, EndsAt = new Date(Date.now() + ms(Time));
 
         //Create Embed
         let Embed = new MessageEmbed()

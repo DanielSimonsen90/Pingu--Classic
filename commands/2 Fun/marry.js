@@ -1,5 +1,5 @@
 ﻿const { Message, MessageEmbed, MessageAttachment } = require('discord.js');
-const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions, Marry } = require('../../PinguPackage');
+const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions, Marry, PClient } = require('../../PinguPackage');
 
 module.exports = {
     name: 'marry',
@@ -9,8 +9,8 @@ module.exports = {
     id: 2,
     examples: ["@Danho2105", "divorce"],
     permissions: [DiscordPermissions.SEND_MESSAGES],
-    /**@param {{message: Message, args: string[], pAuthor: PinguUser, pGuild: PinguGuild}}*/
-    async execute({ message, args, pAuthor, pGuild }) {
+    /**@param {{message: Message, args: string[], pAuthor: PinguUser, pGuild: PinguGuild, pGuildClient: PClient}}*/
+    async execute({ message, args, pAuthor, pGuild, pGuildClient }) {
         if (!pAuthor) return message.channel.send(`I can't find your PinguUser in my database!`);
         else if (args[0] && args[0].toLowerCase() == `divorce`) {
             if (pAuthor.marry.partner) return HandleDivorce(message, pAuthor);
@@ -18,7 +18,7 @@ module.exports = {
         }
         else if (!message.mentions.users.first()) {
             if (pAuthor.marry.partner) return message.channel.send(new Marry(pAuthor.marry.partner, pAuthor.marry.internalDate).marriedMessage);
-            return message.channel.send(pAuthor.marry.marriedMessage + "\n\nYou can marry others by typing `" + pGuild.botPrefix + "marry <@user>`");
+            return message.channel.send(pAuthor.marry.marriedMessage + "\n\nYou can marry others by typing `" + pGuildClient.prefix + "marry <@user>`");
         }
         else if (pAuthor.marry.partner) return message.channel.send(`You're already married, you unloyal filth!`);
         let partner = message.mentions.users.first();
@@ -46,10 +46,22 @@ module.exports = {
             .attachFiles([new MessageAttachment(PinguLibrary.getImage(this.name, 'nowMarried'), 'nowMarried.png')])
             .setThumbnail('attachment://nowMarried.png')
             .setTimestamp(Date.now())
-            .setColor(pGuild.embedColor)
+            .setColor(pGuildClient.embedColor)
         )
 
         UpdatePUsers();
+
+        function UpdatePUsers() {
+            PinguUser.UpdatePUser(message.client, {daily: pAuthor.daily}, message.author, module.exports.name,
+                `Successfully updated **${message.author.tag}.json**'s marry property`,
+                `Failed updating **${message.author.tag}.json**'s marry property!`
+            );
+
+            PinguUser.UpdatePUser(message.client, {daily: pPartner.daily}, partner, module.exports.name,
+                `Successfully updated **${partner.tag}.json**'s marry property`,
+                `Failed updating **${partner.tag}.json**'s marry property!`
+            );
+        }
     }
 }
 
@@ -79,14 +91,3 @@ async function HandleDivorce(message, pAuthor) {
     else return message.channel.send(`Alright then.`);
 }
 
-function UpdatePUsers() {
-    PinguUser.UpdatePUsersJSON(message.client, message.author, this.name,
-        `Successfully updated **${message.author.tag}.json**'s marry property`,
-        `Failed updating **${message.author.tag}.json**'s marry property!`
-    );
-
-    PinguUser.UpdatePUsersJSON(message.client, partner, this.name,
-        `Successfully updated **${partner.tag}.json**'s marry property`,
-        `Failed updating **${partner.tag}.json**'s marry property!`
-    );
-}

@@ -1,7 +1,7 @@
 ﻿const request = require('request'),
     config = require('../../config.json'),
     { Message, MessageEmbed } = require('discord.js');
-const { PinguLibrary, PinguGuild, DiscordPermissions } = require('../../PinguPackage');
+const { PinguLibrary, PinguGuild, DiscordPermissions, PClient } = require('../../PinguPackage');
 
 module.exports = {
     name: 'activity',
@@ -12,8 +12,8 @@ module.exports = {
     id: 2,
     example: ["hug @Danho#2105"],
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.embedl],
-    /**@param {{message: Message, args: string[], pGuild: PinguGuild}}*/
-    async execute({ message, args, pGuild }) {
+    /**@param {{message: Message, args: string[], pGuildClient: PClient}}*/
+    async execute({ message, args, pGuildClient }) {
         //Permission check
         const PermCheck = PermissionCheck(message, args);
         if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
@@ -50,7 +50,7 @@ module.exports = {
             const embed = new MessageEmbed()
                 .setTitle(`${User} ${Activity} ${Person}`)
                 .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
-                .setColor(pGuild.embedColor);
+                .setColor(pGuildClient.embedColor);
 
             //Return the whole thing LuL
             //React with F if the user uses *activity on themselves

@@ -13,6 +13,7 @@ module.exports = {
         }, [DiscordPermissions.MANAGE_WEBHOOKS]) != PinguLibrary.PermissionGranted) return null;
 
         let webhook = (await channel.fetchWebhooks()).last();
+        if (!webhook) return;
         if (!webhook.name) {
             let audits = await channel.guild.fetchAuditLogs({ type: 'WEBHOOK_DELETE' });
             let { executor } = audits.entries.last();

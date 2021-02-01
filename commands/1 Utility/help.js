@@ -1,4 +1,4 @@
-const { PinguGuild, PinguLibrary } = require('../../PinguPackage');
+const { PinguGuild, PinguLibrary, PClient } = require('../../PinguPackage');
 
 const { MessageEmbed, Message } = require('discord.js'),
     { CategoryNames } = require('../4 DevOnly/update');
@@ -9,14 +9,14 @@ module.exports = {
     usage: '[category | command]',
     id: 1,
     examples: ["", "giveaway", "activity"],
-    /**@param {{message: Message, args: string[], pGuild: PinguGuild}}*/
-    async execute({ message, args, pGuild }) {
+    /**@param {{message: Message, args: string[], pGuild: PinguGuild, pGuildClient: PClient}}*/
+    async execute({ message, args, pGuild, pGuildClient }) {
         //#region Create variables
         let color, prefix;
 
         if (message.channel.type != 'dm') {
-            color = pGuild.embedColor || PinguLibrary.DefaultEmbedColor;
-            prefix = pGuild.botPrefix || PinguLibrary.DefaultPrefix;
+            color = pGuildClient.embedColor;
+            prefix = pGuildClient.prefix;
         }
         if (!color) color = PinguLibrary.DefaultEmbedColor;
         if (!prefix) prefix = PinguLibrary.DefaultPrefix;

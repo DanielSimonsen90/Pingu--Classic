@@ -1,7 +1,7 @@
 const request = require('request'),
     config = require('../../config.json'),
     { Message, MessageEmbed } = require('discord.js');
-const { PinguLibrary, PinguGuild, DiscordPermissions } = require('../../PinguPackage');
+const { PinguLibrary, PinguGuild, DiscordPermissions, PClient } = require('../../PinguPackage');
 
 module.exports = {
     name: 'meme',
@@ -9,8 +9,8 @@ module.exports = {
     usage: '',
     id: 2, 
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.EMBED_LINKS],
-    /**@param {{message: Message, args: string[], pGuild: PinguGuild}}*/
-    execute({ message, pGuild }) {
+    /**@param {{message: Message, args: string[], pGuild: PinguGuild, pGuildClient: PClient}}*/
+    execute({ message, pGuild, pGuildClient }) {
         if (!config || !config.api_key || !config.google_custom_search) {
             PinguLibrary.errorLog(message.client, 'Unable to send gif\nImage search requires both a YouTube API key and a Google Custom Search key!').then(() =>
                 message.channel.send(`I was unable to search for a gif! I have contacted my developers...`));
@@ -39,7 +39,7 @@ module.exports = {
 
             message.channel.send(new MessageEmbed()
                 .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
-                .setColor(pGuild.embedColor)
+                .setColor(pGuildClient.embedColor)
             );
         });
     },

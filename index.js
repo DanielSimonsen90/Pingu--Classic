@@ -149,6 +149,7 @@ async function HandleEvent(path, parameters) {
 
     try {
         var event = require(`./events/${path}`);
+        //PinguLibrary.consoleLog(client, `Emitting ${eventName}`);
         event.execute(client, parameters);
         await SendToLog();
     }
@@ -157,21 +158,19 @@ async function HandleEvent(path, parameters) {
     async function SendToLog() {
         let emitAssociator = parameters.guild ? parameters.guild.name : parameters.message ? parameters.message.author.tag : parameters.member ? parameters.member.user.tag :
             parameters.user ? parameters.user.tag : parameters.reaction ? parameters.reaction.users.cache.last().tag : parameters.messages ? parameters.messages.last().tag :
-                parameters.emote ? parameters.emote.author.tag : parameters.client ? client.user.tag : parameters.invite ? parameters.invite.inviter.tag :
+                parameters.emote && parameters.emote.author ? parameters.emote.author.tag : parameters.emote ? client.user.tag : parameters.client ? client.user.tag : parameters.invite ? parameters.invite.inviter.tag :
                     parameters.presence ? parameters.presence.user.tag : parameters.role ? parameters.role.guild.name : parameters.state ? parameters.state.member.user.tag : "Unknown";
 
         let specialEvents = [
-            'channelCreate', 'channelUpdate', 'channelDelete', 'channelPinsUpdate', 'webhookUpdate',
+            'channelCreate', 'channelUpdate', 'channelDelete', 'channelPinsUpdate',
+            'webhookUpdate',
             'emojiCreate', 'emojiUpdate', 'emojiDelete',
             'guildBanAdd', 'guildBanRemove', 'guildMemberUpdate',
             'guildUpdate', 'guildIntergrationsUpdate',
-            'roleCreate', 'roleUpdate', 'roleDelete'
+            'roleCreate', 'roleUpdate', 'roleDelete',
+            'messageBulkDelete'
         ];
         if (specialEvents.includes(event.name)) emitAssociator = await GetFromAuditLog();
-
-
-        //let emitterType = parameters.guild ? 'guild' : 'user';
-        //if (emitter == client.user.tag && event.name == 'events: message') console.log(parameters.message.content);
 
         if (emitAssociator == 'Unknown') PinguLibrary.errorLog(client, `Event parameter for ${event.name} was not recognized!`);
         if (parameters.message && ['event-log', 'ping-log', 'console-log'].includes(parameters.message.channel.name)) return;
@@ -186,7 +185,10 @@ async function HandleEvent(path, parameters) {
                 case 'channelUpdate': return !parameters.channel.guild ? parameters.channel.recipient.tag : await GetInfo(parameters.channel.guild, 'CHANNEL_UPDATE');
                 case 'channelDelete': return !parameters.channel.guild ? parameters.channel.recipient.tag : await GetInfo(parameters.channel.guild, 'CHANNEL_DELETE');
                 case 'channelPinsUpdate': return !parameters.channel.guild ? parameters.channel.recipient.tag : (await GetInfo(parameters.channel.guild, 'MESSAGE_PIN') || await GetInfo(parameters.channel.guild, 'MESSAGE_UNPIN'));
-                case 'webhookUpdate': return await GetInfo(parameters.channel.guild, 'WEBHOOK_UPDATE') || await GetInfo(parameters.channel.guild, 'WEBHOOK_CREATE');
+
+                case 'webhookCreate': return await GetInfo(parameters.channel.guild, 'WEBHOOK_CREATE');
+                case 'webhookUpdate': return await GetInfo(parameters.channel.guild, 'WEBHOOK_UPDATE');
+                case 'webhookDelete': return await GetInfo(parameters.channel.guild, 'WEBHOOK_DELETE');
 
                 case 'emojiCreate': return await GetInfo(parameters.emote.guild, 'EMOJI_CREATE');
                 case 'emojiUpdate': return await GetInfo(parameters.emote.guild, 'EMOJI_UPDATE');
@@ -198,6 +200,8 @@ async function HandleEvent(path, parameters) {
 
                 case 'guildUpdate': return await GetInfo(parameters.guild, 'GUILD_UPDATE');
                 case 'guildIntegrationsUpdate': return await GetInfo(parameters.guild, 'INTEGRATION_UPDATE');
+
+                case 'messageBulkDelete': return await GetInfo(parameters.messages.last().guild, 'MESSAGE_BULK_DELETE');
 
                 case 'roleCreate': return await GetInfo(parameters.role.guild, 'ROLE_CREATE');
                 case 'roleUpdate': return await GetInfo(parameters.role.guild, 'ROLE_UPDATE');
@@ -211,7 +215,7 @@ async function HandleEvent(path, parameters) {
             async function GetInfo(guild, auditLogEvent) {
                 let auditLogs = await getAuditLogs(guild, auditLogEvent);
                 if (auditLogs == noAuditLog) return noAuditLog;
-                return auditLogs.last().executor.tag;
+                return auditLogs.last() && auditLogs.last().executor.tag || PinguEvents.noAuditLog;
             }
             /**@param {Guild} guild
              @param {import('discord.js').GuildAuditLogsAction} type
@@ -233,11 +237,11 @@ async function HandleEvent(path, parameters) {
             }
             let defaultEmbed = new MessageEmbed()
                 .setTitle(event.name)
-                .setAuthor(emitAssociator, (emitAssociator == "Unknown" ? null :
+                .setAuthor(emitAssociator, (!emitAssociator || emitAssociator == "Unknown" ? null :
                     emitAssociator.match(/#\d{4}$/g) ?
                         user && user.avatarURL() :
                         guild && guild.iconURL()))
-                .setColor(getColor())
+                .setColor(await getColor())
                 .setFooter(`${getDoubleDigit(executed.getHours())}.${getDoubleDigit(executed.getMinutes())}.${getDoubleDigit(executed.getSeconds())}:${executed.getMilliseconds()}`);
             if (event.setContent) {
                 await event.setContent(parameters);
@@ -254,16 +258,17 @@ async function HandleEvent(path, parameters) {
             }
             return defaultEmbed;
 
-            function getColor() {
+            async function getColor() {
                 if (eventName.includes('Create') || eventName.includes('Add')) return PinguEvents.Colors.Create;
                 else if (eventName.includes('Delete') || eventName.includes('Remove')) return PinguEvents.Colors.Delete;
                 else if (eventName.includes('Update')) return PinguEvents.Colors.Update;
-                else return PinguGuild.GetPGuild(PinguLibrary.SavedServers.PinguSupport(client)).embedColor || PinguLibrary.DefaultEmbedColor;
+                try { return (await PinguGuild.GetPGuild(PinguLibrary.SavedServers.PinguSupport(client))).clients.find(c => c.id == client.user.id).embedColor; }
+                catch { return PinguLibrary.DefaultEmbedColor; }
             }
         }
     }
 }
 
-try { var { token } = require('../../PinguBetaToken.json') }
+try { var { token } = require('../../PinguBetaToken.json'); /*throw null;*/ }
 catch { token = require('./config.json').token; }
 finally { client.login(token); }

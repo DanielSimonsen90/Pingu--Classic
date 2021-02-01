@@ -1,5 +1,5 @@
-﻿const { Message, MessageEmbed, User, Guild, GuildMember, Role, Channel, TextChannel } = require('discord.js'),
-    { PinguGuild, PGuildMember, PRole, GiveawayConfig, Giveaway, TimeLeftObject, PinguLibrary, DiscordPermissions, PChannel } = require('../../PinguPackage'),
+﻿const { Channel, Client, Guild, GuildMember, MessageEmbed, Role, TextChannel, User, Message } = require('discord.js'),
+    { DiscordPermissions, Giveaway, GiveawayConfig, PChannel, PClient, PGuildMember, PRole, PinguLibrary, TimeLeftObject, PinguGuild } = require('../../PinguPackage'),
     ms = require('ms');
 
 module.exports = {
@@ -15,15 +15,15 @@ module.exports = {
         DiscordPermissions.MANAGE_MESSAGES,
         DiscordPermissions.ADD_REACTIONS
     ],
-    /**@param {{message: Message, args: string[], pGuild: PinguGuild}}*/
-    async execute({ message, args, pGuild }) {
+    /**@param {{message: Message, args: string[], pGuild: PinguGuild, pGuildClient: PClient}}*/
+    async execute({ message, args, pGuild, pGuildClient }) {
         // Test if all permissions are available & if all arguments are met
-        let ReturnMessage = PermissionCheck(message, args);
+        let ReturnMessage = await PermissionCheck(message, args);
         if (ReturnMessage != PinguLibrary.PermissionGranted) return message.author.send(ReturnMessage);
 
         //Is user trying to host a giveaway?
-        if (!pGuild.giveawayConfig || args[0] == `setup`)
-            return FirstTimeExecuted(message, args);
+        if (pGuild.giveawayConfig.allowSameWinner == null && !pGuild.giveawayConfig.giveaways.length || args[0] == `setup`)
+            return await FirstTimeExecuted(message, args, pGuild, pGuildClient);
         else if (args[0] == "list") return ListGiveaways(message);
 
         //#region Variables creation
@@ -33,7 +33,7 @@ module.exports = {
 
         //Declare Winners & GiveawayChannel
         let Winners = 1, giveawayChannel;
-        
+
         //Assign Winners & Giveaway channel values, if defined
         if (args[0].endsWith('w') && !isNaN(args[0].substring(0, args[0].length - 1))) {
             Winners = args.shift();
@@ -74,7 +74,7 @@ module.exports = {
 
         let embed = new MessageEmbed()
             .setTitle(Prize)
-            .setColor(pGuild.embedColor)
+            .setColor(pGuildClient.embedColor)
             .setDescription(
                 `React with :fingers_crossed: to enter!\n` +
                 `Winners: **${Winners}**\n` +
@@ -92,15 +92,13 @@ module.exports = {
         if (args[0] == `reroll`) return Reroll(message, args, embed);
 
         //Announce giveaway
-        giveawayChannel.send(`**Giveawayy woo**`, embed)
-            .then(GiveawayMessage => {
-                GiveawayMessage.react('🤞');
-                PinguLibrary.consoleLog(message.client, `${GiveawayCreator.user.username} hosted a giveaway in ${message.guild.name}, #${message.channel.name}, giving "${Prize}" away`);
-                SaveGiveawayToPGuilds(GiveawayMessage, Prize, GiveawayCreator, giveawayChannel);
+        let GiveawayMessage = await giveawayChannel.send(`**Giveawayy woo**`, embed);
+        GiveawayMessage.react('🤞');
+        PinguLibrary.consoleLog(message.client, `${GiveawayCreator.user.username} hosted a giveaway in ${message.guild.name}, #${message.channel.name}, giving "${Prize}" away`);
+        SaveGiveawayToPGuilds(GiveawayMessage, Prize, GiveawayCreator, giveawayChannel);
 
-                const interval = setInterval(() => UpdateTimer(GiveawayMessage, EndsAt, GiveawayCreator), 5000);
-                setTimeout(() => AfterTimeOut(message, GiveawayMessage, Prize, Winners, embed, GiveawayCreator, interval, null), ms(Time));
-            });
+        const interval = setInterval(() => UpdateTimer(GiveawayMessage, EndsAt, GiveawayCreator), 5000);
+        setTimeout(() => AfterTimeOut(message, GiveawayMessage, Prize, Winners, embed, GiveawayCreator, interval, null), ms(Time));
 
         /**@param {Message} GiveawayMessage @param {Date} EndsAt*/
         function UpdateTimer(GiveawayMessage, EndsAt) {
@@ -112,21 +110,21 @@ module.exports = {
                         `Ends in: ${new TimeLeftObject(new Date(Date.now()), EndsAt).toString()}\n` +
                         `Hosted by ${GiveawayCreator.user}`
                     ));
-            } catch (e) { errorLog(message.client, `Updating giveaway timer error`, message.cotent, e) }
+            } catch (e) { PinguLibrary.errorLog(message.client, `Updating giveaway timer error`, message.cotent, e) }
         }
     },
 };
 
 //#region Misc Methods
 /**@param {Message} message @param {string[]} args*/
-function PermissionCheck(message, args) {
-    const pGuildConf = PinguGuild.GetPGuild(message.guild).giveawayConfig;
+async function PermissionCheck(message, args) {
+    const pGuildConf = (await PinguGuild.GetPGuild(message.guild)).giveawayConfig;
 
-    if (["reroll", "setup", "list"].includes(args[0]) || !pGuildConf)
+    if (["reroll", "setup", "list"].includes(args[0]) || pGuildConf.allowSameWinner == null && !pGuildConf.giveaways.length)
         return PinguLibrary.PermissionGranted;
     else if (!args[0] && !args[1]) return `You didn't give me enough arguments!`;
 
-    CheckRoleUpdates(message);
+    await CheckRoleUpdates(message);
 
     if (!message.member.hasPermission('ADMINISTRATOR')) {
         if (!message.member.roles.cache.has(pGuildConf.hostRole.id) && PinguLibrary.isPinguDev(message.author))
@@ -143,38 +141,42 @@ function PermissionCheck(message, args) {
     return PinguLibrary.PermissionGranted;
 
     /**@param {Message} message*/
-    function CheckRoleUpdates(message) {
-        pGuild = PinguGuild.GetPGuild(message.guild);
-        let WinnerRole = pGuild.giveawayConfig.winnerRole,
-            HostRole = pGuild.giveawayConfig.hostRole;
+    async function CheckRoleUpdates(message) {
+        let pGuild = await PinguGuild.GetPGuild(message.guild);
+        let WinnerPRole = pGuild.giveawayConfig.winnerRole,
+            HostPRole = pGuild.giveawayConfig.hostRole;
 
-        WinnerRole = CheckRole(WinnerRole);
-        HostRole = CheckRole(HostRole);
+        let WinnerRole = CheckRole(WinnerPRole);
+        let HostRole = CheckRole(HostPRole);
 
-        PinguGuild.UpdatePGuildJSON(message.client, message.guild, module.exports.name,
-            `Updated giveaway roles`,
-            `I encountered and error while updating giveaway roles`
-        );
+        if (!WinnerRole && WinnerPRole != undefined || WinnerPRole != undefined && WinnerRole || //Winner role (doesn't) exist(s)
+            !HostRole && HostPRole != undefined || HostPRole != undefined && HostRole || //Host role (doesn't) exist(s)
+            WinnerPRole && WinnerRole && WinnerRole.name != WinnerPRole.name || //Winner role's name changed
+            HostPRole && HostPRole && HostRole.name != HostPRole.name) //Host role's name changed
+            await UpdatePGuild(message.client, pGuild,
+                `Updated giveaway roles`,
+                `I encountered and error while updating giveaway roles`
+            );
 
-        /**@param {Role} Role*/
-        function CheckRole(Role) {
-            if (!Role) return "undefined";
-            const guildRole = message.guild.roles.cache.find(r => r.id == Role.id);
-            return guildRole;
+
+        /**@param {PRole} pRole*/
+        function CheckRole(pRole) {
+            if (!pRole) return undefined;
+            return guildRole = message.guild.roles.cache.find(r => r.id == pRole.id);
         }
     }
 }
 /**@param {Message} message @param {string[]} args*/
-function FirstTimeExecuted(message, args) {
+async function FirstTimeExecuted(message, args, pGuild, pGuildClient) {
     if (args[0] != `setup`) message.channel.send(`**Hold on fella!**\nWe need to get ${message.guild.name} set up first!`);
     let collectorCount = 0, collector = message.channel.createMessageCollector(m => m.author.id == message.author.id, { maxMatches: 1 });
     let GiveawayHostRole, GiveawayWinnerRole, Reply, LastInput, LFRole, RoleName = "Giveaway Host", HostDone = false, Channel;
 
-    if (HasAllArguments()) return;
+    if (await HasAllArguments()) return;
 
     message.channel.send(`Firstly, I need to know if there's a **${RoleName}** role. You can reply \`Yes\` or \`No\` (without prefix).`)
 
-    collector.on('collect', userInput => {
+    collector.on('collect', async userInput => {
         switch (collectorCount) {
             case 0:
                 Reply = userInput.content.toLowerCase() == `yes` ?
@@ -238,8 +240,7 @@ function FirstTimeExecuted(message, args) {
                 Reply = `Alright last thing, should I allow same winners? (A user wins a giveaway can't win the next one, if you say no)`;
                 break;
             case 4:
-                SaveGiveawayConfig(message, GiveawayHostRole, GiveawayWinnerRole, userInput.content.toLowerCase() == "yes", Channel);
-                message.channel.send(`Alright then you're all set!`);
+                await SaveGiveawayConfig(message, GiveawayHostRole, GiveawayWinnerRole, userInput.content.toLowerCase() == "yes", Channel);
                 collector.stop();
                 return;
             default:
@@ -265,11 +266,13 @@ function FirstTimeExecuted(message, args) {
         message.channel.send(Reply);
     });
     collector.on('end', () => {
+        message.channel.send(`Alright then you're all set!`);
+
         if (args[0] != 'setup')
-            module.exports.execute(message, args);
+            module.exports.execute({ message, args, pGuild: PinguGuild.GetPGuild(message.guild), pGuildClient });
     })
 
-    function HasAllArguments() {
+    async function HasAllArguments() {
         /*
         [0]: setup
         [1]: host
@@ -295,7 +298,7 @@ function FirstTimeExecuted(message, args) {
         let winnerRole = findRole(args[2]);
         let channel = findChannel(args[3]);
 
-        SaveGiveawayConfig(message, hostRole, winnerRole, args[4] == 'true', channel);
+        await SaveGiveawayConfig(message, hostRole, winnerRole, args[4] == 'true', channel);
 
         message.channel.send(`Setup done!`);
         return true;
@@ -437,7 +440,7 @@ async function ListGiveaways(message) {
  * @param {GuildMember} PreviousWinner*/
 async function AfterTimeOut(message, GiveawayMessage, Prize, Winners, embed, GiveawayCreator, interval, PreviousWinner) {
     clearInterval(interval);
-    const pGuildGiveaway = PinguGuild.GetPGuild(message.guild).giveawayConfig,
+    const pGuildGiveaway = (await PinguGuild.GetPGuild(message.guild)).giveawayConfig,
         GiveawayWinnerRole = pGuildGiveaway.winnerRole,
         allowSameWinner = pGuildGiveaway.allowSameWinner;
     let WinnerArr = [];
@@ -498,7 +501,7 @@ async function AfterTimeOut(message, GiveawayMessage, Prize, Winners, embed, Giv
             });
         gCreatorMessage += `<@${WinnerArr[i].id}> & `;
     }
-    GiveawayCreator.user.send(gCreatorMessage.substring(0, gCreatorMessage.length - 2) + ` won your giveaway, "**${Prize}**" in **${message.guild.name}**!\n${GiveawayMessage.url}`)
+    GiveawayCreator.user.send(gCreatorMessage.substring(0, gCreatorMessage.length - 3) + ` won your giveaway, "**${Prize}**" in **${message.guild.name}**!\n${GiveawayMessage.url}`)
 
     //Edit embed to winner
     GiveawayMessage.edit(embed
@@ -509,8 +512,8 @@ async function AfterTimeOut(message, GiveawayMessage, Prize, Winners, embed, Giv
         .then(() => GiveawayCreator.user.send(`I had an error while updating the original giveaway message... I've already notified my developers!`))
     );
 
-    UpdatePGuildWinner(GiveawayMessage, WinnerArr);
-    PinguLibrary.consoleLog(message.client, `Winner of "${Prize}" (hosted by ${GiveawayCreator.user.username}) was won by: ${WinnerArrStringed}.`);
+    await UpdatePGuildWinner(GiveawayMessage, WinnerArr);
+    PinguLibrary.consoleLog(message.client, `Winner of "${Prize}" (hosted by ${GiveawayCreator.user.tag}) was won by: ${WinnerArrStringed}.`);
 
     /**@param {Message} message @param {Message} GiveawayMessage*/
     function FindWinner(message) {
@@ -560,29 +563,32 @@ function Reroll(message, args, embed) {
 //#endregion
 
 //#region pGuild Methods
-/**@param {Message} message @param {string} Prize @param {GuildMember} GiveawayCreator @param {TextChannel} GiveawayChannel*/
-function SaveGiveawayToPGuilds(message, Prize, GiveawayCreator, GiveawayChannel) {
-    const pGuild = PinguGuild.GetPGuild(message.guild);
+/**@param {Message} message 
+ * @param {string} Prize 
+ * @param {GuildMember} GiveawayCreator 
+ * @param {TextChannel} GiveawayChannel*/
+async function SaveGiveawayToPGuilds(message, Prize, GiveawayCreator, GiveawayChannel) {
+    const pGuild = await PinguGuild.GetPGuild(message.guild);
     pGuild.giveawayConfig.giveaways.push(new Giveaway(Prize, message.id, new PGuildMember(GiveawayCreator), GiveawayChannel));
 
-    PinguGuild.UpdatePGuildJSON(message.client, message.guild, module.exports.name,
+    return await UpdatePGuild(message.client, pGuild,
         `pGuild.Giveaways for **${message.guild.name}** was successfully updated with the new giveaway!`,
         `Saving giveaway in ${message.guild.name}`
     );
 }
-/**@param {Message} GiveawayMessage @param {User[]} WinnerArr*/
-function UpdatePGuildWinner(GiveawayMessage, WinnerArr) {
-    const pGuild = PinguGuild.GetPGuild(GiveawayMessage.guild),
+/**@param {Message} GiveawayMessage 
+ * @param {User[]} WinnerArr*/
+async function UpdatePGuildWinner(GiveawayMessage, WinnerArr) {
+    const pGuild = await PinguGuild.GetPGuild(GiveawayMessage.guild),
         Giveaway = pGuild.giveawayConfig.giveaways.find(giveaway => giveaway.id == GiveawayMessage.id);
 
     for (var i = 0; i < WinnerArr.length; i++)
         Giveaway.winners.push(new PGuildMember(GiveawayMessage.guild.member(WinnerArr[i])));
 
-    PinguGuild.UpdatePGuildJSON(GiveawayMessage.client, GiveawayMessage.guild, module.exports.name,
+    return await UpdatePGuild(GiveawayMessage.client, pGuild,
         `Successfully updated **${GiveawayMessage.guild.name}**'s "${Giveaway.value}" giveaway winner in guilds.json!`,
         `Saving **${GiveawayMessage.guild.name}**'s "${Giveaway.value}" giveaway winner in guilds.json!`
     );
-
 }
 /**@param {Message} message 
  * @param {string} GiveawayHostRole 
@@ -590,7 +596,7 @@ function UpdatePGuildWinner(GiveawayMessage, WinnerArr) {
  * @param {boolean} allowSameWinner
  * @param {Channel | string} channel*/
 async function SaveGiveawayConfig(message, GiveawayHostRole, GiveawayWinnerRole, allowSameWinner, channel) {
-    const pGuild = PinguGuild.GetPGuild(message.guild);
+    const pGuild = await PinguGuild.GetPGuild(message.guild);
 
     if (typeof (GiveawayHostRole) === 'string')
         GiveawayHostRole = await CreateGiveawayRole(message.guild, GiveawayHostRole);
@@ -600,7 +606,7 @@ async function SaveGiveawayConfig(message, GiveawayHostRole, GiveawayWinnerRole,
         channel = await message.guild.channels.create(Channel, {
             reason: "Auto-created when setting up giveaways",
             type: 'text'
-        }).catch(err => PinguLibrary.errorLog(mesasg.eclient, "Creating Giveaway channel", message.content, err));
+        }).catch(err => PinguLibrary.errorLog(message.client, "Creating Giveaway channel", message.content, err));
 
     if (!GiveawayHostRole) GiveawayHostRole = "undefined";
     if (!GiveawayWinnerRole) GiveawayWinnerRole = "undefined";
@@ -614,9 +620,9 @@ async function SaveGiveawayConfig(message, GiveawayHostRole, GiveawayWinnerRole,
         channel: new PChannel(channel)
     });
 
-    PinguGuild.UpdatePGuildJSON(message.client, message.guild, module.exports.name,
-        `Successfully saved **${message.guild.name}**'s Giveaway Host & Giveaway Winner to guild.json!`,
-        `Saving **${message.guild.name}**'s Giveaway config to guild.json!`
+    return await UpdatePGuild(message.client, pGuild,
+        `Successfully saved **${pGuild.name}**'s Giveaway config`,
+        `Failed to save **${pGuild.name}**'s Giveaway config`
     );
 
     /**@param {Guild} Guild @param {string} RoleName*/
@@ -630,15 +636,27 @@ async function SaveGiveawayConfig(message, GiveawayHostRole, GiveawayWinnerRole,
 /**@param {Message} message @param {Giveaway[]} giveaways*/
 async function RemoveGiveaways(message, giveaways) {
     if (!giveaways || giveaways.length == 0 || !giveaways[0]) return;
-    const pGuild = PinguGuild.GetPGuild(message.guild);
+    const pGuild = await PinguGuild.GetPGuild(message.guild);
 
     pGuild.giveawayConfig.giveaways = pGuild.giveawayConfig.giveaways.filter(ga => !giveaways.includes(ga));
 
     PinguLibrary.consoleLog(message.client, `The giveaway, ${giveaways[0].value} (${giveaways[0].id}) was removed.`);
 
-    await PinguGuild.UpdatePGuildJSONAsync(message.client, message.guild, module.exports.name,
+    return await UpdatePGuild(message.client, pGuild,
         `Removed ${giveaways.length} giveaways from **${message.guild.name}**'s giveaway list.`,
         `Removing ${giveaways[0].id} (${giveaways[0].value}) from **${message.guild.name}**'s giveaways list`,
+    );
+}
+/**@param {Client} client
+ * @param {PinguGuild} pGuild
+ * @param {string} succMsg
+ * @param {string} errMsg*/
+async function UpdatePGuild(client, pGuild, succMsg, errMsg) {
+    return await PinguGuild.UpdatePGuild(
+        client,
+        { giveawayConfig: pGuild.giveawayConfig },
+        pGuild, module.exports.name,
+        succMsg, errMsg
     );
 }
 //#endregion

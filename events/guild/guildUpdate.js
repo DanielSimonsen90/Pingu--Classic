@@ -1,5 +1,5 @@
 const { Client, Guild, MessageEmbed } = require("discord.js");
-const { PinguGuild, PinguLibrary, PinguEvents } = require("../../PinguPackage");
+const { PinguGuild, PinguLibrary, PinguEvents, PChannel } = require("../../PinguPackage");
 
 module.exports = {
     name: 'events: guildUpdate',
@@ -22,13 +22,13 @@ module.exports = {
             if (!preGuild.region) return null;
             if (guild.afkChannelID != preGuild.afkChannelID)
                 return PinguEvents.SetRemove(
-                'AFK Channel',
-                preGuild.afkChannelID,
-                guild.afkChannelID,
-                `Set **#${guild.afkChannel.name}** as AFK Channel`,
-                `Removed **#${guild.afkChannel.name}** as AFK Channel`,
-                PinguEvents.SetDescriptionValues
-            );
+                    'AFK Channel',
+                    preGuild.afkChannelID,
+                    guild.afkChannelID,
+                    `Set **#${guild.afkChannel.name}** as AFK Channel`,
+                    `Removed **#${guild.afkChannel.name}** as AFK Channel`,
+                    PinguEvents.SetDescriptionValues
+                );
             else if (guild.afkTimeout != preGuild.afkTimeout) return PinguEvents.SetDescription(`AFK Timeout`, preGuild.afkTimeout, guild.afkTimeout);
             else if (guild.available != preGuild.available) return guild.available ?
                 PinguEvents.SetDescription('Available', `**${guild.name}** is now available again`) :
@@ -176,45 +176,36 @@ module.exports = {
     },
     /**@param {Client} client
      * @param {{preGuild: Guild, guild: Guild}}*/
-    execute(client, { preGuild, guild }) {
-        try {
-            if (!guild.name) return;
-            if (preGuild.name != guild.name) throw { message: 'Cannot find module' };
+    async execute(client, { preGuild, guild }) {
+        let pGuild = await PinguGuild.GetPGuild(guild);
+        let updated = {};
 
-            let shouldReturn = true;
+        if (preGuild.name != guild.name) updated.name = guild.name;
 
-            let pGuild = PinguGuild.GetPGuild(guild);
+        let welcomePChannel = pGuild.welcomeChannel;
+        let welcomeChannel = welcomePChannel && guild.channels.cache.find(c => c.id == welcomePChannel.id)
+        if (!welcomeChannel || welcomeChannel.name != welcomePChannel.name) updated.welcomeChannel = new PChannel(welcomeChannel);
 
-            let welcomePChannel = pGuild.welcomeChannel;
-            let welcomeChannel = guild.channels.cache.find(c => c.id == welcomePChannel.id)
-            if (!welcomeChannel || welcomeChannel.name != welcomePChannel.name) shouldReturn = false;
-
+        if (pGuild.reactionRoles.length) {
             let rrPChannels = pGuild.reactionRoles.map(rr => rr.channel.id);
             let rrChannels = guild.channels.cache.filter(c => rrPChannels.includes(c.id));
+            let newReactionRoles = pGuild.reactionRoles;
 
             rrChannels.array().forEach((c, i) => {
                 if (c.name != pGuild.reactionRoles[i].channel.name)
-                    shouldReturn = false;
+                    pGuild.reactionRoles[i].channel.name = c.name;
             });
 
-            if (guild.ownerID != pGuild.guildOwner.id) shouldReturn = false;
-
-            if (shouldReturn) return;
-
-            PinguGuild.UpdatePGuildJSON(client, guild, this.name,
-                `Successfully updated **${guild.name}**'s ${(preGuild.name != guild.name ? `(${preGuild.name}) ` : "")}Pingu Guild.`,
-                `Unable to update **${guild.name}**'s ${(preGuild.name != guild.name ? `(${preGuild.name})` : "")} Pingu Guild.`
-            );
+            if (pGuild.reactionRoles.find((rr, i) =>
+                rr.channel.name != newReactionRoles[i].channel.name))
+                updated.reactionRoles = newReactionRoles;
         }
-        catch (err) {
-            if (err.message.includes('Cannot find module')) {
-                return PinguGuild.UpdatePGuild(preGuild, guild, _ =>
-                    PinguLibrary.pGuildLog(client, this.name,
-                        `Renamed **${preGuild.name}**'s Pingu Guild name to **${guild.name}**.`)
-                )
-            }
 
-            PinguLibrary.errorLog(client, "Unable to update Pingu Guild", null, err);
-        }
+        if (guild.ownerID != pGuild.guildOwner.id) updated.guildOwner = { id: guild.ownerID, name: guild.owner.user.tag };
+
+        await PinguGuild.UpdatePGuild(client, updated, guild, this.name,
+            `Successfully updated **${guild.name}**'s ${(preGuild.name != guild.name ? `(${preGuild.name}) ` : "")}Pingu Guild.`,
+            `Unable to update **${guild.name}**'s ${(preGuild.name != guild.name ? `(${preGuild.name})` : "")} Pingu Guild.`
+        );
     }
 }

@@ -1,5 +1,5 @@
 const { Message, MessageEmbed } = require('discord.js');
-const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions, TimeLeftObject } = require('../../PinguPackage');
+const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions, TimeLeftObject, PClient } = require('../../PinguPackage');
 const timeBetweenClaims = 21;
 
 module.exports = {
@@ -10,8 +10,8 @@ module.exports = {
     id: 2,
     examples: [""],
     permissions: [DiscordPermissions.SEND_MESSAGES],
-    /**@param {{message: Message, args: string[], pAuthor: PinguUser, pGuild: PinguGuild}}*/
-    execute({ message, args, pAuthor, pGuild }) {
+    /**@param {{message: Message, args: string[], pAuthor: PinguUser, pGuildClient: PClient}}*/
+    execute({ message, args, pAuthor, pGuildClient }) {
         if (!pAuthor) {
             PinguLibrary.errorLog(message.client, `Unable to find pAuthor in daily using **${message.author.tag}**!`);
             return message.channel.send(`I couldn't find your Pingu User profile!`);
@@ -26,17 +26,17 @@ module.exports = {
         let lastClaimDate = new Date(lastClaim);
 
         daily.nextClaim = new TimeLeftObject(now, endsAt);
-        nextClaim = daily.nextClaim;
 
-        PinguUser.UpdatePUsersJSONAsync(message.client, message.author, "daily",
+        PinguUser.UpdatePUser(message.client, { daily: pAuthor.daily }, pAuthor, "daily",
             `Successfully updated **${message.author.tag}**'s daily endsAt.`,
             `Failed updating **${message.author.tag}**'s daily endsAt`
         );
 
         let hourDiff = (now.getDate() > lastClaimDate.getDate() ? 24 : 0) - now.getHours() - lastClaimDate.getHours();
 
-        if (daily.nextClaim.hours < timeBetweenClaims && daily.nextClaim.days > -1) return message.channel.send(`You've already claimed your daily! Come back in ${nextClaim.toString()} (**${endsAt.toLocaleTimeString()}**, **${endsAt.toLocaleDateString().replace('.', '/').replace('.', '/')}**)`);
-        else if (nextClaim.hours + 36 > hourDiff)
+        if (daily.nextClaim.hours < timeBetweenClaims && daily.nextClaim.days > -1)
+            return message.channel.send(`You've already claimed your daily! Come back in ${daily.nextClaim.toString()} (**${endsAt.toLocaleTimeString()}**, **${endsAt.toLocaleDateString().replace('.', '/').replace('.', '/')}**)`);
+        else if (daily.nextClaim.hours + 36 > hourDiff)
             return ClaimDaily(daily.streak += 1);
         return ClaimDaily(1);
 
@@ -49,12 +49,12 @@ module.exports = {
                 .setThumbnail(pAuthor.avatar)
                 .setTitle(`Daily claimed!`)
                 .setDescription(`Your daily has been claimed!\n**Streak: ${daily.streak}**`)
-                .setColor(message.guild ? pGuild.embedColor : PinguLibrary.DefaultEmbedColor)
+                .setColor(message.guild ? pGuildClient.embedColor : PinguLibrary.DefaultEmbedColor)
                 .setFooter(`Next daily claimable at`)
                 .setTimestamp(daily.nextClaim.endsAt)
             );
 
-            setTimeout(async () => await PinguUser.UpdatePUsersJSONAsync(message.client, message.author, "daily",
+            setTimeout(async () => await PinguUser.UpdatePUser(message.client, { daily: pAuthor.daily }, pAuthor, "daily",
                 `Successfully updated **${message.author.tag}**'s daily streak.`,
                 `Failed updating **${message.author.tag}**'s daily streak`
             ), 5000);

@@ -1,5 +1,5 @@
 const { Message } = require('discord.js'),
-    { PinguGuild, DiscordPermissions } = require('../../PinguPackage');
+    { PinguGuild, DiscordPermissions, PClient, PinguLibrary } = require('../../PinguPackage');
 
 module.exports = {
     name: 'prefix',
@@ -9,18 +9,19 @@ module.exports = {
     id: 1,
     example: ['!'],
     permissions: [DiscordPermissions.SEND_MESSAGES],
-    /**@param {{message: Message, args: string[], pGuild: PinguGuild}}*/
-    execute({ message, args, pGuild }) {
+    /**@param {{message: Message, args: string[], pGuild: PinguGuild, pGuildClient: PClient}}*/
+    async execute({ message, args, pGuild, pGuildClient }) {
         if (!args || !args[0])
-            return message.channel.send(`My prefix is \`${PinguGuild.GetPGuild(message.guild).botPrefix}\``);
+            return message.channel.send(`My prefix is \`${pGuildClient.prefix}\``);
 
-        var prePrefix = pGuild.botPrefix;
+        pGuildClient = PinguGuild.GetPClient(message.client, pGuild);
+        let prePrefix = pGuildClient.prefix;
 
         //Set new prefix
-        pGuild.botPrefix = args[0];
+        pGuildClient.prefix = args[0];
 
-        //Update guilds.json
-        PinguGuild.UpdatePGuildJSON(message.client, message.guild, this.name,
+        //Update db
+        PinguGuild.UpdatePGuild(message.client, {clients: pGuild.clients}, this.name,
             `Prefix has been changed to \`${args[0]}\`!`,
             `I encountered and error while changing my prefix in ${message.guild.name}:\n\n`
         )

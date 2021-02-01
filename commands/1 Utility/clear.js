@@ -25,7 +25,7 @@ module.exports = {
         message.delete().then(() => {
             ClearMessages(message, parseInt(args[0]));
             message.reply(`I've deleted ${args[0]} ${(args[0] != '1' ? "messages" : "message")} for you!`)
-                .then(NewMessage => NewMessage.delete(1500));
+                .then(NewMessage => NewMessage.delete({ timeout: 1500 }));
         });
     },
 };
@@ -37,16 +37,12 @@ function PermissionCheck(message, args) {
 /**@param {Message} message 
  * @param {number} amount*/
 async function ClearMessages(message, amount) {
-    let MessagesRemoved = 0,
-        MessageArray = (await message.channel.messages.fetch()).array();
-    let MsgArrIndex = MessageArray.length - 1;
-
-    while (MessagesRemoved != amount)
-        MessageArray[MsgArrIndex].delete()
-            .then(++MessagesRemoved)
-            .catch(err => PinguLibrary.errorLog(message.client, `Failed to remove message`, message.content, err)
-                .then(() => message.channel.send(`I had an error trying to delete the messages! I've already notified my developers.`)
-            ));
+    try {
+        await message.channel.bulkDelete(amount);
+    } catch (err) {
+        PinguLibrary.errorLog(message.client, `Failed to remove message`, message.content, err)
+            .then(() => message.channel.send(`I had an error trying to delete the messages! I've already notified my developers.`));
+    }
 }
 /**@param {Message} message
  @param {GuildChannel} channel*/

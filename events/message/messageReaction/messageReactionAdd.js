@@ -6,8 +6,9 @@ module.exports = {
     /**@param {{reaction: MessageReaction, user: User}}*/
     setContent({ reaction, user }) {
         return module.exports.content = new MessageEmbed()
-            .setDescription(`"${reaction.message.content}"`)
+            .setDescription(reaction.message.content ? `"${reaction.message.content}"` : null)
             .setURL(reaction.message.url)
+            .setImage(reaction.message.attachments.first())
             .addField(`User`, user.tag, true)
             .addField(`Reaction`, reaction.emoji, true)
             .addField("\u200B", "\u200B", true)
@@ -18,9 +19,10 @@ module.exports = {
     /**@param {Client} client
      @param {{reaction: MessageReaction, user: User}}*/
     execute(client, { reaction, user }) {
+        IsErrorMessage(client, reaction, user);
+
         if (user == client.user) return;
         ReactionRoleUser(client, reaction, user);
-        
     }
 }
 
@@ -41,5 +43,22 @@ async function ReactionRoleUser(client, reaction, user) {
             PinguLibrary.errorLog(message.client, `Unable to give ${user.username} the ${role.name} role for reacting!`, null, err);
         }
 
-    } catch (err) { PinguLibrary.errorLog(client, `${this.name} error`, null, err); }
+    } catch (err) { PinguLibrary.errorLog(client, `${module.exports.name} error`, null, err); }
+}
+/**@param {Client} client
+ * @param {MessageReaction} reaction
+ * @param {User} user*/
+function IsErrorMessage(client, reaction, user) {
+    if (reaction.emoji.name != 'Checkmark' || //Emote is :Checkmark:
+        reaction.message.channel.name != 'error-log' || //Channel is #error-log
+        reaction.message.guild.id != PinguLibrary.SavedServers.PinguSupport(client).id || //Server is Pingu Support
+        client.user.id != reaction.message.author.id || //Message author is Client
+        reaction.me) //Client didn't react
+        return;
+    //User is not Pingu Developer, and therefore can't decide whether or not an error was fixed
+    else if (!PinguLibrary.isPinguDev(user)) return reaction.remove();
+
+    return !reaction.message.deletable ?
+        user.send(`Unable to delete message!`) :
+        reaction.message.delete({ reason: `${user.tag} marked error as fixed` });
 }

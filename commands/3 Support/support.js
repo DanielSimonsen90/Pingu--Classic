@@ -1,5 +1,5 @@
 const { Message, MessageEmbed } = require('discord.js');
-const { PinguGuild, DiscordPermissions, PinguLibrary } = require('../../PinguPackage');
+const { PinguGuild, DiscordPermissions, PinguLibrary, PClient } = require('../../PinguPackage');
 
 module.exports = {
     name: 'support',
@@ -8,12 +8,12 @@ module.exports = {
     usage: '',
     id: 3,
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.EMBED_LINKS],
-    /**@param {{message: Message, pGuild: PinguGuild}}*/
-    async execute({ message, pGuild }) {
+    /**@param {{message: Message, pGuildClient: PClient}}*/
+    async execute({ message, pGuildClient }) {
         let Danho = PinguLibrary.SavedServers.DanhoMisc(message.client).owner.user;
         var Embed = new MessageEmbed()
             .setTitle('Support of Pingu')
-            .setColor(message.guild ? pGuild.embedColor : PinguLibrary.DefaultEmbedColor)
+            .setColor(message.guild ? pGuildClient.embedColor : PinguLibrary.DefaultEmbedColor)
             .setThumbnail(Danho.avatarURL())
             .setFooter(`Please don't send him pointless stuff to waste his time :)`)
             .setDescription(

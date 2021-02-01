@@ -20,40 +20,30 @@ module.exports = {
             if (arg == "show")
                 await message.channel.send(new MessageEmbed()
                     .setTitle(PinguGuildsArr[i].name)
-                    .setColor(PinguGuildsArr[i].embedColor)
+                    .setColor((PinguGuildsArr[i].clients[0] || PinguGuildsArr[i].clients[1]) &&
+                        (PinguGuildsArr[i].clients[0].embedColor || PinguGuildsArr[i].clients[1].embedColor))
                     .setThumbnail(BotGuilds[i].iconURL())
                     .setDescription(`ID: ${PinguGuildsArr[i].id}`)
                     .setFooter(`Owner: ${PinguGuildsArr[i].guildOwner.user} | ${PinguGuildsArr[i].guildOwner.id}`)
-                    .addField('Prefix', PinguGuildsArr[i].botPrefix));
+                    .addField('Prefix', (PinguGuildsArr[i].clients[0] || PinguGuildsArr[i].clients[1]) &&
+                        (PinguGuildsArr[i].clients[0].prefix || PinguGuildsArr[i].clients[1].prefix)));
             if (arg && arg != "show" && ![PinguGuildsArr[i].name.toLowerCase(), PinguGuildsArr[i].id].includes(arg)) continue;
 
-            WriteFile(message, PinguGuildsArr[i], `./servers/${PinguGuildsArr[i].name}.json`);
+            try {
+                if (!await PinguGuild.GetPGuild(BotGuilds[i])) await PinguGuild.WritePGuild(message.client, BotGuilds[i], this.name,
+                    `Successfully created PinguGuild for **${BotGuilds[i].name}**`,
+                    `Failed creating PinguGuild for **${BotGuilds[i].name}**`
+                );
+                else await PinguGuild.UpdatePGuild(message.client, BotGuilds[i], this.name,
+                    `Successfully updated PinguGuild for **${BotGuilds[i].name}**`,
+                    `Failed updating PinguGuild for **${BotGuilds[i].name}**`
+                );
+                if (message.content.includes('updatepguilds'))
+                    message.react('✅');
+            } catch (err) {
+                PinguLibrary.errorLog(message.client, 'Adding to PinguGuilds failed', message.content, err);
+            }
         }
         //PinguLibrary.pGuildLog(message.client, module.exports.name, 'Going through servers complete!');
-    }
-}
-
-/**@param {Message} message
- * @param {PinguGuild} pGuild
- * @param {string} path*/
-async function WriteFile(message, pGuild, path) {
-    try {
-        var data = JSON.stringify(pGuild, null, 2);
-
-        fs.writeFile(path, '', err => {
-            if (err) PinguLibrary.pGuildLog(message.client, `${module.exports.name}: ${pGuild.name}`, `[writeFile]: Failed to write file`, err)
-            else fs.appendFile(path, data, err => {
-                if (err) {
-                    PinguLibrary.pGuildLog(message.client, `${module.exports.name}: ${pGuild.name}`, `Error while saving **${pGuild.name}**!!`, message.content, err);
-                }
-                else {
-                    PinguLibrary.pGuildLog(message.client, `${module.exports.name}: ${pGuild.name}`, `Finished! **${pGuild.name}.json** was successfully updated with new PinguGuilds elements.\n`);
-                    if (message.content.includes('updatepguilds'))
-                        message.react('✅')
-                }
-            });
-        })
-    } catch (err) {
-        PinguLibrary.pGuildLog(message.client, module.exports.name, `Error while saving **${pGuild.name}**!!`, message.content, err);
     }
 }
