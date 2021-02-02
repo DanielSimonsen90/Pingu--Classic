@@ -85,9 +85,6 @@ export class PGuildMember extends PItem {
             name: member.user.tag
         });
     }
-    public toString() {
-        return `<@${this.id}>`;
-    }
 }
 export class PRole extends PItem {
     constructor(role: Role) {
@@ -209,7 +206,7 @@ export class PinguUser {
         let pUser = new PUser(user);
         this.id = pUser.id;
         this.tag = pUser.name;
-        this.sharedServers = PinguLibrary.getSharedServers(user.client, user).map(guild => new PGuild(guild));
+        this.sharedServers = user.client.guilds.cache.filter(g => g.members.cache.has(user.id)).map(g => new PGuild(g));
         this.marry = new Marry();
         this.replyPerson = null;
         this.daily = new Daily();
@@ -229,7 +226,7 @@ export class PinguUser {
 export class PinguGuild extends PItem {
     public static async WritePGuild(client: Client, guild: Guild, scriptName: string, succMsg: string, errMsg: string) {
         PinguLibrary.DBExecute(client, async mongoose => {
-            let doc = Object.assign({ _id: guild.id }, new PinguGuild(guild));
+            let doc = Object.assign({ _id: guild.id }, new PinguGuild(guild, !guild.owner ? guild.member(await client.users.fetch(guild.ownerID)) : null));
             let created = await new PinguGuildSchema(doc).save();
             if (!created) PinguLibrary.pGuildLog(client, scriptName, errMsg);
             else PinguLibrary.pGuildLog(client, scriptName, succMsg);
@@ -258,11 +255,12 @@ export class PinguGuild extends PItem {
         return pGuild.clients.find(c => c && c.id == client.user.id);
     }
 
-    constructor(guild: Guild) {
+    constructor(guild: Guild, owner?: GuildMember) {
         super(guild);
 
         if (guild.owner) this.guildOwner = new PGuildMember(guild.owner);
-        else guild.client.users.fetch(guild.ownerID).then(owner => this.guildOwner = new PGuildMember(guild.member(owner)));
+        else if (owner) this.guildOwner = new PGuildMember(owner);
+        else PinguLibrary.errorLog(guild.client, `Owner wasn't set when making Pingu Guild for "${guild.name}".`);
 
         this.clients = new Array<PClient>();
         let clientIndex = guild.client.user.id == PinguLibrary.Clients.PinguID ? 0 : 1;
@@ -535,12 +533,12 @@ export class PinguLibrary {
     private static getServer(client: Client, id: string) {
         return client.guilds.cache.find(g => g.id == id);
     }
-    public static getSharedServers(client: Client, user: User): Guild[] {
-        let servers = [];
-        client.guilds.cache.forEach(g => g.members.cache.forEach(gm => {
-            if (gm.user.id == user.id)
-                servers.push(g);
-        }));
+    public static async getSharedServers(client: Client, user: User) {
+        let servers = new Array<Guild>();
+        for (var guild of client.guilds.cache.array()) {
+            if (await guild.members.fetch(user))
+                servers.push(guild);
+        }
         return servers;
     }
     //#endregion
@@ -781,6 +779,7 @@ export class PinguLibrary {
         } catch (err) { PinguLibrary.errorLog(client, 'Mongo error', null, new Error(err)); }
         //finally { mongoose.connection.close(); }
     }
+    public static BlankFieldElement: "\u200B"
 }
 export class PinguEvents {
     public static Colors = {
@@ -851,13 +850,18 @@ export class PinguEvents {
 }
 //#endregion
 
-abstract class Decidable {
+interface IDecidableConfigOptions {
+    channel: PChannel;
+    firstTimeExecuted: boolean;
+}
+abstract class Decidable implements IDecidableConfigOptions {
     constructor(value: string, id: string, author: PGuildMember, channel: GuildChannel) {
         this.value = value;
         this.id = id;
         this.author = author;
         this.channel = new PChannel(channel);
     }
+    public firstTimeExecuted: boolean
     public value: string
     public id: string
     public author: PGuildMember
@@ -894,10 +898,6 @@ export class Suggestion extends Decidable {
 }
 //#endregion
 
-interface IDecidableConfigOptions {
-    channel: PChannel;
-}
-
 //#region PollConfig
 interface IPollConfigOptions extends IDecidableConfigOptions {
     pollRole: PRole;
@@ -905,13 +905,15 @@ interface IPollConfigOptions extends IDecidableConfigOptions {
 }
 export class PollConfig implements IPollConfigOptions {
     constructor(options?: IPollConfigOptions) {
+        this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
         this.pollRole = options ? options.pollRole : undefined;
         this.channel = options ? options.channel : undefined;
         if (options) this.polls = options.polls;
     }
-    pollRole: PRole;
-    polls: Poll[];
-    channel: PChannel;
+    public firstTimeExecuted: boolean
+    public pollRole: PRole;
+    public polls: Poll[];
+    public channel: PChannel;
 }
 //#endregion
 
@@ -924,17 +926,19 @@ interface IGiveawayConfigOptions extends IDecidableConfigOptions {
 }
 export class GiveawayConfig implements IGiveawayConfigOptions {
     constructor(options?: IGiveawayConfigOptions) {
+        this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
         this.allowSameWinner = options ? options.allowSameWinner : undefined;
         this.hostRole = options ? options.hostRole : undefined;
         this.winnerRole = options ? options.winnerRole : undefined;
         this.channel = options ? options.channel : undefined;
         if (options) this.giveaways = options.giveaways;
     }
-    allowSameWinner: boolean;
-    hostRole: PRole;
-    winnerRole: PRole;
-    giveaways: Giveaway[];
-    channel: PChannel;
+    public allowSameWinner: boolean;
+    public hostRole: PRole;
+    public winnerRole: PRole;
+    public giveaways: Giveaway[];
+    public channel: PChannel;
+    public firstTimeExecuted: boolean;
 }
 export class TimeLeftObject {
     constructor(Now: Date, EndsAt: Date) {

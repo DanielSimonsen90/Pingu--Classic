@@ -188,7 +188,7 @@ module.exports = {
             return command;
         }
         /**@param {Message} message
-         * @param {Command} command
+         * @param {import('discord.js Addons').PinguCommand} command
          * @returns {{value: boolean, message: string, type: "text" | "dm"}}*/
         function DecodeCommand(message, command) {
             let returnValue = {
@@ -216,7 +216,7 @@ module.exports = {
             if (command.id == 4 && !PinguLibrary.isPinguDev(message.author))
                 return returnValue.setMessage(`Who do you think you are exactly?`);
 
-            if (command.permissions) {
+            if (message.channel.type != 'dm' && command.permissions) {
                 command.permissions.push(DiscordPermissions.SEND_MESSAGES);
                 let permCheck = PinguLibrary.PermissionCheck(message, command.permissions);
                 if (permCheck != PinguLibrary.PermissionGranted)
@@ -228,7 +228,7 @@ module.exports = {
          * @param {string[]} args 
          * @param {string} Prefix 
          * @param {string} commandName 
-         * @param {Command} command*/
+         * @param {import('discord.js Addons').PinguCommand} command*/
         async function ExecuteAndLogCommand(message, args, commandName, command) {
             let ConsoleLog = `User **${message.author.username}** executed command **${commandName}**, from ${(!message.guild ? `DMs and ` : `"${message.guild}", #${message.channel.name}, and `)}`;
 
@@ -243,7 +243,7 @@ module.exports = {
                     pGuild: message.guild ? await PinguGuild.GetPGuild(message.guild) : null,
                     pGuildClient: message.guild ? PinguGuild.GetPClient(client, (await PinguGuild.GetPGuild(message.guild))) : null
                 });
-                ConsoleLog += `**succeeded!**\n`;
+                ConsoleLog += `**succeeded!**`;
             } catch (err) {
                 if (err.message == 'Missing Access' && message.guild.id == PinguLibrary.SavedServers.PinguEmotes(client).id && FindPermission())
                     return; //Error occured, but cycled through permissions to find missing permission
@@ -251,6 +251,7 @@ module.exports = {
                 ConsoleLog += `**failed!**\nError: ${err}`;
                 PinguLibrary.errorLog(client, `Trying to execute "${command.name}"!`, message.content, err);
             }
+            console.log(" ");
             PinguLibrary.consoleLog(client, ConsoleLog);
             async function FindPermission() {
                 //Find Danho and make check variable, to bypass "You don't have that permission!" (gotta abuse that PinguDev power)

@@ -622,6 +622,7 @@ async function SaveGiveawayConfig(message, GiveawayHostRole, GiveawayWinnerRole,
     if (!GiveawayWinnerRole) GiveawayWinnerRole = "undefined";
 
     pGuild.giveawayConfig = new GiveawayConfig({
+        firstTimeExecuted: false,
         channel: message.channel,
         allowSameWinner: allowSameWinner,
         giveaways: new Array(),

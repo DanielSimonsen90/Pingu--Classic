@@ -5,6 +5,7 @@ const PItem = {
     name: String
 };
 const Decidable = {
+    firstTimeExecuted: Boolean,
     value: String,
     id: String,
     author: PItem,

@@ -1,5 +1,9 @@
 declare module 'discord.js Addons' {
-    import { Client, Collection, Guild, GuildEmoji, GuildMember, Invite, Message, MessageEmbed, MessageReaction, PermissionString, Presence, Role, User, VoiceState } from 'discord.js';
+    import {
+        Client, Collection, Guild, GuildEmoji, GuildMember,
+        Invite, Message, MessageEmbed, MessageReaction,
+        PermissionString, Presence, Role, User, VoiceState
+    } from 'discord.js';
 
     interface PinguCommandData {
         name: string

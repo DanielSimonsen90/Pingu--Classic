@@ -128,9 +128,6 @@ var PGuildMember = /** @class */ (function (_super) {
             name: member.user.tag
         }) || this;
     }
-    PGuildMember.prototype.toString = function () {
-        return "<@" + this.id + ">";
-    };
     return PGuildMember;
 }(PItem));
 exports.PGuildMember = PGuildMember;
@@ -238,7 +235,7 @@ var PinguUser = /** @class */ (function () {
         var pUser = new PUser(user);
         this.id = pUser.id;
         this.tag = pUser.name;
-        this.sharedServers = PinguLibrary.getSharedServers(user.client, user).map(function (guild) { return new PGuild(guild); });
+        this.sharedServers = user.client.guilds.cache.filter(function (g) { return g.members.cache.has(user.id); }).map(function (g) { return new PGuild(g); });
         this.marry = new Marry();
         this.replyPerson = null;
         this.daily = new Daily();
@@ -315,12 +312,14 @@ var PinguUser = /** @class */ (function () {
 exports.PinguUser = PinguUser;
 var PinguGuild = /** @class */ (function (_super) {
     __extends(PinguGuild, _super);
-    function PinguGuild(guild) {
+    function PinguGuild(guild, owner) {
         var _this = _super.call(this, guild) || this;
         if (guild.owner)
             _this.guildOwner = new PGuildMember(guild.owner);
+        else if (owner)
+            _this.guildOwner = new PGuildMember(owner);
         else
-            guild.client.users.fetch(guild.ownerID).then(function (owner) { return _this.guildOwner = new PGuildMember(guild.member(owner)); });
+            PinguLibrary.errorLog(guild.client, "Owner wasn't set when making Pingu Guild for \"" + guild.name + "\".");
         _this.clients = new Array();
         var clientIndex = guild.client.user.id == PinguLibrary.Clients.PinguID ? 0 : 1;
         if (clientIndex != 0)
@@ -343,14 +342,28 @@ var PinguGuild = /** @class */ (function (_super) {
             var _this = this;
             return __generator(this, function (_a) {
                 PinguLibrary.DBExecute(client, function (mongoose) { return __awaiter(_this, void 0, void 0, function () {
-                    var doc, created;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
+                    var doc, _a, _b, _c, _d, _e, _f, _g, _h, created;
+                    return __generator(this, function (_j) {
+                        switch (_j.label) {
                             case 0:
-                                doc = Object.assign({ _id: guild.id }, new PinguGuild(guild));
-                                return [4 /*yield*/, new PinguGuildSchema(doc).save()];
+                                _b = (_a = Object).assign;
+                                _c = [{ _id: guild.id }];
+                                _d = PinguGuild.bind;
+                                _e = [void 0, guild];
+                                if (!!guild.owner) return [3 /*break*/, 2];
+                                _h = (_g = guild).member;
+                                return [4 /*yield*/, client.users.fetch(guild.ownerID)];
                             case 1:
-                                created = _a.sent();
+                                _f = _h.apply(_g, [_j.sent()]);
+                                return [3 /*break*/, 3];
+                            case 2:
+                                _f = null;
+                                _j.label = 3;
+                            case 3:
+                                doc = _b.apply(_a, _c.concat([new (_d.apply(PinguGuild, _e.concat([_f])))()]));
+                                return [4 /*yield*/, new PinguGuildSchema(doc).save()];
+                            case 4:
+                                created = _j.sent();
                                 if (!created)
                                     PinguLibrary.pGuildLog(client, scriptName, errMsg);
                                 else
@@ -632,12 +645,29 @@ var PinguLibrary = /** @class */ (function () {
         return client.guilds.cache.find(function (g) { return g.id == id; });
     };
     PinguLibrary.getSharedServers = function (client, user) {
-        var servers = [];
-        client.guilds.cache.forEach(function (g) { return g.members.cache.forEach(function (gm) {
-            if (gm.user.id == user.id)
-                servers.push(g);
-        }); });
-        return servers;
+        return __awaiter(this, void 0, void 0, function () {
+            var servers, _i, _a, guild;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        servers = new Array();
+                        _i = 0, _a = client.guilds.cache.array();
+                        _b.label = 1;
+                    case 1:
+                        if (!(_i < _a.length)) return [3 /*break*/, 4];
+                        guild = _a[_i];
+                        return [4 /*yield*/, guild.members.fetch(user)];
+                    case 2:
+                        if (_b.sent())
+                            servers.push(guild);
+                        _b.label = 3;
+                    case 3:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 4: return [2 /*return*/, servers];
+                }
+            });
+        });
     };
     PinguLibrary.isPinguDev = function (user) {
         //console.log(`[${this.PinguDevelopers.join(', ')}].includes(${user.id})`);
@@ -1064,7 +1094,6 @@ var PinguEvents = /** @class */ (function () {
     return PinguEvents;
 }());
 exports.PinguEvents = PinguEvents;
-//#endregion
 var Decidable = /** @class */ (function () {
     function Decidable(value, id, author, channel) {
         this.value = value;
@@ -1114,6 +1143,7 @@ var Suggestion = /** @class */ (function (_super) {
 exports.Suggestion = Suggestion;
 var PollConfig = /** @class */ (function () {
     function PollConfig(options) {
+        this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
         this.pollRole = options ? options.pollRole : undefined;
         this.channel = options ? options.channel : undefined;
         if (options)
@@ -1124,6 +1154,7 @@ var PollConfig = /** @class */ (function () {
 exports.PollConfig = PollConfig;
 var GiveawayConfig = /** @class */ (function () {
     function GiveawayConfig(options) {
+        this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
         this.allowSameWinner = options ? options.allowSameWinner : undefined;
         this.hostRole = options ? options.hostRole : undefined;
         this.winnerRole = options ? options.winnerRole : undefined;

@@ -96,7 +96,7 @@ module.exports = {
  * @param {string[]} args*/
 async function PermissionCheck(message, args) {
     const pGuildConf = (await PinguGuild.GetPGuild(message.guild)).pollConfig;
-    if (!pGuildConf || ['setup', "list"].includes(args[0])) //reintroduce firstTimeExecuted >.>
+    if (pGuildConf.firstTimeExecuted || ['setup', "list"].includes(args[0])) //reintroduce firstTimeExecuted >.>
         return PinguLibrary.PermissionGranted;
 
     if (pGuildConf.pollRole && !message.member.roles.cache.has(pGuildConf.pollRole.id) && //pollRole exists and author doesn't have it
@@ -417,6 +417,7 @@ async function SaveSetupToPGuilds(message, PollsRole, pollsChannel) {
 
     return await PinguGuild.UpdatePGuild(message.client, {
         pollConfig: new PollConfig({
+            firstTimeExecuted: false,
             channel: pollsChannel,
             pollRole: PollsRole,
             polls: new Array()

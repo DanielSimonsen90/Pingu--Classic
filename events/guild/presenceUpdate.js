@@ -1,10 +1,10 @@
 const { Client, Presence, MessageEmbed, Activity } = require("discord.js");
-const { PinguLibrary } = require("../../PinguPackage");
+const { PinguLibrary, PinguGuild } = require("../../PinguPackage");
 
 module.exports = {
     name: 'events: presenceUpdate',
     /**@param {{prePresence: Presence, presence: Presence}}*/
-    setContent({ prePresence, presence }) {
+    async setContent({ prePresence, presence }) {
         let user = presence.user.tag;
         //let typical = ['STREAMING', 'PLAYING', 'LISTENING', 'CUSTOM_STATUS'];
 
@@ -29,8 +29,8 @@ module.exports = {
             return arr.find(a => { //array contains item
                 let sameApplication = a.name && item.name && a.name == item.name || !a.name && !item.name;
                 let details = (a.state && item.state && a.state == item.state || !a.state && !item.state) &&
-                              (a.details && item.details && a.details == item.details || !a.details && !item.details) &&
-                              (a.emoji && item.emoji && a.emoji.id == item.emoji.id || !a.emoji && !item.emoji);
+                    (a.details && item.details && a.details == item.details || !a.details && !item.details) &&
+                    (a.emoji && item.emoji && a.emoji.id == item.emoji.id || !a.emoji && !item.emoji);
                 return sameApplication && !details;
             })
         }
@@ -51,13 +51,15 @@ module.exports = {
             });
         }
 
-        return description ? module.exports.content = new MessageEmbed().setDescription(description).setColor(GetColor()) : module.exports.content = null;
+        return description ? module.exports.content = new MessageEmbed()
+            .setDescription(description)
+            .setColor(await this.GetColor(activityType, presence)) : module.exports.content = null;
 
         function GetDescription() {
             if (!prePresence || !activity || presence && presence.status != prePresence.status)
                 return `**${presence.user.tag}** is ${(prePresence && prePresence.status == 'offline' ? `online as` : "")} **${presence.status}**${(activity && presence.status != 'offline' ? `, ${GetActivity(true, false)}` : "")}`; //Just got online || status changed
             else if (presence.user.bot) return null; //Bot changed its activity; not status
-            else if (presence.activities.length < prePresence.activities.length) 
+            else if (presence.activities.length < prePresence.activities.length)
                 GetActivity(false, true);
             /*else (activity.index > preActivity.index)*/
             return GetActivity(true, true);
@@ -86,21 +88,28 @@ module.exports = {
             let userActivity = getActivity();
             return includeUserMessage ? userMessage + userActivity : userActivity;
         }
-        function GetColor() {
+    },
+    /**@param {string} activityType
+     * @param {Presence} presence*/
+    async GetColor(activityType, presence) {
+        if (activityType) {
             if (activityType == 'listening to' && presence.status == prePresence.status) return '#1ED760';
             if (activityType == 'streaming' && presence.status == prePresence.status) return '#593695';
-
-            switch (presence.status) {
-                case 'online': return '#43B581';
-                case 'idle': return '#FAA61A';
-                case 'dnd': return '#F04747';
-                case 'offline': return '#727D8A';
-                case 'invisible': return '#ffffff';
-            }
         }
+
+        switch (presence.status) {
+            case 'online': return '#43B581';
+            case 'idle': return '#FAA61A';
+            case 'dnd': return '#F04747';
+            case 'offline': return '#727D8A';
+            case 'invisible': return '#ffffff';
+        }
+
+        let pGuild = await PinguGuild.GetPGuild(presence.guild);
+        return PinguGuild.GetPClient(presence.guild.client, pGuild).embedColor || PinguLibrary.DefaultEmbedColor;
     },
     /**@param {Client} client
-     @param {{prePresence: Presence, presence: Presence}}*/
+     * @param {{prePresence: Presence, presence: Presence}}*/
     execute(client, { prePresence, presence }) {
 
     }

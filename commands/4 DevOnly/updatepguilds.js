@@ -1,6 +1,6 @@
-﻿const { Message, MessageEmbed } = require("discord.js");
+﻿const { Message, MessageEmbed, Client } = require("discord.js");
 const { PinguGuild, PinguLibrary } = require('../../PinguPackage');
-const fs = require('fs');
+const PinguGuildSchema = require('../../MongoSchemas/PinguGuild');
 
 module.exports = {
     name: 'updatepguilds',
@@ -15,7 +15,8 @@ module.exports = {
 
         let PinguGuildsArr = [];
         for (var i = 0; i < BotGuilds.length; i++) {
-            PinguGuildsArr[i] = new PinguGuild(BotGuilds[i]);
+            let owner = !BotGuilds[i].owner ? BotGuilds[i].member(await BotGuilds[i].members.fetch(BotGuilds[i].ownerID)) : BotGuilds[i].owner;
+            PinguGuildsArr[i] = new PinguGuild(BotGuilds[i], owner);
             //PinguLibrary.pGuildLog(message.client, module.exports.name, `Going through all servers - just finished: ${PinguGuildsArr[x].guildName}`);
             if (arg == "show")
                 await message.channel.send(new MessageEmbed()
@@ -34,10 +35,7 @@ module.exports = {
                     `Successfully created PinguGuild for **${BotGuilds[i].name}**`,
                     `Failed creating PinguGuild for **${BotGuilds[i].name}**`
                 );
-                else await PinguGuild.UpdatePGuild(message.client, BotGuilds[i], this.name,
-                    `Successfully updated PinguGuild for **${BotGuilds[i].name}**`,
-                    `Failed updating PinguGuild for **${BotGuilds[i].name}**`
-                );
+                else await Update(message.client, await PinguGuild.GetPGuild(BotGuilds[i]), PinguGuildsArr[i]);
                 if (message.content.includes('updatepguilds'))
                     message.react('✅');
             } catch (err) {
@@ -45,5 +43,60 @@ module.exports = {
             }
         }
         //PinguLibrary.pGuildLog(message.client, module.exports.name, 'Going through servers complete!');
+    }
+}
+
+/**@param {Client} client
+ * @param {PinguGuild} pGuild
+ * @param {PinguGuild} emptyPGuild*/
+async function Update(client, pGuild, emptyPGuild) {
+    let updated = AddedOrRemovedProperty(Object.assign({}, pGuild.toObject()), Object.assign({}, emptyPGuild));
+    console.log(updated);
+    return await PinguGuild.UpdatePGuild(client, updated, pGuild, module.exports.name,
+        `Successfully updated **${pGuild.name}**`,
+        `Failed to update **${pGuild.name}**`,
+    );
+
+    /**@param {any} current
+     * @param {any} empty*/
+    function AddedOrRemovedProperty(current, empty) {
+        let updated = {};
+        try {
+            var currentProps = Object.keys(current);
+            var emptyProps = Object.keys(empty);
+        }
+        catch {
+            console.log({ current, empty });
+        }
+
+        for (let prop of currentProps) {
+            if (!emptyProps.includes(prop))
+                updated[prop] = undefined;
+        } //Removed
+        for (let prop of emptyProps) {
+            if (!currentProps.includes(prop))
+                updated[prop] = emptyPGuild[prop];
+        } //Added
+        //Check sub properties on empty pGuild (new property was added) then replace default data with saved data from current pGuild (keep data that was saved before updating)
+        updated = CheckSubProperties(current, current, CheckSubProperties(current, empty, updated)); //Check sub-properties
+        return updated;
+
+        function CheckSubProperties(current, obj, updated) {
+            //For each property in object
+            for (let prop in obj) {
+                //Set updated object's property to be equal to next statement:
+                //If property exists in current pGuild, check if property is object
+                //  If property is object, run through AddedOrRemoved, to check property's sub-properties
+                //  else save updated[prop] = current[prop] (treat as normal type; string, number, boolean)
+                //else treat as new property in pGuild object
+                updated[prop] = current[prop] ?
+                    (typeof current[prop] === 'object' ?
+                        AddedOrRemovedProperty(current[prop], obj[prop]) :
+                        current[prop]) :
+                    obj[prop];
+            }
+            //Return final object
+            return updated;
+        }
     }
 }
