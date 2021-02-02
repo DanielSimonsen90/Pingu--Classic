@@ -142,7 +142,7 @@ client.on('messageReactionRemoveAll', message => HandleEvent(`${MessageString}/$
 client.on('userUpdate', (preUser, user) => HandleEvent(`userUpdate`, { preUser, user })); //User updated
 
 /**@param {string} path
- * @param {{}} parameters*/
+ * @param {import('discord.js Addons').PinguEventData} parameters*/
 async function HandleEvent(path, parameters) {
     let pathArr = path.split('/');
     let eventName = pathArr[pathArr.length - 1];

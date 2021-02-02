@@ -5,15 +5,19 @@ module.exports = {
     name: 'events: ready',
     /**@param {Client} client*/
     async execute(client) {
+        console.log('\n--== Client Info ==--');
+        PinguLibrary.consoleLog(client, `Loaded ${client.commands.array().length} commands & ${client.events.array().length} events\n`);
+
         try { CacheReactionRoles(client); }
         catch (err) { PinguLibrary.errorLog(client, `Unable to cache reactionrole messages!`, null, err); }
 
-        console.log(' ');
         await PinguLibrary.DBExecute(client, () => PinguLibrary.consoleLog(client, `Connected to MongolDB!`));
         PinguLibrary.consoleLog(client, `I'm back online!\n`);
         console.log(`Logged in as ${client.user.username}`);
 
         PinguLibrary.setActivity(client);
+
+        console.log(`--== | == - == | ==--\n`);
     }
 }
 

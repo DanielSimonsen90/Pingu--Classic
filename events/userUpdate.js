@@ -1,4 +1,4 @@
-const { Client, User, MessageEmbed } = require("discord.js");
+const { Client, User, MessageEmbed, PinguEvent } = require("discord.js");
 const { PinguEvents, PinguUser, PinguLibrary } = require("../PinguPackage");
 
 module.exports = {

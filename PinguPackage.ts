@@ -189,7 +189,7 @@ export class PinguUser {
             else PinguLibrary.pUserLog(client, scriptName, succMsg);
         });
     }
-    public static async GetPUser(user: User): Promise<mongoose.Document<PinguUser>> {
+    public static async GetPUser(user: User): Promise<PinguUser> {
         return await PinguUserSchema.findOne({ _id: user.id });
     }
     public static async UpdatePUser(client: Client, updatedProperty: object, pUser: PinguUser, scriptName: string, succMsg: string, errMsg: string): Promise<PinguUser> {

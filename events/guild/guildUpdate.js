@@ -184,7 +184,7 @@ module.exports = {
 
         let welcomePChannel = pGuild.welcomeChannel;
         let welcomeChannel = welcomePChannel && guild.channels.cache.find(c => c.id == welcomePChannel.id)
-        if (!welcomeChannel || welcomeChannel.name != welcomePChannel.name) updated.welcomeChannel = new PChannel(welcomeChannel);
+        if (welcomeChannel && welcomeChannel.name != welcomePChannel.name) updated.welcomeChannel = new PChannel(welcomeChannel);
 
         if (pGuild.reactionRoles.length) {
             let rrPChannels = pGuild.reactionRoles.map(rr => rr.channel.id);
