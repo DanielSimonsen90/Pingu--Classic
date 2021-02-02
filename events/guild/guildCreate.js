@@ -1,4 +1,4 @@
-const { Client, Guild, CategoryChannel } = require("discord.js");
+const { Client, Guild } = require("discord.js");
 const { PinguGuild, PinguLibrary, PinguUser } = require("../../PinguPackage");
 
 module.exports = {
@@ -6,7 +6,11 @@ module.exports = {
     /**@param {Client} client
      * @param {{guild: Guild}}*/
     async execute(client, { guild }) {
-        PinguGuild.WritePGuild(guild, async pGuild => await PinguLibrary.pGuildLog(client, this.name, `Successfully joined "**${pGuild.name}**", owned by <@${pGuild.guildOwner.id}>`));
+        //Add to MongolDB
+        PinguGuild.WritePGuild(client, guild, module.exports.name,
+            `Successfully joined "**${guild.name}**", owned by ${guild.owner}`,
+            `Something went wrong when joining "**${guild.name}**" (${guild.id})!`
+        );
 
         //Thank guild owner for adding Pingu
         let OwnerDM = await guild.owner.user.createDM();
@@ -22,9 +26,12 @@ module.exports = {
             .catch(err => PinguLibrary.errorLog(client, `Failed to send ${guild.owner} a DM`, null, err))
             .then(PinguLibrary.consoleLog(guild.client, `Sent ${guild.owner.user.tag} my "thank you" message.`));
 
-        guild.members.cache.forEach(member => {
-            if (!PinguUser.GetPUser(member.user)) {
-                PinguUser.WritePUser(member.user, async pUser => await PinguLibrary.pUserLog(client, this.name, `Created **${pUser.tag}.json**`))
+        guild.members.cache.forEach(async member => {
+            if (!await PinguUser.GetPUser(member.user)) {
+                PinguUser.WritePUser(client, member.user, module.exports.name,
+                    `Added **${member.user.tag}** to MongoDB`,
+                    `Failed to add **${member.user.tag}** to MongoDB`
+                );
             }
         })
     }

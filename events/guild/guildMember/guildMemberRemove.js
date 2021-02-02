@@ -16,23 +16,27 @@ module.exports = {
     },
     /**@param {Client} client
      @param {{member: GuildMember}}*/
-    execute(client, { member }) {
+    async execute(client, { member }) {
         if (member.user.bot) return;
-        let welcomeChannel = require('./guildMemberAdd').getWelcomeChannel(client, member.guild);
+        let welcomeChannel = await require('./guildMemberAdd').getWelcomeChannel(client, member.guild);
         if (welcomeChannel)
             welcomeChannel.send(`**${member.displayName}** ${(member.displayName != member.user.username ? `(${member.user.username})` : ``)}has left ${member.guild.name}...`);
 
         UpdateSharedServers();
 
-        function UpdateSharedServers() {
-            let pUser = PinguUser.GetPUser(member.user);
+        async function UpdateSharedServers() {
+            let pUser = await PinguUser.GetPUser(member.user);
             pUser.sharedServers = pUser.sharedServers.filter(guild => guild.id != member.guild.id);
 
-            if (pUser.sharedServers.length == 0)
-                PinguUser.DeletePUser(member.user, async () =>
-                    PinguLibrary.pUserLog(client, module.exports.name, `Successfully deleted **${pUser.tag}** from Pingu Users.`)
+            return !pUser.sharedServers.length ?
+                await PinguUser.DeletePUser(client, member.user, module.exports.name,
+                    `Successfully removed **${pUser.tag}** from MongolDB.`,
+                    `Failed to remove **${pUser.tag}** from MongolDB`
+                ) :
+                await PinguUser.UpdatePUser(client, { sharedServers: pUser.sharedServers }, pUser, module.exports.name,
+                    `Successfully removed **${member.guild.name}** from **${pUser.tag}**'s SharedServers.`,
+                    `Failed to remove **${member.guild.name}** from **${pUser.tag}**'s SharedServers.`,
                 );
-            else PinguUser.UpdatePUsersJSON(client, member.user, module.exports.name, `Successfully removed **${member.guild.name}** from **${pUser.tag}**'s SharedServers.`)
         }
     }
 }

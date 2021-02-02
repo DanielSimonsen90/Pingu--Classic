@@ -8,8 +8,8 @@ module.exports = {
     usage: '<user | username | unset> <message>',
     id: 2,
     example: ["Danho Hello!", "Danho's_Super_Cool_Nickname_With_Spaces why is this so long??", "unset"],
-    /**@param {{message: Message, args: string[]}}*/
-    async execute({ message, args }) {
+    /**@param {{message: Message, args: string[], pAuthor: PinguUser}}*/
+    async execute({ message, args, pAuthor }) {
         var permCheck = ArgumentCheck(message, args);
         if (permCheck != PinguLibrary.PermissionGranted)
             return message.channel.send(permCheck);
@@ -20,7 +20,6 @@ module.exports = {
         const Mention = UserMention == 'info' ? 'info' : module.exports.GetMention(message, UserMention);
         if (!Mention) return PinguLibrary.errorLog(message.client, `Mention returned null`, message.content);
 
-        let pAuthor = PinguUser.GetPUser(message.author);
         if (Mention == 'info') {
             let AuthorAsReplyPerson = PinguUser.GetPUsers().filter(pUser => pUser.replyPerson && pUser.replyPerson.id == message.author.id && pUser);
 
@@ -43,7 +42,7 @@ module.exports = {
             let dmChannel = await message.author.createDM();
             return dmChannel.send(tellInfoEmbed);
         }
-        if(Mention.id == message.author.id) return message.channel.send(``)
+        if (Mention.id == message.author.id) return message.channel.send(`I have a feeling that not even *you* would want to talk to yourself...`);
 
         pAuthor.replyPerson = new PUser(Mention);
 
@@ -54,15 +53,15 @@ module.exports = {
             error: (self, partner) => `Failed updating **${PinguUser.PUserFileName(self)}**.json's replyPerson to **${partner.replyPerson.name}**!`
         };
 
-        PinguUser.UpdatePUsersJSONAsync(message.client, message.author, 'tell',
+        await PinguUser.UpdatePUser(message.client, { replyPerson: pAuthor.replyPerson }, pAuthor, 'tell',
             messages.success(message.author, pAuthor),
             messages.error(message.author, pAuthor)
         );
 
-        let pMention = PinguUser.GetPUser(Mention);
+        let pMention = await PinguUser.GetPUser(Mention);
         pMention.replyPerson = new PUser(message.author);
 
-        PinguUser.UpdatePUsersJSONAsync(message.client, Mention, "tell",
+        await PinguUser.UpdatePUser(message.client, { replyPerson: pMention.replyPerson }, pMention, "tell",
             messages.success(Mention, pMention),
             messages.error(Mention, pMention)
         );
@@ -89,26 +88,27 @@ module.exports = {
         if (message.author.id == message.client.user.id) return;
 
         //Get author's replyPerson
-        let replyPersonPUser = PinguUser.GetPUser(message.author).replyPerson;
-        if (!replyPersonPUser) return PinguLibrary.consoleLog(message.client, `No replyPerson found for ${message.author.username}.`);
+        let authorReplyPerson = (await PinguUser.GetPUser(message.author)).replyPerson;
+        if (!authorReplyPerson) return PinguLibrary.consoleLog(message.client, `No replyPerson found for ${message.author.username}.`);
 
         //Find replyPerson as Discord User
-        let replyPerson = getReplyUser(message);
+        let replyPersonUser = await message.client.users.fetch(authorReplyPerson.id)
 
         //Find replyPerson as PinguUser
-        let replyPersonPinguUser = PinguUser.GetPUser(replyPerson);
+        let replyPersonPinguUser = await PinguUser.GetPUser(replyPersonUser);
 
         //If replyPerson's replyPerson isn't author anymore, re-bind them again (replyPerson is talking to multiple people through Pingu)
         if (replyPersonPinguUser.replyPerson.id != message.author.id) {
             replyPersonPinguUser.replyPerson = new PUser(message.author);
-            PinguUser.UpdatePUsersJSONAsync(message.client, replyPerson, "index: Message.ExecuteTellReply",
-                `Successfully re-binded **${replyPerson.tag}**'s replyPerson to **${message.author.tag}**`,
-                `Failed re-binding **${replyPerson.tag}**'s replyPerson to **${message.author.tag}**!`
+
+            PinguUser.UpdatePUser(message.client, {replyPerson: replyPersonPinguUser.replyPerson}, replyPersonPinguUser, "tell: ExecuteTellReply",
+                `Successfully re-binded **${replyPersonUser.tag}**'s replyPerson to **${message.author.tag}**`,
+                `Failed re-binding **${replyPersonUser.tag}**'s replyPerson to **${message.author.tag}**!`
             );
         }
 
         //Log conversation
-        try { PinguLibrary.tellLog(message.client, message.author, replyPerson, message); }
+        try { PinguLibrary.tellLog(message.client, message.author, replyPersonUser, message); }
         catch (err) { PinguLibrary.errorLog(message.client, 'Tell reply failed', message.content, err); }
 
         //Error happened while sending reply
@@ -120,7 +120,7 @@ module.exports = {
             return message.channel.send(`Attempted to message ${Mention.username} but couldn't.. I've contacted my developers.`);
         }
         //Create DM to replyPerson
-        let replyPersonDM = await replyPerson.createDM();
+        let replyPersonDM = await replyPersonUser.createDM();
         if (!replyPersonDM) return cantMessage({ message: "Unable to create DM from ln: 366" });
 
         //Add "Conversation with" header to message's content
@@ -129,11 +129,11 @@ module.exports = {
         //Send author's reply to replyPerson
         if (message.content && message.attachments.size > 0) replyPersonDM.send(message.content, message.attachments.array()).catch(async err => cantMessage(err)); //Message and files
         else if (message.content) replyPersonDM.send(message.content).catch(async err => cantMessage(err)); //Message only
-        else PinguLibrary.errorLog(client, `${message.author} ➡️ ${replyPerson} used else statement from ExecuteTellReply, Index`, message.content);
+        else PinguLibrary.errorLog(client, `${message.author} ➡️ ${replyPersonUser} used else statement from ExecuteTellReply, Index`, message.content);
 
         //Show author that reply has been sent
         message.react('✅');
-        message.channel.send(`**Sent message to __${replyPerson.tag}__**`);
+        message.channel.send(`**Sent message to __${replyPersonUser.tag}__**`);
     },
     /**Returns Mention whether it's @Mentioned, username or nickname
     * @param {Message} message 
@@ -184,21 +184,4 @@ function ArgumentCheck(message, args) {
     while (Mention.includes('_')) Mention = Mention.replace('_', ' ');
 
     return module.exports.GetMention(message, Mention) || args[0] == "info" ? PinguLibrary.PermissionGranted : `No mention provided`;
-}
-/**@param {Message} message*/
-function getReplyUser(message) {
-    let { replyPerson } = PinguUser.GetPUser(message.author);
-    return getGuildUsers().find(user => user.id == replyPerson.id);
-
-    /**@returns {User[]} */
-    function getGuildUsers() {
-        let guildUsersArr = message.client.guilds.cache.map(guild => guild.members.cache.map(gm => !gm.user.bot && gm.user));
-        let guildUsersSorted = [];
-
-        guildUsersArr.forEach(guildUsers => guildUsers.forEach(user => {
-            if (!guildUsersSorted.includes(user))
-                guildUsersSorted.push(user);
-        }));
-        return guildUsersSorted;
-    }
 }

@@ -57,21 +57,24 @@ module.exports = {
      * @param {PinguGuild} pGuild
      * @param {string} scriptName*/
     CheckRoleChange(guild, pGuild, scriptName) {
+        let { client } = guild;
+
         //Get the color of the Pingu role in message.guild
         const guildRoleColor = guild.me.roles.cache.find(botRoles => botRoles.managed).color;
-        const pGuildClient = pGuild.clients.find(c => c.id == guild.client.user.id);
+        const pGuildClient = PinguGuild.GetPClient(client, pGuild);
+        let clientIndex = pGuild.clients.indexOf(pGuildClient);
 
         //If color didn't change
         if (guildRoleColor == pGuildClient.embedColor) return;
 
         //Update pGuildClient.EmbedColor with guild's Pingu role color & put pGuild back into pGuilds
-        pGuildClient.embedColor = guildRoleColor;
+        pGuild.clients[clientIndex].embedColor = guildRoleColor;
 
         //Save Index of pGuild & log the change
-        PinguLibrary.consoleLog(guild.client, `[**${guild.name}**]: Embedcolor for **${guild.client.user.username}** updated from ${pGuildClient.embedColor} to ${guildRoleColor}`);
+        PinguLibrary.consoleLog(guild.client, `[**${guild.name}**]: Embedcolor for **${client.user.username}** updated from ${pGuildClient.embedColor} to ${guildRoleColor}`);
 
         //Update Pingu Guild
-        PinguGuild.UpdatePGuild(guild.client, pGuild, scriptName,
+        PinguGuild.UpdatePGuild(client, {clients: pGuild.clients}, pGuild, scriptName,
             `Successfully updated role color from **${guild.name}**`,
             `I encountered and error while updating my role color in **${guild.name}**`
         );

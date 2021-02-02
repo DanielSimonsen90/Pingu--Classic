@@ -11,7 +11,8 @@ module.exports = {
     /**@param {{message: Message, pGuildClient: PClient}}*/
     async execute({ message, pGuildClient }) {
         let Danho = PinguLibrary.SavedServers.DanhoMisc(message.client).owner.user;
-        var Embed = new MessageEmbed()
+
+        message.channel.send(new MessageEmbed()
             .setTitle('Support of Pingu')
             .setColor(message.guild ? pGuildClient.embedColor : PinguLibrary.DefaultEmbedColor)
             .setThumbnail(Danho.avatarURL())
@@ -26,7 +27,6 @@ module.exports = {
                 `[**SoundCloud**](https://soundcloud.com/daniel-simonsen-705578407)\n` +
                 `[**Twitch**](https://www.twitch.tv/danhoesaurus)\n` +
                 `[**Instagram**](https://www.instagram.com/danhoesaurus/)\n`
-            );
-        message.channel.send(Embed);
+            ));
     },
 };

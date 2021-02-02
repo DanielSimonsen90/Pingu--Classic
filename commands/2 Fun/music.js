@@ -2,7 +2,7 @@ const { Message, MessageEmbed, VoiceChannel } = require('discord.js'),
     ytdl = require('ytdl-core'),
     YouTube = require('simple-youtube-api'),
     { youtube_api } = require('../../config.json');
-const { PinguGuild, Queue, Song, PinguLibrary, PQueue, PClient, DiscordPermissions } = require('../../PinguPackage');
+const { PinguGuild, Queue, Song, PinguLibrary, PQueue, PClient, DiscordPermissions, PGuild } = require('../../PinguPackage');
 var youTube = new YouTube(youtube_api), commandName = "";
 
 
@@ -607,11 +607,13 @@ async function ResetClient(message, queue) {
  * @param {string} errMsg
  * @returns {Promise<void>}*/
 async function UpdateQueue(message, queue, commandName, succMsg, errMsg) {
-    var clientDisplayName = PinguGuild.GetPGuild(message.guild).musicQueue.client.displayName;
-    var pQueue = PinguGuild.GetPGuild(message.guild).musicQueue = queue ? new PQueue(queue) : null;
+    let pGuild = await PinguGuild.GetPGuild(message.guild);
+
+    var clientDisplayName = pGuild.musicQueue.client.displayName;
+    var pQueue = pGuild.musicQueue = queue ? new PQueue(queue) : null;
     if (pQueue) pQueue.client.displayName = clientDisplayName;
 
-    return await PinguGuild.UpdatePGuildJSONAsync(message.client, message.guild, module.exports.name,
+    return await PinguGuild.UpdatePGuild(message.client, {musicQueue: pGuild.musicQueue}, pGuild, module.exports.name,
         `{**${commandName}**}: ${succMsg}`,
         `{**${commandName}**}: ${errMsg}`
     );

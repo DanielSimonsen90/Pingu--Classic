@@ -1,5 +1,5 @@
 ﻿const { Message, MessageEmbed, MessageAttachment } = require('discord.js');
-const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions, Marry, PClient } = require('../../PinguPackage');
+const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions, Marry, PClient, PinguUser } = require('../../PinguPackage');
 
 module.exports = {
     name: 'marry',
@@ -49,19 +49,7 @@ module.exports = {
             .setColor(pGuildClient.embedColor)
         )
 
-        UpdatePUsers();
-
-        function UpdatePUsers() {
-            PinguUser.UpdatePUser(message.client, {daily: pAuthor.daily}, message.author, module.exports.name,
-                `Successfully updated **${message.author.tag}.json**'s marry property`,
-                `Failed updating **${message.author.tag}.json**'s marry property!`
-            );
-
-            PinguUser.UpdatePUser(message.client, {daily: pPartner.daily}, partner, module.exports.name,
-                `Successfully updated **${partner.tag}.json**'s marry property`,
-                `Failed updating **${partner.tag}.json**'s marry property!`
-            );
-        }
+        return UpdatePUsers(message, pAuthor, pPartner);
     }
 }
 
@@ -84,10 +72,24 @@ async function HandleDivorce(message, pAuthor) {
         pAuthor.marry = authorMarry;
         pPartner.marry = partnerMarry;
 
-        UpdatePUsers();
+        UpdatePUsers(message, pAuthor, pPartner);
 
         return message.channel.send(`Congratulations. You're now a free being! ${PinguLibrary.getEmote(message.client, 'hypers', PinguLibrary.SavedServers.PinguSupport(message.client))}`);
     }
     else return message.channel.send(`Alright then.`);
 }
 
+/**@param {Message} message
+ * @param {PinguUser} pAuthor
+ * @param {PinguUser} pPartner*/
+async function UpdatePUsers(message, pAuthor, pPartner) {
+    PinguUser.UpdatePUser(message.client, { daily: pAuthor.daily }, pAuthor, module.exports.name,
+        `Successfully updated **${message.author.tag}.json**'s marry property`,
+        `Failed updating **${message.author.tag}.json**'s marry property!`
+    );
+
+    PinguUser.UpdatePUser(message.client, { daily: pPartner.daily }, pPartner, module.exports.name,
+        `Successfully updated **${partner.tag}**'s marry property`,
+        `Failed updating **${partner.tag}**'s marry property!`
+    );
+}

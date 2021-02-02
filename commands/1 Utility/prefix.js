@@ -21,11 +21,11 @@ module.exports = {
         pGuildClient.prefix = args[0];
 
         //Update db
-        PinguGuild.UpdatePGuild(message.client, {clients: pGuild.clients}, this.name,
+        PinguGuild.UpdatePGuild(message.client, {clients: pGuild.clients}, pGuild, this.name,
             `Prefix has been changed to \`${args[0]}\`!`,
             `I encountered and error while changing my prefix in ${message.guild.name}:\n\n`
         )
 
-        return message.channel.send(`Changed my prefix from **${prePrefix}** to **${args[0]}**`);
+        return message.channel.send(`Changed my prefix from \`${prePrefix}\` to \`${args[0]}\``);
     },
 };

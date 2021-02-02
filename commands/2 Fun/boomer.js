@@ -12,9 +12,9 @@ module.exports = {
     permissions: [DiscordPermissions.READ_MESSAGE_HISTORY, DiscordPermissions.SEND_MESSAGES, DiscordPermissions.MANAGE_MESSAGES],
     /**@param {{message: Message, args: string[]}}*/
     async execute({ message, args }) {
-        let Messages = await message.channel.messages.fetch();
-        let LastMessage = Messages.size - 2,
-            Mention = args.length >= 1 ? args.join(" ") : Messages.array()[LastMessage].author;
+        let messages = await message.channel.messages.fetch({ limit: 5 });
+        let LastMessage = messages.size - 2,
+            Mention = args.length >= 1 ? args.join(" ") : messages.array()[LastMessage].author;
 
         if (LastMessage == -1 && !args[0])
             return message.channel.send(`Sorry, ${message.author}, but you're too late to boomer that person!`);

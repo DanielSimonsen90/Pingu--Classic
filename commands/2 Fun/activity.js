@@ -1,7 +1,7 @@
 ﻿const request = require('request'),
     config = require('../../config.json'),
     { Message, MessageEmbed } = require('discord.js');
-const { PinguLibrary, PinguGuild, DiscordPermissions, PClient } = require('../../PinguPackage');
+const { PinguLibrary, DiscordPermissions, PClient } = require('../../PinguPackage');
 
 module.exports = {
     name: 'activity',
@@ -60,7 +60,8 @@ module.exports = {
     },
 };
 
-/**@param {Message} message @param {string[]} args*/
+/**@param {Message} message 
+ * @param {string[]} args*/
 function PermissionCheck(message, args) {
     if (!args[0]) return `Provide me with proper arguments please UwU`;
 
@@ -72,7 +73,8 @@ function DefinePerson(message) {
 
     return Person.includes('!') ? Person.replace('!', '') : Person;
 }
-/**@param {Message} message @param {string[]} args*/
+/**@param {Message} message 
+ * @param {string[]} args*/
 function DefineActivity(message, args) {
     if (args[0].toLowerCase() == 'fuck' && !message.channel.nsfw)
         return `nono`;

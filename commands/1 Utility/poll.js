@@ -1,6 +1,5 @@
-﻿const { Message, MessageEmbed, Role, GuildChannel, TextChannel, Channel } = require('discord.js'),
+﻿const { Message, MessageEmbed, Role, GuildChannel, TextChannel } = require('discord.js'),
     { PinguGuild, Poll, PollConfig, PRole, TimeLeftObject, PGuildMember, PinguLibrary, DiscordPermissions, PChannel, PClient } = require('../../PinguPackage');
-const { disconnect } = require('process');
 ms = require('ms');
 
 module.exports = {
@@ -23,9 +22,9 @@ module.exports = {
         }
 
         //Permission check
-        const PermResponse = PermissionCheck(message, args);
+        const PermResponse = await PermissionCheck(message, args);
         if (PermResponse != PinguLibrary.PermissionGranted) return message.channel.send(PermResponse);
-        else if (args[0] == 'setup' || !pGuild.pollConfig) return FirstTimeExecuted(message, args);
+        else if (args[0] == 'setup' || !pGuild.pollConfig) return await FirstTimeExecuted(message, args);
         else if (args[0] == "list") return ListPolls(message);
 
         //Create scrubby variables
@@ -77,7 +76,9 @@ module.exports = {
         const interval = setInterval(() => UpdateTimer(PollMessage, EndsAt, new PGuildMember(message.guild.member(message.author))), 5000);
         setTimeout(() => AfterTimeOut(Embed, PollMessage, interval), ms(Time));
 
-        /**@param {Message} PollMessage @param {Date} EndsAt @param {PGuildMember} Host*/
+        /**@param {Message} PollMessage 
+         * @param {Date} EndsAt 
+         * @param {PGuildMember} Host*/
         async function UpdateTimer(PollMessage, EndsAt, Host) {
             PollMessage.edit(PollMessage.embeds[0]
                 .setDescription(
@@ -90,13 +91,15 @@ module.exports = {
         }
     },
 };
-/**@param {Message} message @param {string[]} args*/
-function PermissionCheck(message, args) {
-    const pGuildConf = PinguGuild.GetPGuild(message.guild).giveawayConfig;
-    if (!pGuildConf || ['setup', "list"].includes(args[0]))
+
+/**@param {Message} message 
+ * @param {string[]} args*/
+async function PermissionCheck(message, args) {
+    const pGuildConf = (await PinguGuild.GetPGuild(message.guild)).pollConfig;
+    if (!pGuildConf || ['setup', "list"].includes(args[0])) //reintroduce firstTimeExecuted >.>
         return PinguLibrary.PermissionGranted;
 
-    if (pGuildConf.pollRole && !message.guild.member(message.author).roles.cache.has(pGuildConf.pollRole.id) && //pollRole exists and author doesn't have it
+    if (pGuildConf.pollRole && !message.member.roles.cache.has(pGuildConf.pollRole.id) && //pollRole exists and author doesn't have it
         !message.channel.permissionsFor(message.author).has('ADMINISTRATOR')) //author doesn't have Administrator
         return `You don't have \`ADMINISTRATOR\` permissions or a \`Polls\` role!`;
     else if (!pGuildConf.pollRole && !message.channel.permissionsFor(message.author).has('ADMINISTRATOR'))  //pollRole doesn't exist && author doesn't have Administrator
@@ -107,14 +110,15 @@ function PermissionCheck(message, args) {
     else if (!ms(args[0])) return 'Please provide a valid time!';
     return PinguLibrary.PermissionGranted;
 }
-/**@param {Message} message @param {string[]} args*/
-function FirstTimeExecuted(message, args) {
-    if (args[0] != `setup`) return message.channel.send(`**Hold on fella!**\nWe need to get ${message.guild.name} set up first!`);
+/**@param {Message} message 
+ * @param {string[]} args*/
+async function FirstTimeExecuted(message, args) {
+    if (args[0] != `setup`) message.channel.send(`**Hold on fella!**\nWe need to get ${message.guild.name} set up first!`);
 
     let collector = message.channel.createMessageCollector(m => m.author.id == message.author.id, { maxMatches: 1 }),
         collectorCount = 0, Reply, LastInput;
 
-    if (HasAllArguments()) return;
+    if (await HasAllArguments()) return;
 
     message.channel.send('Firstly, I need to know if there is a Polls Host role?');
 
@@ -185,50 +189,7 @@ function FirstTimeExecuted(message, args) {
         if (args[0] != 'setup') module.exports.execute({ message, args, pGuild });
     });
 
-    /**@param {Message} message 
-     * @returns {Promise<Role>}*/
-    function MakePollsRole(message) {
-        return message.guild.roles.create({
-            data: { name: 'Polls' }
-        }).catch(async err => {
-            await PinguLibrary.errorLog(`Create Polls role for "${message.guild.name}" (${message.guild.id})`, err)
-            message.channel.send(`I had an error trying to create the polls role! I've contacted my developers.`);
-        });
-    }
-    /**@param {Message} message 
-     * @returns {Promise<TextChannel>}*/
-    function MakePollsChannel(message) {
-        return message.guild.channels.create('polls').catch(async err => {
-            await PinguLibrary.errorLog(`Create Polls channel for "${message.guild.name}" (${message.guild.id})`, err)
-            message.channel.send(`I had an error trying to create the polls channel! I've contacted my developers.`);
-        })
-    }
-
-    /**@param {Message} message 
-     * @param {Role | string | undefined} PollsRole
-     * @param {GuildChannel | string} pollsChannel*/
-    async function SaveSetupToPGuilds(message, PollsRole, pollsChannel) {
-        if (typeof (PollsRole) === 'string')
-            PollsRole = await MakePollsRole(message);
-        PollsRole = PollsRole ? new PRole(PollsRole) : "undefined";
-
-        if (typeof pollsChannel === 'string')
-            pollsChannel = await MakePollsChannel(message);
-        pollsChannel = pollsChannel ? new PChannel(pollsChannel) : "undefined";
-
-        PinguGuild.GetPGuild(message.guild).pollConfig = new PollConfig({
-            channel: pollsChannel,
-            pollRole: PollsRole,
-            polls: new Array()
-        });
-
-        PinguGuild.UpdatePGuildJSON(message.client, message.guild, "Poll: SaveSetupToPGuilds",
-            `Successfully updated guilds.json with ${message.guild.name}'s pollConfig.`,
-            `I encountered an error, while saving ${message.guild.name}'s pollConfig to guilds.json`
-        );
-    }
-
-    function HasAllArguments() {
+    async function HasAllArguments() {
         /*
          [0]: setup
          [1]: pollsRole
@@ -251,13 +212,15 @@ function FirstTimeExecuted(message, args) {
         let pollsRole = findRole(args[1]);
         let pollsChannel = findChannel(args[2]);
 
-        SaveSetupToPGuilds(message, pollsRole, pollsChannel);
+        await SaveSetupToPGuilds(message, pollsRole, pollsChannel);
 
         message.channel.send(`Setup done!`);
         return true;
     }
 }
-/**@param {MessageEmbed} Embed @param {Message} PollMessage @param {string} Poll*/
+/**@param {MessageEmbed} Embed 
+ * @param {Message} PollMessage 
+ * @param {string} Poll*/
 function AfterTimeOut(Embed, PollMessage, interval) {
     clearInterval(interval);
 
@@ -396,8 +359,8 @@ async function ListPolls(message) {
         return Embeds;
     }
 }
-
-/**@param {Message} message @param {Poll[]} polls*/
+/**@param {Message} message 
+ * @param {Poll[]} polls*/
 async function RemovePolls(message, polls) {
     if (polls.length == 0 || polls[0] == undefined) return;
 
@@ -410,26 +373,75 @@ async function RemovePolls(message, polls) {
     );
 }
 
-
 //#region pGuild Methods
-/**@param {Message} message @param {Poll} poll*/
-function AddPollToPGuilds(message, poll) {
-    PinguGuild.GetPGuild(message.guild).pollConfig.polls.push(poll);
-    PinguGuild.UpdatePGuildJSON(message.client, message.guild, module.exports.name,
+/**@param {Message} message 
+ * @param {Poll} poll*/
+async function AddPollToPGuilds(message, poll) {
+    let pGuild = await PinguGuild.GetPGuild(message.guild);
+    let pollConfig = pGuild.pollConfig;
+    pollConfig.polls.push(poll);
+
+    return await PinguGuild.UpdatePGuild(message.client, {pollConfig}, pGuild, module.exports.name,
         `Added "${poll.value}" to "${message.guild.name}" in guilds.json`,
         `I encountered an error, while adding ${poll.value} to guilds.json`
     );
 }
-/**@param {Message} message @param {Poll} poll*/
-function SaveVerdictToPGuilds(message, poll) {
-    const pGuildPolls = PinguGuild.GetPGuild(message.guild).pollConfig.polls;
+/**@param {Message} message 
+ * @param {Poll} poll*/
+async function SaveVerdictToPGuilds(message, poll) {
+    let pGuild = await PinguGuild.GetPGuild(message.guil);
+    let { pollConfig } = pGuild;
+    const pGuildPolls = pollConfig.polls;
 
     const thispollman = pGuildPolls.find(p => p.id == poll.id);
     pGuildPolls[pGuildPolls.indexOf(thispollman)] = poll;
 
-    PinguGuild.UpdatePGuildJSON(message.client, message.guild, this.name,
+    PinguGuild.UpdatePGuild(message.client, {pollConfig}, pGuild, module.exports.name,
         `Successfully saved the verdict for "${poll.value}" in guilds.json`,
         `I encountered an error, while saving the verdict for "${poll.value}"`
     );
+}
+/**@param {Message} message 
+ * @param {Role | string | undefined} PollsRole
+ * @param {GuildChannel | string} pollsChannel*/
+async function SaveSetupToPGuilds(message, PollsRole, pollsChannel) {
+    if (typeof (PollsRole) === 'string')
+        PollsRole = await MakePollsRole(message);
+    PollsRole = PollsRole ? new PRole(PollsRole) : "undefined";
+
+    if (typeof pollsChannel === 'string')
+        pollsChannel = await MakePollsChannel(message);
+    pollsChannel = pollsChannel ? new PChannel(pollsChannel) : "undefined";
+
+    let pGuild = await PinguGuild.GetPGuild(message.guild);
+
+    return await PinguGuild.UpdatePGuild(message.client, {
+        pollConfig: new PollConfig({
+            channel: pollsChannel,
+            pollRole: PollsRole,
+            polls: new Array()
+        })}, pGuild, "Poll: SaveSetupToPGuilds",
+        `Successfully updated guilds.json with ${message.guild.name}'s pollConfig.`,
+        `I encountered an error, while saving ${message.guild.name}'s pollConfig to guilds.json`
+    );
+
+    /**@param {Message} message 
+     * @returns {Promise<Role>}*/
+    function MakePollsRole(message) {
+        return message.guild.roles.create({
+            data: { name: 'Polls' }
+        }).catch(async err => {
+            await PinguLibrary.errorLog(`Create Polls role for "${message.guild.name}" (${message.guild.id})`, err)
+            message.channel.send(`I had an error trying to create the polls role! I've contacted my developers.`);
+        });
+    }
+    /**@param {Message} message 
+     * @returns {Promise<TextChannel>}*/
+    function MakePollsChannel(message) {
+        return message.guild.channels.create('polls').catch(async err => {
+            await PinguLibrary.errorLog(`Create Polls channel for "${message.guild.name}" (${message.guild.id})`, err)
+            message.channel.send(`I had an error trying to create the polls channel! I've contacted my developers.`);
+        })
+    }
 }
 //#endregion

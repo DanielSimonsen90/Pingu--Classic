@@ -39,7 +39,7 @@ module.exports = {
 
             message.channel.send(new MessageEmbed()
                 .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
-                .setColor(pGuildClient.embedColor)
+                .setColor(pGuildClient.embedColor || PinguLibrary.DefaultEmbedColor)
             );
         });
     },

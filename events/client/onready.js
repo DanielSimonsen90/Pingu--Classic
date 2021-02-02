@@ -38,7 +38,7 @@ function CacheReactionRoles(client) {
 
             channel.messages.fetch(rr.messageID);
 
-            PinguLibrary.ConsoleLog(client, `Cached ${rr.messageID} from #${channel.name}, ${guild.name}`)
+            PinguLibrary.consoleLog(client, `Cached ${rr.messageID} from #${channel.name}, ${guild.name}`)
         });
     })
 }

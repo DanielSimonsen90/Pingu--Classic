@@ -92,7 +92,7 @@ function CategoryOrSpecificHelp(message, args, embed, Prefix) {
 
     //Create footer
     let Footer = `Keep in mind that I'm still learning and will eventually have new features!\n` +
-        `You are now viewing page ${args[0]}, being the help page of ${CategoryNames[args[0]]}.`;
+        `You are now viewing page ${args[0]}, being the help page of ${CategoryNames[args[0]]}.\n`;
     //If message.author is viewing page 3 (*help Support)
     if (args[0] <= 3)
         //Update Footer

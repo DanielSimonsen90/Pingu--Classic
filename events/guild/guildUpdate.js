@@ -203,6 +203,9 @@ module.exports = {
 
         if (guild.ownerID != pGuild.guildOwner.id) updated.guildOwner = { id: guild.ownerID, name: guild.owner.user.tag };
 
+        //Event didn't update something that should be saved to MongolDB
+        if (!Object.keys(updated)[0]) return;
+
         await PinguGuild.UpdatePGuild(client, updated, guild, this.name,
             `Successfully updated **${guild.name}**'s ${(preGuild.name != guild.name ? `(${preGuild.name}) ` : "")}Pingu Guild.`,
             `Unable to update **${guild.name}**'s ${(preGuild.name != guild.name ? `(${preGuild.name})` : "")} Pingu Guild.`

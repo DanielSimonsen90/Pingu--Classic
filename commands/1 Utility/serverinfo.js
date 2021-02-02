@@ -9,7 +9,7 @@ module.exports = {
     example: ["", "all", "emotes", "emotes FeelsBadMan", "features"],
     permissions: [DiscordPermissions.SPEAK, DiscordPermissions.EMBED_LINKS, DiscordPermissions.USE_EXTERNAL_EMOJIS],
     /**@param {{message: Message, args: string[]}}*/
-    execute({ message, args }) {
+    async execute({ message, args }) {
         const bigboiinfo = args[0] && args[0].toLowerCase() == 'all',
             serverGuild = message.guild,
             emote = serverGuild.emojis.cache.find(e => args.includes(e.name));
@@ -23,7 +23,7 @@ module.exports = {
                 return message.channel.send(new MessageEmbed()
                     .setTitle(`${emote.name}`)
                     .setThumbnail(emote.url)
-                    .setColor(GetPGuildColor())
+                    .setColor(await GetPGuildColor())
                     //.addField(`Created by`, author, true)
                     .addField(`Created at`, emote.createdAt, true))
             }
@@ -37,12 +37,13 @@ module.exports = {
     },
 };
 
-/**@param {Message} message @param {boolean} bigboiinfo*/
+/**@param {Message} message 
+ * @param {boolean} bigboiinfo*/
 async function SendCallerInfo(message, bigboiinfo) {
     let { guild } = message;
     const DefaultThumbnail = guild.iconURL(),
         Description = guild.description ? guild.description : '',
-        color = GetPGuildColor(guild);
+        color = await GetPGuildColor(guild);
     let savedEmotes = {
         boost: PinguLibrary.getEmote(message.client, 'guildBoost', PinguLibrary.SavedServers.PinguEmotes(message.client)),
         partner: PinguLibrary.getEmote(message.client, 'partneredServer', PinguLibrary.SavedServers.PinguEmotes(message.client)),
@@ -199,7 +200,9 @@ async function SendCallerInfo(message, bigboiinfo) {
 }
 
 //#region Send user its stuff
-/**@param {Message} message @param {Guild} serverGuild @param {boolean} bigboiinfo*/
+/**@param {Message} message 
+ * @param {Guild} serverGuild 
+ * @param {boolean} bigboiinfo*/
 async function SendEmbeds(message, serverGuild, bigboiinfo) {
     const EmbedArray = await SendCallerInfo(message, bigboiinfo)
 
@@ -209,7 +212,8 @@ async function SendEmbeds(message, serverGuild, bigboiinfo) {
     }
     else EmbedArray.forEach(Embed => message.channel.send(Embed));
 }
-/**@param {Message} message @param {Guild} serverGuild*/
+/**@param {Message} message 
+ * @param {Guild} serverGuild*/
 function SendEmotes(message, serverGuild) {
     let EmoteList = serverGuild.emojis.cache.map(emote => emote.name);
     if (!EmoteList) return message.channel.send(`There are no emotes in ${serverGuild.name}!`);
@@ -220,7 +224,8 @@ function SendEmotes(message, serverGuild) {
         `**${serverGuild.name}'s Emotes (${EmoteList.length})**` +
         '```' + emoteListString.substring(0, emoteListString.length - 1) + '```');
 }
-/**@param {Message} message @param {Guild} serverGuild*/
+/**@param {Message} message 
+ * @param {Guild} serverGuild*/
 function SendFeatures(message, serverGuild) {
     let FeatureList = serverGuild.features.map(feature => `${feature}\n`);
 
@@ -231,6 +236,6 @@ function SendFeatures(message, serverGuild) {
 //#endregion
 
 /**@param {Guild} guild*/
-function GetPGuildColor(guild) {
-    return PinguGuild.GetPGuild(guild).embedColor;
+async function GetPGuildColor(guild) {
+    return PinguGuild.GetPClient(guild.client, await PinguGuild.GetPGuild(guild)).embedColor;
 }

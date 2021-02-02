@@ -26,27 +26,30 @@ module.exports = {
         function AddToPinguUsers() {
             if (!member.user.bot && !PinguUser.GetPUser(member.user, true))
                 PinguUser.WritePUser(member.user, async pUser =>
-                    await PinguLibrary.pUserLog(client, module.exports.name, `Created **${pUser.tag}**.json`)
+                    await PinguLibrary.pUserLog(client, module.exports.name, `Added **${pUser.tag}** to MongolDB`)
                 );
         }
     },
     /**@param {Client} client
      * @param {Guild} guild
-     * @returns {TextChannel} */
-    getWelcomeChannel(client, guild) {
-            let welcomePChannel = PinguGuild.GetPGuild(guild).welcomeChannel;
-            let welcomeChannel = guild.channels.cache.find(c => c.id == (welcomePChannel && welcomePChannel.id));
-            if (!welcomeChannel) {
-                welcomeChannel = guild.channels.cache.find(c => c.isText() && c.name.includes('welcome')) ||
-                    guild.channels.cache.find(c => c.isText() && c.name == 'general');
-                if (welcomeChannel) {
-                    PinguGuild.GetPGuild(guild).welcomeChannel = new PChannel(welcomeChannel);
-                    PinguGuild.UpdatePGuildJSONAsync(client, guild, module.exports.name,
-                        `Successfully added welcome channel to **${guild.name}**'s pGuild.`,
-                        `Error adding welcome channel to **${guild.name}**'s pGuild`
-                    );
-                }
+     * @returns {Promise<TextChannel>} */
+    async getWelcomeChannel(client, guild) {
+        let pGuild = await PinguGuild.GetPGuild(guild);
+        let welcomePChannel = pGuild.welcomeChannel;
+        let welcomeChannel = guild.channels.cache.find(c => c.id == (welcomePChannel && welcomePChannel.id));
+
+        if (!welcomeChannel) {
+            //Find a channel which is "welcome", until there are no more channels to look through, then find one named "general" (prioritize welcome channels higher than general, and ensure you don't find #general before #welcome)
+            welcomeChannel = guild.channels.cache.find(c => c.isText() && c.name.includes('welcome')) ||
+                guild.channels.cache.find(c => c.isText() && c.name == 'general');
+
+            if (welcomeChannel) {
+                PinguGuild.UpdatePGuild(client, {welcomeChannel: new PChannel(welcomeChannel)}, pGuild, module.exports.name,
+                    `Successfully added welcome channel to **${guild.name}**'s pGuild.`,
+                    `Error adding welcome channel to **${guild.name}**'s pGuild`
+                );
             }
-            return welcomeChannel;
         }
+        return welcomeChannel;
+    }
 }

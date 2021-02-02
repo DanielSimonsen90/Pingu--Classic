@@ -26,14 +26,19 @@ module.exports = {
     },
     /**@param {Client} client
      @param {{preUser: User, user: User}}*/
-    execute(client, { preUser, user }) {
+    async execute(client, { preUser, user }) {
         if (user.bot) return;
 
-        if (user.avatar == preUser.avatar || user.tag == preUser.tag) return;
+        let updated = {};
+        if (user.avatarURL() != preUser.avatarURL()) updated.avatar = user.avatarURL();
+        if (user.tag != preUser.tag) updated.tag = user.tag;
 
-        return PinguUser.UpdatePUser(preUser, user, _ =>
-            PinguLibrary.pUserLog(client, this.name,
-                `Updated **${(preUser.tag != user.tag ? user.tag : `(${preUser.tag})`)}**'s json file`)
+        //Neither avatar or tag was updated in this event
+        if (!Object.keys(updated)[0]) return;
+
+        return await PinguUser.UpdatePUser(client, updated, await PinguUser.GetPUser(user), module.exports.name,
+            `Successfully updated **${user.tag}** PinguUser.`,
+            `Failed to update **${user.tag}** PinguUser.`,
         );
     }
 }
