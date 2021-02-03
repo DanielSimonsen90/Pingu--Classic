@@ -273,7 +273,6 @@ async function HandleEvent(path, parameters) {
     }
 }
 
-
 try {
     var { token } = require('../../PinguBetaToken.json');
     //throw null
