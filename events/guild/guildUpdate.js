@@ -183,11 +183,11 @@ module.exports = {
         if (preGuild.name != guild.name) updated.name = guild.name;
 
         let welcomePChannel = pGuild.welcomeChannel;
-        let welcomeChannel = welcomePChannel && guild.channels.cache.find(c => c.id == welcomePChannel.id)
+        let welcomeChannel = welcomePChannel && guild.channels.cache.find(c => c.id == welcomePChannel._id)
         if (welcomeChannel && welcomeChannel.name != welcomePChannel.name) updated.welcomeChannel = new PChannel(welcomeChannel);
 
         if (pGuild.reactionRoles.length) {
-            let rrPChannels = pGuild.reactionRoles.map(rr => rr.channel.id);
+            let rrPChannels = pGuild.reactionRoles.map(rr => rr.channel._id);
             let rrChannels = guild.channels.cache.filter(c => rrPChannels.includes(c.id));
             let newReactionRoles = pGuild.reactionRoles;
 
@@ -201,7 +201,7 @@ module.exports = {
                 updated.reactionRoles = newReactionRoles;
         }
 
-        if (guild.ownerID != pGuild.guildOwner.id) updated.guildOwner = { id: guild.ownerID, name: guild.owner.user.tag };
+        if (guild.ownerID != pGuild.guildOwner._id) updated.guildOwner = { id: guild.ownerID, name: guild.owner.user.tag };
 
         //Event didn't update something that should be saved to MongolDB
         if (!Object.keys(updated)[0]) return;

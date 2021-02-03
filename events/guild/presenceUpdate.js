@@ -53,7 +53,7 @@ module.exports = {
 
         return description ? module.exports.content = new MessageEmbed()
             .setDescription(description)
-            .setColor(await this.GetColor(activityType, presence)) : module.exports.content = null;
+            .setColor(await this.GetColor(activityType, presence, prePresence)) : module.exports.content = null;
 
         function GetDescription() {
             if (!prePresence || !activity || presence && presence.status != prePresence.status)
@@ -90,8 +90,9 @@ module.exports = {
         }
     },
     /**@param {string} activityType
-     * @param {Presence} presence*/
-    async GetColor(activityType, presence) {
+     * @param {Presence} presence
+     * @param {Presence} prePresence*/
+    async GetColor(activityType, presence, prePresence) {
         if (activityType) {
             if (activityType == 'listening to' && presence.status == prePresence.status) return '#1ED760';
             if (activityType == 'streaming' && presence.status == prePresence.status) return '#593695';

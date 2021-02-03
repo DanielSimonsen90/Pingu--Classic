@@ -365,7 +365,7 @@ function HandleQueue(message, queue) {
 
             embed.addField(
                 `[${i + 1}]: ${indexSong.title}`,
-                `Requested by: <@${indexSong.requestedBy.id}> | Time left: **${formatTime()}**${(indexSong == queue.currentSong ? `/**${indexSong.length}**` : "")}`
+                `Requested by: <@${indexSong.requestedBy._id}> | Time left: **${formatTime()}**${(indexSong == queue.currentSong ? `/**${indexSong.length}**` : "")}`
             );
         }
     }
@@ -466,7 +466,7 @@ async function HandleRestart(message, queue, args) {
  * @param {Queue} queue
  * @param {string[]} args*/
 function HandleShuffle(message, queue, args) {
-    let queueSongs = queue.songs.map(v => v.id != queue.currentSong.id && v).filter(v => v);
+    let queueSongs = queue.songs.map(v => v._id != queue.currentSong._id && v).filter(v => v);
 
     for (var i = 0; i < Math.round(Math.random() * queue.songs.length); i++) {
         queueSongs.sort(() => Math.round(Math.random() * 2) == 1 ? 1 : -1);
@@ -524,7 +524,7 @@ async function Play(message, song, queue) {
 
             PinguLibrary.consoleLog(message.client, `Start: ${song.title}`);
 
-            var requestedBy = message.guild.members.cache.find(m => m.id == song.requestedBy.id);
+            var requestedBy = message.guild.members.cache.find(m => m.id == song.requestedBy._id);
 
             //Change nickname to [<name> Radio] Pingu
             if (message.guild.me.permissions.has("CHANGE_NICKNAME")) {
@@ -541,10 +541,10 @@ async function Play(message, song, queue) {
             var nowPlayingMessage = `**Now playing:** ${song.title}\n**Requested by:** `;
 
             if (previousMessage && lastChannelMessage && lastChannelMessage.id == previousMessage.id)
-                previousMessage.edit(nowPlayingMessage + `<@${song.requestedBy.id}>`);
+                previousMessage.edit(nowPlayingMessage + `<@${song.requestedBy._id}>`);
             else 
                 queue.logChannel.send(nowPlayingMessage + `${requestedBy.displayName}`)
-                    .then(sent => sent.edit(nowPlayingMessage + `<@${song.requestedBy.id}>`));
+                    .then(sent => sent.edit(nowPlayingMessage + `<@${song.requestedBy._id}>`));
 
 
             //Update pGuilds queue

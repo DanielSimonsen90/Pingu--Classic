@@ -25,36 +25,26 @@ module.exports = {
                     .setTitle(pUser.tag)
                     .setColor(pGuildClient && pGuildClient.embedColor || PinguLibrary.DefaultEmbedColor)
                     .setThumbnail(pUser.avatar)
-                    .setDescription(`ID: ${pUser.id}`)
+                    .setDescription(`ID: ${pUser._id}`)
                     .setFooter(`Servers shared: ${SharedServersString(pUser.sharedServers.map(pg => pg.name))}`)
                     .addField('Daily Streak', pUser.daily.streak, true)
                     .addField('Last Messaged', pUser.replyPerson && pUser.replyPerson.name | "Unset", true)
                     .addField(`Playlists`, pUser.playlists && pUser.playlists.length || null, true)
                 );
-            if (arg && arg != "show" && (![pUser.tag.toLowerCase(), pUser.id, `<@${pUser.id}>`, `<@!${pUser.id}>`].includes(arg))) continue;
+            if (arg && arg != "show" && (![pUser.tag.toLowerCase(), pUser._id, `<@${pUser._id}>`, `<@!${pUser._id}>`].includes(arg))) continue;
 
             try {
-                try {
-                    await PinguUser.UpdatePUser(message.client, Users[i], this.name,
-                        `Successfully updated PinguUser for **${Users[i].tag}**`,
-                        `Failed updating PinguUser for **${Users[i].tag}**`
+                if (!await PinguUser.GetPUser(Users[i]))
+                    await PinguUser.WritePUser(message.client, Users[i], module.exports.name,
+                        `Successfully created PinguUser for **${Users[i].tag}**`,
+                        `Failed creating PinguUser for **${Users[i].tag}**`
                     );
-                } catch (e) {
-                    if (e.errmsg.includes('duplicate key error collection'))
-                        await PinguUser.WritePUser(message.client, Users[i], this.name,
-                            `Successfully created PinguUser for **${Users[i].tag}**`,
-                            `Failed creating PinguUser for **${Users[i].tag}**`
-                        );
-                    else throw e;
-                }
-                if (message.content.includes('updatepguilds'))
-                    message.react('✅');
-            } catch (err) {
-                PinguLibrary.errorLog(message.client, 'Adding to PinguUsers failed', message.content, err);
-            }
-            PinguLibrary.consoleLog(message.client, `Finished: ${Users[i].tag}`);
+            } catch (err) { PinguLibrary.errorLog(message.client, `Adding to PinguUsers failed`, message.content, err); }
         }
         PinguLibrary.pUserLog(message.client, module.exports.name, 'Going through users complete!');
+
+        if (message.content.includes('updatepusers'))
+            message.react('✅');
     }
 }
 

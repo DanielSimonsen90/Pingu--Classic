@@ -1,6 +1,5 @@
 ﻿const { Message, MessageEmbed, Client } = require("discord.js");
 const { PinguGuild, PinguLibrary } = require('../../PinguPackage');
-const PinguGuildSchema = require('../../MongoSchemas/PinguGuild');
 
 module.exports = {
     name: 'updatepguilds',
@@ -17,31 +16,30 @@ module.exports = {
         for (var i = 0; i < BotGuilds.length; i++) {
             let owner = !BotGuilds[i].owner ? BotGuilds[i].member(await BotGuilds[i].members.fetch(BotGuilds[i].ownerID)) : BotGuilds[i].owner;
             PinguGuildsArr[i] = new PinguGuild(BotGuilds[i], owner);
-            //PinguLibrary.pGuildLog(message.client, module.exports.name, `Going through all servers - just finished: ${PinguGuildsArr[x].guildName}`);
+
             if (arg == "show")
                 await message.channel.send(new MessageEmbed()
                     .setTitle(PinguGuildsArr[i].name)
                     .setColor((PinguGuildsArr[i].clients[0] || PinguGuildsArr[i].clients[1]) &&
                         (PinguGuildsArr[i].clients[0].embedColor || PinguGuildsArr[i].clients[1].embedColor))
                     .setThumbnail(BotGuilds[i].iconURL())
-                    .setDescription(`ID: ${PinguGuildsArr[i].id}`)
-                    .setFooter(`Owner: ${PinguGuildsArr[i].guildOwner.user} | ${PinguGuildsArr[i].guildOwner.id}`)
+                    .setDescription(`ID: ${PinguGuildsArr[i]._id}`)
+                    .setFooter(`Owner: ${PinguGuildsArr[i].guildOwner.user} | ${PinguGuildsArr[i].guildOwner._id}`)
                     .addField('Prefix', (PinguGuildsArr[i].clients[0] || PinguGuildsArr[i].clients[1]) &&
                         (PinguGuildsArr[i].clients[0].prefix || PinguGuildsArr[i].clients[1].prefix)));
-            if (arg && arg != "show" && ![PinguGuildsArr[i].name.toLowerCase(), PinguGuildsArr[i].id].includes(arg)) continue;
+            if (arg && arg != "show" && ![PinguGuildsArr[i].name.toLowerCase(), PinguGuildsArr[i]._id].includes(arg)) continue;
 
             try {
-                if (!await PinguGuild.GetPGuild(BotGuilds[i])) await PinguGuild.WritePGuild(message.client, BotGuilds[i], this.name,
-                    `Successfully created PinguGuild for **${BotGuilds[i].name}**`,
-                    `Failed creating PinguGuild for **${BotGuilds[i].name}**`
-                );
-                else await Update(message.client, await PinguGuild.GetPGuild(BotGuilds[i]), PinguGuildsArr[i]);
-                if (message.content.includes('updatepguilds'))
-                    message.react('✅');
-            } catch (err) {
-                PinguLibrary.errorLog(message.client, 'Adding to PinguGuilds failed', message.content, err);
-            }
+                if (!await PinguGuild.GetPGuild(BotGuilds[i]))
+                    await PinguGuild.WritePGuild(message.client, BotGuilds[i], this.name,
+                        `Successfully created PinguGuild for **${BotGuilds[i].name}**`,
+                        `Failed creating PinguGuild for **${BotGuilds[i].name}**`
+                    );
+            } catch (err) { PinguLibrary.errorLog(message.client, 'Adding to PinguGuilds failed', message.content, err); }
         }
+
+        if (message.content.includes('updatepguilds'))
+            message.react('✅');
         //PinguLibrary.pGuildLog(message.client, module.exports.name, 'Going through servers complete!');
     }
 }
@@ -50,7 +48,10 @@ module.exports = {
  * @param {PinguGuild} pGuild
  * @param {PinguGuild} emptyPGuild*/
 async function Update(client, pGuild, emptyPGuild) {
-    let updated = AddedOrRemovedProperty(Object.assign({}, pGuild.toObject()), Object.assign({}, emptyPGuild));
+    let updated = AddedOrRemovedProperty(
+        Object.assign({}, pGuild.toObject()),
+        Object.assign({}, emptyPGuild.toObject())
+    );
     console.log(updated);
     return await PinguGuild.UpdatePGuild(client, updated, pGuild, module.exports.name,
         `Successfully updated **${pGuild.name}**`,
@@ -66,7 +67,7 @@ async function Update(client, pGuild, emptyPGuild) {
             var emptyProps = Object.keys(empty);
         }
         catch {
-            console.log({ current, empty });
+            return empty;
         }
 
         for (let prop of currentProps) {

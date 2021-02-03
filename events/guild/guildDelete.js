@@ -11,7 +11,7 @@ module.exports = {
      * @param {{guild: Guild}}*/
     async execute(client, { guild }) {
         let pGuild = await PinguGuild.GetPGuild(guild);
-        if (pGuild.clients.find(c => c && c.id != client.user.id)) /*Other Pingu client is in guild*/ return;
+        if (pGuild.clients.find(c => c && c._id != client.user.id)) /*Other Pingu client is in guild*/ return;
 
         //Remove guild from MongolDB
         await PinguGuild.DeletePGuild(client, guild, module.exports.name,

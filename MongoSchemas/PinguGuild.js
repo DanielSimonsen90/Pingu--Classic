@@ -1,18 +1,17 @@
 const mongoose = require('mongoose');
 
 const PItem = {
-    id: String,
+    _id: String,
     name: String
 };
 const Decidable = {
-    firstTimeExecuted: Boolean,
     value: String,
-    id: String,
+    _id: String,
     author: PItem,
     channel: PItem
 };
 const Song = {
-    id: Number,
+    _id: Number,
     title: String,
     link: String,
     author: String,
@@ -32,7 +31,7 @@ module.exports = mongoose.model('PinguGuild', mongoose.Schema({
     name: String,
     guildOwner: PItem,
     clients: [{
-        id: String,
+        _id: String,
         embedColor: Number,
         prefix: String,
         displayName: String
@@ -54,6 +53,7 @@ module.exports = mongoose.model('PinguGuild', mongoose.Schema({
         pRole: PItem
     }],
     giveawayConfig: {
+        firstTimeExecuted: Boolean,
         allowSameWinner: Boolean,
         hostRole: PItem,
         winnerRole: PItem,
@@ -63,6 +63,7 @@ module.exports = mongoose.model('PinguGuild', mongoose.Schema({
         channel: PItem
     },
     pollConfig: {
+        firstTimeExecuted: Boolean,
         pollsRole: PItem,
         polls: [Object.assign({
             YesVotes: Number,

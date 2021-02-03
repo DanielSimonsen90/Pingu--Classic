@@ -147,13 +147,17 @@ async function HandleEvent(path, parameters) {
     let pathArr = path.split('/');
     let eventName = pathArr[pathArr.length - 1];
 
+    try { var event = require(`./events/${path}`); }
+    catch (err) { return await PinguLibrary.errorLog(client, `Unable to get event for ${eventName}`, null, new Error(err)); }
+    //PinguLibrary.consoleLog(client, `Emitting ${eventName}`);
     try {
-        var event = require(`./events/${path}`);
-        //PinguLibrary.consoleLog(client, `Emitting ${eventName}`);
-        event.execute(client, parameters);
-        await SendToLog();
+        try { event.execute(client, parameters); } catch (err) { PinguLibrary.errorLog(client, `${eventName}.execute`, null, new Error(err)); throw `execute`; }
+        try { await SendToLog(); } catch (err) { PinguLibrary.errorLog(client, `${eventName}.setContent`, null, new Error(err)); throw `setContent`; }
     }
-    catch (err) { await PinguLibrary.errorLog(client, `${eventName} error`, null, new Error(err)); }
+    catch (cause) {
+        let errorLogChannel = PinguLibrary.getChannel(client, PinguLibrary.SavedServers.PinguSupport(client).id, 'error-log');
+        if (errorLogChannel) return errorLogChannel.send("```\n" + `[Cause: ${cause}]\n` + JSON.stringify(parameters) + "\n```");
+    }
 
     async function SendToLog() {
         let emitAssociator = parameters.guild ? parameters.guild.name : parameters.message ? parameters.message.author.tag : parameters.member ? parameters.member.user.tag :
@@ -262,13 +266,17 @@ async function HandleEvent(path, parameters) {
                 if (eventName.includes('Create') || eventName.includes('Add')) return PinguEvents.Colors.Create;
                 else if (eventName.includes('Delete') || eventName.includes('Remove')) return PinguEvents.Colors.Delete;
                 else if (eventName.includes('Update')) return PinguEvents.Colors.Update;
-                try { return (await PinguGuild.GetPGuild(PinguLibrary.SavedServers.PinguSupport(client))).clients.find(c => c.id == client.user.id).embedColor; }
+                try { return (await PinguGuild.GetPGuild(PinguLibrary.SavedServers.PinguSupport(client))).clients.find(c => c._id == client.user.id).embedColor; }
                 catch { return PinguLibrary.DefaultEmbedColor; }
             }
         }
     }
 }
 
-try { var { token } = require('../../PinguBetaToken.json'); /*throw null;*/ }
+
+try {
+    var { token } = require('../../PinguBetaToken.json');
+    //throw null
+}
 catch { token = require('./config.json').token; }
 finally { client.login(token); }

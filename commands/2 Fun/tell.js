@@ -92,13 +92,13 @@ module.exports = {
         if (!authorReplyPerson) return PinguLibrary.consoleLog(message.client, `No replyPerson found for ${message.author.username}.`);
 
         //Find replyPerson as Discord User
-        let replyPersonUser = await message.client.users.fetch(authorReplyPerson.id)
+        let replyPersonUser = await message.client.users.fetch(authorReplyPerson._id)
 
         //Find replyPerson as PinguUser
         let replyPersonPinguUser = await PinguUser.GetPUser(replyPersonUser);
 
         //If replyPerson's replyPerson isn't author anymore, re-bind them again (replyPerson is talking to multiple people through Pingu)
-        if (replyPersonPinguUser.replyPerson.id != message.author.id) {
+        if (replyPersonPinguUser.replyPerson._id != message.author.id) {
             replyPersonPinguUser.replyPerson = new PUser(message.author);
 
             PinguUser.UpdatePUser(message.client, {replyPerson: replyPersonPinguUser.replyPerson}, replyPersonPinguUser, "tell: ExecuteTellReply",

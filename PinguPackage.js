@@ -114,7 +114,7 @@ var BitPermission = /** @class */ (function () {
 //#region JSON Classes
 var PItem = /** @class */ (function () {
     function PItem(object) {
-        this.id = object.id;
+        this._id = object.id;
         this.name = object.name;
     }
     return PItem;
@@ -172,7 +172,7 @@ var PGuild = /** @class */ (function (_super) {
 exports.PGuild = PGuild;
 var PClient = /** @class */ (function () {
     function PClient(client, guild) {
-        this.id = client.user.id;
+        this._id = client.user.id;
         this.displayName = guild.me.displayName;
         var clientIndex = guild.client.user.id == PinguLibrary.Clients.PinguID ? 0 : 1;
         var Prefix = require('./config.json').Prefix;
@@ -200,7 +200,7 @@ var PQueue = /** @class */ (function () {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        queue = new Queue(this.client, guild.channels.cache.find(function (c) { return c.id == _this.logChannel.id; }), guild.channels.cache.find(function (c) { return c.id == _this.voiceChannel.id; }), this.songs, this.playing);
+                        queue = new Queue(this.client, guild.channels.cache.find(function (c) { return c.id == _this.logChannel._id; }), guild.channels.cache.find(function (c) { return c.id == _this.voiceChannel._id; }), this.songs, this.playing);
                         _a = queue;
                         return [4 /*yield*/, queue.voiceChannel.join()];
                     case 1:
@@ -233,7 +233,7 @@ exports.PMarry = PMarry;
 var PinguUser = /** @class */ (function () {
     function PinguUser(user) {
         var pUser = new PUser(user);
-        this.id = pUser.id;
+        this._id = pUser._id;
         this.tag = pUser.name;
         this.sharedServers = user.client.guilds.cache.filter(function (g) { return g.members.cache.has(user.id); }).map(function (g) { return new PGuild(g); });
         this.marry = new Marry();
@@ -247,12 +247,10 @@ var PinguUser = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 PinguLibrary.DBExecute(client, function (mongoose) { return __awaiter(_this, void 0, void 0, function () {
-                    var doc, created;
+                    var created;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
-                            case 0:
-                                doc = Object.assign({ _id: user.id }, new PinguUser(user));
-                                return [4 /*yield*/, new PinguUserSchema(doc).save()];
+                            case 0: return [4 /*yield*/, new PinguUserSchema(new PinguUser(user)).save()];
                             case 1:
                                 created = _a.sent();
                                 if (!created)
@@ -269,10 +267,13 @@ var PinguUser = /** @class */ (function () {
     };
     PinguUser.GetPUser = function (user) {
         return __awaiter(this, void 0, void 0, function () {
+            var pUserDoc;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, PinguUserSchema.findOne({ _id: user.id })];
-                    case 1: return [2 /*return*/, _a.sent()];
+                    case 0: return [4 /*yield*/, PinguUserSchema.findOne({ _id: user.id }).exec()];
+                    case 1:
+                        pUserDoc = _a.sent();
+                        return [2 /*return*/, pUserDoc ? pUserDoc.toObject() : null];
                 }
             });
         });
@@ -281,7 +282,7 @@ var PinguUser = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, PinguUserSchema.updateOne({ _id: pUser.id }, updatedProperty, null, function (err) {
+                    case 0: return [4 /*yield*/, PinguUserSchema.updateOne({ _id: pUser._id }, updatedProperty, null, function (err) {
                             if (err)
                                 PinguLibrary.pUserLog(client, scriptName, errMsg, err);
                             else
@@ -331,7 +332,7 @@ var PinguGuild = /** @class */ (function (_super) {
             _this.welcomeChannel = new PChannel(welcomeChannel);
         _this.reactionRoles = new Array();
         _this.giveawayConfig = new GiveawayConfig();
-        _this.pollConfig = new PollConfig;
+        _this.pollConfig = new PollConfig();
         _this.suggestions = new Array();
         if (guild.id == '405763731079823380')
             _this.themeWinners = new Array();
@@ -342,33 +343,29 @@ var PinguGuild = /** @class */ (function (_super) {
             var _this = this;
             return __generator(this, function (_a) {
                 PinguLibrary.DBExecute(client, function (mongoose) { return __awaiter(_this, void 0, void 0, function () {
-                    var doc, _a, _b, _c, _d, _e, _f, _g, _h, created;
-                    return __generator(this, function (_j) {
-                        switch (_j.label) {
+                    var created, _a, _b, _c, _d, _e, _f;
+                    return __generator(this, function (_g) {
+                        switch (_g.label) {
                             case 0:
-                                _b = (_a = Object).assign;
-                                _c = [{ _id: guild.id }];
-                                _d = PinguGuild.bind;
-                                _e = [void 0, guild];
+                                _a = PinguGuildSchema.bind;
+                                _b = PinguGuild.bind;
+                                _c = [void 0, guild];
                                 if (!!guild.owner) return [3 /*break*/, 2];
-                                _h = (_g = guild).member;
+                                _f = (_e = guild).member;
                                 return [4 /*yield*/, client.users.fetch(guild.ownerID)];
                             case 1:
-                                _f = _h.apply(_g, [_j.sent()]);
+                                _d = _f.apply(_e, [_g.sent()]);
                                 return [3 /*break*/, 3];
                             case 2:
-                                _f = null;
-                                _j.label = 3;
-                            case 3:
-                                doc = _b.apply(_a, _c.concat([new (_d.apply(PinguGuild, _e.concat([_f])))()]));
-                                return [4 /*yield*/, new PinguGuildSchema(doc).save()];
+                                _d = null;
+                                _g.label = 3;
+                            case 3: return [4 /*yield*/, new (_a.apply(PinguGuildSchema, [void 0, new (_b.apply(PinguGuild, _c.concat([_d])))()]))()];
                             case 4:
-                                created = _j.sent();
+                                created = _g.sent();
                                 if (!created)
-                                    PinguLibrary.pGuildLog(client, scriptName, errMsg);
-                                else
-                                    PinguLibrary.pGuildLog(client, scriptName, succMsg);
-                                return [2 /*return*/];
+                                    return [2 /*return*/, PinguLibrary.pGuildLog(client, scriptName, errMsg)];
+                                created.save();
+                                return [2 /*return*/, PinguLibrary.pGuildLog(client, scriptName, succMsg)];
                         }
                     });
                 }); });
@@ -378,10 +375,13 @@ var PinguGuild = /** @class */ (function (_super) {
     };
     PinguGuild.GetPGuild = function (guild) {
         return __awaiter(this, void 0, void 0, function () {
+            var pGuildDoc;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, PinguGuildSchema.findOne({ _id: guild.id })];
-                    case 1: return [2 /*return*/, _a.sent()];
+                    case 0: return [4 /*yield*/, PinguGuildSchema.findOne({ _id: guild.id }).exec()];
+                    case 1:
+                        pGuildDoc = _a.sent();
+                        return [2 /*return*/, pGuildDoc ? pGuildDoc.toObject() : null];
                 }
             });
         });
@@ -391,12 +391,12 @@ var PinguGuild = /** @class */ (function (_super) {
             var guild;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, client.guilds.fetch(pGuild.id)];
+                    case 0: return [4 /*yield*/, client.guilds.fetch(pGuild._id)];
                     case 1:
                         guild = _a.sent();
                         if (!guild)
                             throw new Error({ message: "Guild not found!" });
-                        PinguGuildSchema.updateOne({ _id: pGuild.id }, updatedProperty, null, function (err) {
+                        PinguGuildSchema.updateOne({ _id: pGuild._id }, updatedProperty, null, function (err) {
                             if (err)
                                 PinguLibrary.pGuildLog(client, scriptName, errMsg, err);
                             else
@@ -423,7 +423,7 @@ var PinguGuild = /** @class */ (function (_super) {
         });
     };
     PinguGuild.GetPClient = function (client, pGuild) {
-        return pGuild.clients.find(function (c) { return c && c.id == client.user.id; });
+        return pGuild.clients.find(function (c) { return c && c._id == client.user.id; });
     };
     return PinguGuild;
 }(PItem));
@@ -1097,7 +1097,7 @@ exports.PinguEvents = PinguEvents;
 var Decidable = /** @class */ (function () {
     function Decidable(value, id, author, channel) {
         this.value = value;
-        this.id = id;
+        this._id = id;
         this.author = author;
         this.channel = new PChannel(channel);
     }
@@ -1109,12 +1109,13 @@ var Poll = /** @class */ (function (_super) {
     function Poll() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    Poll.prototype.Decide = function (yesVotes, noVotes) {
-        this.YesVotes = yesVotes;
-        this.NoVotes = noVotes;
-        this.approved =
-            this.YesVotes > this.NoVotes ? 'Yes' :
-                this.NoVotes > this.YesVotes ? 'No' : 'Undecided';
+    Poll.Decide = function (poll, yesVotes, noVotes) {
+        poll.YesVotes = yesVotes;
+        poll.NoVotes = noVotes;
+        poll.approved =
+            poll.YesVotes > poll.NoVotes ? 'Yes' :
+                poll.NoVotes > poll.YesVotes ? 'No' : 'Undecided';
+        return poll;
     };
     return Poll;
 }(Decidable));
@@ -1237,7 +1238,7 @@ var Queue = /** @class */ (function () {
     /** Adds song to the start of the queue
      * @param song song to add*/
     Queue.prototype.addFirst = function (song) {
-        song.id = this.songs.length;
+        song._id = this.songs.length;
         this.songs.unshift(song);
     };
     /** Adds song to queue
@@ -1249,7 +1250,7 @@ var Queue = /** @class */ (function () {
             songs[_i] = arguments[_i];
         }
         songs.forEach(function (song) {
-            song.id = _this.songs.length;
+            song._id = _this.songs.length;
             _this.songs.push(song);
         });
     };
@@ -1294,7 +1295,7 @@ var Song = /** @class */ (function () {
         this.lengthMS = parseInt(songInfo.lengthSeconds) * 1000;
         this.thumbnail = songInfo.thumbnails[0].url;
         this.requestedBy = new PUser(author);
-        this.id = 0;
+        this._id = 0;
         this.volume = -1;
         this.loop = false;
         this.endsAt = null;
@@ -1358,7 +1359,7 @@ var ReactionRole = /** @class */ (function () {
                         rr = pGuild.reactionRoles.find(function (rr) {
                             return rr.messageID == reaction.message.id &&
                                 (rr.emoteName == reaction.emoji.name) &&
-                                rr.channel.id == reaction.message.channel.id;
+                                rr.channel._id == reaction.message.channel.id;
                         });
                         if (!rr)
                             return [2 /*return*/, null];
@@ -1375,7 +1376,7 @@ var ReactionRole = /** @class */ (function () {
                             user.send("I'm unable to give you the reactionrole at the moment! I've contacted " + user.username + " about this.");
                             return [2 /*return*/, null];
                         }
-                        return [2 /*return*/, guild.roles.fetch(pRole.id)];
+                        return [2 /*return*/, guild.roles.fetch(pRole._id)];
                 }
             });
         });
@@ -1390,7 +1391,7 @@ var Marry = /** @class */ (function () {
     }
     Object.defineProperty(Marry.prototype, "marriedMessage", {
         get: function () {
-            return "You have been " + (this.partner ? "married to <@" + this.partner.id + "> since" : "single since") + " **" + this.internalDate.toLocaleTimeString() + ", " + this.internalDate.toLocaleDateString().split('.').join('/') + "**";
+            return "You have been " + (this.partner ? "married to <@" + this.partner._id + "> since" : "single since") + " **" + this.internalDate.toLocaleTimeString() + ", " + this.internalDate.toLocaleDateString().split('.').join('/') + "**";
         },
         enumerable: false,
         configurable: true

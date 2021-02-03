@@ -72,10 +72,10 @@ class BitPermission {
 //#region JSON Classes
 export class PItem {
     constructor(object: { id: string, name: string }) {
-        this.id = object.id;
+        this._id = object.id;
         this.name = object.name;
     }
-    public id: string
+    public _id: string
     public name: string
 }
 export class PGuildMember extends PItem {
@@ -109,7 +109,7 @@ export class PGuild extends PItem {
 }
 export class PClient {
     constructor(client: Client, guild: Guild) {
-        this.id = client.user.id;
+        this._id = client.user.id;
         this.displayName = guild.me.displayName;
 
         let clientIndex = guild.client.user.id == PinguLibrary.Clients.PinguID ? 0 : 1;
@@ -120,7 +120,7 @@ export class PClient {
     public displayName: string
     public embedColor: number
     public prefix: string
-    public id: string
+    public _id: string
 }
 
 export class PQueue {
@@ -147,8 +147,8 @@ export class PQueue {
     public async ToQueue(guild: Guild) {
         let queue = new Queue(
             this.client,
-            guild.channels.cache.find(c => c.id == this.logChannel.id) as TextChannel,
-            guild.channels.cache.find(c => c.id == this.voiceChannel.id) as VoiceChannel,
+            guild.channels.cache.find(c => c.id == this.logChannel._id) as TextChannel,
+            guild.channels.cache.find(c => c.id == this.voiceChannel._id) as VoiceChannel,
             this.songs,
             this.playing
         );
@@ -180,17 +180,17 @@ export class PMarry {
 export class PinguUser {
     public static async WritePUser(client: Client, user: User, scriptName: string, succMsg: string, errMsg: string) {
         PinguLibrary.DBExecute(client, async mongoose => {
-            let doc = Object.assign({ _id: user.id }, new PinguUser(user));
-            let created = await new PinguUserSchema(doc).save();
+            let created = await new PinguUserSchema(new PinguUser(user)).save();
             if (!created) PinguLibrary.pUserLog(client, scriptName, errMsg);
             else PinguLibrary.pUserLog(client, scriptName, succMsg);
         });
     }
     public static async GetPUser(user: User): Promise<PinguUser> {
-        return await PinguUserSchema.findOne({ _id: user.id });
+        let pUserDoc = await PinguUserSchema.findOne({ _id: user.id }).exec();
+        return pUserDoc ? pUserDoc.toObject() : null;
     }
     public static async UpdatePUser(client: Client, updatedProperty: object, pUser: PinguUser, scriptName: string, succMsg: string, errMsg: string): Promise<PinguUser> {
-        return await PinguUserSchema.updateOne({ _id: pUser.id }, updatedProperty, null, err => {
+        return await PinguUserSchema.updateOne({ _id: pUser._id }, updatedProperty, null, err => {
             if (err) PinguLibrary.pUserLog(client, scriptName, errMsg, err);
             else PinguLibrary.pUserLog(client, scriptName, succMsg);
         })
@@ -204,7 +204,7 @@ export class PinguUser {
 
     constructor(user: User) {
         let pUser = new PUser(user);
-        this.id = pUser.id;
+        this._id = pUser._id;
         this.tag = pUser.name;
         this.sharedServers = user.client.guilds.cache.filter(g => g.members.cache.has(user.id)).map(g => new PGuild(g));
         this.marry = new Marry();
@@ -213,7 +213,7 @@ export class PinguUser {
         this.avatar = user.avatarURL();
         this.playlists = new Array<PQueue>();
     }
-    public id: string
+    public _id: string
     public tag: string
     public sharedServers: PGuild[]
     public marry: Marry
@@ -226,20 +226,22 @@ export class PinguUser {
 export class PinguGuild extends PItem {
     public static async WritePGuild(client: Client, guild: Guild, scriptName: string, succMsg: string, errMsg: string) {
         PinguLibrary.DBExecute(client, async mongoose => {
-            let doc = Object.assign({ _id: guild.id }, new PinguGuild(guild, !guild.owner ? guild.member(await client.users.fetch(guild.ownerID)) : null));
-            let created = await new PinguGuildSchema(doc).save();
-            if (!created) PinguLibrary.pGuildLog(client, scriptName, errMsg);
-            else PinguLibrary.pGuildLog(client, scriptName, succMsg);
+            let created = await new PinguGuildSchema(new PinguGuild(guild, !guild.owner ? guild.member(await client.users.fetch(guild.ownerID)) : null));
+            if (!created) return PinguLibrary.pGuildLog(client, scriptName, errMsg);
+
+            created.save();
+            return PinguLibrary.pGuildLog(client, scriptName, succMsg);
         });
     }
     public static async GetPGuild(guild: Guild): Promise<PinguGuild> {
-        return await PinguGuildSchema.findOne({ _id: guild.id });
+        let pGuildDoc = await PinguGuildSchema.findOne({ _id: guild.id }).exec();
+        return pGuildDoc ? pGuildDoc.toObject() : null;
     }
     public static async UpdatePGuild(client: Client, updatedProperty: object, pGuild: PinguGuild, scriptName: string, succMsg: string, errMsg: string) {
-        let guild = await client.guilds.fetch(pGuild.id);
+        let guild = await client.guilds.fetch(pGuild._id);
         if (!guild) throw new Error({ message: `Guild not found!` });
 
-        PinguGuildSchema.updateOne({ _id: pGuild.id }, updatedProperty, null, err => {
+        PinguGuildSchema.updateOne({ _id: pGuild._id }, updatedProperty, null, err => {
             if (err) PinguLibrary.pGuildLog(client, scriptName, errMsg, err);
             else PinguLibrary.pGuildLog(client, scriptName, succMsg);
         });
@@ -252,7 +254,7 @@ export class PinguGuild extends PItem {
     }
 
     public static GetPClient(client: Client, pGuild: PinguGuild) {
-        return pGuild.clients.find(c => c && c.id == client.user.id);
+        return pGuild.clients.find(c => c && c._id == client.user.id);
     }
 
     constructor(guild: Guild, owner?: GuildMember) {
@@ -274,7 +276,7 @@ export class PinguGuild extends PItem {
 
         this.reactionRoles = new Array<ReactionRole>();
         this.giveawayConfig = new GiveawayConfig();
-        this.pollConfig = new PollConfig;
+        this.pollConfig = new PollConfig();
         this.suggestions = new Array<Suggestion>();
         if (guild.id == '405763731079823380')
             this.themeWinners = new Array<PGuildMember>();
@@ -857,13 +859,13 @@ interface IDecidableConfigOptions {
 abstract class Decidable implements IDecidableConfigOptions {
     constructor(value: string, id: string, author: PGuildMember, channel: GuildChannel) {
         this.value = value;
-        this.id = id;
+        this._id = id;
         this.author = author;
         this.channel = new PChannel(channel);
     }
     public firstTimeExecuted: boolean
     public value: string
-    public id: string
+    public _id: string
     public author: PGuildMember
     public channel: PChannel
 }
@@ -873,12 +875,14 @@ export class Poll extends Decidable {
     public YesVotes: number
     public NoVotes: number
     public approved: string
-    public Decide(yesVotes: number, noVotes: number) {
-        this.YesVotes = yesVotes;
-        this.NoVotes = noVotes;
-        this.approved =
-            this.YesVotes > this.NoVotes ? 'Yes' :
-                this.NoVotes > this.YesVotes ? 'No' : 'Undecided';
+
+    public static Decide(poll: Poll, yesVotes: number, noVotes: number) {
+        poll.YesVotes = yesVotes;
+        poll.NoVotes = noVotes;
+        poll.approved = 
+            poll.YesVotes > poll.NoVotes ? 'Yes' :
+                poll.NoVotes > poll.YesVotes ? 'No' : 'Undecided';
+        return poll;
     }
 }
 export class Giveaway extends Decidable {
@@ -1034,14 +1038,14 @@ export class Queue implements IMuisc {
     /** Adds song to the start of the queue
      * @param song song to add*/
     public addFirst(song: Song) {
-        song.id = this.songs.length;
+        song._id = this.songs.length;
         this.songs.unshift(song);
     }
     /** Adds song to queue
      * @param song song to add*/
     public add(...songs: Song[]) {
         songs.forEach(song => {
-            song.id = this.songs.length;
+            song._id = this.songs.length;
             this.songs.push(song)
         });
     }
@@ -1084,12 +1088,12 @@ export class Song implements IMuisc {
         this.thumbnail = songInfo.thumbnails[0].url;
 
         this.requestedBy = new PUser(author);
-        this.id = 0;
+        this._id = 0;
         this.volume = -1;
         this.loop = false;
         this.endsAt = null;
     }
-    public id: number
+    public _id: number
     public title: string
     public link: string
     public author: string
@@ -1164,7 +1168,7 @@ export class ReactionRole {
         var rr = pGuild.reactionRoles.find(rr =>
             rr.messageID == reaction.message.id &&
             (rr.emoteName == reaction.emoji.name) &&
-            rr.channel.id == reaction.message.channel.id
+            rr.channel._id == reaction.message.channel.id
         ); 
         if (!rr) return null;
 
@@ -1183,7 +1187,7 @@ export class ReactionRole {
             return null;
         }
 
-        return guild.roles.fetch(pRole.id);
+        return guild.roles.fetch(pRole._id);
     }
 }
 export class Marry {
@@ -1195,7 +1199,7 @@ export class Marry {
     public partner: PUser
     public internalDate: Date
     public get marriedMessage(): string {
-        return `You have been ${(this.partner ? `married to <@${this.partner.id}> since` : `single since`)} **${this.internalDate.toLocaleTimeString()}, ${this.internalDate.toLocaleDateString().split('.').join('/')}**`;
+        return `You have been ${(this.partner ? `married to <@${this.partner._id}> since` : `single since`)} **${this.internalDate.toLocaleTimeString()}, ${this.internalDate.toLocaleDateString().split('.').join('/')}**`;
     }
 
     public marry(partner: User) {

@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
 const PItem = {
-    id: String,
+    _id: String,
     name: String
 };
 const Song = {
-    id: Number,
+    _id: Number,
     title: String,
     link: String,
     author: String,

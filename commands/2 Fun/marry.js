@@ -56,11 +56,11 @@ module.exports = {
 /**@param {Message} message
  * @param {PinguUser} pAuthor*/
 async function HandleDivorce(message, pAuthor) {
-    message.channel.send(`Are you sure you want to divorce <@${pAuthor.marry.partner.id}>? ` + "`Yes` or `No`");
+    message.channel.send(`Are you sure you want to divorce <@${pAuthor.marry.partner._id}>? ` + "`Yes` or `No`");
     let response = (await message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1 })).first().content.toLowerCase();
 
     if (response == 'yes') {
-        let partner = message.client.users.cache.find(u => u.id == pAuthor.marry.partner.id);
+        let partner = message.client.users.cache.find(u => u.id == pAuthor.marry.partner._id);
         let pPartner = PinguUser.GetPUser(partner);
 
         let authorMarry = new Marry(pAuthor.marry.partner, pAuthor.marry.internalDate);

@@ -36,7 +36,7 @@ module.exports = {
     async getWelcomeChannel(client, guild) {
         let pGuild = await PinguGuild.GetPGuild(guild);
         let welcomePChannel = pGuild.welcomeChannel;
-        let welcomeChannel = guild.channels.cache.find(c => c.id == (welcomePChannel && welcomePChannel.id));
+        let welcomeChannel = guild.channels.cache.find(c => c.id == (welcomePChannel && welcomePChannel._id));
 
         if (!welcomeChannel) {
             //Find a channel which is "welcome", until there are no more channels to look through, then find one named "general" (prioritize welcome channels higher than general, and ensure you don't find #general before #welcome)

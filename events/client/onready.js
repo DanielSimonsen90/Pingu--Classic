@@ -29,7 +29,7 @@ function CacheReactionRoles(client) {
 
         let { reactionRoles } = pGuild;
         reactionRoles.forEach(rr => {
-            let gChannel = guild.channels.cache.get(rr.channel.id);
+            let gChannel = guild.channels.cache.get(rr.channel._id);
             if (!gChannel) return;
 
             let channel = ToTextChannel(gChannel);

@@ -26,7 +26,7 @@ module.exports = {
 
         async function UpdateSharedServers() {
             let pUser = await PinguUser.GetPUser(member.user);
-            pUser.sharedServers = pUser.sharedServers.filter(guild => guild.id != member.guild.id);
+            pUser.sharedServers = pUser.sharedServers.filter(guild => guild._id != member.guild.id);
 
             return !pUser.sharedServers.length ?
                 await PinguUser.DeletePUser(client, member.user, module.exports.name,

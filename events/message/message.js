@@ -126,7 +126,7 @@ module.exports = {
         /**@param {Guild} guild
          * @returns {Promise<string>} */
         async function HandlePGuild(guild) {
-            //Find pGuild in servers folder
+            //Get PinguGuild from MongolDB
             let pGuild = await PinguGuild.GetPGuild(guild);
 
             //If pGuild wasn't found, create pGuild
@@ -143,7 +143,7 @@ module.exports = {
                 client.emit('guildUpdate', {
                     name: pGuild.name,
                     client: client,
-                    id: pGuild.id
+                    id: pGuild._id
                 }, guild);
             }
 

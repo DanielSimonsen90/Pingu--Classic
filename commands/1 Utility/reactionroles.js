@@ -130,7 +130,7 @@ async function SetReactionRoles(pGuild, rrMessage, emote, role) {
     reactionRoles.find(rr => {
         let check = !((rr.emoteName == emote && rr.emoteName.charCodeAt(0) == emote.charCodeAt(0) ||
             rr.emoteName == emote.name) && "emote" ||
-            rr.pRole.id == role.id && "role") && PinguLibrary.PermissionGranted
+            rr.pRole._id == role.id && "role") && PinguLibrary.PermissionGranted
         if (check != PinguLibrary.PermissionGranted)
             containsCheck = check;
     });
@@ -156,14 +156,14 @@ async function Delete(message, channel, rrMessage, emote, args) {
 
     let pGuild = await PinguGuild.GetPGuild(rrMessage.guild);
     let { reactionRoles } = pGuild;
-    let rr = reactionRoles.find(rr => rr.channel.id == channel.id && rr.messageID == rrMessage.id && (rr.emoteName == emote.name || rr.emoteName == emote));
+    let rr = reactionRoles.find(rr => rr.channel._id == channel.id && rr.messageID == rrMessage.id && (rr.emoteName == emote.name || rr.emoteName == emote));
     if (!rr) return message.channel.send(`I wasn't able to find that reactionrole in your pGuild!`);
 
     if (!rrMessage.reactions.cache.array().find(reaction => reaction.emoji.name == rr.emoteName))
         return message.channel.send(`No one has reacted with ${emote} on that message!\n${rrMessage.url}`);
 
     if (removeFromUsers) {
-        let role = await rrMessage.guild.roles.fetch(rr.pRole.id);
+        let role = await rrMessage.guild.roles.fetch(rr.pRole._id);
 
         let gMembers = rrMessage.reactions.cache.array().map(reaction =>
             reaction.emoji.name == rr.emoteName && reaction.users.cache.array().map(u =>

@@ -1,7 +1,14 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\commands",
+    "\\commands\\1 Utility",
+    "\\commands\\4 DevOnly",
+    "\\events",
+    "\\events\\client",
+    "\\events\\guild",
+    "\\MongoSchemas"
   ],
-  "SelectedNode": "\\events",
+  "SelectedNode": "\\events\\client\\onready.js",
   "PreviewInSolutionExplorer": false
 }
