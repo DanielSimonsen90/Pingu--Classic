@@ -475,10 +475,12 @@ async function Play(message, song, queue) {
             queue.logChannel.send('Thank you for listening!');
             queue.voiceChannel.leave();
 
-            return await queue.Update(message, queue = null, "Play",
+            return await queue.Update(message, "Play",
                 `Queue finished - reset & saved to **${message.guild.name}**'s queue`
             );
         }, ms('2m'));
+        await ResetClient(message);
+        return;
     }
     else if (timeout) message.client.clearTimeout(timeout);
 
@@ -533,10 +535,12 @@ async function Play(message, song, queue) {
         .on('end', () => PinguLibrary.consoleLog(message.client, `End: ${song.title}`))
         .on('finish', async () => {
             PinguLibrary.consoleLog(message.client, `Finish: ${song.title}`);
-
             song.stop();
-
             queue = Queue.get(message.guild.id);
+
+            (await message.channel.messages.fetch({ after: message.id }))
+                .filter(m => m.embeds[0] && m.embeds[0].title.startsWith('Now playing:'))
+                .forEach(async m => await m.reactions.removeAll());
 
             if (queue.songs[queue.index] && !queue.songs[queue.index].loop) queue.index++;
             if (queue.index == queue.songs.length && queue.loop) queue.index = 0;

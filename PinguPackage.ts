@@ -998,30 +998,11 @@ export class GiveawayConfig implements IGiveawayConfigOptions {
 
 export class TimeLeftObject {
     constructor(Now: Date, EndsAt: Date) {
-        /*
-        console.clear();
-        console.log(`EndsAt: ${EndsAt.getDate()}d ${EndsAt.getHours()}h ${EndsAt.getMinutes()}m ${EndsAt.getSeconds()}s`)
-        console.log(`Now: ${Now.getDate()}d ${Now.getHours()}h ${Now.getMinutes()}m ${Now.getSeconds()}s`)
-        console.log(`this.days = Math.round(${EndsAt.getDate()} - ${Now.getDate()})`)
-        console.log(`this.hours = Math.round(${EndsAt.getHours()} - ${Now.getHours()})`)
-        console.log(`this.minutes = Math.round(${EndsAt.getMinutes()} - ${Now.getMinutes()})`)
-        console.log(`this.seconds = Math.round(${EndsAt.getSeconds()} - ${Now.getSeconds()})`)
-        */
-
-        /*
-        const Minutes = this.includesMinus(Math.round(EndsAt.getSeconds() - Now.getSeconds()), 60, EndsAt.getMinutes(), Now.getMinutes());
-        const Hours = this.includesMinus(Minutes[0], 60, EndsAt.getHours(), Now.getHours());
-        const Days = this.includesMinus(Hours[0], 24, EndsAt.getDate(), Now.getDate());
-        const Weeks = this.includesMinus(Days[0], 7, EndsAt.getDate() + 7, Now.getDate() + 7)
-
-        this.seconds = Minutes[1];
-        this.minutes = Hours[1];
-        this.hours = Days[1];
-        this.days = Days[0];
-        */
-
+        //General properties
         this.endsAt = EndsAt;
+        let timeDifference = Math.round(EndsAt.getTime() - Now.getTime());
 
+        //How long is each time module in ms
         let second = 1000;
         let minute = second * 60;
         let hour = minute * 60;
@@ -1029,39 +1010,25 @@ export class TimeLeftObject {
         let week = day * 7;
         let month = ([1, 3, 5, 7, 8, 10, 12].includes(Now.getMonth()) ? 31 : [4, 6, 9, 11].includes(Now.getMonth()) ? 30 : Now.getFullYear() % 4 == 0 ? 29 : 28) * day;
         let year = (365 + (Now.getFullYear() % 4 == 0 ? 1 : 0)) * day;
-        let timeDifference = Math.round(EndsAt.getTime() - Now.getTime());
 
-        this.years = getYears();
-        this.months = getMonths(this);
-        this.weeks = getWeeks(this);
-        this.days = getDays(this);
-        this.hours = getHours(this);
-        this.minutes = getMinutes(this);
-        this.seconds = getSeconds(this);
+        //Calculate time difference between Now & EndsAt and set to object properties
+        this.years = reduceTime(year);
+        this.months = reduceTime(month);
+        this.weeks = reduceTime(week);
+        this.days = reduceTime(day);
+        this.hours = reduceTime(hour);
+        this.minutes = reduceTime(minute);
+        this.seconds = reduceTime(second);
+        this.milliseconds = reduceTime(1);
 
-        function getYears() {
-            return Math.round(timeDifference / year);
-        }
-        function getMonths(obj: TimeLeftObject) {
-            return round((obj.years > 0 ? getYears() : timeDifference) / month);
-        }
-        function getWeeks(obj: TimeLeftObject) {
-            return round((obj.months > 0 ? getMonths(obj) : timeDifference) / week);
-        }
-        function getDays(obj: TimeLeftObject) {
-            return round((obj.weeks > 0 ? getWeeks(obj) : timeDifference) / day);
-        }
-        function getHours(obj: TimeLeftObject) {
-            return round((obj.days > 0 ? getDays(obj) : timeDifference) / hour);
-        }
-        function getMinutes(obj: TimeLeftObject) {
-            return round((obj.hours > 0 ? getHours(obj) : timeDifference) / minute);
-        }
-        function getSeconds(obj: TimeLeftObject) {
-            return round((obj.minutes > 0 ? getMinutes(obj) : timeDifference) / second);
-        }
-        function round(num: number) {
-            return parseInt(num.toString().split('.')[0]);
+        function reduceTime(ms: number) {
+            let result = 0;
+
+            while (timeDifference > ms) {
+                timeDifference -= ms;
+                result++;
+            }
+            return result;
         }
     }
 
@@ -1072,23 +1039,11 @@ export class TimeLeftObject {
     public hours: number;
     public minutes: number;
     public seconds: number;
+    public milliseconds: number;
     public endsAt: Date
 
-    /**Minus check, cus sometimes preprop goes to minus, while preprop isn't being subtracted
-     * @param preprop Previous property, for this.minutes, this would be this.seconds
-     * @param maxPreProp Max number preprop can be, everything is 60 but this.hours is 24
-     * @param EndsAt EndsAt variable
-     * @param Now Now variable*/
-    private includesMinus(preprop: number, maxPreProp: number, EndsAt: number, Now: number) {
-        const returnValue = Math.round(EndsAt - Now);
-        if (preprop.toString().includes('-')) {
-            preprop = maxPreProp + preprop;
-            return [returnValue - 1, preprop];
-        }
-        return [returnValue, preprop];
-    }
     public toString() {
-        //console.log(`${this.days}d ${this.hours}h ${this.minutes}m ${this.seconds}s`);
+        //console.log(`${this.days}Y ${this.days}M ${this.days}w ${this.days}d ${this.hours}h ${this.minutes}m ${this.seconds}s`);
         let returnMsg = '';
         const times = [this.years, this.months, this.weeks, this.days, this.hours, this.minutes, this.seconds],
             timeMsg = ["year", "month", "week", "day", "hour", "minute", "second"];
@@ -1193,11 +1148,24 @@ export class Queue implements IMuisc {
         else this.connection.dispatcher.resume();
 
         let lastMessage = (await message.channel.messages.fetch({ after: message.id })).first();
-        if (lastMessage && lastMessage.embeds[0] && lastMessage.embeds[0].title.startsWith('**Now playing: '))
-            lastMessage.react(pauseRequest ? '▶️' : '⏸️');
+        let react = async (msg: Message) => {
+            if (!(msg && msg.embeds[0] && msg.embeds[0].title.startsWith('Now playing:'))) return false;
+
+            await msg.reactions.removeAll();
+            await msg.react(pauseRequest ? '▶️' : '⏸️');
+            return true;
+        }
+
+        if (!await react(lastMessage)) await react(message);
 
         this.playing = !pauseRequest;
         const PauseOrResume = pauseRequest ? 'Paused' : 'Resumed';
+
+        if (lastMessage && lastMessage.author == message.client.user && (lastMessage.content.includes('Resumed') || lastMessage.content.includes('Paused')))
+            return lastMessage.edit(lastMessage.content.includes('by') ?
+                `${PauseOrResume} by ${message.member.displayName}.` :
+                `${PauseOrResume} music.`
+            );
 
         this.AnnounceMessage(message,
             `${PauseOrResume} music.`,

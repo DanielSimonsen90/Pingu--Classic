@@ -1286,27 +1286,10 @@ exports.GiveawayConfig = GiveawayConfig;
 //#endregion
 var TimeLeftObject = /** @class */ (function () {
     function TimeLeftObject(Now, EndsAt) {
-        /*
-        console.clear();
-        console.log(`EndsAt: ${EndsAt.getDate()}d ${EndsAt.getHours()}h ${EndsAt.getMinutes()}m ${EndsAt.getSeconds()}s`)
-        console.log(`Now: ${Now.getDate()}d ${Now.getHours()}h ${Now.getMinutes()}m ${Now.getSeconds()}s`)
-        console.log(`this.days = Math.round(${EndsAt.getDate()} - ${Now.getDate()})`)
-        console.log(`this.hours = Math.round(${EndsAt.getHours()} - ${Now.getHours()})`)
-        console.log(`this.minutes = Math.round(${EndsAt.getMinutes()} - ${Now.getMinutes()})`)
-        console.log(`this.seconds = Math.round(${EndsAt.getSeconds()} - ${Now.getSeconds()})`)
-        */
-        /*
-        const Minutes = this.includesMinus(Math.round(EndsAt.getSeconds() - Now.getSeconds()), 60, EndsAt.getMinutes(), Now.getMinutes());
-        const Hours = this.includesMinus(Minutes[0], 60, EndsAt.getHours(), Now.getHours());
-        const Days = this.includesMinus(Hours[0], 24, EndsAt.getDate(), Now.getDate());
-        const Weeks = this.includesMinus(Days[0], 7, EndsAt.getDate() + 7, Now.getDate() + 7)
-
-        this.seconds = Minutes[1];
-        this.minutes = Hours[1];
-        this.hours = Days[1];
-        this.days = Days[0];
-        */
+        //General properties
         this.endsAt = EndsAt;
+        var timeDifference = Math.round(EndsAt.getTime() - Now.getTime());
+        //How long is each time module in ms
         var second = 1000;
         var minute = second * 60;
         var hour = minute * 60;
@@ -1314,54 +1297,26 @@ var TimeLeftObject = /** @class */ (function () {
         var week = day * 7;
         var month = ([1, 3, 5, 7, 8, 10, 12].includes(Now.getMonth()) ? 31 : [4, 6, 9, 11].includes(Now.getMonth()) ? 30 : Now.getFullYear() % 4 == 0 ? 29 : 28) * day;
         var year = (365 + (Now.getFullYear() % 4 == 0 ? 1 : 0)) * day;
-        var timeDifference = Math.round(EndsAt.getTime() - Now.getTime());
-        this.years = getYears();
-        this.months = getMonths(this);
-        this.weeks = getWeeks(this);
-        this.days = getDays(this);
-        this.hours = getHours(this);
-        this.minutes = getMinutes(this);
-        this.seconds = getSeconds(this);
-        function getYears() {
-            return Math.round(timeDifference / year);
-        }
-        function getMonths(obj) {
-            return round((obj.years > 0 ? getYears() : timeDifference) / month);
-        }
-        function getWeeks(obj) {
-            return round((obj.months > 0 ? getMonths(obj) : timeDifference) / week);
-        }
-        function getDays(obj) {
-            return round((obj.weeks > 0 ? getWeeks(obj) : timeDifference) / day);
-        }
-        function getHours(obj) {
-            return round((obj.days > 0 ? getDays(obj) : timeDifference) / hour);
-        }
-        function getMinutes(obj) {
-            return round((obj.hours > 0 ? getHours(obj) : timeDifference) / minute);
-        }
-        function getSeconds(obj) {
-            return round((obj.minutes > 0 ? getMinutes(obj) : timeDifference) / second);
-        }
-        function round(num) {
-            return parseInt(num.toString().split('.')[0]);
+        //Calculate time difference between Now & EndsAt and set to object properties
+        this.years = reduceTime(year);
+        this.months = reduceTime(month);
+        this.weeks = reduceTime(week);
+        this.days = reduceTime(day);
+        this.hours = reduceTime(hour);
+        this.minutes = reduceTime(minute);
+        this.seconds = reduceTime(second);
+        this.milliseconds = reduceTime(1);
+        function reduceTime(ms) {
+            var result = 0;
+            while (timeDifference > ms) {
+                timeDifference -= ms;
+                result++;
+            }
+            return result;
         }
     }
-    /**Minus check, cus sometimes preprop goes to minus, while preprop isn't being subtracted
-     * @param preprop Previous property, for this.minutes, this would be this.seconds
-     * @param maxPreProp Max number preprop can be, everything is 60 but this.hours is 24
-     * @param EndsAt EndsAt variable
-     * @param Now Now variable*/
-    TimeLeftObject.prototype.includesMinus = function (preprop, maxPreProp, EndsAt, Now) {
-        var returnValue = Math.round(EndsAt - Now);
-        if (preprop.toString().includes('-')) {
-            preprop = maxPreProp + preprop;
-            return [returnValue - 1, preprop];
-        }
-        return [returnValue, preprop];
-    };
     TimeLeftObject.prototype.toString = function () {
-        //console.log(`${this.days}d ${this.hours}h ${this.minutes}m ${this.seconds}s`);
+        //console.log(`${this.days}Y ${this.days}M ${this.days}w ${this.days}d ${this.hours}h ${this.minutes}m ${this.seconds}s`);
         var returnMsg = '';
         var times = [this.years, this.months, this.weeks, this.days, this.hours, this.minutes, this.seconds], timeMsg = ["year", "month", "week", "day", "hour", "minute", "second"];
         for (var i = 0; i < times.length; i++)
@@ -1450,7 +1405,8 @@ var Queue = /** @class */ (function () {
     };
     Queue.prototype.pauseResume = function (message, pauseRequest) {
         return __awaiter(this, void 0, void 0, function () {
-            var lastMessage, PauseOrResume;
+            var lastMessage, react, PauseOrResume;
+            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -1465,10 +1421,36 @@ var Queue = /** @class */ (function () {
                         return [4 /*yield*/, message.channel.messages.fetch({ after: message.id })];
                     case 1:
                         lastMessage = (_a.sent()).first();
-                        if (lastMessage && lastMessage.embeds[0] && lastMessage.embeds[0].title.startsWith('**Now playing: '))
-                            lastMessage.react(pauseRequest ? '▶️' : '⏸️');
+                        react = function (msg) { return __awaiter(_this, void 0, void 0, function () {
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        if (!(msg && msg.embeds[0] && msg.embeds[0].title.startsWith('Now playing:')))
+                                            return [2 /*return*/, false];
+                                        return [4 /*yield*/, msg.reactions.removeAll()];
+                                    case 1:
+                                        _a.sent();
+                                        return [4 /*yield*/, msg.react(pauseRequest ? '▶️' : '⏸️')];
+                                    case 2:
+                                        _a.sent();
+                                        return [2 /*return*/, true];
+                                }
+                            });
+                        }); };
+                        return [4 /*yield*/, react(lastMessage)];
+                    case 2:
+                        if (!!(_a.sent())) return [3 /*break*/, 4];
+                        return [4 /*yield*/, react(message)];
+                    case 3:
+                        _a.sent();
+                        _a.label = 4;
+                    case 4:
                         this.playing = !pauseRequest;
                         PauseOrResume = pauseRequest ? 'Paused' : 'Resumed';
+                        if (lastMessage && lastMessage.author == message.client.user && (lastMessage.content.includes('Resumed') || lastMessage.content.includes('Paused')))
+                            return [2 /*return*/, lastMessage.edit(lastMessage.content.includes('by') ?
+                                    PauseOrResume + " by " + message.member.displayName + "." :
+                                    PauseOrResume + " music.")];
                         this.AnnounceMessage(message, PauseOrResume + " music.", PauseOrResume + " by " + message.member.displayName + ".");
                         return [2 /*return*/];
                 }

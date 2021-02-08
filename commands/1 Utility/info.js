@@ -72,14 +72,6 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
             async function GetEmbed() {
                 let queue = Queue.get(message.guild.id);
 
-                /**@param {PClient} client*/
-                let getClientInfo = client => {
-                    let { _id, displayName, prefix, embedColor } = client;
-                    let titles = ['Bot', 'Display Name', 'Prefix', 'Embed Color (color of own role)'].map(v => `**${v}**`);
-                    let values = [`<@${_id}>`, displayName, prefix, embedColor].map((v, i) => i != 0 ? "`" + v + "`" : v);
-                    return titles.map((v, i) => `${v}: ${values[i]}`).join('\n') + "\n";
-                }
-
                 switch (item) {
                     case 'musciQueue': return queue ? new MessageEmbed().addFields([
                         new EmbedField('Log Channel', `<#${queue.logChannel._id}>`, true),
@@ -184,7 +176,7 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
                     let serverInfo = [];
 
                     for (var pg of pu.sharedServers) {
-                        let guildInfo = [pg.name];
+                        let guildInfo = [`**${pg.name}**`];
                         if (!message.client.guilds.cache.has(pg._id)) continue;
                         let guild = await message.client.guilds.fetch(pg._id);
                         if (!guild) continue;
@@ -218,6 +210,24 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
     }
     /**@param {PClient} pc*/
     async function SendPClient(pc) {
+        let pcProps = Object.keys(pc);
+        let result = "";
+
+        for (var item of pcProps) {
+            if (prop != item && prop != 'all') continue;
+
+            result = (result ? result + GetResult() : GetResult()) + '\n';
+            function GetResult() {
+                switch (item) {
+                    case 'displayName': return `**Display Name**\n${pc.displayName}\n`;
+                    case 'embedColor': return `**Embed Color**\n${pc.embedColor}\n`;
+                    case 'prefix': return `**Prefix**\n${pc.prefix}\n`;
+                    default: return "";
+                }
+            }
+        }
+        arr.push(MergeEmbeds(prop, new MessageEmbed().setDescription(result)));
+        return arr;
     }
 
     /**@param {string} item
@@ -240,6 +250,13 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
 
         Object.keys(embed).forEach(k => embed[k] ? defaultEmbed[k] = embed[k] : defaultEmbed[k]);
         return defaultEmbed;
+    }
+    /**@param {PClient} client*/
+    function getClientInfo(client) {
+        let { _id, displayName, prefix, embedColor } = client;
+        let titles = ['Bot', 'Display Name', 'Prefix', 'Embed Color (color of own role)'].map(v => `**${v}**`);
+        let values = [`<@${_id}>`, displayName, prefix, embedColor].map((v, i) => i != 0 ? "`" + v + "`" : v);
+        return titles.map((v, i) => `${v}: ${values[i]}`).join('\n') + "\n";
     }
 }
 
