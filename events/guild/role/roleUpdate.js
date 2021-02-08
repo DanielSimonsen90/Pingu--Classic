@@ -1,5 +1,5 @@
 const { Client, Role, Guild, MessageEmbed } = require("discord.js");
-const { PinguGuild, PinguLibrary, PinguEvents } = require("../../../PinguPackage");
+const { PinguGuild, PinguLibrary, PinguEvents, PClient } = require("../../../PinguPackage");
 
 module.exports = {
     name: 'events: roleUpdate',
@@ -62,6 +62,9 @@ module.exports = {
         //Get the color of the Pingu role in message.guild
         const guildRoleColor = guild.me.roles.cache.find(botRoles => botRoles.managed).color;
         const pGuildClient = PinguGuild.GetPClient(client, pGuild);
+
+        if (!pGuildClient) pGuildClient = pGuild.clients[(guild.client.user.id == PinguLibrary.Clients.PinguID ? 0 : 1)] = new PClient(guild.client, guild);
+
         let clientIndex = pGuild.clients.indexOf(pGuildClient);
 
         //If color didn't change

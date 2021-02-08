@@ -1,4 +1,4 @@
-const { GuildMember, TextChannel, MessageEmbed, Client, Guild } = require("discord.js");
+﻿const { GuildMember, TextChannel, MessageEmbed, Client, Guild } = require("discord.js");
 const { PinguGuild, PChannel, PinguLibrary, PinguUser, PClient } = require("../../../PinguPackage");
 
 module.exports = {
@@ -10,6 +10,8 @@ module.exports = {
     /**@param {Client} client
      @param {{member: GuildMember, pGuildClient: PClient}}*/
     execute(client, { member, pGuildClient }) {
+        if (client.user.id == PinguLibrary.Clients.BetaID && member.guild.members.cache.has(PinguLibrary.Clients.PinguID)) return;
+
         let welcomeChannel = this.getWelcomeChannel(client, member.guild);
         if (welcomeChannel)
             welcomeChannel.send(new MessageEmbed()
@@ -40,7 +42,8 @@ module.exports = {
 
         if (!welcomeChannel) {
             //Find a channel which is "welcome", until there are no more channels to look through, then find one named "general" (prioritize welcome channels higher than general, and ensure you don't find #general before #welcome)
-            welcomeChannel = guild.channels.cache.find(c => c.isText() && c.name.includes('welcome')) ||
+            welcomeChannel = guild.channels.cache.find(c => c.isText() && ['welcome', 'door', '🚪'].includes(c.name)) ||
+                guild.systemChannel ||
                 guild.channels.cache.find(c => c.isText() && c.name == 'general');
 
             if (welcomeChannel) {

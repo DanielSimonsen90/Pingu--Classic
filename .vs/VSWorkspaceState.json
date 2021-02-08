@@ -2,8 +2,11 @@
   "ExpandedNodes": [
     "",
     "\\commands",
-    "\\commands\\4 DevOnly"
+    "\\commands\\2 Fun",
+    "\\events",
+    "\\events\\client",
+    "\\MongoSchemas"
   ],
-  "SelectedNode": "\\config.json",
+  "SelectedNode": "\\commands\\2 Fun\\music.js",
   "PreviewInSolutionExplorer": false
 }

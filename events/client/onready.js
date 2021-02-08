@@ -1,5 +1,6 @@
+const { disconnect } = require("cluster");
 const { Client, GuildChannel, TextChannel } = require("discord.js");
-const { PinguLibrary, PinguGuild } = require("../../PinguPackage");
+const { PinguLibrary, PinguGuild, DiscordPermissions } = require("../../PinguPackage");
 
 module.exports = {
     name: 'events: ready',
@@ -36,9 +37,10 @@ function CacheReactionRoles(client) {
 
             if (client.user.id == PinguLibrary.Clients.BetaID && guild.name == 'Pingu Support' && channel.name == 'roles') return;
 
-            channel.messages.fetch(rr.messageID);
-
-            PinguLibrary.consoleLog(client, `Cached ${rr.messageID} from #${channel.name}, ${guild.name}`)
+            //In .then function so it only logs if fetching is successful
+            channel.messages.fetch(rr.messageID)
+                .then(() => PinguLibrary.consoleLog(client, `Cached ${rr.messageID} from #${channel.name}, ${guild.name}`))
+                .catch(() => null);
         });
     })
 }

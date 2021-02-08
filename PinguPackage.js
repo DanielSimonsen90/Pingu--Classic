@@ -49,7 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Marry = exports.ReactionRole = exports.Daily = exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguEvents = exports.PinguLibrary = exports.PinguGuild = exports.PinguUser = exports.PMarry = exports.PQueue = exports.PClient = exports.PGuild = exports.PUser = exports.PChannel = exports.PRole = exports.PGuildMember = exports.PItem = exports.DiscordPermissions = exports.Error = void 0;
+exports.Achievement = exports.Marry = exports.Daily = exports.ReactionRole = exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguEvents = exports.PinguLibrary = exports.PinguGuild = exports.PinguUser = exports.PMarry = exports.PQueue = exports.PClient = exports.PGuild = exports.PUser = exports.PChannel = exports.PRole = exports.PGuildMember = exports.PItem = exports.DiscordPermissions = exports.EmbedField = exports.Error = void 0;
 var discord_js_1 = require("discord.js");
 var mongoose = require("mongoose");
 var PinguGuildSchema = require("./MongoSchemas/PinguGuild");
@@ -64,6 +64,16 @@ var Error = /** @class */ (function () {
     return Error;
 }());
 exports.Error = Error;
+var EmbedField = /** @class */ (function () {
+    function EmbedField(title, value, inline) {
+        if (inline === void 0) { inline = false; }
+        this.name = title;
+        this.value = value;
+        this.inline = inline;
+    }
+    return EmbedField;
+}());
+exports.EmbedField = EmbedField;
 var DiscordPermissions = /** @class */ (function () {
     function DiscordPermissions() {
     }
@@ -189,26 +199,23 @@ var PQueue = /** @class */ (function () {
         this.index = queue.index;
         this.songs = queue.songs;
         this.volume = queue.volume;
-        this.client = queue.client;
         this.loop = queue.loop;
         this.playing = queue.playing;
     }
-    PQueue.prototype.ToQueue = function (guild) {
+    PQueue.ToQueue = function (guild, pQueue) {
         return __awaiter(this, void 0, void 0, function () {
             var queue, _a;
-            var _this = this;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        queue = new Queue(this.client, guild.channels.cache.find(function (c) { return c.id == _this.logChannel._id; }), guild.channels.cache.find(function (c) { return c.id == _this.voiceChannel._id; }), this.songs, this.playing);
+                        queue = new Queue(guild.channels.cache.find(function (c) { return c.id == pQueue.logChannel._id; }), guild.channels.cache.find(function (c) { return c.id == pQueue.voiceChannel._id; }), pQueue.songs, pQueue.playing);
                         _a = queue;
                         return [4 /*yield*/, queue.voiceChannel.join()];
                     case 1:
                         _a.connection = _b.sent();
-                        queue.client.displayName = this.client.displayName;
-                        queue.volume = this.volume;
-                        queue.loop = this.loop;
-                        queue.index = this.index;
+                        queue.volume = pQueue.volume;
+                        queue.loop = pQueue.loop;
+                        queue.index = pQueue.index;
                         return [2 /*return*/, queue];
                 }
             });
@@ -308,6 +315,16 @@ var PinguUser = /** @class */ (function () {
             });
         });
     };
+    PinguUser.GetPUsers = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, PinguUserSchema.find({}).exec()];
+                    case 1: return [2 /*return*/, (_a.sent()).map(function (collDoc) { return collDoc.toObject(); })];
+                }
+            });
+        });
+    };
     return PinguUser;
 }());
 exports.PinguUser = PinguUser;
@@ -378,7 +395,10 @@ var PinguGuild = /** @class */ (function (_super) {
             var pGuildDoc;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, PinguGuildSchema.findOne({ _id: guild.id }).exec()];
+                    case 0:
+                        if (!guild)
+                            return [2 /*return*/, null];
+                        return [4 /*yield*/, PinguGuildSchema.findOne({ _id: guild.id }).exec()];
                     case 1:
                         pGuildDoc = _a.sent();
                         return [2 /*return*/, pGuildDoc ? pGuildDoc.toObject() : null];
@@ -422,6 +442,16 @@ var PinguGuild = /** @class */ (function (_super) {
             });
         });
     };
+    PinguGuild.GetPGuilds = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, PinguGuildSchema.find({}).exec()];
+                    case 1: return [2 /*return*/, (_a.sent()).map(function (collDoc) { return collDoc.toObject(); })];
+                }
+            });
+        });
+    };
     PinguGuild.GetPClient = function (client, pGuild) {
         return pGuild.clients.find(function (c) { return c && c._id == client.user.id; });
     };
@@ -441,8 +471,7 @@ var PinguLibrary = /** @class */ (function () {
             return Activity;
         }());
         internalSetActivity();
-        var updateStats = require('./config.json').updateStats;
-        if (updateStats)
+        if (require('./config.json').updateStats)
             UpdateStats();
         setInterval(internalSetActivity, 86400000);
         try {
@@ -474,90 +503,134 @@ var PinguLibrary = /** @class */ (function () {
             PinguLibrary.raspberryLog(client);
         }
         function UpdateStats() {
-            var getChannel = function (client, channelID) { return PinguLibrary.SavedServers.PinguSupport(client).channels.cache.get(channelID); };
-            var channels = [
-                getChannel(client, '799596588859129887'),
-                getChannel(client, '799597092107583528'),
-                getChannel(client, '799597689792757771'),
-                getChannel(client, '799598372217683978'),
-                getChannel(client, '799598024971518002'),
-                getChannel(client, '799598765187137537') //Most known member
-            ];
-            var setName = function (channel) {
-                var getInfo = function (channel) {
-                    switch (channel.id) {
-                        case '799596588859129887': return getServersInfo(); //Servers
-                        case '799597092107583528': return getUsersInfo(); //Users
-                        case '799597689792757771': return getDailyLeader(); //Daily Leader
-                        case '799598372217683978': return getRandomServer(); //Server of the Day
-                        case '799598024971518002': return getRandomUser(); //User of the Day
-                        case '799598765187137537': return getMostKnownUser(); //Most known User
-                        default:
-                            PinguLibrary.errorLog(client, "ID of " + channel.name + " was not recognized!");
-                            return "No Info";
-                    }
-                    function getServersInfo() {
-                        return client.guilds.cache.size.toString();
-                    }
-                    function getUsersInfo() {
-                        return client.users.cache.size.toString();
-                    }
-                    function getDailyLeader() {
-                        try {
-                            //let pUser = PinguUser.GetPUsers().sort((a, b) => {
-                            //    try { return b.daily.streak - a.daily.streak }
-                            //    catch (err) { PinguLibrary.errorLog(client, `Unable to get daily streak difference between ${a.tag} and ${b.tag}`, null, err); }
-                            //})[0];
-                            //return `${pUser.tag} #${pUser.daily.streak}`;
-                            return "Under Construction";
-                        }
-                        catch (err) {
-                            PinguLibrary.errorLog(client, "Unable to get Daily Leader", null, err);
-                        }
-                    }
-                    function getRandomServer() {
-                        var availableGuilds = client.guilds.cache.array().map(function (g) { return ![
-                            PinguLibrary.SavedServers.DanhoMisc(client).id,
-                            PinguLibrary.SavedServers.PinguEmotes(client).id,
-                            PinguLibrary.SavedServers.PinguSupport(client).id,
-                        ].includes(g.id) && g.name != undefined && g; }).filter(function (v) { return v; });
-                        var index = Math.floor(Math.random() * availableGuilds.length);
-                        return availableGuilds[index].name;
-                    }
-                    function getRandomUser() {
-                        var availableUsers = client.users.cache.array().map(function (u) { return !u.bot && u; }).filter(function (v) { return v; });
-                        return availableUsers[Math.floor(Math.random() * availableUsers.length)].tag;
-                    }
-                    function getMostKnownUser() {
-                        var Users = new discord_js_1.Collection();
-                        client.guilds.cache.forEach(function (guild) {
-                            guild.members.cache.forEach(function (gm) {
-                                var user = gm.user;
-                                if (user.bot)
-                                    return;
-                                if (!Users.has(user))
-                                    return Users.set(user, 1);
-                                var userServers = Users.get(user) + 1;
-                                Users.delete(user);
-                                Users.set(user, userServers);
-                            });
+            return __awaiter(this, void 0, void 0, function () {
+                var getChannel, channels, setName, _i, channels_1, channel;
+                var _this = this;
+                return __generator(this, function (_a) {
+                    getChannel = function (client, channelID) { return PinguLibrary.SavedServers.PinguSupport(client).channels.cache.get(channelID); };
+                    channels = [
+                        getChannel(client, '799596588859129887'),
+                        getChannel(client, '799597092107583528'),
+                        getChannel(client, '799597689792757771'),
+                        getChannel(client, '799598372217683978'),
+                        getChannel(client, '799598024971518002'),
+                        getChannel(client, '799598765187137537') //Most known member
+                    ];
+                    setName = function (channel) { return __awaiter(_this, void 0, void 0, function () {
+                        var getInfo, channelName, info, newName;
+                        var _this = this;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    getInfo = function (channel) { return __awaiter(_this, void 0, void 0, function () {
+                                        function getServersInfo() {
+                                            return client.guilds.cache.size.toString();
+                                        }
+                                        function getUsersInfo() {
+                                            return client.users.cache.size.toString();
+                                        }
+                                        function getDailyLeader() {
+                                            return __awaiter(this, void 0, void 0, function () {
+                                                var pUser, err_1;
+                                                return __generator(this, function (_a) {
+                                                    switch (_a.label) {
+                                                        case 0:
+                                                            _a.trys.push([0, 2, , 3]);
+                                                            return [4 /*yield*/, PinguUser.GetPUsers()];
+                                                        case 1:
+                                                            pUser = (_a.sent()).sort(function (a, b) {
+                                                                try {
+                                                                    return b.daily.streak - a.daily.streak;
+                                                                }
+                                                                catch (err) {
+                                                                    PinguLibrary.errorLog(client, "unable to get daily streak difference between " + a.tag + " and " + b.tag, null, err);
+                                                                }
+                                                            })[0];
+                                                            return [2 /*return*/, pUser.tag + " #" + pUser.daily.streak];
+                                                        case 2:
+                                                            err_1 = _a.sent();
+                                                            PinguLibrary.errorLog(client, "Unable to get Daily Leader", null, err_1);
+                                                            return [3 /*break*/, 3];
+                                                        case 3: return [2 /*return*/];
+                                                    }
+                                                });
+                                            });
+                                        }
+                                        function getRandomServer() {
+                                            var availableGuilds = client.guilds.cache.array().map(function (g) { return ![
+                                                PinguLibrary.SavedServers.DanhoMisc(client).id,
+                                                PinguLibrary.SavedServers.PinguEmotes(client).id,
+                                                PinguLibrary.SavedServers.PinguSupport(client).id,
+                                            ].includes(g.id) && g.name != undefined && g; }).filter(function (v) { return v; });
+                                            var index = Math.floor(Math.random() * availableGuilds.length);
+                                            return availableGuilds[index].name;
+                                        }
+                                        function getRandomUser() {
+                                            var availableUsers = client.users.cache.array().map(function (u) { return !u.bot && u; }).filter(function (v) { return v; });
+                                            return availableUsers[Math.floor(Math.random() * availableUsers.length)].tag;
+                                        }
+                                        function getMostKnownUser() {
+                                            var Users = new discord_js_1.Collection();
+                                            client.guilds.cache.forEach(function (guild) {
+                                                guild.members.cache.forEach(function (gm) {
+                                                    var user = gm.user;
+                                                    if (user.bot)
+                                                        return;
+                                                    if (!Users.has(user))
+                                                        return Users.set(user, 1);
+                                                    Users.set(user, Users.get(user) + 1);
+                                                });
+                                            });
+                                            var sorted = Users.sort(function (a, b) { return b - a; });
+                                            var strings = sorted.filter(function (v, u) { return sorted.first() == v; }).map(function (v, u) { return u.tag + " | #" + v; });
+                                            return strings[Math.floor(Math.random() * strings.length)];
+                                        }
+                                        var _a;
+                                        return __generator(this, function (_b) {
+                                            switch (_b.label) {
+                                                case 0:
+                                                    _a = channel.id;
+                                                    switch (_a) {
+                                                        case '799596588859129887': return [3 /*break*/, 1];
+                                                        case '799597092107583528': return [3 /*break*/, 2];
+                                                        case '799597689792757771': return [3 /*break*/, 3];
+                                                        case '799598372217683978': return [3 /*break*/, 5];
+                                                        case '799598024971518002': return [3 /*break*/, 6];
+                                                        case '799598765187137537': return [3 /*break*/, 7];
+                                                    }
+                                                    return [3 /*break*/, 8];
+                                                case 1: return [2 /*return*/, getServersInfo()]; //Servers
+                                                case 2: return [2 /*return*/, getUsersInfo()]; //Users
+                                                case 3: return [4 /*yield*/, getDailyLeader()];
+                                                case 4: return [2 /*return*/, _b.sent()]; //Daily Leader
+                                                case 5: return [2 /*return*/, getRandomServer()]; //Server of the Day
+                                                case 6: return [2 /*return*/, getRandomUser()]; //User of the Day
+                                                case 7: return [2 /*return*/, getMostKnownUser()]; //Most known User
+                                                case 8:
+                                                    PinguLibrary.errorLog(client, "ID of " + channel.name + " was not recognized!");
+                                                    return [2 /*return*/, "No Info"];
+                                                case 9: return [2 /*return*/];
+                                            }
+                                        });
+                                    }); };
+                                    channelName = channel.name.split(':')[0];
+                                    return [4 /*yield*/, getInfo(channel)];
+                                case 1:
+                                    info = _a.sent();
+                                    newName = channelName + ": " + info;
+                                    if (channel.name == newName)
+                                        return [2 /*return*/];
+                                    return [2 /*return*/, channel.setName(newName)];
+                            }
                         });
-                        var sorted = Users.sort(function (a, b) { return b - a; });
-                        var strings = sorted.filter(function (v, u) { return sorted.first() == v; }).map(function (v, u) { return u.tag + " | #" + v; });
-                        return strings[Math.floor(Math.random() * strings.length)];
+                    }); };
+                    for (_i = 0, channels_1 = channels; _i < channels_1.length; _i++) {
+                        channel = channels_1[_i];
+                        setName(channel);
                     }
-                };
-                var channelName = channel.name.split(':')[0];
-                var info = getInfo(channel);
-                var newName = channelName + ": " + info;
-                if (channel.name == newName)
-                    return;
-                return channel.setName(newName);
-            };
-            for (var _i = 0, channels_1 = channels; _i < channels_1.length; _i++) {
-                var channel = channels_1[_i];
-                setName(channel);
-            }
+                    return [2 /*return*/];
+                });
+            });
         }
     };
     PinguLibrary.DefaultPrefix = function (client) {
@@ -669,9 +742,26 @@ var PinguLibrary = /** @class */ (function () {
             });
         });
     };
+    //#endregion
+    //#region Pingu Developers
+    PinguLibrary.Developers = function (client) {
+        var obj = {
+            get Danho() { return client.users.cache.get('245572699894710272'); },
+            get SynthySytro() { return client.users.cache.get('405331883157880846'); },
+            get Slohtman() { return client.users.cache.get('290131910091603968'); },
+            get DefilerOfCats() { return client.users.cache.get('803903863706484756'); },
+            includes: function (id) {
+                return Object
+                    .keys(obj)
+                    .filter(function (v) { return v != 'includes'; })
+                    .map(function (key) { return obj[key] && obj[key].id; })
+                    .includes(id);
+            }
+        };
+        return obj;
+    };
     PinguLibrary.isPinguDev = function (user) {
-        //console.log(`[${this.PinguDevelopers.join(', ')}].includes(${user.id})`);
-        return this.PinguDevelopers.includes(user.id);
+        return this.Developers(user.client).includes(user.id);
     };
     //#endregion
     //#region Channels
@@ -708,20 +798,16 @@ var PinguLibrary = /** @class */ (function () {
     };
     PinguLibrary.DanhoDM = function (client, message) {
         return __awaiter(this, void 0, void 0, function () {
-            var DanhoMisc, DanhoDM;
+            var Danho;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         console.error(message);
-                        DanhoMisc = this.SavedServers.DanhoMisc(client);
-                        if (!DanhoMisc) {
-                            console.error('Unable to find Danho Misc guild!', client.guilds.cache.array().forEach(function (g) { return console.log("[" + g.id + "] " + g.name); }));
-                            return [2 /*return*/, null];
-                        }
-                        return [4 /*yield*/, DanhoMisc.owner.createDM()];
-                    case 1:
-                        DanhoDM = _a.sent();
-                        return [2 /*return*/, DanhoDM.send(message)];
+                        Danho = PinguLibrary.Developers(client).Danho;
+                        if (!Danho)
+                            return [2 /*return*/];
+                        return [4 /*yield*/, Danho.createDM()];
+                    case 1: return [2 /*return*/, (_a.sent()).send(message)];
                 }
             });
         });
@@ -954,7 +1040,7 @@ var PinguLibrary = /** @class */ (function () {
     };
     PinguLibrary.DBExecute = function (client, callback) {
         return __awaiter(this, void 0, void 0, function () {
-            var mongoPass, err_1;
+            var mongoPass, err_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -971,13 +1057,17 @@ var PinguLibrary = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_1 = _a.sent();
-                        PinguLibrary.errorLog(client, 'Mongo error', null, new Error(err_1));
+                        err_2 = _a.sent();
+                        PinguLibrary.errorLog(client, 'Mongo error', null, new Error(err_2));
                         return [3 /*break*/, 4];
                     case 4: return [2 /*return*/];
                 }
             });
         });
+    };
+    PinguLibrary.BlankEmbedField = function (inline) {
+        if (inline === void 0) { inline = false; }
+        return new EmbedField('\u200B', '\u200B', inline);
     };
     PinguLibrary.DefaultEmbedColor = 3447003;
     PinguLibrary.Clients = {
@@ -1001,13 +1091,6 @@ var PinguLibrary = /** @class */ (function () {
             return PinguLibrary.getServer(client, '405763731079823380');
         }
     };
-    //#endregion
-    //#region Pingu Developers
-    PinguLibrary.PinguDevelopers = [
-        '245572699894710272',
-        '405331883157880846',
-        '803903863706484756' //Slothman
-    ];
     return PinguLibrary;
 }());
 exports.PinguLibrary = PinguLibrary;
@@ -1064,26 +1147,60 @@ var PinguEvents = /** @class */ (function () {
     PinguEvents.SetDescriptionValuesLink = function (type, oldValue, newValue) {
         return PinguEvents.SetDescription(type, "[Old](" + oldValue + ")\n[New](" + newValue + ")");
     };
+    /**@param type [**${type}**]
+     * @param preArr Previous array
+     * @param newArr Current array
+     * @param callback pre/new.find(i => callback(i, preItem/newItem))*/
     PinguEvents.GoThroughArrays = function (type, preArr, newArr, callback) {
         var updateMessage = "[**" + type + "**] ";
-        var removed = [], added = [];
-        for (var _i = 0, newArr_1 = newArr; _i < newArr_1.length; _i++) {
-            var newItem = newArr_1[_i];
-            var old = preArr.find(function (i) { return callback(i, newItem); });
-            if (!old)
-                added.push(newItem);
-        }
-        for (var _a = 0, preArr_1 = preArr; _a < preArr_1.length; _a++) {
-            var oldItem = preArr_1[_a];
-            var add = newArr.find(function (i) { return callback(i, newItem); });
-            if (!add)
-                removed.push(oldItem);
-        }
+        var added = GoThroguhArray(newArr, preArr);
+        var removed = GoThroguhArray(preArr, newArr);
         if (added.length == 0 && removed.length != 0)
             return updateMessage += removed.join(", ").substring(removed.join(', ').length - 2);
         else if (removed.length == 0 && added.length != 0)
             return updateMessage += added.join(", ").substring(added.join(', ').length - 2);
         return updateMessage += "Unable to find out what changed!";
+        function GoThroguhArray(cycleArr, otherCycleArr) {
+            var result = new Array();
+            for (var _i = 0, cycleArr_1 = cycleArr; _i < cycleArr_1.length; _i++) {
+                var item = cycleArr_1[_i];
+                var old = otherCycleArr.find(function (i) { return callback(i, item); });
+                if (!old)
+                    result.push(item);
+            }
+            return result;
+        }
+    };
+    PinguEvents.GoThroughObjectArray = function (type, preArr, newArr) {
+        var updateMessage = "[**" + type + "**]\n";
+        var changes = new discord_js_1.Collection();
+        if (preArr.length > newArr.length)
+            return updateMessage += "Removed " + type.toLowerCase();
+        else if (newArr.length > preArr.length)
+            return updateMessage += "Added new " + type.toLowerCase();
+        var _loop_1 = function () {
+            var newKeys = Object.keys(newArr[i]);
+            var preKeys = Object.keys(preArr[i]);
+            newKeys.forEach(function (key) {
+                if (newArr[key] == preArr[key])
+                    return;
+                else if (!preArr[key])
+                    changes.set(key, "__Added__: " + newArr[key]);
+                else
+                    changes.set(key, "__Changed__: **" + preArr[key] + "** => **" + newArr[key] + "**");
+            });
+            preKeys.forEach(function (key) {
+                if (changes.get(key) || preKeys[key] == newKeys[key])
+                    return;
+                else if (!newArr[key])
+                    changes.set(key, "__Removed__: " + preArr[key]);
+            });
+        };
+        for (var i = 0; i < newArr.length; i++) {
+            _loop_1();
+        }
+        changes.keyArray().forEach(function (key) { return updateMessage += "**" + key + "**: " + changes.get(key) + "\n"; });
+        return updateMessage;
     };
     PinguEvents.Colors = {
         Create: "#18f151",
@@ -1103,7 +1220,7 @@ var Decidable = /** @class */ (function () {
     }
     return Decidable;
 }());
-//#region extends Decideables
+//#region Extends Decideables
 var Poll = /** @class */ (function (_super) {
     __extends(Poll, _super);
     function Poll() {
@@ -1166,6 +1283,7 @@ var GiveawayConfig = /** @class */ (function () {
     return GiveawayConfig;
 }());
 exports.GiveawayConfig = GiveawayConfig;
+//#endregion
 var TimeLeftObject = /** @class */ (function () {
     function TimeLeftObject(Now, EndsAt) {
         /*
@@ -1177,14 +1295,57 @@ var TimeLeftObject = /** @class */ (function () {
         console.log(`this.minutes = Math.round(${EndsAt.getMinutes()} - ${Now.getMinutes()})`)
         console.log(`this.seconds = Math.round(${EndsAt.getSeconds()} - ${Now.getSeconds()})`)
         */
-        this.endsAt = EndsAt;
-        var Minutes = this.includesMinus(Math.round(EndsAt.getSeconds() - Now.getSeconds()), 60, EndsAt.getMinutes(), Now.getMinutes());
-        var Hours = this.includesMinus(Minutes[0], 60, EndsAt.getHours(), Now.getHours());
-        var Days = this.includesMinus(Hours[0], 24, EndsAt.getDate(), Now.getDate());
+        /*
+        const Minutes = this.includesMinus(Math.round(EndsAt.getSeconds() - Now.getSeconds()), 60, EndsAt.getMinutes(), Now.getMinutes());
+        const Hours = this.includesMinus(Minutes[0], 60, EndsAt.getHours(), Now.getHours());
+        const Days = this.includesMinus(Hours[0], 24, EndsAt.getDate(), Now.getDate());
+        const Weeks = this.includesMinus(Days[0], 7, EndsAt.getDate() + 7, Now.getDate() + 7)
+
         this.seconds = Minutes[1];
         this.minutes = Hours[1];
         this.hours = Days[1];
         this.days = Days[0];
+        */
+        this.endsAt = EndsAt;
+        var second = 1000;
+        var minute = second * 60;
+        var hour = minute * 60;
+        var day = hour * 24;
+        var week = day * 7;
+        var month = ([1, 3, 5, 7, 8, 10, 12].includes(Now.getMonth()) ? 31 : [4, 6, 9, 11].includes(Now.getMonth()) ? 30 : Now.getFullYear() % 4 == 0 ? 29 : 28) * day;
+        var year = (365 + (Now.getFullYear() % 4 == 0 ? 1 : 0)) * day;
+        var timeDifference = Math.round(EndsAt.getTime() - Now.getTime());
+        this.years = getYears();
+        this.months = getMonths(this);
+        this.weeks = getWeeks(this);
+        this.days = getDays(this);
+        this.hours = getHours(this);
+        this.minutes = getMinutes(this);
+        this.seconds = getSeconds(this);
+        function getYears() {
+            return Math.round(timeDifference / year);
+        }
+        function getMonths(obj) {
+            return round((obj.years > 0 ? getYears() : timeDifference) / month);
+        }
+        function getWeeks(obj) {
+            return round((obj.months > 0 ? getMonths(obj) : timeDifference) / week);
+        }
+        function getDays(obj) {
+            return round((obj.weeks > 0 ? getWeeks(obj) : timeDifference) / day);
+        }
+        function getHours(obj) {
+            return round((obj.days > 0 ? getDays(obj) : timeDifference) / hour);
+        }
+        function getMinutes(obj) {
+            return round((obj.hours > 0 ? getHours(obj) : timeDifference) / minute);
+        }
+        function getSeconds(obj) {
+            return round((obj.minutes > 0 ? getMinutes(obj) : timeDifference) / second);
+        }
+        function round(num) {
+            return parseInt(num.toString().split('.')[0]);
+        }
     }
     /**Minus check, cus sometimes preprop goes to minus, while preprop isn't being subtracted
      * @param preprop Previous property, for this.minutes, this would be this.seconds
@@ -1202,7 +1363,7 @@ var TimeLeftObject = /** @class */ (function () {
     TimeLeftObject.prototype.toString = function () {
         //console.log(`${this.days}d ${this.hours}h ${this.minutes}m ${this.seconds}s`);
         var returnMsg = '';
-        var times = [this.days, this.hours, this.minutes, this.seconds], timeMsg = ["day", "hour", "minute", "second"];
+        var times = [this.years, this.months, this.weeks, this.days, this.hours, this.minutes, this.seconds], timeMsg = ["year", "month", "week", "day", "hour", "minute", "second"];
         for (var i = 0; i < times.length; i++)
             if (times[i] > 0) {
                 returnMsg += "**" + times[i] + "** " + timeMsg[i];
@@ -1216,7 +1377,7 @@ var TimeLeftObject = /** @class */ (function () {
 }());
 exports.TimeLeftObject = TimeLeftObject;
 var Queue = /** @class */ (function () {
-    function Queue(client, logChannel, voiceChannel, songs, playing) {
+    function Queue(logChannel, voiceChannel, songs, playing) {
         if (playing === void 0) { playing = true; }
         this.logChannel = logChannel;
         this.voiceChannel = voiceChannel;
@@ -1224,10 +1385,15 @@ var Queue = /** @class */ (function () {
         this.volume = 1;
         this.connection = null;
         this.playing = playing;
-        this.client = client;
         this.loop = false;
         this.index = 0;
     }
+    Queue.get = function (guildID) {
+        return this.GuildQueue.get(guildID);
+    };
+    Queue.set = function (guildID, queue) {
+        this.GuildQueue.set(guildID, queue);
+    };
     Object.defineProperty(Queue.prototype, "currentSong", {
         get: function () {
             return this.songs[this.index];
@@ -1282,6 +1448,80 @@ var Queue = /** @class */ (function () {
     Queue.prototype.find = function (title) {
         return this.songs.find(function (s) { return s.title.includes(title); });
     };
+    Queue.prototype.pauseResume = function (message, pauseRequest) {
+        return __awaiter(this, void 0, void 0, function () {
+            var lastMessage, PauseOrResume;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!this.playing && pauseRequest)
+                            return [2 /*return*/, message.channel.send("Music is already paused!")];
+                        else if (this.playing && !pauseRequest)
+                            return [2 /*return*/, message.channel.send("Music is already resumed!")];
+                        if (pauseRequest)
+                            this.connection.dispatcher.pause();
+                        else
+                            this.connection.dispatcher.resume();
+                        return [4 /*yield*/, message.channel.messages.fetch({ after: message.id })];
+                    case 1:
+                        lastMessage = (_a.sent()).first();
+                        if (lastMessage && lastMessage.embeds[0] && lastMessage.embeds[0].title.startsWith('**Now playing: '))
+                            lastMessage.react(pauseRequest ? '▶️' : '⏸️');
+                        this.playing = !pauseRequest;
+                        PauseOrResume = pauseRequest ? 'Paused' : 'Resumed';
+                        this.AnnounceMessage(message, PauseOrResume + " music.", PauseOrResume + " by " + message.member.displayName + ".");
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Queue.prototype.AnnounceMessage = function (message, senderMsg, logMsg) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                if (!this.logChannel)
+                    return [2 /*return*/, message.channel.send(senderMsg)];
+                if (message.channel != this.logChannel) {
+                    message.channel.send(senderMsg);
+                    return [2 /*return*/, this.logChannel.send(logMsg)];
+                }
+                return [2 /*return*/, this.logChannel.send(senderMsg)];
+            });
+        });
+    };
+    Queue.prototype.Update = function (message, commandName, succMsg) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                Queue.set(message.guild.id, ['HandleStop', 'Play'].includes(commandName) ? null : this);
+                PinguLibrary.consoleLog(message.client, "{**" + commandName + "**}: " + succMsg);
+                return [2 /*return*/];
+            });
+        });
+    };
+    Queue.prototype.NowPlayingEmbed = function (message) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, thumbnail, title, requestedBy, endsAt, author, link, pGuildClient, _b, _c, _d;
+            return __generator(this, function (_e) {
+                switch (_e.label) {
+                    case 0:
+                        _a = this.currentSong, thumbnail = _a.thumbnail, title = _a.title, requestedBy = _a.requestedBy, endsAt = _a.endsAt, author = _a.author, link = _a.link;
+                        _c = (_b = PinguGuild).GetPClient;
+                        _d = [message.client];
+                        return [4 /*yield*/, PinguGuild.GetPGuild(message.guild)];
+                    case 1:
+                        pGuildClient = _c.apply(_b, _d.concat([_e.sent()]));
+                        return [2 /*return*/, new discord_js_1.MessageEmbed()
+                                .setTitle("Now playing: " + title + " | by " + author)
+                                .setDescription("Requested by <@" + requestedBy._id + ">")
+                                .setFooter("Song finished at")
+                                .setThumbnail(thumbnail)
+                                .setURL(link)
+                                .setColor(pGuildClient.embedColor)
+                                .setTimestamp(endsAt)];
+                }
+            });
+        });
+    };
+    Queue.GuildQueue = new discord_js_1.Collection();
     return Queue;
 }());
 exports.Queue = Queue;
@@ -1330,15 +1570,6 @@ var Song = /** @class */ (function () {
 }());
 exports.Song = Song;
 //#endregion
-var Daily = /** @class */ (function () {
-    function Daily() {
-        this.lastClaim = null;
-        this.nextClaim = null;
-        this.streak = 0;
-    }
-    return Daily;
-}());
-exports.Daily = Daily;
 var ReactionRole = /** @class */ (function () {
     function ReactionRole(message, reactionName, role) {
         this.emoteName = reactionName;
@@ -1384,6 +1615,16 @@ var ReactionRole = /** @class */ (function () {
     return ReactionRole;
 }());
 exports.ReactionRole = ReactionRole;
+//#region Pingu User Properties
+var Daily = /** @class */ (function () {
+    function Daily() {
+        this.lastClaim = null;
+        this.nextClaim = null;
+        this.streak = 0;
+    }
+    return Daily;
+}());
+exports.Daily = Daily;
 var Marry = /** @class */ (function () {
     function Marry(partner, internalDate) {
         this.partner = partner;
@@ -1407,4 +1648,20 @@ var Marry = /** @class */ (function () {
     return Marry;
 }());
 exports.Marry = Marry;
+var Achievement = /** @class */ (function (_super) {
+    __extends(Achievement, _super);
+    function Achievement(id, name) {
+        return _super.call(this, { id: id.toString(), name: name }) || this;
+    }
+    Object.defineProperty(Achievement, "Achievements", {
+        get: function () {
+            return null;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return Achievement;
+}(PItem));
+exports.Achievement = Achievement;
+//#endregion
 //# sourceMappingURL=PinguPackage.js.map

@@ -11,11 +11,11 @@ module.exports = {
     /**@param {{message: Message, args: string[]}}*/
     async execute({ message, args }) {
         const bigboiinfo = args[0] && args[0].toLowerCase() == 'all',
-            serverGuild = message.guild,
-            emote = serverGuild.emojis.cache.find(e => args.includes(e.name));
+            { guild } = message,
+            emote = guild.emojis.cache.find(e => args.includes(e.name));
 
         if (!args.includes('emotes') && !args.includes('features'))
-            return SendEmbeds(message, serverGuild, bigboiinfo);
+            return SendEmbeds(message, guild, bigboiinfo);
 
         else if (args.includes('emotes'))
             if (emote) {
@@ -27,10 +27,10 @@ module.exports = {
                     //.addField(`Created by`, author, true)
                     .addField(`Created at`, emote.createdAt, true))
             }
-            else return SendEmotes(message, serverGuild);
+            else return SendEmotes(message, guild);
 
         else if (args.includes('features'))
-            return SendFeatures(message, serverGuild);
+            return SendFeatures(message, guild);
 
         message.channel.send(`Something happened.. I shouldn't've been here..`);
         PinguLibrary.errorLog(message.client, `Ran line 34, which was not intended`, message.content);
@@ -118,17 +118,19 @@ async function SendCallerInfo(message, bigboiinfo) {
             .setDescription(Description)
             .setFooter(`Server ID: ${guild.id}`)
             .setColor(color)
-            .addField(`${savedEmotes.ownerCrown} Owner`, guild.owner, true)
-            .addField(getRegionEmoji(guild.region), guild.region.charAt(0).toUpperCase() + guild.region.substring(1, guild.region.length), true)
-            .addField(`⏰ Creation Date`, guild.createdAt.toUTCString(), false)
-            .addField(`👥 Total members`, guild.memberCount, true)
-            .addField(`🧍 Total users`, guild.members.cache.filter(gm => !gm.user.bot).size, true)
-            .addField(`🤖 Total bots`, guild.members.cache.filter(gm => gm.user.bot).size, true)
-            .addField(`${savedEmotes.roleIcon} Roles`, guild.roles.cache.size, true)
-            .addField(`${savedEmotes.wumpus} Emotes`, guild.emojis.cache.size, true)
-            .addField(`🚷 Maximum Members`, guild.maximumMembers, true)
-            .addField(`${savedEmotes.boost} Boost level`, guild.premiumTier, true)
-            .addField(`${savedEmotes.boost} Boosts`, guild.premiumSubscriptionCount, true)
+            .addFields([
+                new Field(`${savedEmotes.ownerCrown} Owner`, guild.owner, true),
+                new Field(getRegionEmoji(guild.region), guild.region.charAt(0).toUpperCase() + guild.region.substring(1, guild.region.length), true),
+                new Field(`⏰ Creation Date`, guild.createdAt.toUTCString(), false),
+                new Field(`👥 Total members`, guild.memberCount, true),
+                new Field(`🧍 Total users`, guild.members.cache.filter(gm => !gm.user.bot).size, true),
+                new Field(`🤖 Total bots`, guild.members.cache.filter(gm => gm.user.bot).size, true),
+                new Field(`${savedEmotes.roleIcon} Roles`, guild.roles.cache.size, true),
+                new Field(`${savedEmotes.wumpus} Emotes`, guild.emojis.cache.size, true),
+                new Field(`🚷 Maximum Members`, guild.maximumMembers, true),
+                new Field(`${savedEmotes.boost} Boost level`, guild.premiumTier, true),
+                new Field(`${savedEmotes.boost} Boosts`, guild.premiumSubscriptionCount, true)
+            ])
     ];
 
     let featureLimit = 3;
@@ -182,15 +184,17 @@ async function SendCallerInfo(message, bigboiinfo) {
             .setTitle(`Channel Information`)
             .setThumbnail(DefaultThumbnail)
             .setColor(color)
-            .addField(`${savedEmotes.channelIcon} Channel count`, guild.channels.cache.size, true)
-            .addField(`${savedEmotes.channelCategory} Categories`, GetChannelCount('category'), true)
-            .addField(`${savedEmotes.channelRules} Rules channel`, (guild.rulesChannel ? guild.rulesChannel : 'None'), true)
-            .addField(`${savedEmotes.channelText} Text channels`, GetChannelCount('text'), true)
-            .addField(`${savedEmotes.channelVoice} Voice channels`, GetChannelCount('voice'), true)
-            .addField(`${savedEmotes.channelAnnounce} Announcement channels`, GetChannelCount('news'), true)
-            .addField(`${savedEmotes.channelStore} Store channels`, GetChannelCount('store'), true)
-            .addField(`${savedEmotes.channelAFK} AFK Channel`, (guild.afkChannel ? guild.afkChannel : 'None'), true)
-            .addField(`${savedEmotes.channelAFK} AFK Timeout`, (guild.afkTimeout / 60).toString() + " minutes", true)
+            .addFields([
+                new Field(`${savedEmotes.channelIcon} Channel count`, guild.channels.cache.size, true),
+                new Field(`${savedEmotes.channelCategory} Categories`, GetChannelCount('category'), true),
+                new Field(`${savedEmotes.channelRules} Rules channel`, (guild.rulesChannel ? guild.rulesChannel : 'None'), true),
+                new Field(`${savedEmotes.channelText} Text channels`, GetChannelCount('text'), true),
+                new Field(`${savedEmotes.channelVoice} Voice channels`, GetChannelCount('voice'), true),
+                new Field(`${savedEmotes.channelAnnounce} Announcement channels`, GetChannelCount('news'), true),
+                new Field(`${savedEmotes.channelStore} Store channels`, GetChannelCount('store'), true),
+                new Field(`${savedEmotes.channelAFK} AFK Channel`, (guild.afkChannel ? guild.afkChannel : 'None'), true),
+                new Field(`${savedEmotes.channelAFK} AFK Timeout`, (guild.afkTimeout / 60).toString() + " minutes", true)
+            ])
         //#endregion
 
         //#endregion
@@ -238,4 +242,12 @@ function SendFeatures(message, serverGuild) {
 /**@param {Guild} guild*/
 async function GetPGuildColor(guild) {
     return PinguGuild.GetPClient(guild.client, await PinguGuild.GetPGuild(guild)).embedColor;
+}
+
+class Field {
+    constructor(name, value, inline) {
+        this.name = name;
+        this.value = value;
+        this.inline = inline;
+    }
 }

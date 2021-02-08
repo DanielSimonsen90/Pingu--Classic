@@ -26,7 +26,7 @@ async function IsReactionRole(message) {
     let pGuildClient = PinguGuild.GetPClient(message.client, pGuild);
 
     let { reactionRoles } = pGuild;
-    let rrFromMessage = reactionRoles.map(rr => rr.messageID == message.id && rr);
+    let rrFromMessage = reactionRoles.map(rr => rr.messageID == message.id && rr.pRole && rr).filter(v => v);
 
     if (!rrFromMessage) return;
 

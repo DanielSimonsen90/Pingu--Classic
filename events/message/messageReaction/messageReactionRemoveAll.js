@@ -11,14 +11,12 @@ module.exports = {
      @param {{message: Message}}*/
     execute(client, { message }) {
         RemoveReactionRoles(message)
-
-        PinguLibrary.consoleLog(client, `${this.name} called`)
     }
 }
 
 /**@param {Message} message*/
-function RemoveReactionRoles(message) {
-    let pGuild = PinguGuild.GetPGuild(message.guild);
+async function RemoveReactionRoles(message) {
+    let pGuild = await PinguGuild.GetPGuild(message.guild);
     if (!pGuild.reactionRoles[0]) return;
 
     for (var rr of pGuild.reactionRoles) {

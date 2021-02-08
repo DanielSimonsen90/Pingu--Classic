@@ -44,4 +44,4 @@ module.exports = mongoose.model('PinguUser', mongoose.Schema({
         name: String,
         songs: [Song]
     }]
-}));
+}))

@@ -14,7 +14,7 @@ module.exports = {
              * @param {GuildChannel} gC*/
             function GetGuildChannel(preGC, gC) {
                 if (gC.name != preGC.name) return PinguEvents.SetDescriptionValues('Name', preGC.name, gC.name);
-                else if (gC.parent != preGC.parent) return PinguEvents.SetDescriptionValues('Parent', preGC.parent, gC.parent);
+                else if (gC.parent != preGC.parent) return PinguEvents.SetDescriptionValues('Parent', `<#${preGC.parent.id}>`, `<#${gC.parent.id}>`);
                 else if (gC.permissionOverwrites != preGC.permissionOverwrites) return GetPermissionChange(preGC.permissionOverwrites, gC.permissionOverwrites);
                 else if (gC.position != preGC.position) return PinguEvents.SetDescriptionValues('Position', preGC.position, gC.position);
                 else if (gC.type != preGC.type) return PinguEvents.SetDescriptionValues('Type', preGC.type, gC.type);

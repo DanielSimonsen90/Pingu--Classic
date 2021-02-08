@@ -10,7 +10,7 @@ module.exports = {
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.EMBED_LINKS],
     /**@param {{message: Message, pGuildClient: PClient}}*/
     async execute({ message, pGuildClient }) {
-        let Danho = PinguLibrary.SavedServers.DanhoMisc(message.client).owner.user;
+        let { Danho } = PinguLibrary.Developers(client);
 
         message.channel.send(new MessageEmbed()
             .setTitle('Support of Pingu')

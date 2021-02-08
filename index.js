@@ -156,7 +156,8 @@ async function HandleEvent(path, parameters) {
     }
     catch (cause) {
         let errorLogChannel = PinguLibrary.getChannel(client, PinguLibrary.SavedServers.PinguSupport(client).id, 'error-log');
-        if (errorLogChannel) return errorLogChannel.send("```\n" + `[Cause: ${cause}]\n` + JSON.stringify(parameters) + "\n```");
+        if (errorLogChannel) return errorLogChannel.send("```\n" + `[Cause: ${cause}]\n` + JSON.stringify(parameters) + "\n```")
+            .then(sent => sent.react(PinguLibrary.SavedServers.DanhoMisc(client).emojis.cache.find(e => e.name == 'Checkmark')));
     }
 
     async function SendToLog() {

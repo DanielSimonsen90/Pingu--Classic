@@ -17,7 +17,8 @@ module.exports = {
     /**@param {Client} client
      @param {{member: GuildMember}}*/
     async execute(client, { member }) {
-        if (member.user.bot) return;
+        if (client.user.id == PinguLibrary.Clients.BetaID && member.guild.members.cache.has(PinguLibrary.Clients.PinguID)) return;
+
         let welcomeChannel = await require('./guildMemberAdd').getWelcomeChannel(client, member.guild);
         if (welcomeChannel)
             welcomeChannel.send(`**${member.displayName}** ${(member.displayName != member.user.username ? `(${member.user.username})` : ``)}has left ${member.guild.name}...`);
@@ -25,6 +26,7 @@ module.exports = {
         UpdateSharedServers();
 
         async function UpdateSharedServers() {
+            if (member.user.bot) return;
             let pUser = await PinguUser.GetPUser(member.user);
             pUser.sharedServers = pUser.sharedServers.filter(guild => guild._id != member.guild.id);
 

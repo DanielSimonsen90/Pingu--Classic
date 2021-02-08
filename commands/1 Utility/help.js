@@ -19,7 +19,7 @@ module.exports = {
             prefix = pGuildClient.prefix;
         }
         if (!color) color = PinguLibrary.DefaultEmbedColor;
-        if (!prefix) prefix = PinguLibrary.DefaultPrefix;
+        if (!prefix) prefix = PinguLibrary.DefaultPrefix(message.client);
 
         let embed = new MessageEmbed()
             .setColor(color)
@@ -45,7 +45,7 @@ function DefaultHelp(message, embed, Prefix) {
 
     //Insert data for help menu
     for (var x = 1; x < 4; x++)
-        embed.addField(`**__${Prefix}${CategoryNames[x]}__**`, `\`${Prefix}help ${CategoryNames[x]}\``, true);
+        embed.addField(`**__${CategoryNames[x]}__**`, `\`${Prefix}help ${CategoryNames[x]}\``, true);
 
     //Return embed
     return message.channel.send(embed)

@@ -14,6 +14,7 @@ module.exports = {
             if (message.content != preMessage.content) return PinguEvents.SetDescriptionValues('Content', preMessage.content, message.content);
             else if (message.pinned != preMessage.pinned) return PinguEvents.SetDescriptionValues('Pin', preMessage.pinned, message.pinned);
             else if (message.reactions != preMessage.reactions) return FindReactionDifference(preMessage.reactions, message.reactions);
+            else if (message.embeds != preMessage.embeds) return PinguEvents.GoThroughObjectArray('Embed', preMessage.embeds, message.embeds);
             return PinguEvents.UnknownUpdate(preMessage, message);
         }
 

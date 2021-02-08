@@ -1,5 +1,5 @@
 const { Message } = require('discord.js');
-const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions, PClient } = require('../../PinguPackage');
+const { DiscordPermissions } = require('../../PinguPackage');
 
 module.exports = {
     name: 'version',
@@ -9,8 +9,8 @@ module.exports = {
     id: 4,
     examples: [""],
     permissions: [DiscordPermissions.SEND_MESSAGES],
-    /**@param {{message: Message, args: string[], pAuthor: PinguUser, pGuild: PinguGuild, pGuildClient: PClient}}*/
-    execute({ message, args, pAuthor, pGuild, pGuildClient }) {
+    /**@param {{message: Message}}*/
+    execute({ message }) {
         message.channel.send(`Currently running version ${require('../../config.json').version}`)
     }
 }

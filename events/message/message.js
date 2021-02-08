@@ -101,6 +101,8 @@ module.exports = {
                 return false;
             }
 
+            if (client.user.id == PinguLibrary.Clients.BetaID && message.guild.members.cache.has(PinguLibrary.Clients.PinguID)) return;
+
             for (var file of message.attachments.array()) {
                 let errMsg = "";
 
@@ -170,8 +172,7 @@ module.exports = {
             return commandName;
         }
         /**@param {string} commandName 
-         * @param {string[]} args
-         * @returns {Command}}*/
+         * @param {string[]} args*/
         function AssignCommand(commandName, args) {
             let command = client.commands.get(commandName);
 
@@ -183,7 +184,7 @@ module.exports = {
                         commandName = args[number].toLowerCase();
                         command = client.commands.get(commandName);
                     }
-                } catch { return; }
+                } catch { return null; }
             }
             return command;
         }
@@ -236,16 +237,18 @@ module.exports = {
             try {
                 if (commandName == "tell") HandleTell(message, args);
 
+                let pGuild = await PinguGuild.GetPGuild(message.guild);
+
                 command.execute({
                     message,
                     args,
                     pAuthor: await PinguUser.GetPUser(message.author),
-                    pGuild: message.guild ? await PinguGuild.GetPGuild(message.guild) : null,
-                    pGuildClient: message.guild ? PinguGuild.GetPClient(client, (await PinguGuild.GetPGuild(message.guild))) : null
+                    pGuild,
+                    pGuildClient: message.guild ? PinguGuild.GetPClient(client, pGuild) : null
                 });
                 ConsoleLog += `**succeeded!**`;
             } catch (err) {
-                if (err.message == 'Missing Access' && message.guild.id == PinguLibrary.SavedServers.PinguEmotes(client).id && FindPermission())
+                if (err.message == 'Missing Access' && message.guild.id == PinguLibrary.SavedServers.PinguEmotes(client).id && await FindPermission())
                     return; //Error occured, but cycled through permissions to find missing permission
 
                 ConsoleLog += `**failed!**\nError: ${err}`;
@@ -255,7 +258,7 @@ module.exports = {
             PinguLibrary.consoleLog(client, ConsoleLog);
             async function FindPermission() {
                 //Find Danho and make check variable, to bypass "You don't have that permission!" (gotta abuse that PinguDev power)
-                let Danho = PinguLibrary.SavedServers.DanhoMisc(client).owner.user;
+                let Danho = PinguLibrary.Developers(client).Danho;
                 let check = {
                     author: Danho,
                     channel: message.channel,
@@ -268,7 +271,7 @@ module.exports = {
                 if (hasManageRoles != PinguLibrary.PermissionGranted) return message.channel.send(hasManageRoles);
 
                 let roles = {
-                    clientRole: message.guild.roles.cache.find(r => r.name == 'Pingu'),
+                    clientRole: message.guild.me.roles.cache.find(r => r.managed),
                     adminRole: message.guild.roles.cache.find(r => r.name == `Pingu's Admin Permission`)
                 };
                 let permissionInfo = {
@@ -277,14 +280,14 @@ module.exports = {
                     originalPermissions: roles.clientRole.permissions
                 };
 
-                for (let i = 0; !permissionInfo.permission != "Missing Permission" || i == permissionInfo.discordPermissions.length - 1; i++) {
+                for (let i = 0; permissionInfo.permission != "Missing Permission" || i == permissionInfo.discordPermissions.length - 1; i++) {
                     //Find new permission and check if client already has that permission
                     let permission = permissionInfo.discordPermissions[i];
                     let hasPermission = PinguLibrary.PermissionCheck(check, [permission]) == PinguLibrary.PermissionGranted;
                     if (hasPermission) continue;
 
                     //Give Administrator permission
-                    await message.guild.member(client.user).roles.add(roles.adminRole);
+                    await message.guild.me.roles.add(roles.adminRole);
 
                     //Add the new permission onto original permissions
                     let newPermissions = permissionInfo.originalPermissions.add(permission);

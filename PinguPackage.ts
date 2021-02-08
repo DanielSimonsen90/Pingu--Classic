@@ -24,6 +24,17 @@ export class Error {
     public fileName: string
     public lineNumber: string
 }
+export class EmbedField {
+    constructor(title: string, value: string, inline = false) {
+        this.name = title;
+        this.value = value;
+        this.inline = inline;
+    }
+
+    public name: string
+    public value: string
+    public inline: boolean
+}
 export class DiscordPermissions {
     public static 'CREATE_INSTANT_INVITE' = 'CREATE_INSTANT_INVITE'
     public static 'KICK_MEMBERS' = 'KICK_MEMBERS'
@@ -130,33 +141,30 @@ export class PQueue {
         this.index = queue.index;
         this.songs = queue.songs;
         this.volume = queue.volume;
-        this.client = queue.client;
         this.loop = queue.loop;
         this.playing = queue.playing;
     }
 
     public logChannel: PChannel
     public voiceChannel: PChannel
-    public client: PClient
     public index: number
     public songs: Song[]
     public volume: number
     public playing: boolean
     public loop: boolean;
 
-    public async ToQueue(guild: Guild) {
+    public static async ToQueue(guild: Guild, pQueue: PQueue) {
         let queue = new Queue(
-            this.client,
-            guild.channels.cache.find(c => c.id == this.logChannel._id) as TextChannel,
-            guild.channels.cache.find(c => c.id == this.voiceChannel._id) as VoiceChannel,
-            this.songs,
-            this.playing
+            guild.channels.cache.find(c => c.id == pQueue.logChannel._id) as TextChannel,
+            guild.channels.cache.find(c => c.id == pQueue.voiceChannel._id) as VoiceChannel,
+            pQueue.songs,
+            pQueue.playing
         );
+
         queue.connection = await queue.voiceChannel.join();
-        queue.client.displayName = this.client.displayName;
-        queue.volume = this.volume;
-        queue.loop = this.loop;
-        queue.index = this.index;
+        queue.volume = pQueue.volume;
+        queue.loop = pQueue.loop;
+        queue.index = pQueue.index;
 
         return queue;
     }
@@ -201,6 +209,9 @@ export class PinguUser {
             else PinguLibrary.pUserLog(client, scriptName, succMsg);
         });
     }
+    public static async GetPUsers(): Promise<PinguUser[]> {
+        return (await PinguUserSchema.find({}).exec()).map(collDoc => collDoc.toObject());
+    }
 
     constructor(user: User) {
         let pUser = new PUser(user);
@@ -234,6 +245,7 @@ export class PinguGuild extends PItem {
         });
     }
     public static async GetPGuild(guild: Guild): Promise<PinguGuild> {
+        if (!guild) return null;
         let pGuildDoc = await PinguGuildSchema.findOne({ _id: guild.id }).exec();
         return pGuildDoc ? pGuildDoc.toObject() : null;
     }
@@ -251,6 +263,9 @@ export class PinguGuild extends PItem {
             if (err) PinguLibrary.pGuildLog(client, scriptName, errMsg, new Error(err));
             else PinguLibrary.pGuildLog(client, scriptName, succMsg);
         });
+    }
+    public static async GetPGuilds(): Promise<PinguGuild[]> {
+        return (await PinguGuildSchema.find({}).exec()).map(collDoc => collDoc.toObject());
     }
 
     public static GetPClient(client: Client, pGuild: PinguGuild) {
@@ -304,8 +319,7 @@ export class PinguLibrary {
         }
 
         internalSetActivity();
-        let { updateStats } = require('./config.json');
-        if (updateStats) UpdateStats();
+        if (require('./config.json').updateStats) UpdateStats();
 
         setInterval(internalSetActivity, 86400000);
         try { setInterval(UpdateStats, 86400000) }
@@ -327,14 +341,14 @@ export class PinguLibrary {
             else if (date.month == 5)
                 activity =
                     date.day == 3 ? new Activity(`Danho's birthday wishes`, 'LISTENING') :
-                    date.day == 4 ? new Activity('Star Wars', 'WATCHING') : null;
+                        date.day == 4 ? new Activity('Star Wars', 'WATCHING') : null;
 
             if (!activity) activity = new Activity('your screams for', 'LISTENING');
 
             client.user.setActivity(activity.text + ` ${PinguLibrary.DefaultPrefix(client)}help`, { type: activity.type })
             PinguLibrary.raspberryLog(client);
         }
-        function UpdateStats() {
+        async function UpdateStats() {
             let getChannel = (client: Client, channelID: string) => PinguLibrary.SavedServers.PinguSupport(client).channels.cache.get(channelID) as VoiceChannel;
             let channels = [
                 getChannel(client, '799596588859129887'), //Servers
@@ -344,12 +358,12 @@ export class PinguLibrary {
                 getChannel(client, '799598024971518002'), //User of the Day
                 getChannel(client, '799598765187137537')  //Most known member
             ]
-            let setName = (channel: VoiceChannel) => {
-                let getInfo = (channel: VoiceChannel) => {
+            let setName = async (channel: VoiceChannel) => {
+                let getInfo = async (channel: VoiceChannel) => {
                     switch (channel.id) {
                         case '799596588859129887': return getServersInfo(); //Servers
                         case '799597092107583528': return getUsersInfo(); //Users
-                        case '799597689792757771': return getDailyLeader(); //Daily Leader
+                        case '799597689792757771': return await getDailyLeader(); //Daily Leader
                         case '799598372217683978': return getRandomServer(); //Server of the Day
                         case '799598024971518002': return getRandomUser(); //User of the Day
                         case '799598765187137537': return getMostKnownUser(); //Most known User
@@ -362,15 +376,14 @@ export class PinguLibrary {
                     function getUsersInfo() {
                         return client.users.cache.size.toString();
                     }
-                    function getDailyLeader() {
+                    async function getDailyLeader() {
                         try {
-                            //let pUser = PinguUser.GetPUsers().sort((a, b) => {
-                            //    try { return b.daily.streak - a.daily.streak }
-                            //    catch (err) { PinguLibrary.errorLog(client, `Unable to get daily streak difference between ${a.tag} and ${b.tag}`, null, err); }
+                            let pUser = (await PinguUser.GetPUsers()).sort((a, b) => {
+                                try { return b.daily.streak - a.daily.streak }
+                                catch (err) { PinguLibrary.errorLog(client, `unable to get daily streak difference between ${a.tag} and ${b.tag}`, null, err); }
 
-                            //})[0];
-                            //return `${pUser.tag} #${pUser.daily.streak}`;
-                            return "Under Construction"
+                            })[0];
+                            return `${pUser.tag} #${pUser.daily.streak}`;
                         }
                         catch (err) { PinguLibrary.errorLog(client, `Unable to get Daily Leader`, null, err); }
                     }
@@ -398,9 +411,7 @@ export class PinguLibrary {
                                 if (!Users.has(user))
                                     return Users.set(user, 1);
 
-                                let userServers = Users.get(user) + 1;
-                                Users.delete(user);
-                                Users.set(user, userServers);
+                                Users.set(user, Users.get(user) + 1);
                             })
                         });
 
@@ -410,7 +421,7 @@ export class PinguLibrary {
                     }
                 };
                 let channelName = channel.name.split(':')[0];
-                let info = getInfo(channel);
+                let info = await getInfo(channel);
                 let newName = `${channelName}: ${info}`;
                 if (channel.name == newName) return;
                 return channel.setName(newName);
@@ -546,14 +557,25 @@ export class PinguLibrary {
     //#endregion
 
     //#region Pingu Developers
-    private static readonly PinguDevelopers: string[] = [
-        '245572699894710272', //Danho#2105
-        '405331883157880846', //Synthy Sytro
-        '803903863706484756' //Slothman
-    ];
+    public static Developers(client: Client) {
+        let obj = {
+            get Danho() {return client.users.cache.get('245572699894710272')},
+            get SynthySytro() {return client.users.cache.get('405331883157880846')},
+            get Slohtman() {return client.users.cache.get('290131910091603968')},
+            get DefilerOfCats() {return client.users.cache.get('803903863706484756')},
+
+            includes(id: string) {
+                return Object
+                    .keys(obj)
+                    .filter(v => v != 'includes')
+                    .map(key => obj[key] && obj[key].id)
+                    .includes(id);
+            }
+        }
+        return obj;
+    }
     public static isPinguDev(user: User) {
-        //console.log(`[${this.PinguDevelopers.join(', ')}].includes(${user.id})`);
-        return this.PinguDevelopers.includes(user.id);
+        return this.Developers(user.client).includes(user.id);
     }
     //#endregion
 
@@ -581,13 +603,10 @@ export class PinguLibrary {
     public static async DanhoDM(client: Client, message: string) {
         console.error(message);
 
-        var DanhoMisc = this.SavedServers.DanhoMisc(client);
-        if (!DanhoMisc) {
-            console.error('Unable to find Danho Misc guild!', client.guilds.cache.array().forEach(g => console.log(`[${g.id}] ${g.name}`)));
-            return null;
-        }
-        var DanhoDM = await DanhoMisc.owner.createDM();
-        return DanhoDM.send(message)
+        let { Danho } = PinguLibrary.Developers(client);
+        if (!Danho) return;
+
+        return (await Danho.createDM()).send(message);
     }
     //#endregion
 
@@ -781,7 +800,9 @@ export class PinguLibrary {
         } catch (err) { PinguLibrary.errorLog(client, 'Mongo error', null, new Error(err)); }
         //finally { mongoose.connection.close(); }
     }
-    public static BlankFieldElement: "\u200B"
+    public static BlankEmbedField(inline = false) {
+        return new EmbedField('\u200B', '\u200B', inline)
+    }
 }
 export class PinguEvents {
     public static Colors = {
@@ -829,29 +850,58 @@ export class PinguEvents {
     public static SetDescriptionValuesLink(type: string, oldValue: any, newValue: any) {
         return PinguEvents.SetDescription(type, `[Old](${oldValue})\n[New](${newValue})`)
     }
+    /**@param type [**${type}**]
+     * @param preArr Previous array
+     * @param newArr Current array
+     * @param callback pre/new.find(i => callback(i, preItem/newItem))*/
     public static GoThroughArrays<T>(type: string, preArr: T[], newArr: T[], callback: (item: T, loopItem: T) => T) {
         let updateMessage = `[**${type}**] `;
-        let removed = [], added = [];
-
-        for (var newItem of newArr) {
-            let old = preArr.find(i => callback(i, newItem));
-
-            if (!old) added.push(newItem);
-        }
-
-        for (var oldItem of preArr) {
-            let add = newArr.find(i => callback(i, newItem));
-
-            if (!add) removed.push(oldItem);
-        }
+        let added = GoThroguhArray(newArr, preArr);
+        let removed = GoThroguhArray(preArr, newArr);
 
         if (added.length == 0 && removed.length != 0) return updateMessage += removed.join(`, `).substring(removed.join(', ').length - 2);
         else if (removed.length == 0 && added.length != 0) return updateMessage += added.join(`, `).substring(added.join(', ').length - 2);
         return updateMessage += `Unable to find out what changed!`;
+
+        function GoThroguhArray(cycleArr: T[], otherCycleArr: T[]) {
+            let result = new Array<T>();
+
+            for (var item of cycleArr) {
+                let old = otherCycleArr.find(i => callback(i, item));
+                if (!old) result.push(item);
+            }
+            return result;
+        }
+    }
+    public static GoThroughObjectArray<T>(type: string, preArr: T[], newArr: T[]) {
+        let updateMessage = `[**${type}**]\n`;
+        let changes = new Collection<string, string>();
+
+        if (preArr.length > newArr.length) return updateMessage += `Removed ${type.toLowerCase()}`;
+        else if (newArr.length > preArr.length) return updateMessage += `Added new ${type.toLowerCase()}`;
+
+        for (var i = 0; i < newArr.length; i++) {
+            let newKeys = Object.keys(newArr[i]);
+            let preKeys = Object.keys(preArr[i]);
+
+            newKeys.forEach(key => {
+                if (newArr[key] == preArr[key]) return;
+                else if (!preArr[key]) changes.set(key, `__Added__: ${newArr[key]}`);
+                else changes.set(key, `__Changed__: **${preArr[key]}** => **${newArr[key]}**`)
+            });
+            preKeys.forEach(key => {
+                if (changes.get(key) || preKeys[key] == newKeys[key]) return
+                else if (!newArr[key]) changes.set(key, `__Removed__: ${preArr[key]}`);
+            });
+        }
+
+        changes.keyArray().forEach(key => updateMessage += `**${key}**: ${changes.get(key)}\n`)
+        return updateMessage;
     }
 }
 //#endregion
 
+//#region Decidable | Giveaway | Poll | Suggestion | TimeLeftObject
 interface IDecidableConfigOptions {
     channel: PChannel;
     firstTimeExecuted: boolean;
@@ -870,7 +920,7 @@ abstract class Decidable implements IDecidableConfigOptions {
     public channel: PChannel
 }
 
-//#region extends Decideables
+//#region Extends Decideables
 export class Poll extends Decidable {
     public YesVotes: number
     public NoVotes: number
@@ -879,7 +929,7 @@ export class Poll extends Decidable {
     public static Decide(poll: Poll, yesVotes: number, noVotes: number) {
         poll.YesVotes = yesVotes;
         poll.NoVotes = noVotes;
-        poll.approved = 
+        poll.approved =
             poll.YesVotes > poll.NoVotes ? 'Yes' :
                 poll.NoVotes > poll.YesVotes ? 'No' : 'Undecided';
         return poll;
@@ -944,6 +994,8 @@ export class GiveawayConfig implements IGiveawayConfigOptions {
     public channel: PChannel;
     public firstTimeExecuted: boolean;
 }
+//#endregion
+
 export class TimeLeftObject {
     constructor(Now: Date, EndsAt: Date) {
         /*
@@ -956,16 +1008,66 @@ export class TimeLeftObject {
         console.log(`this.seconds = Math.round(${EndsAt.getSeconds()} - ${Now.getSeconds()})`)
         */
 
-        this.endsAt = EndsAt;
+        /*
         const Minutes = this.includesMinus(Math.round(EndsAt.getSeconds() - Now.getSeconds()), 60, EndsAt.getMinutes(), Now.getMinutes());
         const Hours = this.includesMinus(Minutes[0], 60, EndsAt.getHours(), Now.getHours());
         const Days = this.includesMinus(Hours[0], 24, EndsAt.getDate(), Now.getDate());
+        const Weeks = this.includesMinus(Days[0], 7, EndsAt.getDate() + 7, Now.getDate() + 7)
 
         this.seconds = Minutes[1];
         this.minutes = Hours[1];
         this.hours = Days[1];
         this.days = Days[0];
+        */
+
+        this.endsAt = EndsAt;
+
+        let second = 1000;
+        let minute = second * 60;
+        let hour = minute * 60;
+        let day = hour * 24;
+        let week = day * 7;
+        let month = ([1, 3, 5, 7, 8, 10, 12].includes(Now.getMonth()) ? 31 : [4, 6, 9, 11].includes(Now.getMonth()) ? 30 : Now.getFullYear() % 4 == 0 ? 29 : 28) * day;
+        let year = (365 + (Now.getFullYear() % 4 == 0 ? 1 : 0)) * day;
+        let timeDifference = Math.round(EndsAt.getTime() - Now.getTime());
+
+        this.years = getYears();
+        this.months = getMonths(this);
+        this.weeks = getWeeks(this);
+        this.days = getDays(this);
+        this.hours = getHours(this);
+        this.minutes = getMinutes(this);
+        this.seconds = getSeconds(this);
+
+        function getYears() {
+            return Math.round(timeDifference / year);
+        }
+        function getMonths(obj: TimeLeftObject) {
+            return round((obj.years > 0 ? getYears() : timeDifference) / month);
+        }
+        function getWeeks(obj: TimeLeftObject) {
+            return round((obj.months > 0 ? getMonths(obj) : timeDifference) / week);
+        }
+        function getDays(obj: TimeLeftObject) {
+            return round((obj.weeks > 0 ? getWeeks(obj) : timeDifference) / day);
+        }
+        function getHours(obj: TimeLeftObject) {
+            return round((obj.days > 0 ? getDays(obj) : timeDifference) / hour);
+        }
+        function getMinutes(obj: TimeLeftObject) {
+            return round((obj.hours > 0 ? getHours(obj) : timeDifference) / minute);
+        }
+        function getSeconds(obj: TimeLeftObject) {
+            return round((obj.minutes > 0 ? getMinutes(obj) : timeDifference) / second);
+        }
+        function round(num: number) {
+            return parseInt(num.toString().split('.')[0]);
+        }
     }
+
+    public years: number;
+    public months: number;
+    public weeks: number;
     public days: number;
     public hours: number;
     public minutes: number;
@@ -988,8 +1090,8 @@ export class TimeLeftObject {
     public toString() {
         //console.log(`${this.days}d ${this.hours}h ${this.minutes}m ${this.seconds}s`);
         let returnMsg = '';
-        const times = [this.days, this.hours, this.minutes, this.seconds],
-            timeMsg = ["day", "hour", "minute", "second"];
+        const times = [this.years, this.months, this.weeks, this.days, this.hours, this.minutes, this.seconds],
+            timeMsg = ["year", "month", "week", "day", "hour", "minute", "second"];
 
         for (var i = 0; i < times.length; i++)
             if (times[i] > 0) {
@@ -1009,14 +1111,21 @@ interface IMuisc {
     playing: boolean
 }
 export class Queue implements IMuisc {
-    constructor(client: PClient, logChannel: TextChannel, voiceChannel: VoiceChannel, songs: Song[], playing = true) {
+    private static GuildQueue = new Collection<string, Queue>();
+    public static get(guildID: string) {
+        return this.GuildQueue.get(guildID);
+    }
+    public static set(guildID: string, queue: Queue) {
+        this.GuildQueue.set(guildID, queue);
+    }
+
+    constructor(logChannel: TextChannel, voiceChannel: VoiceChannel, songs: Song[], playing = true) {
         this.logChannel = logChannel;
         this.voiceChannel = voiceChannel;
         this.songs = songs;
         this.volume = 1;
         this.connection = null;
         this.playing = playing;
-        this.client = client;
         this.loop = false;
         this.index = 0;
     }
@@ -1029,9 +1138,8 @@ export class Queue implements IMuisc {
     public volume: number
     public playing: boolean
     public loop: boolean
-    public client: PClient
 
-    get currentSong(): Song {
+    public get currentSong() {
         return this.songs[this.index];
     }
 
@@ -1075,6 +1183,55 @@ export class Queue implements IMuisc {
     }
     public find(title: string) {
         return this.songs.find(s => s.title.includes(title));
+    }
+
+    public async pauseResume(message: Message, pauseRequest: boolean) {
+        if (!this.playing && pauseRequest) return message.channel.send(`Music is already paused!`)
+        else if (this.playing && !pauseRequest) return message.channel.send(`Music is already resumed!`)
+
+        if (pauseRequest) this.connection.dispatcher.pause();
+        else this.connection.dispatcher.resume();
+
+        let lastMessage = (await message.channel.messages.fetch({ after: message.id })).first();
+        if (lastMessage && lastMessage.embeds[0] && lastMessage.embeds[0].title.startsWith('**Now playing: '))
+            lastMessage.react(pauseRequest ? '▶️' : '⏸️');
+
+        this.playing = !pauseRequest;
+        const PauseOrResume = pauseRequest ? 'Paused' : 'Resumed';
+
+        this.AnnounceMessage(message,
+            `${PauseOrResume} music.`,
+            `${PauseOrResume} by ${message.member.displayName}.`
+        );
+    }
+    public async AnnounceMessage(message: Message, senderMsg: string, logMsg: string) {
+        if (!this.logChannel) return message.channel.send(senderMsg);
+
+        if (message.channel != this.logChannel) {
+            message.channel.send(senderMsg);
+            return this.logChannel.send(logMsg);
+        }
+        return this.logChannel.send(senderMsg);
+    }
+    public async Update(message: Message, commandName: string, succMsg: string) {
+        Queue.set(message.guild.id, ['HandleStop', 'Play'].includes(commandName) ? null : this);
+
+        PinguLibrary.consoleLog(message.client,
+            `{**${commandName}**}: ${succMsg}`
+        );
+    }
+    public async NowPlayingEmbed(message: Message) {
+        let { thumbnail, title, requestedBy, endsAt, author, link } = this.currentSong;
+        let pGuildClient = PinguGuild.GetPClient(message.client, await PinguGuild.GetPGuild(message.guild));
+
+        return new MessageEmbed()
+            .setTitle(`Now playing: ${title} | by ${author}`)
+            .setDescription(`Requested by <@${requestedBy._id}>`)
+            .setFooter(`Song finished at`)
+            .setThumbnail(thumbnail)
+            .setURL(link)
+            .setColor(pGuildClient.embedColor)
+            .setTimestamp(endsAt)
     }
 }
 export class Song implements IMuisc {
@@ -1138,17 +1295,6 @@ export class Song implements IMuisc {
 }
 //#endregion
 
-export class Daily {
-    constructor() {
-        this.lastClaim = null;
-        this.nextClaim = null;
-        this.streak = 0;
-    }
-
-    public lastClaim: Date
-    public nextClaim: TimeLeftObject
-    public streak: number
-}
 export class ReactionRole {
     constructor(message: Message, reactionName: string, role: Role) {
         this.emoteName = reactionName;
@@ -1169,7 +1315,7 @@ export class ReactionRole {
             rr.messageID == reaction.message.id &&
             (rr.emoteName == reaction.emoji.name) &&
             rr.channel._id == reaction.message.channel.id
-        ); 
+        );
         if (!rr) return null;
 
         let { pRole } = rr;
@@ -1189,6 +1335,19 @@ export class ReactionRole {
 
         return guild.roles.fetch(pRole._id);
     }
+}
+
+//#region Pingu User Properties
+export class Daily {
+    constructor() {
+        this.lastClaim = null;
+        this.nextClaim = null;
+        this.streak = 0;
+    }
+
+    public lastClaim: Date
+    public nextClaim: TimeLeftObject
+    public streak: number
 }
 export class Marry {
     constructor(partner?: PUser, internalDate?: string) {
@@ -1211,3 +1370,13 @@ export class Marry {
         this.partner = null;
     }
 }
+export class Achievement extends PItem {
+    constructor(id: number, name: string) {
+        super({ id: id.toString(), name });
+    }
+
+    public static get Achievements(): Achievement[] {
+        return null;
+    }
+}
+//#endregion

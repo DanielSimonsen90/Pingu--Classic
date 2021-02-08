@@ -10,21 +10,6 @@ const Decidable = {
     author: PItem,
     channel: PItem
 };
-const Song = {
-    _id: Number,
-    title: String,
-    link: String,
-    author: String,
-    thumbnail: String,
-    length: String,
-    lengthMS: Number,
-    volume: Number,
-    playing: Boolean,
-    loop: Boolean,
-    endsAt: Date,
-    requestedBy: PItem
-};
-
 
 module.exports = mongoose.model('PinguGuild', mongoose.Schema({
     _id: String,
@@ -37,15 +22,6 @@ module.exports = mongoose.model('PinguGuild', mongoose.Schema({
         displayName: String
     }],
     welcomeChannel: PItem,
-    musicQueue: {
-        logChannel: PItem,
-        voiceChannel: PItem,
-        index: Number,
-        songs: [Song],
-        volume: Number,
-        playing: Boolean,
-        loop: Boolean,
-    },
     reactionRoles: [{
         channel: PItem,
         messageID: String,

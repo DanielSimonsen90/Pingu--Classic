@@ -26,14 +26,14 @@ module.exports = {
 
 /**@param {Client} client
  * @param {MessageReaction} reaction*/
-function ReactionRoleClient(client, reaction) {
+async function ReactionRoleClient(client, reaction) {
     let guild = reaction.message.guild;
     if (!guild) return;
 
-    let pGuild = PinguGuild.GetPGuild(guild);
+    let pGuild = await PinguGuild.GetPGuild(guild);
     if (!pGuild) return;
 
-    let reactionRoles = pGuild.reactionRoles;
+    let { reactionRoles } = pGuild;
     if (!reactionRoles) return;
 
     let rr = reactionRoles.find(rr => rr.emoteName == reaction.emoji.name && rr.messageID == reaction.message.id);
@@ -42,10 +42,10 @@ function ReactionRoleClient(client, reaction) {
     let index = reactionRoles.indexOf(rr);
     reactionRoles[index] = null;
 
-    PinguGuild.UpdatePGuildJSONAsync(client, guild, `${this.name}, ReactionRoleClient()`,
+    PinguGuild.UpdatePGuild(client, { reactionRoles }, pGuild, module.exports.name,
         `Successfully removed ${rr.emoteName} from **${pGuild.name}**'s Pingu Guild.`,
         `Failed to remove ${rr.emoteName} from **${pGuild.name}**'s Pingu Guild.`
-    );
+    )
 }
 
 /**@param {Client} client

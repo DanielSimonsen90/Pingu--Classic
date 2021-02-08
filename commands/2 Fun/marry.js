@@ -22,7 +22,7 @@ module.exports = {
         }
         else if (pAuthor.marry.partner) return message.channel.send(`You're already married, you unloyal filth!`);
         let partner = message.mentions.users.first();
-        let pPartner = PinguUser.GetPUser(partner);
+        let pPartner = await PinguUser.GetPUser(partner);
 
         if (pPartner.marry.partner) return message.channel.send(`I'm sorry, ${message.author}, ${partner} is already married!`);
 
@@ -61,7 +61,7 @@ async function HandleDivorce(message, pAuthor) {
 
     if (response == 'yes') {
         let partner = message.client.users.cache.find(u => u.id == pAuthor.marry.partner._id);
-        let pPartner = PinguUser.GetPUser(partner);
+        let pPartner = await PinguUser.GetPUser(partner);
 
         let authorMarry = new Marry(pAuthor.marry.partner, pAuthor.marry.internalDate);
         let partnerMarry = new Marry(pPartner.marry.partner, pPartner.marry.internalDate);
@@ -83,13 +83,13 @@ async function HandleDivorce(message, pAuthor) {
  * @param {PinguUser} pAuthor
  * @param {PinguUser} pPartner*/
 async function UpdatePUsers(message, pAuthor, pPartner) {
-    PinguUser.UpdatePUser(message.client, { daily: pAuthor.daily }, pAuthor, module.exports.name,
-        `Successfully updated **${message.author.tag}.json**'s marry property`,
-        `Failed updating **${message.author.tag}.json**'s marry property!`
+    PinguUser.UpdatePUser(message.client, { marry: pAuthor.marry }, pAuthor, module.exports.name,
+        `Successfully updated **${pAuthor.tag}**'s marry property`,
+        `Failed updating **${pAuthor.tag}**'s marry property!`
     );
 
-    PinguUser.UpdatePUser(message.client, { daily: pPartner.daily }, pPartner, module.exports.name,
-        `Successfully updated **${partner.tag}**'s marry property`,
-        `Failed updating **${partner.tag}**'s marry property!`
+    PinguUser.UpdatePUser(message.client, { marry: pPartner.marry }, pPartner, module.exports.name,
+        `Successfully updated **${pPartner.tag}**'s marry property`,
+        `Failed updating **${pPartner.tag}**'s marry property!`
     );
 }
