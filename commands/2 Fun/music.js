@@ -341,11 +341,6 @@ async function HandleQueue(message, queue) {
                 indexSong.endsAt = new Date(queue.songs[i - 1].endsAt.getTime() + indexSong.lengthMS);
 
             let timeLeft = indexSong.getTimeLeft();
-            let songLength = {
-                hours: parseInt(indexSong.length.split('.')[0]),
-                minutes: parseInt(indexSong.length.split('.')[1]),
-                seconds: parseInt(indexSong.length.split('.')[2]),
-            };
 
             let formatTime = () => {
                 return [timeLeft.hours, timeLeft.minutes, timeLeft.seconds].map(number =>

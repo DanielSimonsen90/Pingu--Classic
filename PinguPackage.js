@@ -838,7 +838,7 @@ var PinguLibrary = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log');
+                        errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log-⚠️');
                         if (!errorlogChannel)
                             return [2 /*return*/, this.DanhoDM(client, 'Unable to find #error-log in Pingu Support')];
                         console.error(getErrorMessage(message.includes('`') ? message.replace('`', ' ') : message, messageContent, err));
@@ -859,7 +859,7 @@ var PinguLibrary = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        pinguGuildLog = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "pingu-guild-log");
+                        pinguGuildLog = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "pingu-guild-log-🏡");
                         if (!err) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.errorLog(client, "pGuild Error: \"" + message + "\"", null, err)];
                     case 1:
@@ -876,7 +876,7 @@ var PinguLibrary = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        pinguUserLog = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "pingu-user-log");
+                        pinguUserLog = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "pingu-user-log-🧍");
                         if (!err) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.errorLog(client, "pUser Error (**" + script + "**): \"" + message + "\"", null, err)];
                     case 1:
@@ -893,7 +893,7 @@ var PinguLibrary = /** @class */ (function () {
             return __generator(this, function (_a) {
                 timeFormat = "[" + new Date(Date.now()).toLocaleTimeString() + "]";
                 console.log(timeFormat + " " + message);
-                consoleLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "console-log");
+                consoleLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "console-log-📝");
                 if (!consoleLogChannel)
                     return [2 /*return*/, this.DanhoDM(client, 'Unable to find #console-log in Pingu Support')];
                 consoleLogChannel.send(message);
@@ -909,7 +909,7 @@ var PinguLibrary = /** @class */ (function () {
                     case 0:
                         if (client.user.id == PinguLibrary.Clients.BetaID)
                             return [2 /*return*/];
-                        eventLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "event-log");
+                        eventLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "event-log-📹");
                         if (!eventLogChannel)
                             return [2 /*return*/, this.DanhoDM(client, "Couldn't get #event-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh")];
                         if (!PinguEvents.LoggedCache)
@@ -931,7 +931,7 @@ var PinguLibrary = /** @class */ (function () {
             return __generator(this, function (_a) {
                 if (client.user.id == PinguLibrary.Clients.BetaID)
                     return [2 /*return*/];
-                tellLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'tell-log');
+                tellLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'tell-log-💬');
                 if (!tellLogChannel)
                     return [2 /*return*/, this.DanhoDM(client, "Couldn't get #tell-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh")];
                 if (message.constructor.name == "Message") {
@@ -976,7 +976,7 @@ var PinguLibrary = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        pingChannel = this.getChannel(message.client, this.SavedServers.PinguSupport(message.client).id, "ping-log");
+                        pingChannel = this.getChannel(message.client, this.SavedServers.PinguSupport(message.client).id, "ping-log-🏓");
                         if (message.channel == pingChannel || message.author.bot)
                             return [2 /*return*/];
                         return [4 /*yield*/, pingChannel.send("Calculating ping")];
@@ -1018,7 +1018,7 @@ var PinguLibrary = /** @class */ (function () {
             return __generator(this, function (_a) {
                 if (client.user.id == PinguLibrary.Clients.BetaID)
                     return [2 /*return*/];
-                raspberryLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'raspberry-log');
+                raspberryLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'raspberry-log-🍇');
                 if (!raspberryLogChannel)
                     return [2 /*return*/, this.DanhoDM(client, "Couldn't get #raspberry-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh")];
                 return [2 /*return*/, raspberryLogChannel.send("Pulled version " + require('./config.json').version + " from Github")];

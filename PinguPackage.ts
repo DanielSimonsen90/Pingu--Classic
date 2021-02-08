@@ -612,7 +612,7 @@ export class PinguLibrary {
 
     //#region Log Channels
     public static async errorLog(client: Client, message: string, messageContent?: string, err?: Error) {
-        var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log');
+        var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log-⚠️');
         if (!errorlogChannel) return this.DanhoDM(client, 'Unable to find #error-log in Pingu Support');
 
         console.error(getErrorMessage(message.includes('`') ? message.replace('`', ' ') : message, messageContent, err));
@@ -644,7 +644,7 @@ export class PinguLibrary {
         }
     }
     public static async pGuildLog(client: Client, script: string, message: string, err?: Error) {
-        var pinguGuildLog = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "pingu-guild-log");
+        var pinguGuildLog = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "pingu-guild-log-🏡");
 
         if (err) {
             var errorLink = (await this.errorLog(client, `pGuild Error: "${message}"`, null, err)).url;
@@ -653,7 +653,7 @@ export class PinguLibrary {
         return pinguGuildLog.send(`[**Success**] [**${script}**]: ${message}`);
     }
     public static async pUserLog(client: Client, script: string, message: string, err?: Error) {
-        var pinguUserLog = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "pingu-user-log");
+        var pinguUserLog = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "pingu-user-log-🧍");
 
         if (err) {
             var errorLink = (await this.errorLog(client, `pUser Error (**${script}**): "${message}"`, null, err)).url;
@@ -665,7 +665,7 @@ export class PinguLibrary {
         let timeFormat = `[${new Date(Date.now()).toLocaleTimeString()}]`;
         console.log(`${timeFormat} ${message}`);
 
-        let consoleLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "console-log");
+        let consoleLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "console-log-📝");
         if (!consoleLogChannel) return this.DanhoDM(client, 'Unable to find #console-log in Pingu Support');
 
         consoleLogChannel.send(message);
@@ -673,7 +673,7 @@ export class PinguLibrary {
     public static async eventLog(client: Client, content: MessageEmbed) {
         if (client.user.id == PinguLibrary.Clients.BetaID) return;
 
-        let eventLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "event-log");
+        let eventLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, "event-log-📹");
         if (!eventLogChannel) return this.DanhoDM(client, `Couldn't get #event-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh`)
 
         if (!PinguEvents.LoggedCache) PinguEvents.LoggedCache = new Array<MessageEmbed>();
@@ -689,7 +689,7 @@ export class PinguLibrary {
     public static async tellLog(client: Client, sender: User, reciever: User, message: Message | MessageEmbed) {
         if (client.user.id == PinguLibrary.Clients.BetaID) return;
 
-        var tellLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'tell-log');
+        var tellLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'tell-log-💬');
         if (!tellLogChannel) return this.DanhoDM(client, `Couldn't get #tell-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh`)
 
         if ((message as object).constructor.name == "Message") {
@@ -732,7 +732,7 @@ export class PinguLibrary {
     }
     public static async LatencyCheck(message: Message) {
         //Get latency
-        let pingChannel = this.getChannel(message.client, this.SavedServers.PinguSupport(message.client).id, "ping-log");
+        let pingChannel = this.getChannel(message.client, this.SavedServers.PinguSupport(message.client).id, "ping-log-🏓");
         if (message.channel == pingChannel || message.author.bot) return;
 
         let pingChannelSent = await pingChannel.send(`Calculating ping`);
@@ -771,7 +771,7 @@ export class PinguLibrary {
     public static async raspberryLog(client: Client) {
         if (client.user.id == PinguLibrary.Clients.BetaID) return;
 
-        let raspberryLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'raspberry-log');
+        let raspberryLogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'raspberry-log-🍇');
         if (!raspberryLogChannel) return this.DanhoDM(client, `Couldn't get #raspberry-log channel in Pingu Support, https://discord.gg/gbxRV4Ekvh`)
 
         return raspberryLogChannel.send(`Pulled version ${require('./config.json').version} from Github`);
