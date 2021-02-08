@@ -1,5 +1,5 @@
 ﻿const { MessageEmbed, Message, Guild } = require('discord.js');
-const { PinguGuild, PinguLibrary, DiscordPermissions } = require('../../PinguPackage');
+const { PinguGuild, PinguLibrary, DiscordPermissions, EmbedField } = require('../../PinguPackage');
 module.exports = {
     name: 'serverinfo',
     description: 'Sends server information.',
@@ -119,17 +119,17 @@ async function SendCallerInfo(message, bigboiinfo) {
             .setFooter(`Server ID: ${guild.id}`)
             .setColor(color)
             .addFields([
-                new Field(`${savedEmotes.ownerCrown} Owner`, guild.owner, true),
-                new Field(getRegionEmoji(guild.region), guild.region.charAt(0).toUpperCase() + guild.region.substring(1, guild.region.length), true),
-                new Field(`⏰ Creation Date`, guild.createdAt.toUTCString(), false),
-                new Field(`👥 Total members`, guild.memberCount, true),
-                new Field(`🧍 Total users`, guild.members.cache.filter(gm => !gm.user.bot).size, true),
-                new Field(`🤖 Total bots`, guild.members.cache.filter(gm => gm.user.bot).size, true),
-                new Field(`${savedEmotes.roleIcon} Roles`, guild.roles.cache.size, true),
-                new Field(`${savedEmotes.wumpus} Emotes`, guild.emojis.cache.size, true),
-                new Field(`🚷 Maximum Members`, guild.maximumMembers, true),
-                new Field(`${savedEmotes.boost} Boost level`, guild.premiumTier, true),
-                new Field(`${savedEmotes.boost} Boosts`, guild.premiumSubscriptionCount, true)
+                new EmbedField(`${savedEmotes.ownerCrown} Owner`, guild.owner, true),
+                new EmbedField(getRegionEmoji(guild.region), guild.region.charAt(0).toUpperCase() + guild.region.substring(1, guild.region.length), true),
+                new EmbedField(`⏰ Creation Date`, guild.createdAt.toUTCString(), false),
+                new EmbedField(`👥 Total members`, guild.memberCount, true),
+                new EmbedField(`🧍 Total users`, guild.members.cache.filter(gm => !gm.user.bot).size, true),
+                new EmbedField(`🤖 Total bots`, guild.members.cache.filter(gm => gm.user.bot).size, true),
+                new EmbedField(`${savedEmotes.roleIcon} Roles`, guild.roles.cache.size, true),
+                new EmbedField(`${savedEmotes.wumpus} Emotes`, guild.emojis.cache.size, true),
+                new EmbedField(`🚷 Maximum Members`, guild.maximumMembers, true),
+                new EmbedField(`${savedEmotes.boost} Boost level`, guild.premiumTier, true),
+                new EmbedField(`${savedEmotes.boost} Boosts`, guild.premiumSubscriptionCount, true)
             ])
     ];
 
@@ -185,15 +185,15 @@ async function SendCallerInfo(message, bigboiinfo) {
             .setThumbnail(DefaultThumbnail)
             .setColor(color)
             .addFields([
-                new Field(`${savedEmotes.channelIcon} Channel count`, guild.channels.cache.size, true),
-                new Field(`${savedEmotes.channelCategory} Categories`, GetChannelCount('category'), true),
-                new Field(`${savedEmotes.channelRules} Rules channel`, (guild.rulesChannel ? guild.rulesChannel : 'None'), true),
-                new Field(`${savedEmotes.channelText} Text channels`, GetChannelCount('text'), true),
-                new Field(`${savedEmotes.channelVoice} Voice channels`, GetChannelCount('voice'), true),
-                new Field(`${savedEmotes.channelAnnounce} Announcement channels`, GetChannelCount('news'), true),
-                new Field(`${savedEmotes.channelStore} Store channels`, GetChannelCount('store'), true),
-                new Field(`${savedEmotes.channelAFK} AFK Channel`, (guild.afkChannel ? guild.afkChannel : 'None'), true),
-                new Field(`${savedEmotes.channelAFK} AFK Timeout`, (guild.afkTimeout / 60).toString() + " minutes", true)
+                new EmbedField(`${savedEmotes.channelIcon} Channel count`, guild.channels.cache.size, true),
+                new EmbedField(`${savedEmotes.channelCategory} Categories`, GetChannelCount('category'), true),
+                new EmbedField(`${savedEmotes.channelRules} Rules channel`, (guild.rulesChannel ? guild.rulesChannel : 'None'), true),
+                new EmbedField(`${savedEmotes.channelText} Text channels`, GetChannelCount('text'), true),
+                new EmbedField(`${savedEmotes.channelVoice} Voice channels`, GetChannelCount('voice'), true),
+                new EmbedField(`${savedEmotes.channelAnnounce} Announcement channels`, GetChannelCount('news'), true),
+                new EmbedField(`${savedEmotes.channelStore} Store channels`, GetChannelCount('store'), true),
+                new EmbedField(`${savedEmotes.channelAFK} AFK Channel`, (guild.afkChannel ? guild.afkChannel : 'None'), true),
+                new EmbedField(`${savedEmotes.channelAFK} AFK Timeout`, (guild.afkTimeout / 60).toString() + " minutes", true)
             ])
         //#endregion
 
@@ -242,12 +242,4 @@ function SendFeatures(message, serverGuild) {
 /**@param {Guild} guild*/
 async function GetPGuildColor(guild) {
     return PinguGuild.GetPClient(guild.client, await PinguGuild.GetPGuild(guild)).embedColor;
-}
-
-class Field {
-    constructor(name, value, inline) {
-        this.name = name;
-        this.value = value;
-        this.inline = inline;
-    }
 }

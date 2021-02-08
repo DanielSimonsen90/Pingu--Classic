@@ -23,7 +23,6 @@ module.exports = {
 
         if (user == client.user) return;
         ReactionRoleUser(client, reaction, user);
-        PlayPauseRequest(client, reaction, user);
     }
 }
 
@@ -32,7 +31,7 @@ module.exports = {
  * @param {User} user*/
 function IsErrorMessage(client, reaction, user) {
     if (reaction.emoji.name != 'Checkmark' || //Emote is :Checkmark:
-        reaction.message.channel.name != 'error-log' || //Channel is #error-log
+        reaction.message.channel.name != 'error-log-⚠' || //Channel is #error-log
         reaction.message.guild.id != PinguLibrary.SavedServers.PinguSupport(client).id || //Server is Pingu Support
         client.user.id != reaction.message.author.id || //Message author is Client
         reaction.me) //Client didn't react
@@ -63,16 +62,4 @@ async function ReactionRoleUser(client, reaction, user) {
         }
 
     } catch (err) { PinguLibrary.errorLog(client, `${module.exports.name} error`, null, err); }
-}
-/**@param {Client} client
- * @param {MessageReaction} reaction
- * @param {User} user*/
-async function PlayPauseRequest(client, reaction, user) {
-    if (!['⏸️', '▶️'].includes(reaction.emoji.name)) return;
-
-    let queue = Queue.get(reaction.message.guild && reaction.message.guild.id);
-    if (!queue) return;
-
-    let pauseRequest = reaction.emoji.name == '⏸️';
-    queue.pauseResume(reaction.message, pauseRequest);
 }

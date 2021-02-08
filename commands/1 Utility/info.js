@@ -62,6 +62,7 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
         let pgProps = Object.keys(pg)
             .sort((a, b) => ['welcomeChannel', 'guildOwner', 'name'].includes(a) ? -2 : a > b ? 1 : -1)
             .filter(v => !['_id', '__v'].includes(v));
+        pgProps.push('musicQueue');
 
         for (var item of pgProps) {
             if (prop != item && (prop != 'all' || ['welcomeChannel', 'guildOwner'].includes(item))) continue;

@@ -612,7 +612,7 @@ export class PinguLibrary {
 
     //#region Log Channels
     public static async errorLog(client: Client, message: string, messageContent?: string, err?: Error) {
-        var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log-⚠️');
+        var errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log-⚠');
         if (!errorlogChannel) return this.DanhoDM(client, 'Unable to find #error-log-⚠️ in Pingu Support, https://discord.gg/gbxRV4Ekvh');
 
         console.error(getErrorMessage(message.includes('`') ? message.replace('`', ' ') : message, messageContent, err));
@@ -1148,6 +1148,8 @@ export class Queue implements IMuisc {
         if (!this.playing && pauseRequest) return message.channel.send(`Music is already paused!`)
         else if (this.playing && !pauseRequest) return message.channel.send(`Music is already resumed!`)
 
+        if (!this.connection.dispatcher) return message.channel.send(`I'm not playing anything!`);
+
         if (pauseRequest) this.connection.dispatcher.pause();
         else this.connection.dispatcher.resume();
 
@@ -1155,8 +1157,10 @@ export class Queue implements IMuisc {
         let react = async (msg: Message) => {
             if (!(msg && msg.embeds[0] && msg.embeds[0].title.startsWith('Now playing:'))) return false;
 
+            const { ReactControlPanel } = require('./commands/2 Fun/music');
+
             await msg.reactions.removeAll();
-            await msg.react(pauseRequest ? '▶️' : '⏸️');
+            await ReactControlPanel(msg, this, pauseRequest);
             return true;
         }
 

@@ -838,7 +838,7 @@ var PinguLibrary = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log-⚠️');
+                        errorlogChannel = this.getChannel(client, this.SavedServers.PinguSupport(client).id, 'error-log-⚠');
                         if (!errorlogChannel)
                             return [2 /*return*/, this.DanhoDM(client, 'Unable to find #error-log-⚠️ in Pingu Support, https://discord.gg/gbxRV4Ekvh')];
                         console.error(getErrorMessage(message.includes('`') ? message.replace('`', ' ') : message, messageContent, err));
@@ -1420,6 +1420,8 @@ var Queue = /** @class */ (function () {
                             return [2 /*return*/, message.channel.send("Music is already paused!")];
                         else if (this.playing && !pauseRequest)
                             return [2 /*return*/, message.channel.send("Music is already resumed!")];
+                        if (!this.connection.dispatcher)
+                            return [2 /*return*/, message.channel.send("I'm not playing anything!")];
                         if (pauseRequest)
                             this.connection.dispatcher.pause();
                         else
@@ -1428,15 +1430,17 @@ var Queue = /** @class */ (function () {
                     case 1:
                         lastMessage = (_a.sent()).first();
                         react = function (msg) { return __awaiter(_this, void 0, void 0, function () {
+                            var ReactControlPanel;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
                                         if (!(msg && msg.embeds[0] && msg.embeds[0].title.startsWith('Now playing:')))
                                             return [2 /*return*/, false];
+                                        ReactControlPanel = require('./commands/2 Fun/music').ReactControlPanel;
                                         return [4 /*yield*/, msg.reactions.removeAll()];
                                     case 1:
                                         _a.sent();
-                                        return [4 /*yield*/, msg.react(pauseRequest ? '▶️' : '⏸️')];
+                                        return [4 /*yield*/, ReactControlPanel(msg, this, pauseRequest)];
                                     case 2:
                                         _a.sent();
                                         return [2 /*return*/, true];

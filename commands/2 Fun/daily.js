@@ -25,17 +25,17 @@ module.exports = {
         let endsAt = new Date(nextClaim.endsAt);
         let lastClaimDate = new Date(lastClaim);
 
-        daily.nextClaim = new TimeLeftObject(now, endsAt);
+        nextClaim = new TimeLeftObject(now, endsAt);
 
-        PinguUser.UpdatePUser(message.client, { daily: pAuthor.daily }, pAuthor, "daily",
+        PinguUser.UpdatePUser(message.client, { daily }, pAuthor, "daily",
             `Successfully updated **${message.author.tag}**'s daily endsAt.`,
             `Failed updating **${message.author.tag}**'s daily endsAt`
         );
 
         let hourDiff = (now.getDate() > lastClaimDate.getDate() ? 24 : 0) - now.getHours() - lastClaimDate.getHours();
 
-        if (daily.nextClaim.hours < timeBetweenClaims && daily.nextClaim.days > -1)
-            return message.channel.send(`You've already claimed your daily! Come back in ${daily.nextClaim.toString()} (**${endsAt.toLocaleTimeString()}**, **${endsAt.toLocaleDateString().replace('.', '/').replace('.', '/')}**)`);
+        if (nextClaim.toString())
+            return message.channel.send(`You've already claimed your daily! Come back in ${nextClaim.toString()} (**${endsAt.toLocaleTimeString('da-DK')}**, **${endsAt.toLocaleDateString('da-DK')}**)`);
         else if (daily.nextClaim.hours + 36 > hourDiff)
             return ClaimDaily(daily.streak += 1);
         return ClaimDaily(1);

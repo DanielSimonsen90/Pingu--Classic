@@ -1,4 +1,4 @@
-//#region Variables
+﻿//#region Variables
 const { Client, Collection, Guild, MessageEmbed, GuildAuditLogsEntry } = require('discord.js'),
     { CategoryNames } = require('./commands/4 DevOnly/update'),
     { PinguLibrary, Error, DiscordPermissions, PinguGuild, PinguEvents } = require('./PinguPackage'),
@@ -155,8 +155,8 @@ async function HandleEvent(path, parameters) {
         try { await SendToLog(); } catch (err) { PinguLibrary.errorLog(client, `${eventName}.setContent`, null, new Error(err)); throw `setContent`; }
     }
     catch (cause) {
-        let errorLogChannel = PinguLibrary.getChannel(client, PinguLibrary.SavedServers.PinguSupport(client).id, 'error-log');
-        if (errorLogChannel) return errorLogChannel.send("```\n" + `[Cause: ${cause}]\n` + JSON.stringify(parameters) + "\n```")
+        let errorLogChannel = PinguLibrary.getChannel(client, PinguLibrary.SavedServers.PinguSupport(client).id, 'error-log-⚠');
+        if (errorLogChannel) return errorLogChannel.send("```\n" + `[Cause: ${cause}]\n` + JSON.stringify(parameters, null, 2) + "\n```")
             .then(sent => sent.react(PinguLibrary.SavedServers.DanhoMisc(client).emojis.cache.find(e => e.name == 'Checkmark')));
     }
 
@@ -178,7 +178,7 @@ async function HandleEvent(path, parameters) {
         if (specialEvents.includes(event.name)) emitAssociator = await GetFromAuditLog();
 
         if (emitAssociator == 'Unknown') PinguLibrary.errorLog(client, `Event parameter for ${event.name} was not recognized!`);
-        if (parameters.message && ['event-log', 'ping-log', 'console-log'].includes(parameters.message.channel.name)) return;
+        if (parameters.message && ['event-log-📹', 'ping-log-🏓', 'console-log-📝'].includes(parameters.message.channel.name)) return;
         let embed = await CreateEmbed();
         if (embed) return await PinguLibrary.eventLog(client, embed);
 

@@ -11,6 +11,6 @@ module.exports = {
     permissions: [DiscordPermissions.SEND_MESSAGES],
     /**@param {{message: Message}}*/
     execute({ message }) {
-        message.channel.send(`Currently running version ${require('../../config.json').version}`)
+        message.channel.send(`Currently running version **${require('../../config.json').version}**`)
     }
 }

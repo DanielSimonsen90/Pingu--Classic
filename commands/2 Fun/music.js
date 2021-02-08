@@ -1,8 +1,8 @@
-﻿const { Message, MessageEmbed, VoiceChannel } = require('discord.js'),
+﻿const { Message, MessageEmbed, VoiceChannel, MessageReaction, User, TextChannel } = require('discord.js'),
     ytdl = require('ytdl-core'),
     YouTube = require('simple-youtube-api'),
     { youtube_api } = require('../../config.json');
-const { PinguGuild, Queue, Song, PinguLibrary, PClient, DiscordPermissions, EmbedField } = require('../../PinguPackage');
+const { PinguGuild, Queue, Song, PinguLibrary, PClient, DiscordPermissions } = require('../../PinguPackage');
 var youTube = new YouTube(youtube_api), commandName = "", ms = require('ms');
 
 
@@ -32,8 +32,8 @@ module.exports = {
         { name: "shuffle", alias: "", cmdHandler: HandleShuffle }
     ],
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.SPEAK],
-    /**@param {{message: Message, args: string[], pGuild: PinguGuild}}*/
-    async execute({ message, args, pGuild }) {
+    /**@param {{message: Message, args: string[]}}*/
+    async execute({ message, args }) {
         const voiceChannel = message.member.voice.channel,
             PermCheck = PermissionCheck(message, voiceChannel);
         if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
@@ -62,6 +62,52 @@ module.exports = {
             HandleVolume(message, queue, args[0]);
         else command.cmdHandler(message, queue, args);
     },
+    /**@param {Message} message
+     * @param {Queue} queue
+     * @param {boolean} pauseRequest*/
+    async ReactControlPanel(message, queue, pauseRequest) {
+        await (async function ReactEmojis() {
+            await message.react('🔀')
+            await message.react('⏮️');
+            await message.react(pauseRequest ? '▶️' : '⏸️')
+            await message.react('⏹️');
+            await message.react('⏭️');
+            await message.react('🔁');
+            await message.react('🔂');
+            await message.react('🇶');
+            await message.react('🤔');
+        })();
+
+        /**@param {MessageReaction} reaction
+         * @param {User} user*/
+        const filter = (_, user) =>
+            message.channel.id == queue.logChannel.id && //Reaction message came from logChannel
+            message.guild.member(user).voice.channel.id == queue.voiceChannel.id && //Reactor is in queue's VC
+            !user.bot; //Not the penguin
+
+        try {
+            message.createReactionCollector(filter, { time: queue.currentSong.lengthMS })
+                .on('collect', async (reaction, user) => {
+                    if (!user.bot) reaction.users.remove(user);
+
+                    let response = await (function getResponse() {
+                        switch (reaction.emoji.name) {
+                            case '🔀': return HandleShuffle(message, queue);
+                            case '⏮️': return HandleRestart(message, queue, ["song"]);
+                            case '⏸️': case '▶️': return HandlePauseResume(message, queue, reaction.emoji.name == '⏸️');
+                            case '⏹️': return HandleStop(message, queue);
+                            case '⏭️': return HandleSkip(message, queue);
+                            case '🔁': return HandleLoop(message, queue, ['queue']);
+                            case '🔂': return HandleLoop(message, queue, ['song']);
+                            case '🇶': HandleQueue(message, queue); return null;
+                            case '🤔': return HandleNowPlaying(message, queue);
+                            default: return null;
+                        }
+                    })();
+                    if (response) response.delete({ timeout: 5000 });
+                })
+        } catch { /*Null checking cus I cant be bothered to deal with in if-statements*/ }
+    }
 };
 
 /**@param {Message} message 
@@ -208,15 +254,15 @@ async function HandlePlay(message, args, voiceChannel, queue) {
  * @param {Queue} queue
  * @param {string[]} args*/
 async function HandlePlaySkip(message, queue, args) {
-    var skippingSong = queue.songs[queue.index];
+    var skippingSong = queue.currentSong;
 
     await HandlePlay(message, args, queue.voiceChannel, queue);
     await HandleMove(message, queue, [queue.songs.length - 1, queue.index + 1]);
     await HandleSkip(message, queue);
 
-    return queue.AnnounceMessage(message, 
-        `Skipped **${skippingSong.title}** to play **${queue.songs[queue.index].title}**`,
-        `${message.member.displayName} skipped **${skippingSong.title}** to play **${queue.songs[0].title}**.`
+    return queue.AnnounceMessage(message,
+        `Skipped **${skippingSong.title}** to play **${queue.currentSong.title}**`,
+        `**${message.member.displayName}** skipped **${skippingSong.title}** to play **${queue.currentSong.title}**.`
     );
 }
 /**@param {Message} message
@@ -228,7 +274,7 @@ async function HandleRemove(message, queue, args) {
 
     var item = args[0], songToRemove;
     if (!isNaN(parseInt(item))) {
-        var index = parseInt(item) + 1;
+        var index = parseInt(item) - 1;
 
         if (queue.songs.length < index || index < 0) return message.channel.send(`That number is too ${(index < 0 ? 'low' : 'high')}!`);
         songToRemove = queue.songs[index];
@@ -238,13 +284,14 @@ async function HandleRemove(message, queue, args) {
         if (!queue.includes(item)) return message.channel.send(`I couldn't find a match!`);
         songToRemove = queue.find(item);
     }
+    if (!songToRemove) return;
     queue.remove(songToRemove);
 
     queue.Update(message, "HandleRemove",
         `Removed ${songToRemove.title} from **${message.guild.name}**'s queue.`
     );
 
-    return queue.AnnounceMessage(message, 
+    return queue.AnnounceMessage(message,
         `Removed ${songToRemove.title} from queue.`,
         `${message.author.username} removed ${songToRemove.title} from queue.`
     );
@@ -256,7 +303,7 @@ async function HandleRemove(message, queue, args) {
 async function HandleStop(message, queue) {
     if (!queue.playing) return message.channel.send(`The music is already stopped!`);
 
-    await queue.AnnounceMessage(message, 
+    let stopped = await queue.AnnounceMessage(message,
         `Stopped!`, `${message.member.displayName} stopped the radio!`
     );
 
@@ -273,9 +320,10 @@ async function HandleStop(message, queue) {
 
     await ResetClient(message);
 
-    return await queue.Update(message, "HandleStop",
+    await queue.Update(message, "HandleStop",
         `Reset **${message.guild.name}**'s queue`
     );
+    return stopped;
 }
 /**Executes when author sends *music skip
  * @param {Message} message
@@ -283,21 +331,23 @@ async function HandleStop(message, queue) {
 async function HandleSkip(message, queue) {
     queue.connection.dispatcher.end();
 
+    await queue.Update(message, "HandleSkip",
+        `Updated queue after ${message.author.username} skipped.`
+    );
+
     if (!message.content.includes("playskip") && !message.content.includes("ps"))
-        queue.AnnounceMessage(message, 
+        return queue.AnnounceMessage(message,
             "Skipped!",
             `Skipped, requested by **${message.guild.member(message.author).displayName}**.`
         );
-
-    return await queue.Update(message, "HandleSkip",
-        `Updated queue after ${message.author.username} skipped.`
-    );
 }
 /**Executes when author sends *music np
  * @param {Message} message
  * @param {Queue} queue*/
 async function HandleNowPlaying(message, queue) {
-    return message.channel.send(await queue.NowPlayingEmbed(message))
+    let sent = await message.channel.send(await queue.NowPlayingEmbed(message));
+    module.exports.ReactControlPanel(sent, queue, !queue.playing);
+    return sent;
 }
 /**Executes when author sends *music volume
  * @param {Message} message 
@@ -310,9 +360,9 @@ async function HandleVolume(message, queue, newVolume) {
 
     queue.connection.dispatcher.setVolumeLogarithmic(newVolume / 5);
     const previousVolume = currentSong.volume;
-    currentSong.volume = parseFloat(newVolume);
+    currentSong.volume = parseFloat(newVolume.replace(',', '.'));
 
-    queue.AnnounceMessage(message, 
+    queue.AnnounceMessage(message,
         `Volumed changed from **${previousVolume}** to **${newVolume}**.`,
         `Volumed changed from **${previousVolume}** to **${newVolume}** by ${message.member.displayName}`
     );
@@ -329,16 +379,22 @@ async function HandleQueue(message, queue) {
     let pGuildClient = PinguGuild.GetPClient(message.client, pGuild);
 
     const embed = new MessageEmbed()
-        .setTitle(`Queue for ${queue.voiceChannel.name}`)
+        .setTitle(`Queue for ${queue.voiceChannel.name}${(queue.loop ? ' [**LOOPED**]' : '')}`)
         .setThumbnail(queue.currentSong.thumbnail)
-        .setColor(pGuildClient.embedColor);
+        .setColor(pGuildClient.embedColor)
+        .setFooter(`Queue looping: ${queue.loop ? 'Yes' : 'No'} | Song looping: ${queue.currentSong.loop ? 'Yes' : 'No'}`)
 
     try {
-        for (var i = queue.index; i < queue.songs.length || i < 10 && queue.songs.length > 10; i++) {
+        let loopIndex = 0;
+        for (var i = queue.index; loopIndex < queue.songs.length || loopIndex < 10 && queue.songs.length > 10; i++) {
+            if (i == queue.songs.length)
+                if (queue.loop) i = 0;
+                else break;
+
             let indexSong = queue.songs[i];
 
             if (!indexSong.endsAt)
-                indexSong.endsAt = new Date(queue.songs[i - 1].endsAt.getTime() + indexSong.lengthMS);
+                indexSong.endsAt = new Date(queue.songs[(i - 1 > -1 ? i - 1 : queue.songs.length - 1 - i)].endsAt.getTime() + indexSong.lengthMS);
 
             let timeLeft = indexSong.getTimeLeft();
 
@@ -348,9 +404,16 @@ async function HandleQueue(message, queue) {
             }
 
             embed.addField(
-                `[${i + 1}]: ${indexSong.title}`,
-                `Requested by <@${indexSong.requestedBy._id}> | Time ${(i == queue.index ? `left: **${formatTime()}**/**${indexSong.length}**` : `until played: **${formatTime()}**`)}`
+                `[${i + 1}]: ${indexSong.title}${(indexSong.loop ? ' | [LOOPED]' : "")}`,
+                `Requested by <@${indexSong.requestedBy._id}> | Time ${(
+                    i == queue.index ?
+                        `left: **${formatTime()}**/**${indexSong.length}**` :
+                        `until played: **${formatTime()}**`
+                )}`
             );
+            loopIndex++;
+
+            if (indexSong.loop) break;
         }
     }
     catch (err) {
@@ -362,19 +425,34 @@ async function HandleQueue(message, queue) {
         queue.songs[i].endsAt = null;
     }
 
-    return message.channel.send(embed);
+    let sent = await message.channel.send(embed);
+    await sent.react('🗑️');
+
+    /**@param {MessageReaction} reaction
+     * @param {User} user*/
+    const filter = (reaction, user) =>
+        message.channel.id == queue.logChannel.id && //Reaction message came from logChannel
+        message.guild.member(user).voice.channel.id == queue.voiceChannel.id && //Reactor is in queue's VC
+        !user.bot && //Not the penguin
+        reaction.emoji.name == '🗑️'; //Must be bin
+
+    let collector = sent.createReactionCollector(filter);
+    collector.on('collect', () => collector.stop())
+    collector.on('end', _ => sent.delete());
+    return sent;
 }
 /**Executes when author sends *music pause or *music resume
  * @param {Message} message
  * @param {Queue} queue
  * @param {boolean} pauseRequest*/
 async function HandlePauseResume(message, queue, pauseRequest) {
-    let sent = await queue.pauseResume();
-    if (sent) return;
+    let sent = await queue.pauseResume(message, pauseRequest);
 
     queue.Update(message, "HandlePauseResume",
         `${(queue.playing ? "Resumed" : "Paused")} **${message.guild.name}**'s queue.`
     );
+
+    return sent;
 }
 /**Executes when author sends *music move
  * @param {Message} message
@@ -392,8 +470,8 @@ async function HandleMove(message, queue, args) {
     else if (newSongPosition > queue.songs.length) newSongPosition = queue.songs.length;
 
     if (!message.content.includes('playskip'))
-        queue.AnnounceMessage(message, 
-            `Moved **${queue.songs[songIndexToMove - 1].title}** from position **${songIndexToMove - 1}** to **${newSongPosition - 1}**.`,
+        queue.AnnounceMessage(message,
+            `Moved **${queue.songs[newSongPosition].title}** from position **${songIndexToMove}** to **${newSongPosition}**.`,
             `**${message.author.tag}** moved **${queue.songs[songIndexToMove - 1].title}** from position **${songIndexToMove - 1}** to **${newSongPosition - 1}**.`
         );
 
@@ -412,30 +490,30 @@ async function HandleLoop(message, queue, args) {
     if (loopType == 'queue') queue.loop = !queue.loop;
     else queue.songs[queue.index].loop = !queue.songs[queue.index].loop;
 
-    message.channel.send(`${(looping ? `Looping` : `Unlooped`)} ${loopType}!`);
-
     await queue.Update(message, "HandleLoop",
         `Updated loop (${looping}) for ${loopType}`
     );
+
+    return queue.AnnounceMessage(message, `${(looping ? `Looping` : `Unlooped`)} ${loopType}!`);
 }
 /**@param {Message} message
  * @param {Queue} queue
  * @param {string[]} args*/
 async function HandleRestart(message, queue, args) {
-    let restartType = args[0] && args[0] == 'queue' ? 'queue' : 'song';
-    message.channel.send(`Restarting ${restartType}!`)
+    let restartType = args[0] && args[0] == 'queue' && new Date(Date.now() + 10000) < queue.currentSong.lengthMS ? 'queue' : 'song';
     queue.index = restartType == 'queue' ? 0 : queue.index;
 
     await queue.Update(message, `HandleRestart`,
         `Successfully saved new indexes for restarting`
     );
 
-    return Play(message, queue.songs[queue.index], queue);
+    Play(message, queue.currentSong, queue);
+
+    return message.channel.send(`Restarting ${restartType}!`)
 }
 /**@param {Message} message
- * @param {Queue} queue
- * @param {string[]} args*/
-async function HandleShuffle(message, queue, args) {
+ * @param {Queue} queue*/
+async function HandleShuffle(message, queue) {
     let queueSongs = queue.songs.map(v => v._id != queue.songs[queue.index]._id && v).filter(v => v);
 
     for (var i = 0; i < Math.round(Math.random() * queue.songs.length); i++) {
@@ -449,7 +527,7 @@ async function HandleShuffle(message, queue, args) {
         `Successfully shuffled **${queue.voiceChannel.name}**'s queue`
     );
 
-    return queue.AnnounceMessage(message, 
+    return queue.AnnounceMessage(message,
         `Shuffled!`,
         `**${message.author.tag}** shuffled the queue!`
     );
@@ -482,23 +560,22 @@ async function Play(message, song, queue) {
     var streamItem = ytdl(song.link, { filter: 'audioonly' });
 
     queue.logChannel = message.guild.channels.cache.get(queue.logChannel.id);
-    let lastMessage = (await queue.logChannel.messages.fetch({ after: message.id })).first();
 
     queue.connection.play(streamItem)
         .on('start', async () => {
-            if (song.volume == -1) song.volume = queue.volume;
-            queue.volume = song.volume;
-
-            song.play();
-
             //Deafen yourself
             if (!message.guild.me.voice.selfDeaf) message.guild.me.voice.setSelfDeaf(true);
 
+            //Set volume
+            if (song.volume == -1) song.volume = queue.volume;
+            queue.volume = song.volume;
+
+            //Play song
+            song.play();
             PinguLibrary.consoleLog(message.client, `Start: ${song.title}`);
 
-            var requestedBy = message.guild.members.cache.find(m => m.id == song.requestedBy._id);
-
             //Change nickname to [<name> Radio] Pingu
+            var requestedBy = message.guild.members.cache.find(m => m.id == song.requestedBy._id);
             if (message.guild.me.permissions.has("CHANGE_NICKNAME")) {
                 message.guild.me.setNickname(`[${requestedBy.displayName} Radio] ${pGuildClient.displayName}`) //[Nickname Radio] Pingu
                     .catch(() => message.guild.me.setNickname(`[${requestedBy.username} Radio] ${pGuildClient.displayName}`) //[Username Radio] Pingu
@@ -512,9 +589,21 @@ async function Play(message, song, queue) {
             //Make embed to send
             let embed = await queue.NowPlayingEmbed(message)
 
+            //Did you already send an embed within 5 messages?
+            let lastMessage = (await queue.logChannel.messages.fetch({ after: message.id }))
+                .array()
+                .filter((_, i) => i <= 5)
+                .find(v =>
+                    v.embeds &&
+                    v.embeds[0] &&
+                    v.embeds[0].title &&
+                    v.embeds[0].title.startsWith('Now playing:')
+                );
+
             //If last message in logChannel was the "Now Playing" embed, edit that embed with the new one, else send embed
-            if (lastMessage && lastMessage.embeds[0] && lastMessage.embeds[0].title.startsWith('Now playing:')) lastMessage.edit(embed);
-            else message.channel.send(embed).then(sent => sent.react('⏸️'))
+            if (lastMessage && lastMessage.embeds[0] && lastMessage.embeds[0].title.startsWith('Now playing:'))
+                module.exports.ReactControlPanel(await lastMessage.edit(embed), queue, !queue.playing)
+            else message.channel.send(embed).then(sent => module.exports.ReactControlPanel(sent, queue, false))
 
             //Update queue
             queue.Update(message, "play.on",
@@ -527,21 +616,20 @@ async function Play(message, song, queue) {
             PinguLibrary.errorLog(message.client, "Voice connection error", message.content, err);
             queue.AnnounceMessage(message, `I had a voice connection error! I've notified my developers.`)
         })
-        .on('end', () => PinguLibrary.consoleLog(message.client, `End: ${song.title}`))
         .on('finish', async () => {
             PinguLibrary.consoleLog(message.client, `Finish: ${song.title}`);
             song.stop();
             queue = Queue.get(message.guild.id);
 
             (await message.channel.messages.fetch({ after: message.id }))
-                .filter(m => m.embeds[0] && m.embeds[0].title.startsWith('Now playing:'))
+                .filter(m => m.embeds[0] && m.embeds[0].title && m.embeds[0].title.startsWith('Now playing:'))
                 .forEach(async m => await m.reactions.removeAll());
 
-            if (queue.songs[queue.index] && !queue.songs[queue.index].loop) queue.index++;
+            if (queue.currentSong && !queue.currentSong.loop) queue.index++;
             if (queue.index == queue.songs.length && queue.loop) queue.index = 0;
 
             if (!["stop", "st"].includes(commandName))
-                Play(message, queue.songs[queue.index], queue);
+                Play(message, queue.currentSong, queue);
         })
         .setVolumeLogarithmic(song.volume == -1 ? (queue.volume / 5) : (song.volume / 5))
 }
@@ -556,4 +644,3 @@ async function ResetClient(message) {
 
     await PinguLibrary.setActivity(message.client);
 }
-
