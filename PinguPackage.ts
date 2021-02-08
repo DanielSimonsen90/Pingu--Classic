@@ -745,8 +745,8 @@ export class PinguLibrary {
         pingChannelSent.edit(latency + 'ms');
 
         //Get outages channel
-        let outages = this.getChannel(message.client, this.SavedServers.PinguSupport(message.client).id, "outages");
-        if (!outages) return this.errorLog(message.client, `Unable to find outages channel from LatencyCheck!`);
+        let outages = this.getChannel(message.client, this.SavedServers.PinguSupport(message.client).id, "outages-😵");
+        if (!outages) return this.errorLog(message.client, `Unable to find #outages-😵 channel from LatencyCheck!`);
 
         //Set up to find last Pingu message
         let outagesMessages = outages.messages.cache.array();

@@ -990,9 +990,9 @@ var PinguLibrary = /** @class */ (function () {
                         pingChannelSent = _a.sent();
                         latency = pingChannelSent.createdTimestamp - message.createdTimestamp;
                         pingChannelSent.edit(latency + 'ms');
-                        outages = this.getChannel(message.client, this.SavedServers.PinguSupport(message.client).id, "outages");
+                        outages = this.getChannel(message.client, this.SavedServers.PinguSupport(message.client).id, "outages-😵");
                         if (!outages)
-                            return [2 /*return*/, this.errorLog(message.client, "Unable to find outages channel from LatencyCheck!")];
+                            return [2 /*return*/, this.errorLog(message.client, "Unable to find #outages-\uD83D\uDE35 channel from LatencyCheck!")];
                         outagesMessages = outages.messages.cache.array();
                         outageMessagesCount = outagesMessages.length - 1;
                         //Find Pingu message
