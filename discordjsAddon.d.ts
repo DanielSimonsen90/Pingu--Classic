@@ -5,22 +5,6 @@ declare module 'discord.js Addons' {
         PermissionString, Presence, Role, User, VoiceState
     } from 'discord.js';
 
-    interface PinguCommandData {
-        name: string
-        description: string
-        usage: string
-        guildOnly: boolean
-        id: 1 | 2 | 3 | 4
-        examples: string[]
-        permissions: PermissionString[]
-        execute(params: {
-            message: Message,
-            args: string[],
-            pAuthor: import('./PinguPackage').PinguUser,
-            pGuild: import('./PinguPackage').PinguGuild,
-            pGuildClient: import('./PinguPackage').PClient
-        })
-    }
     export class PinguCommand {
         public name: string
         public description: string
@@ -29,6 +13,7 @@ declare module 'discord.js Addons' {
         public id: 1 | 2 | 3 | 4
         public examples: string[]
         public permissions: PermissionString[]
+        public aliases: string[]
         public execute(params: {
             message: Message,
             args: string[],

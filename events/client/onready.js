@@ -1,7 +1,7 @@
 const { Client, GuildChannel, TextChannel, Guild } = require("discord.js");
 const { PinguLibrary, PinguGuild } = require("../../PinguPackage");
 
-const type = 'ReactionRole' || 'Giveaway' || 'Poll' || 'Suggestion';
+const CacheTypes = 'ReactionRole' || 'Giveaway' || 'Poll' || 'Suggestion';
 
 module.exports = {
     name: 'events: ready',
@@ -24,16 +24,16 @@ module.exports = {
 
 /**@param {Client} client*/
 function CacheFromDB(client) {
-    RunCache(client, 'ReactionRole', CacheReactionRoles);
-    RunCache(client, 'Poll', CacheActivePolls);
-    RunCache(client, 'Giveaway', CacheActiveGiveaways);
-    RunCache(client, 'Suggestion', CacheActiveSuggestions);
+    RunCache('ReactionRole', CacheReactionRoles);
+    RunCache('Poll', CacheActivePolls);
+    RunCache('Giveaway', CacheActiveGiveaways);
+    RunCache('Suggestion', CacheActiveSuggestions);
 
-    /**@param {type} type
+    /**@param {CacheTypes} type
      * @param {(client: Client) => void} callback*/
     function RunCache(type, callback) {
         try { callback(client); }
-        catch (err) { PinguLibrary.errorLog(client, `Unable to cache ${type} messages!`, null, err); }
+        catch (err) { PinguLibrary.errorLog(client, `[${type}] Unable to cache ${type} messages!`, null, err); }
     }
 
     function CacheReactionRoles() {
@@ -52,8 +52,8 @@ function CacheFromDB(client) {
 
                 //In .then function so it only logs if fetching is successful
                 channel.messages.fetch(rr.messageID)
-                    .then(() => OnFulfilled(client, 'ReactionRole', rr.messageID, channel, guild))
-                    .catch(() => OnError(client, 'ReactionRole', rr.messageID, channel, guild));
+                    .then(() => OnFulfilled('ReactionRole', rr.messageID, channel, guild))
+                    .catch(() => OnError('ReactionRole', rr.messageID, channel, guild));
             });
         })
     }
@@ -65,13 +65,15 @@ function CacheFromDB(client) {
             let { giveaways } = !pGuild.giveawayConfig.firstTimeExecuted && pGuild.giveawayConfig;
             if (!giveaways) return;
 
+            if (client.user.id == PinguLibrary.Clients.BetaID && pGuild.clients[0]) return; //Client is BETA but LIVE is in guild
+
             giveaways.forEach(giveaway => {
                 if (new Date(giveaway.endsAt).getTime() < Date.now()) return;
 
                 let channel = ToTextChannel(guild.channels.cache.get(giveaway.channel._id));
                 channel.messages.fetch(giveaway._id, false, true)
-                    .then(() => OnFulfilled(client, 'Giveaway', giveaway._id, channel, guild))
-                    .catch(() => OnError(client, 'Giveaway', giveaway._id, channel, guild));
+                    .then(() => OnFulfilled('Giveaway', giveaway._id, channel, guild))
+                    .catch(() => OnError('Giveaway', giveaway._id, channel, guild));
             })
         })
     }
@@ -83,13 +85,15 @@ function CacheFromDB(client) {
             let { polls } = !pGuild.pollConfig.firstTimeExecuted && pGuild.pollConfig;
             if (!polls) return;
 
+            if (client.user.id == PinguLibrary.Clients.BetaID && pGuild.clients[0]) return; //Client is BETA but LIVE is in guild
+
             polls.forEach(poll => {
                 if (new Date(poll.endsAt).getTime() < Date.now()) return;
 
                 let channel = ToTextChannel(guild.channels.cache.get(poll.channel._id));
                 channel.messages.fetch(poll._id, false, true)
-                    .then(() => OnFulfilled(client, 'Poll', poll._id, channel, guild))
-                    .catch(() => OnError(client, 'Poll', poll._id, channel, guild));
+                    .then(() => OnFulfilled('Poll', poll._id, channel, guild))
+                    .catch(() => OnError('Poll', poll._id, channel, guild));
             })
         })
     }
@@ -101,13 +105,15 @@ function CacheFromDB(client) {
             let { suggestions } = !pGuild.suggestionConfig.firstTimeExecuted && pGuild.suggestionConfig;
             if (!suggestions) return;
 
+            if (client.user.id == PinguLibrary.Clients.BetaID && pGuild.clients[0]) return; //Client is BETA but LIVE is in guild
+
             suggestions.forEach(suggestion => {
-                if (new Date(suggestion.endsAt).getTime() < Date.now()) return;
+                if (suggestion.approved != undefined) return;
 
                 let channel = ToTextChannel(guild.channels.cache.get(suggestion.channel._id));
                 channel.messages.fetch(suggestion._id, false, true)
-                    .then(() => OnFulfilled(client, 'Suggestion', suggestion._id, channel, guild))
-                    .catch(() => OnError(client, 'Suggestion', suggestion._id, channel, guild));
+                    .then(() => OnFulfilled('Suggestion', suggestion._id, channel, guild))
+                    .catch(() => OnError('Suggestion', suggestion._id, channel, guild));
             })
         })
     }
@@ -117,14 +123,14 @@ function CacheFromDB(client) {
     function ToTextChannel(guildChannel) {
         return guildChannel.isText() && guildChannel;
     }
-    /**@param {type} type
+    /**@param {CacheTypes} type
      * @param {string} id
      * @param {TextChannel} channel
      * @param {Guild} guild*/
     function OnFulfilled(type, id, channel, guild) {
         return PinguLibrary.consoleLog(client, `Cached ${type} "${id}" from #${channel.name}, ${guild.name}`)
     }
-    /**@param {type} type
+    /**@param {CacheTypes} type
      * @param {string} id
      * @param {TextChannel} channel
      * @param {Guild} guild*/

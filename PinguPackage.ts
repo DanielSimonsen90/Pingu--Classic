@@ -292,7 +292,7 @@ export class PinguGuild extends PItem {
         this.reactionRoles = new Array<ReactionRole>();
         this.giveawayConfig = new GiveawayConfig();
         this.pollConfig = new PollConfig();
-        this.suggestionConfig = new SuggestionConfig
+        this.suggestionConfig = new SuggestionConfig();
         if (guild.id == '405763731079823380')
             this.themeWinners = new Array<PGuildMember>();
     }
@@ -959,18 +959,18 @@ export class GiveawayConfig implements IGiveawayConfigOptions {
 
 //#region SuggestionConfig
 interface ISuggestionConfigOptions extends IDecidableConfigOptions {
-    verifyRole: PRole;
+    managerRole: PRole;
     suggestions: Suggestion[];
 }
 export class SuggestionConfig implements ISuggestionConfigOptions {
     constructor(options?: ISuggestionConfigOptions) {
         this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
-        this.verifyRole = options ? options.verifyRole : undefined;
+        this.managerRole = options ? options.managerRole : undefined;
         this.channel = options ? options.channel : undefined;
         if (options) this.suggestions = options.suggestions || [];
     }
 
-    public verifyRole: PRole;
+    public managerRole: PRole;
     public suggestions: Suggestion[];
     public channel: PChannel;
     public firstTimeExecuted: boolean;
@@ -981,11 +981,12 @@ export class SuggestionConfig implements ISuggestionConfigOptions {
 
 //#region Extends Decideables
 abstract class Decidable {
-    constructor(value: string, id: string, author: PGuildMember, channel: GuildChannel) {
+    constructor(value: string, id: string, author: PGuildMember, channel: GuildChannel, endsAt: Date) {
         this.value = value;
         this._id = id;
         this.author = author;
         this.channel = new PChannel(channel);
+        this.endsAt = endsAt;
     }
     public value: string
     public _id: string
@@ -1008,19 +1009,25 @@ export class Poll extends Decidable {
     }
 }
 export class Giveaway extends Decidable {
-    constructor(value: string, id: string, author: PGuildMember, channel: GuildChannel) {
-        super(value, id, author, channel);
+    constructor(value: string, id: string, author: PGuildMember, channel: GuildChannel, endsAt: Date) {
+        super(value, id, author, channel, endsAt);
         this.winners = new Array<PGuildMember>();
     }
     public winners: PGuildMember[]
 }
 export class Suggestion extends Decidable {
-    public Decide(approved: boolean, decidedBy: PGuildMember) {
-        this.approved = approved;
-        this.decidedBy = decidedBy;
+    constructor(value: string, id: string, suggester: PGuildMember, channel: GuildChannel) {
+        super(value, id, suggester, channel, null);
+        this.decidedBy = null;
+    }
+
+    public static Decide(suggestion: Suggestion, approved: boolean, decidedBy: PGuildMember) {
+        suggestion.approved = approved ? 'Approved' : 'Denied';
+        suggestion.decidedBy = decidedBy;
+        return suggestion;
     }
     public decidedBy: PGuildMember
-    public approved: boolean
+    public approved: string = "Undecided"
 }
 //#endregion
 

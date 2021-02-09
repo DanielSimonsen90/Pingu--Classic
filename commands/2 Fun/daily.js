@@ -35,7 +35,7 @@ module.exports = {
         let hourDiff = (now.getDate() > lastClaimDate.getDate() ? 24 : 0) - now.getHours() - lastClaimDate.getHours();
 
         if (nextClaim.toString())
-            return message.channel.send(`You've already claimed your daily! Come back in ${nextClaim.toString()} (**${endsAt.toLocaleTimeString('da-DK')}**, **${endsAt.toLocaleDateString('da-DK')}**)`);
+            return message.channel.send(`You've already claimed your daily! Come back in ${nextClaim.toString()} (**${endsAt.toLocaleTimeString('da-DK')}**, **${endsAt.toLocaleDateString('da-DK', { formatMatcher: "dd-MM-YY" })}**)`);
         else if (daily.nextClaim.hours + 36 > hourDiff)
             return ClaimDaily(daily.streak += 1);
         return ClaimDaily(1);

@@ -2,7 +2,6 @@
 const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error, PClient } = require("../../PinguPackage");
 const { musicCommands } = require('../../commands/2 Fun/music'), { HandleTell, ExecuteTellReply } = require('../../commands/2 Fun/tell');
 const { CheckRoleChange } = require("../guild/role/roleUpdate");
-const { Prefix, BetaPrefix } = require('../../config');
 
 module.exports = {
     name: 'events: message',
@@ -93,7 +92,7 @@ module.exports = {
 
         /**@param {Message} message*/
         async function fromEmotesChannel(message) {
-            if (!message.guild || message.author.bot || message.channel.name != 'emotes') return false;
+            if (!message.guild || message.author.bot || message.channel.name.includes('emote') || message.channel.name.includes('emoji')) return false;
 
             let permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.MANAGE_EMOJIS, DiscordPermissions.SEND_MESSAGES])
             if (permCheck != PinguLibrary.PermissionGranted) {
@@ -138,7 +137,7 @@ module.exports = {
                     `Successfully created PinguGuild for **${message.guild.name}**`,
                     `Failed creating PinguGuild for **${message.guild.name}**`
                 );
-                return Prefix;
+                return PinguLibrary.DefaultPrefix(client);
             }
             else if (pGuild.name != guild.name) {
                 client.emit('guildUpdate', {
@@ -174,16 +173,16 @@ module.exports = {
          * @param {string[]} args*/
         function AssignCommand(commandName, args) {
             let command = client.commands.get(commandName);
+            if (command) return command;
+
+            let commands = client.commands.array();
+            command = commands.find(cmd => cmd.aliases.includes(commandName))
 
             //If command assignment failed, assign command
-            if (!command) {
-                try {
-                    for (var number = 1; number < args.length || command; number++) {
-                        number += 1;
-                        commandName = args[number].toLowerCase();
-                        command = client.commands.get(commandName);
-                    }
-                } catch { return null; }
+            var i = 0;
+            while (!command && i < args.length) {
+                commandName = args[number].toLowerCase();
+                command = client.commands.get(commandName) || commands.find(cmd => cmd.aliases.includes(commandName));
             }
             return command;
         }

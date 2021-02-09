@@ -9,6 +9,7 @@ module.exports = {
     id: 1,
     examples: ["*reactionroles create #role-select 801055604222984223 :movie_camera: @Content Creators"],
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.ADD_REACTIONS, DiscordPermissions.MANAGE_ROLES],
+    alias: ["reactionrole", "rr"],
     /**@param {{message: Message, args: string[], pGuildClient: PClient, pGuild: PinguGuild}}*/
     async execute({ message, args, pGuildClient, pGuild }) {
         //Get command

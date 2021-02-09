@@ -96,7 +96,7 @@ module.exports = {
         let GiveawayMessage = await giveawayChannel.send(`**Giveawayy woo**`, embed);
         GiveawayMessage.react('🤞');
         PinguLibrary.consoleLog(message.client, `${GiveawayCreator.user.username} hosted a giveaway in ${message.guild.name}, #${message.channel.name}, giving "${Prize}" away`);
-        AddGiveawayToPGuilds(GiveawayMessage, Prize, GiveawayCreator, giveawayChannel);
+        AddGiveawayToPGuilds(GiveawayMessage, new Giveaway(Prize, GiveawayMessage.id, new PGuildMember(GiveawayCreator), giveawayChannel, EndsAt));
 
         const interval = setInterval(() => UpdateTimer(GiveawayMessage, EndsAt, GiveawayCreator), 5000);
         setTimeout(() => AfterTimeOut(message, GiveawayMessage, Prize, Winners, embed, GiveawayCreator, interval, null), ms(Time));
@@ -319,10 +319,7 @@ async function ListGiveaways(message) {
 
     var sent = await message.channel.send(Embeds[EmbedIndex])
     const Reactions = ['⬅️', '🗑️', '➡️', '🛑'];
-    await sent.react('⬅️');
-    await sent.react('🗑️');
-    await sent.react('➡️');
-    await sent.react('🛑');
+    Reactions.forEach(r => sent.react(r));
 
     const reactionCollector = sent.createReactionCollector((reaction, user) =>
         Reactions.includes(reaction.emoji.name) && user.id == message.author.id, { time: ms('20s') });
@@ -622,12 +619,10 @@ async function SaveGiveawayConfig(message, GiveawayHostRole, GiveawayWinnerRole,
     }
 }
 /**@param {Message} message 
- * @param {string} Prize 
- * @param {GuildMember} GiveawayCreator 
- * @param {TextChannel} GiveawayChannel*/
-async function AddGiveawayToPGuilds(message, Prize, GiveawayCreator, GiveawayChannel) {
+ * @param {Giveaway} giveaway*/
+async function AddGiveawayToPGuilds(message, giveaway) {
     const pGuild = await PinguGuild.GetPGuild(message.guild);
-    pGuild.giveawayConfig.giveaways.push(new Giveaway(Prize, message.id, new PGuildMember(GiveawayCreator), GiveawayChannel));
+    pGuild.giveawayConfig.giveaways.push(giveaway);
 
     return await UpdatePGuild(message.client, pGuild,
         `Added new giveaway to **${message.guild.name}**'s PinguGuild.`,

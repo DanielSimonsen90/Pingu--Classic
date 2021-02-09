@@ -49,10 +49,10 @@ module.exports = mongoose.model('PinguGuild', mongoose.Schema({
             approved: String
         }]
     },
-    suggestionsConfig: { ...DecidableConfig, 
+    suggestionConfig: { ...DecidableConfig, 
         verifyRole: PItem,
-        suggestion: [{ ...DecidableItem,
-            approved: Boolean,
+        suggestions: [{ ...DecidableItem,
+            approved: String,
             decidedBy: PItem
         }]
         

@@ -12,6 +12,17 @@ module.exports = {
             `Something went wrong when joining "**${guild.name}**" (${guild.id})!`
         );
 
+        guild.members.cache.forEach(async member => {
+            if (!await PinguUser.GetPUser(member.user)) {
+                PinguUser.WritePUser(client, member.user, module.exports.name,
+                    `Added **${member.user.tag}** to MongoDB`,
+                    `Failed to add **${member.user.tag}** to MongoDB`
+                );
+            }
+        })
+
+        if (!guild.owner) return;
+
         //Thank guild owner for adding Pingu
         let OwnerDM = await guild.owner.user.createDM();
         if (!OwnerDM) return PinguLibrary.errorLog(client, `Unable to create DM to ${guild.owner}!`);
@@ -26,13 +37,5 @@ module.exports = {
             .catch(err => PinguLibrary.errorLog(client, `Failed to send ${guild.owner} a DM`, null, err))
             .then(PinguLibrary.consoleLog(guild.client, `Sent ${guild.owner.user.tag} my "thank you" message.`));
 
-        guild.members.cache.forEach(async member => {
-            if (!await PinguUser.GetPUser(member.user)) {
-                PinguUser.WritePUser(client, member.user, module.exports.name,
-                    `Added **${member.user.tag}** to MongoDB`,
-                    `Failed to add **${member.user.tag}** to MongoDB`
-                );
-            }
-        })
     }
 }

@@ -350,7 +350,7 @@ var PinguGuild = /** @class */ (function (_super) {
         _this.reactionRoles = new Array();
         _this.giveawayConfig = new GiveawayConfig();
         _this.pollConfig = new PollConfig();
-        _this.suggestionConfig = new SuggestionConfig;
+        _this.suggestionConfig = new SuggestionConfig();
         if (guild.id == '405763731079823380')
             _this.themeWinners = new Array();
         return _this;
@@ -1244,7 +1244,7 @@ exports.GiveawayConfig = GiveawayConfig;
 var SuggestionConfig = /** @class */ (function () {
     function SuggestionConfig(options) {
         this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
-        this.verifyRole = options ? options.verifyRole : undefined;
+        this.managerRole = options ? options.managerRole : undefined;
         this.channel = options ? options.channel : undefined;
         if (options)
             this.suggestions = options.suggestions || [];
@@ -1256,11 +1256,12 @@ exports.SuggestionConfig = SuggestionConfig;
 //#endregion
 //#region Extends Decideables
 var Decidable = /** @class */ (function () {
-    function Decidable(value, id, author, channel) {
+    function Decidable(value, id, author, channel, endsAt) {
         this.value = value;
         this._id = id;
         this.author = author;
         this.channel = new PChannel(channel);
+        this.endsAt = endsAt;
     }
     return Decidable;
 }());
@@ -1282,8 +1283,8 @@ var Poll = /** @class */ (function (_super) {
 exports.Poll = Poll;
 var Giveaway = /** @class */ (function (_super) {
     __extends(Giveaway, _super);
-    function Giveaway(value, id, author, channel) {
-        var _this = _super.call(this, value, id, author, channel) || this;
+    function Giveaway(value, id, author, channel, endsAt) {
+        var _this = _super.call(this, value, id, author, channel, endsAt) || this;
         _this.winners = new Array();
         return _this;
     }
@@ -1292,12 +1293,16 @@ var Giveaway = /** @class */ (function (_super) {
 exports.Giveaway = Giveaway;
 var Suggestion = /** @class */ (function (_super) {
     __extends(Suggestion, _super);
-    function Suggestion() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    function Suggestion(value, id, suggester, channel) {
+        var _this = _super.call(this, value, id, suggester, channel, null) || this;
+        _this.approved = "Undecided";
+        _this.decidedBy = null;
+        return _this;
     }
-    Suggestion.prototype.Decide = function (approved, decidedBy) {
-        this.approved = approved;
-        this.decidedBy = decidedBy;
+    Suggestion.Decide = function (suggestion, approved, decidedBy) {
+        suggestion.approved = approved ? 'Approved' : 'Denied';
+        suggestion.decidedBy = decidedBy;
+        return suggestion;
     };
     return Suggestion;
 }(Decidable));
