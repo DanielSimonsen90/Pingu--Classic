@@ -41,7 +41,7 @@ module.exports = {
      * @param {{message: Message}}*/
     async execute(client, { message }) {
         //Log latency
-        try { PinguLibrary.LatencyCheck(message); }
+        try { PinguLibrary.latencyCheck(message); }
         catch (err) { PinguLibrary.errorLog(client, `LatencyCheck error`, message.content, err); }
 
         if (await fromEmotesChannel(message)) return;

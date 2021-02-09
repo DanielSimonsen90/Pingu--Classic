@@ -49,7 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Achievement = exports.Marry = exports.Daily = exports.ReactionRole = exports.Song = exports.Queue = exports.TimeLeftObject = exports.GiveawayConfig = exports.PollConfig = exports.Suggestion = exports.Giveaway = exports.Poll = exports.PinguEvents = exports.PinguLibrary = exports.PinguGuild = exports.PinguUser = exports.PMarry = exports.PQueue = exports.PClient = exports.PGuild = exports.PUser = exports.PChannel = exports.PRole = exports.PGuildMember = exports.PItem = exports.DiscordPermissions = exports.EmbedField = exports.Error = void 0;
+exports.Achievement = exports.Marry = exports.Daily = exports.ReactionRole = exports.Song = exports.Queue = exports.TimeLeftObject = exports.Suggestion = exports.Giveaway = exports.Poll = exports.SuggestionConfig = exports.GiveawayConfig = exports.PollConfig = exports.PinguEvents = exports.PinguLibrary = exports.PinguGuild = exports.PinguUser = exports.PMarry = exports.PQueue = exports.PClient = exports.PGuild = exports.PUser = exports.PChannel = exports.PRole = exports.PGuildMember = exports.PItem = exports.DiscordPermissions = exports.EmbedField = exports.Error = void 0;
 var discord_js_1 = require("discord.js");
 var mongoose = require("mongoose");
 var PinguGuildSchema = require("./MongoSchemas/PinguGuild");
@@ -350,7 +350,7 @@ var PinguGuild = /** @class */ (function (_super) {
         _this.reactionRoles = new Array();
         _this.giveawayConfig = new GiveawayConfig();
         _this.pollConfig = new PollConfig();
-        _this.suggestions = new Array();
+        _this.suggestionConfig = new SuggestionConfig;
         if (guild.id == '405763731079823380')
             _this.themeWinners = new Array();
         return _this;
@@ -974,7 +974,7 @@ var PinguLibrary = /** @class */ (function () {
             });
         });
     };
-    PinguLibrary.LatencyCheck = function (message) {
+    PinguLibrary.latencyCheck = function (message) {
         return __awaiter(this, void 0, void 0, function () {
             var pingChannel, pingChannelSent, latency, outages, outagesMessages, outageMessagesCount, i, lastPinguMessage, sendMessage, lastMessageArgs, lastLatencyExclaim, lastLatency;
             return __generator(this, function (_a) {
@@ -1217,6 +1217,44 @@ var PinguEvents = /** @class */ (function () {
     return PinguEvents;
 }());
 exports.PinguEvents = PinguEvents;
+var PollConfig = /** @class */ (function () {
+    function PollConfig(options) {
+        this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
+        this.pollRole = options ? options.pollRole : undefined;
+        this.channel = options ? options.channel : undefined;
+        if (options)
+            this.polls = options.polls;
+    }
+    return PollConfig;
+}());
+exports.PollConfig = PollConfig;
+var GiveawayConfig = /** @class */ (function () {
+    function GiveawayConfig(options) {
+        this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
+        this.allowSameWinner = options ? options.allowSameWinner : undefined;
+        this.hostRole = options ? options.hostRole : undefined;
+        this.winnerRole = options ? options.winnerRole : undefined;
+        this.channel = options ? options.channel : undefined;
+        if (options)
+            this.giveaways = options.giveaways;
+    }
+    return GiveawayConfig;
+}());
+exports.GiveawayConfig = GiveawayConfig;
+var SuggestionConfig = /** @class */ (function () {
+    function SuggestionConfig(options) {
+        this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
+        this.verifyRole = options ? options.verifyRole : undefined;
+        this.channel = options ? options.channel : undefined;
+        if (options)
+            this.suggestions = options.suggestions || [];
+    }
+    return SuggestionConfig;
+}());
+exports.SuggestionConfig = SuggestionConfig;
+//#endregion
+//#endregion
+//#region Extends Decideables
 var Decidable = /** @class */ (function () {
     function Decidable(value, id, author, channel) {
         this.value = value;
@@ -1226,7 +1264,6 @@ var Decidable = /** @class */ (function () {
     }
     return Decidable;
 }());
-//#region Extends Decideables
 var Poll = /** @class */ (function (_super) {
     __extends(Poll, _super);
     function Poll() {
@@ -1265,30 +1302,6 @@ var Suggestion = /** @class */ (function (_super) {
     return Suggestion;
 }(Decidable));
 exports.Suggestion = Suggestion;
-var PollConfig = /** @class */ (function () {
-    function PollConfig(options) {
-        this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
-        this.pollRole = options ? options.pollRole : undefined;
-        this.channel = options ? options.channel : undefined;
-        if (options)
-            this.polls = options.polls;
-    }
-    return PollConfig;
-}());
-exports.PollConfig = PollConfig;
-var GiveawayConfig = /** @class */ (function () {
-    function GiveawayConfig(options) {
-        this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
-        this.allowSameWinner = options ? options.allowSameWinner : undefined;
-        this.hostRole = options ? options.hostRole : undefined;
-        this.winnerRole = options ? options.winnerRole : undefined;
-        this.channel = options ? options.channel : undefined;
-        if (options)
-            this.giveaways = options.giveaways;
-    }
-    return GiveawayConfig;
-}());
-exports.GiveawayConfig = GiveawayConfig;
 //#endregion
 var TimeLeftObject = /** @class */ (function () {
     function TimeLeftObject(Now, EndsAt) {

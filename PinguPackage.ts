@@ -292,7 +292,7 @@ export class PinguGuild extends PItem {
         this.reactionRoles = new Array<ReactionRole>();
         this.giveawayConfig = new GiveawayConfig();
         this.pollConfig = new PollConfig();
-        this.suggestions = new Array<Suggestion>();
+        this.suggestionConfig = new SuggestionConfig
         if (guild.id == '405763731079823380')
             this.themeWinners = new Array<PGuildMember>();
     }
@@ -303,7 +303,7 @@ export class PinguGuild extends PItem {
     public reactionRoles: ReactionRole[];
     public giveawayConfig: GiveawayConfig
     public pollConfig: PollConfig
-    public suggestions: Suggestion[]
+    public suggestionConfig: SuggestionConfig
     public themeWinners: PGuildMember[]
 }
 export class PinguLibrary {
@@ -732,7 +732,7 @@ export class PinguLibrary {
             tellLogChannel.send(message as MessageEmbed)
         }
     }
-    public static async LatencyCheck(message: Message) {
+    public static async latencyCheck(message: Message) {
         //Get latency
         let pingChannel = this.getChannel(message.client, this.SavedServers.PinguSupport(message.client).id, "ping-log-🏓");
         if (!pingChannel) return this.DanhoDM(message.client, `Couldn't get #ping-log-🏓 channel in Pingu Support, https://discord.gg/gbxRV4Ekvh`)
@@ -906,55 +906,12 @@ export class PinguEvents {
 //#endregion
 
 //#region Decidable | Giveaway | Poll | Suggestion | TimeLeftObject
+
+//#region Decidable Configuration
 interface IDecidableConfigOptions {
     channel: PChannel;
     firstTimeExecuted: boolean;
 }
-abstract class Decidable implements IDecidableConfigOptions {
-    constructor(value: string, id: string, author: PGuildMember, channel: GuildChannel) {
-        this.value = value;
-        this._id = id;
-        this.author = author;
-        this.channel = new PChannel(channel);
-    }
-    public firstTimeExecuted: boolean
-    public value: string
-    public _id: string
-    public author: PGuildMember
-    public channel: PChannel
-}
-
-//#region Extends Decideables
-export class Poll extends Decidable {
-    public YesVotes: number
-    public NoVotes: number
-    public approved: string
-
-    public static Decide(poll: Poll, yesVotes: number, noVotes: number) {
-        poll.YesVotes = yesVotes;
-        poll.NoVotes = noVotes;
-        poll.approved =
-            poll.YesVotes > poll.NoVotes ? 'Yes' :
-                poll.NoVotes > poll.YesVotes ? 'No' : 'Undecided';
-        return poll;
-    }
-}
-export class Giveaway extends Decidable {
-    constructor(value: string, id: string, author: PGuildMember, channel: GuildChannel) {
-        super(value, id, author, channel);
-        this.winners = new Array<PGuildMember>();
-    }
-    public winners: PGuildMember[]
-}
-export class Suggestion extends Decidable {
-    public Decide(approved: boolean, decidedBy: PGuildMember) {
-        this.approved = approved;
-        this.decidedBy = decidedBy;
-    }
-    public decidedBy: PGuildMember
-    public approved: boolean
-}
-//#endregion
 
 //#region PollConfig
 interface IPollConfigOptions extends IDecidableConfigOptions {
@@ -997,6 +954,73 @@ export class GiveawayConfig implements IGiveawayConfigOptions {
     public giveaways: Giveaway[];
     public channel: PChannel;
     public firstTimeExecuted: boolean;
+}
+//#endregion
+
+//#region SuggestionConfig
+interface ISuggestionConfigOptions extends IDecidableConfigOptions {
+    verifyRole: PRole;
+    suggestions: Suggestion[];
+}
+export class SuggestionConfig implements ISuggestionConfigOptions {
+    constructor(options?: ISuggestionConfigOptions) {
+        this.firstTimeExecuted = options ? options.firstTimeExecuted : true;
+        this.verifyRole = options ? options.verifyRole : undefined;
+        this.channel = options ? options.channel : undefined;
+        if (options) this.suggestions = options.suggestions || [];
+    }
+
+    public verifyRole: PRole;
+    public suggestions: Suggestion[];
+    public channel: PChannel;
+    public firstTimeExecuted: boolean;
+}
+//#endregion
+
+//#endregion
+
+//#region Extends Decideables
+abstract class Decidable {
+    constructor(value: string, id: string, author: PGuildMember, channel: GuildChannel) {
+        this.value = value;
+        this._id = id;
+        this.author = author;
+        this.channel = new PChannel(channel);
+    }
+    public value: string
+    public _id: string
+    public author: PGuildMember
+    public channel: PChannel
+    public endsAt: Date
+}
+export class Poll extends Decidable {
+    public YesVotes: number
+    public NoVotes: number
+    public approved: string
+
+    public static Decide(poll: Poll, yesVotes: number, noVotes: number) {
+        poll.YesVotes = yesVotes;
+        poll.NoVotes = noVotes;
+        poll.approved =
+            poll.YesVotes > poll.NoVotes ? 'Yes' :
+                poll.NoVotes > poll.YesVotes ? 'No' : 'Undecided';
+        return poll;
+    }
+}
+export class Giveaway extends Decidable {
+    constructor(value: string, id: string, author: PGuildMember, channel: GuildChannel) {
+        super(value, id, author, channel);
+        this.winners = new Array<PGuildMember>();
+    }
+    public winners: PGuildMember[]
+}
+export class Suggestion extends Decidable {
+    public Decide(approved: boolean, decidedBy: PGuildMember) {
+        this.approved = approved;
+        this.decidedBy = decidedBy;
+    }
+    public decidedBy: PGuildMember
+    public approved: boolean
 }
 //#endregion
 

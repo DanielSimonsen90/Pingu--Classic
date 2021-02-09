@@ -4,11 +4,16 @@ const PItem = {
     _id: String,
     name: String
 };
-const Decidable = {
+const DecidableConfig = {
+    firstTimeExecuted: Boolean,
+    channel: PItem
+};
+const DecidableItem = {
     value: String,
     _id: String,
     author: PItem,
-    channel: PItem
+    channel: PItem,
+    endsAt: Date
 };
 
 module.exports = mongoose.model('PinguGuild', mongoose.Schema({
@@ -28,29 +33,29 @@ module.exports = mongoose.model('PinguGuild', mongoose.Schema({
         emoteName: String,
         pRole: PItem
     }],
-    giveawayConfig: {
-        firstTimeExecuted: Boolean,
+    giveawayConfig: { ...DecidableConfig,
         allowSameWinner: Boolean,
         hostRole: PItem,
         winnerRole: PItem,
-        giveaways: [Object.assign({
+        giveaways: [{ ...DecidableItem,
             winners: [PItem]
-        }, Decidable)],
-        channel: PItem
+        }],
     },
-    pollConfig: {
-        firstTimeExecuted: Boolean,
+    pollConfig: { ...DecidableConfig,
         pollsRole: PItem,
-        polls: [Object.assign({
+        polls: [{ ...DecidableItem, 
             YesVotes: Number,
             NoVotes: Number,
             approved: String
-        }, Decidable)],
-        channel: PItem
+        }]
     },
-    suggestions: [Object.assign({
-        decidedBy: PItem,
-        approved: Boolean
-    }, Decidable)],
+    suggestionsConfig: { ...DecidableConfig, 
+        verifyRole: PItem,
+        suggestion: [{ ...DecidableItem,
+            approved: Boolean,
+            decidedBy: PItem
+        }]
+        
+    },
     themeWinners: [PItem]
 }));
