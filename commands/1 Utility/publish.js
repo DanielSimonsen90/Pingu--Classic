@@ -1,5 +1,5 @@
 const { Message, TextChannel, NewsChannel } = require('discord.js');
-const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions } = require('../../PinguPackage');
+const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions } = require('PinguPackage');
 
 module.exports = {
     name: 'publish',

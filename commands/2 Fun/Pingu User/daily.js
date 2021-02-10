@@ -1,5 +1,5 @@
 const { Message, MessageEmbed } = require('discord.js');
-const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions, TimeLeftObject, PClient } = require('../../PinguPackage');
+const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions, TimeLeftObject, PClient } = require('PinguPackage');
 const timeBetweenClaims = 21;
 
 module.exports = {

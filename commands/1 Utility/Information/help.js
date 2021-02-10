@@ -1,7 +1,6 @@
-const { PinguGuild, PinguLibrary, PClient } = require('../../PinguPackage');
+const { PinguGuild, PinguLibrary, PClient } = require('PinguPackage');
 
-const { MessageEmbed, Message } = require('discord.js'),
-    { CategoryNames } = require('../4 DevOnly/update');
+const { MessageEmbed, Message } = require('discord.js');
 
 module.exports = {
     name: 'help',

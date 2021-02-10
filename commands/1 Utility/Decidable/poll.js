@@ -1,5 +1,5 @@
 ﻿const { Message, MessageEmbed, Role, GuildChannel, TextChannel, Client } = require('discord.js'),
-    { PinguGuild, Poll, PollConfig, PRole, TimeLeftObject, PGuildMember, PinguLibrary, DiscordPermissions, PChannel, PClient } = require('../../PinguPackage');
+    { PinguGuild, Poll, PollConfig, PRole, TimeLeftObject, PGuildMember, PinguLibrary, DiscordPermissions, PChannel, PClient } = require('PinguPackage');
 ms = require('ms');
 
 module.exports = {

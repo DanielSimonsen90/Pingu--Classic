@@ -1,5 +1,5 @@
 const { Client, GuildChannel, TextChannel, Guild } = require("discord.js");
-const { PinguLibrary, PinguGuild } = require("../../PinguPackage");
+const { PinguLibrary, PinguGuild } = require("PinguPackage");
 
 const CacheTypes = 'ReactionRole' || 'Giveaway' || 'Poll' || 'Suggestion';
 

@@ -1,6 +1,6 @@
 ﻿//#region Variables
 const { Client, Collection, Guild, MessageEmbed, GuildAuditLogsEntry } = require('discord.js'),
-    { PinguLibrary, Error, DiscordPermissions, PinguGuild, PinguEvents } = require('./PinguPackage'),
+    { PinguLibrary, Error, DiscordPermissions, PinguGuild, PinguEvents, config } = require('PinguPackage'),
     fs = require('fs'),
     client = new Client();
 client.commands = new Collection();
@@ -135,7 +135,7 @@ client.on('messageReactionRemoveAll', message => HandleEvent(`${MessageString}/$
 client.on('userUpdate', (preUser, user) => HandleEvent(`userUpdate`, { preUser, user })); //User updated
 
 /**@param {string} path
- * @param {import('discord.js Addons').PinguEventData} parameters*/
+ * @param {import('pingu-discord.js-addons').PinguEventData} parameters*/
 async function HandleEvent(path, parameters) {
     let pathArr = path.split('/');
     let eventName = pathArr[pathArr.length - 1];
@@ -268,5 +268,5 @@ async function HandleEvent(path, parameters) {
 }
 
 try { var { token } = require('../../PinguBetaToken.json'); /*throw null*/ }
-catch { token = require('./config.json').token; }
+catch { token = config.token; }
 finally { client.login(token); }

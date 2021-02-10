@@ -1,7 +1,6 @@
 const { Message, MessageEmbed, Permissions } = require('discord.js');
 const request = require('request');
-const config = require('../../config.json');
-const { PinguLibrary, PinguGuild, DiscordPermissions, PClient } = require('../../PinguPackage');
+const { PinguLibrary, PinguGuild, DiscordPermissions, PClient, config } = require('PinguPackage');
 
 module.exports = {
     name: 'gif',

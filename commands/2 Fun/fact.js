@@ -1,5 +1,5 @@
 const { MessageEmbed, Message } = require('discord.js');
-const { DiscordPermissions, PinguGuild, PClient, PinguLibrary } = require('../../PinguPackage');
+const { DiscordPermissions, PinguGuild, PClient, PinguLibrary } = require('PinguPackage');
 module.exports = {
     name: 'fact',
     cooldown: 5,

@@ -1,5 +1,5 @@
 const { Message, GuildChannel, TextChannel, GuildEmoji, Role, MessageEmbed} = require('discord.js');
-const { PinguLibrary, PinguGuild, DiscordPermissions, ReactionRole, PClient } = require('../../PinguPackage');
+const { PinguLibrary, PinguGuild, DiscordPermissions, ReactionRole, PClient } = require('PinguPackage');
 
 module.exports = {
     name: 'reactionroles',

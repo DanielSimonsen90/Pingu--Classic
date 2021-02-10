@@ -1,5 +1,5 @@
-﻿const { Channel, Client, Guild, GuildMember, MessageEmbed, Role, TextChannel, User, Message } = require('discord.js'),
-    { DiscordPermissions, Giveaway, GiveawayConfig, PChannel, PClient, PGuildMember, PRole, PinguLibrary, TimeLeftObject, PinguGuild } = require('../../PinguPackage'),
+﻿const { Channel, Client, Guild, GuildMember, MessageEmbed, Role, User, Message } = require('discord.js'),
+    { DiscordPermissions, Giveaway, GiveawayConfig, PChannel, PClient, PGuildMember, PRole, PinguLibrary, TimeLeftObject, PinguGuild } = require('PinguPackage'),
     ms = require('ms');
 
 module.exports = {

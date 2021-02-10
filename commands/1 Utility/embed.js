@@ -1,5 +1,5 @@
 ﻿const { Message, MessageEmbed, TextChannel, NewsChannel } = require('discord.js');
-const { PinguLibrary, DiscordPermissions, Error } = require('../../PinguPackage');
+const { PinguLibrary, DiscordPermissions, Error } = require('PinguPackage');
 
 module.exports = {
     name: 'embed',

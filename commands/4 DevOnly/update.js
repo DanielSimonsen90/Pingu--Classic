@@ -1,5 +1,5 @@
 ﻿const { Message } = require("discord.js");
-const { PinguLibrary, PinguGuild, DiscordPermissions, Error, PClient } = require("../../PinguPackage");
+const { PinguLibrary, DiscordPermissions, Error, PClient } = require("PinguPackage");
 
 module.exports = {
     name: 'update',

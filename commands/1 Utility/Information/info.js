@@ -1,7 +1,5 @@
 const { Message, MessageEmbed, Collection } = require('discord.js');
-const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions, PClient, EmbedField, Queue, TimeLeftObject, Marry } = require('../../PinguPackage');
-const daily = require('../2 Fun/daily');
-const serverinfo = require('./serverinfo');
+const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions, PClient, EmbedField, Queue, TimeLeftObject, Marry } = require('PinguPackage');
 
 const availableTypes = ['server', 'guild', 'user', 'bot', 'client'];
 

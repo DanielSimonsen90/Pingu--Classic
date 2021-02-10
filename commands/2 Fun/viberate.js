@@ -1,5 +1,5 @@
 const { Message } = require('discord.js');
-const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions } = require('../../PinguPackage');
+const { PinguGuild, PinguUser, DiscordPermissions } = require('PinguPackage');
 
 module.exports = {
     name: 'viberate',

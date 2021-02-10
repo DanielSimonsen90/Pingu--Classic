@@ -1,6 +1,6 @@
 const { Message, MessageEmbed, GuildMember, User } = require('discord.js');
 const { GetColor } = require('../../events/guild/presenceUpdate');
-const { PinguGuild, DiscordPermissions, PinguLibrary } = require('../../PinguPackage');
+const { DiscordPermissions, PinguLibrary } = require('PinguPackage');
 module.exports = {
     name: 'whois',
     cooldown: 5,

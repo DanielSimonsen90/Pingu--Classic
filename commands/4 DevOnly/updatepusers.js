@@ -1,6 +1,5 @@
 ﻿const { Message, MessageEmbed, Guild, User } = require("discord.js");
-const { PinguLibrary, PinguUser, PinguGuild } = require('../../PinguPackage');
-const fs = require('fs');
+const { PinguLibrary, PinguUser } = require('PinguPackage');
 
 module.exports = {
     name: 'updatepusers',

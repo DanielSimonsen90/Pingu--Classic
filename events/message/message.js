@@ -1,5 +1,5 @@
 ﻿const { Client, Guild, Message, MessageEmbed } = require("discord.js");
-const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error, PClient } = require("../../PinguPackage");
+const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error, PClient } = require("PinguPackage");
 const { musicCommands } = require('../../commands/2 Fun/music'), { HandleTell, ExecuteTellReply } = require('../../commands/2 Fun/tell');
 const { CheckRoleChange } = require("../guild/role/roleUpdate");
 
@@ -187,7 +187,7 @@ module.exports = {
             return command;
         }
         /**@param {Message} message
-         * @param {import('discord.js Addons').PinguCommand} command
+         * @param {import('pingu-discord.js-addons').PinguCommand} command
          * @returns {{value: boolean, message: string, type: "text" | "dm"}}*/
         function DecodeCommand(message, command) {
             let returnValue = {
@@ -227,7 +227,7 @@ module.exports = {
          * @param {string[]} args 
          * @param {string} Prefix 
          * @param {string} commandName 
-         * @param {import('discord.js Addons').PinguCommand} command*/
+         * @param {import('pingu-discord.js-addons').PinguCommand} command*/
         async function ExecuteAndLogCommand(message, args, commandName, command) {
             let ConsoleLog = `User **${message.author.username}** executed command **${commandName}**, from ${(!message.guild ? `DMs and ` : `"${message.guild}", #${message.channel.name}, and `)}`;
 

@@ -1,6 +1,6 @@
 const ytdl = require('ytdl-core');
 const { Message } = require('discord.js');
-const { PinguLibrary, DiscordPermissions } = require('../../PinguPackage');
+const { PinguLibrary, DiscordPermissions } = require('PinguPackage');
 
 module.exports = {
     name: 'noice',

@@ -1,10 +1,18 @@
-declare module 'discord.js Addons' {
-    import {
-        Client, Collection, Guild, GuildEmoji, GuildMember,
-        Invite, Message, MessageEmbed, MessageReaction,
-        PermissionString, Presence, Role, User, VoiceState
-    } from 'discord.js';
+import { PinguUser, PinguGuild, PClient } from 'PinguPackage'
+import {
+    Client, Collection, Guild, GuildEmoji, GuildMember,
+    Invite, Message, MessageEmbed, MessageReaction,
+    PermissionString, Presence, Role, User, VoiceState
+} from 'discord.js';
 
+
+declare module 'pingu-discord.js-addons' {
+    export enum CommandIDs {
+        Utility = 1,
+        Fun = 2,
+        Support = 3,
+        DevOnly = 4
+    }
     export class PinguCommand {
         public name: string
         public path: string
@@ -18,9 +26,9 @@ declare module 'discord.js Addons' {
         public execute(params: {
             message: Message,
             args: string[],
-            pAuthor: import('./PinguPackage').PinguUser,
-            pGuild: import('./PinguPackage').PinguGuild,
-            pGuildClient: import('./PinguPackage').PClient
+            pAuthor: PinguUser,
+            pGuild: PinguGuild,
+            pGuildClient: PClient
         })
     }
 

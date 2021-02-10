@@ -1,7 +1,6 @@
 const request = require('request'),
-    config = require('../../config.json'),
     { Message, MessageEmbed } = require('discord.js');
-const { PinguLibrary, PinguGuild, DiscordPermissions, PClient } = require('../../PinguPackage');
+const { PinguLibrary, PinguGuild, DiscordPermissions, PClient, config } = require('PinguPackage');
 
 module.exports = {
     name: 'meme',
