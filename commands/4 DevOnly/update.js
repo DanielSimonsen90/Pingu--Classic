@@ -17,12 +17,12 @@ module.exports = {
 
         if (!command && !event) return message.channel.send(`Unable to find file \`${script}.js\`!`);
 
-        if (command) delete require.cache[require.resolve(`../${command.id} ${this.CategoryNames[command.id]}/${script}.js`)];
+        if (command) delete require.cache[require.resolve(`../../${command.path}`)];
         else delete require.cache[require.resolve(`../../${event.path}`)];
 
         try {
             if (command) {
-                const newCommand = require(`../${command.id} ${this.CategoryNames[command.id]}/${script}.js`);
+                const newCommand = require(`../../${command.path}`);
                 message.client.commands.set(newCommand.name, newCommand);
             }
             else {
@@ -37,8 +37,8 @@ module.exports = {
         }
         if (message.channel.type != 'dm') {
             var permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.SEND_MESSAGES]);
-            if (permCheck != PinguLibrary.PermissionGranted) return message.author.send(`${permCheck}\nBut I have updated my command!`)
+            if (permCheck != PinguLibrary.PermissionGranted) return message.author.send(`${permCheck}\nBut I have updated ${script}!`)
         }
-        message.channel.send(`\`${(command ? message.guild && pGuildClient.prefix || PinguLibrary.DefaultPrefix(message.client) : "")}${script}\` was updated!`);
+        message.channel.send(`\`${script}\` was updated!`);
     },
 };

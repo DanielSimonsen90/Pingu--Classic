@@ -7,6 +7,7 @@ module.exports = {
     usage: '<option1>, <option2>, <option3>....',
     id: 1,
     example: ['Yes, No', 'Pizza, McDonalds, Sandwich, Noodles'],
+    aliases: ["stw"],
     /**@param {{message: Message, args: string[]}}*/
     execute({ message, args }) {
         var stringArgs = args.join(' ') || "Yes, No";

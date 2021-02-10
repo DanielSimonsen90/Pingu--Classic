@@ -48,7 +48,10 @@ function CacheFromDB(client) {
 
                 let channel = ToTextChannel(gChannel);
 
-                if (client.user.id == PinguLibrary.Clients.BetaID && pGuild.clients[0]) return; //Client is BETA but LIVE is in guild
+                if (client.user.id == PinguLibrary.Clients.BetaID &&
+                    pGuild.clients[0] &&
+                    client.users.cache.get(PinguLibrary.Clients.PinguID).presence.status != 'offline')
+                    return; //Client is BETA but LIVE is in guild
 
                 //In .then function so it only logs if fetching is successful
                 channel.messages.fetch(rr.messageID)
@@ -65,8 +68,10 @@ function CacheFromDB(client) {
             let { giveaways } = !pGuild.giveawayConfig.firstTimeExecuted && pGuild.giveawayConfig;
             if (!giveaways) return;
 
-            if (client.user.id == PinguLibrary.Clients.BetaID && pGuild.clients[0]) return; //Client is BETA but LIVE is in guild
-
+            if (client.user.id == PinguLibrary.Clients.BetaID &&
+                pGuild.clients[0] &&
+                client.users.cache.get(PinguLibrary.Clients.PinguID).presence.status != 'offline')
+                return; //Client is BETA but LIVE is in guild
             giveaways.forEach(giveaway => {
                 if (new Date(giveaway.endsAt).getTime() < Date.now()) return;
 
@@ -85,8 +90,10 @@ function CacheFromDB(client) {
             let { polls } = !pGuild.pollConfig.firstTimeExecuted && pGuild.pollConfig;
             if (!polls) return;
 
-            if (client.user.id == PinguLibrary.Clients.BetaID && pGuild.clients[0]) return; //Client is BETA but LIVE is in guild
-
+            if (client.user.id == PinguLibrary.Clients.BetaID &&
+                pGuild.clients[0] &&
+                client.users.cache.get(PinguLibrary.Clients.PinguID).presence.status != 'offline')
+                return; //Client is BETA but LIVE is in guild
             polls.forEach(poll => {
                 if (new Date(poll.endsAt).getTime() < Date.now()) return;
 
@@ -105,7 +112,10 @@ function CacheFromDB(client) {
             let { suggestions } = !pGuild.suggestionConfig.firstTimeExecuted && pGuild.suggestionConfig;
             if (!suggestions) return;
 
-            if (client.user.id == PinguLibrary.Clients.BetaID && pGuild.clients[0]) return; //Client is BETA but LIVE is in guild
+            if (client.user.id == PinguLibrary.Clients.BetaID &&
+                pGuild.clients[0] &&
+                client.users.cache.get(PinguLibrary.Clients.PinguID).presence.status != 'offline')
+                return; //Client is BETA but LIVE is in guild
 
             suggestions.forEach(suggestion => {
                 if (suggestion.approved != undefined) return;

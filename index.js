@@ -1,6 +1,5 @@
 ﻿//#region Variables
 const { Client, Collection, Guild, MessageEmbed, GuildAuditLogsEntry } = require('discord.js'),
-    { CategoryNames } = require('./commands/4 DevOnly/update'),
     { PinguLibrary, Error, DiscordPermissions, PinguGuild, PinguEvents } = require('./PinguPackage'),
     fs = require('fs'),
     client = new Client();
@@ -9,34 +8,28 @@ client.events = new Collection();
 //#endregion
 
 //#region Set Commands & Events
-for (var x = 1; x < CategoryNames.length; x++) {
-    let path = `${x} ${CategoryNames[x]}`;
-
-    const ScriptCollection = fs.readdirSync(`./commands/${path}/`).filter(file => file.endsWith('.js'));
-
-    for (const file of ScriptCollection) {
-        try {
-            const command = require(`./commands/${path}/${file}`);
-            client.commands.set(command.name, command);
-        } catch (err) { PinguLibrary.DanhoDM(client, `"${file}" threw an exception:\n${err.message}\n${err.stack}\n`); }
-    }
-}
-
-/**@param {string} path*/
-function HandlePath(path) {
+/**@param {string} path
+ @param {'event' | 'command'} type*/
+function HandlePath(path, type) {
     try {
         let collection = fs.readdirSync(path);
         for (var file of collection) {
             if (file.endsWith(`.js`)) {
-                let event = require(`${path}/${file}`);
-                event.path = `${path}/${file}`;
-                event.name = event.name.split(':')[1];
-                event.name = event.name.substring(1, event.name.length);;
-                client.events.set(event.name, event);
-            } else HandlePath(`${path}/${file}`);
+                let module = require(`${path}/${file}`);
+                module.path = `${path}/${file}`;
+                module.name = module.name.split(':')[1];
+                module.name = module.name.substring(1, module.name.length);
+
+                if (type == 'event') client.events.set(module.name, module);
+                else if (type == 'command') client.commands.set(module.name, module);
+                else PinguLibrary.errorLog(client, `"${type}" was not recognized!`);
+            }
+            else if (file.endsWith('.png')) continue;
+            else HandlePath(`${path}/${file}`);
         }
     } catch (err) { PinguLibrary.DanhoDM(client, `"${file}" threw an exception:\n${err.message}\n${err.stack}\n`) }
 }
+HandlePath('./commands')
 HandlePath(`./events`);
 //#endregion
 
@@ -274,9 +267,6 @@ async function HandleEvent(path, parameters) {
     }
 }
 
-try {
-    var { token } = require('../../PinguBetaToken.json');
-    //throw null
-}
+try { var { token } = require('../../PinguBetaToken.json'); /*throw null*/ }
 catch { token = require('./config.json').token; }
 finally { client.login(token); }

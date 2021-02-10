@@ -1,4 +1,11 @@
 {
-  "ExpandedNodes": [],
+  "ExpandedNodes": [
+    "",
+    "\\commands",
+    "\\events",
+    "\\MongoSchemas",
+    "\\Snippets"
+  ],
+  "SelectedNode": "\\embedImages",
   "PreviewInSolutionExplorer": false
 }

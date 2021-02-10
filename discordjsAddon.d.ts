@@ -7,6 +7,7 @@ declare module 'discord.js Addons' {
 
     export class PinguCommand {
         public name: string
+        public path: string
         public description: string
         public usage: string
         public guildOnly: boolean
@@ -55,6 +56,7 @@ declare module 'discord.js Addons' {
     }
     export class PinguEvent {
         public name: string
+        public path: string
         public setContent(data: PinguEventData): MessageEmbed
         public content: MessageEmbed
         public execute(client: Client, data: PinguEventData);
