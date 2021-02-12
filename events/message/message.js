@@ -1,6 +1,6 @@
 ﻿const { Client, Guild, Message, MessageEmbed } = require("discord.js");
 const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error, PClient } = require("PinguPackage");
-const { musicCommands } = require('../../commands/2 Fun/music'), { HandleTell, ExecuteTellReply } = require('../../commands/2 Fun/tell');
+const { musicCommands } = require('../../commands/2 Fun/music'), { HandleTell, ExecuteTellReply } = require('../../commands/2 Fun/Pingu User/tell');
 const { CheckRoleChange } = require("../guild/role/roleUpdate");
 
 module.exports = {

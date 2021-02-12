@@ -3,13 +3,7 @@
     "",
     "\\commands",
     "\\commands\\2 Fun",
-    "\\commands\\4 DevOnly",
-    "\\events\\channel",
-    "\\events\\client",
-    "\\events\\guild",
-    "\\events\\guild\\emoji",
-    "\\events\\guild\\guildMember",
-    "\\events\\guild\\invite"
+    "\\commands\\4 DevOnly"
   ],
   "SelectedNode": "\\commands\\4 DevOnly\\test.js",
   "PreviewInSolutionExplorer": false

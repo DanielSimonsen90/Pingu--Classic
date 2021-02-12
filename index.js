@@ -1,10 +1,14 @@
 ﻿//#region Variables
-const { Client, Collection, Guild, MessageEmbed, GuildAuditLogsEntry } = require('discord.js'),
-    { PinguLibrary, Error, DiscordPermissions, PinguGuild, PinguEvents, config } = require('PinguPackage'),
-    fs = require('fs'),
-    client = new Client();
-client.commands = new Collection();
-client.events = new Collection();
+//try {
+    const { Client, Collection, Guild, MessageEmbed, GuildAuditLogsEntry } = require('discord.js'),
+        { PinguLibrary, Error, DiscordPermissions, PinguGuild, PinguEvents, config } = require('PinguPackage'),
+        fs = require('fs'),
+        client = new Client();
+    client.commands = new Collection();
+    client.events = new Collection();
+//} catch (err) {
+    //console.log(err);
+//}
 
 //#endregion
 
@@ -18,20 +22,24 @@ function HandlePath(path, type) {
             if (file.endsWith(`.js`)) {
                 let module = require(`${path}/${file}`);
                 module.path = `${path}/${file}`;
-                module.name = module.name.split(':')[1];
-                module.name = module.name.substring(1, module.name.length);
+                if (module.name.includes(':')) {
+                    module.name = module.name.split(':')[1];
+                    module.name = module.name.substring(1, module.name.length);
+                }
 
                 if (type == 'event') client.events.set(module.name, module);
                 else if (type == 'command') client.commands.set(module.name, module);
                 else PinguLibrary.errorLog(client, `"${type}" was not recognized!`);
             }
             else if (file.endsWith('.png')) continue;
-            else HandlePath(`${path}/${file}`);
+            else HandlePath(`${path}/${file}`, type);
         }
-    } catch (err) { PinguLibrary.DanhoDM(client, `"${file}" threw an exception:\n${err.message}\n${err.stack}\n`) }
+    } catch (err) {
+        PinguLibrary.DanhoDM(client, `"${file}" threw an exception:\n${err.message}\n${err.stack}\n`)
+    }
 }
-HandlePath('./commands')
-HandlePath(`./events`);
+HandlePath('./commands', 'command')
+HandlePath(`./events`, 'event');
 //#endregion
 
 //#region General Client events

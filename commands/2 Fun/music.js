@@ -2,8 +2,8 @@
     { PinguGuild, Queue, Song, PinguLibrary, PClient, DiscordPermissions, config } = require('PinguPackage'),
     ytdl = require('ytdl-core'),
     YouTube = require('simple-youtube-api');
-var youTube = new YouTube(youtube_api), commandName = "", ms = require('ms');
 const { youtube_api } = config;
+var youTube = new YouTube(youtube_api), commandName = "", ms = require('ms');
 
 
 module.exports = {
