@@ -73,7 +73,8 @@ module.exports = {
         if (!startsWithPrefix()) return;
 
         //Attempt "command" assignment
-        if (musicCommands.find(cmd => [cmd.name, cmd.alias].includes(commandName))) {
+        let musicCommand = musicCommands.find(cmd => [cmd.name, cmd.alias].includes(commandName));
+        if (musicCommand) {
             args.unshift(commandName);
             commandName = `music`;
         } //music command was used without *music
@@ -92,7 +93,7 @@ module.exports = {
 
         /**@param {Message} message*/
         async function fromEmotesChannel(message) {
-            if (!message.guild || message.author.bot || message.channel.name.includes('emote') || message.channel.name.includes('emoji')) return false;
+            if (!message.guild || message.author.bot || !message.channel.name.includes('emote') || !message.channel.name.includes('emoji')) return false;
 
             let permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.MANAGE_EMOJIS, DiscordPermissions.SEND_MESSAGES])
             if (permCheck != PinguLibrary.PermissionGranted) {
@@ -100,7 +101,7 @@ module.exports = {
                 return false;
             }
 
-            if (client.user.id == PinguLibrary.Clients.BetaID && message.guild.members.cache.has(PinguLibrary.Clients.PinguID)) return;
+            if (client.user.id == PinguLibrary.Clients.BetaID && message.guild.members.cache.has(PinguLibrary.Clients.PinguID)) return false;
 
             for (var file of message.attachments.array()) {
                 let errMsg = "";

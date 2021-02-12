@@ -29,7 +29,7 @@ module.exports = {
         { name: "move", alias: "mo", cmdHandler: HandleMove },
         { name: "loop", alias: "repeat", cmdHandler: HandleLoop },
         { name: "restart", alias: "previous", cmdHandler: HandleRestart },
-        { name: "shuffle", alias: "", cmdHandler: HandleShuffle }
+        { name: "shuffle", cmdHandler: HandleShuffle }
     ],
     permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.SPEAK],
     /**@param {{message: Message, args: string[]}}*/

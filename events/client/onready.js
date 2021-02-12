@@ -57,7 +57,7 @@ function CacheFromDB(client) {
                 //In .then function so it only logs if fetching is successful
                 channel.messages.fetch(rr.messageID)
                     .then(() => OnFulfilled('ReactionRole', rr.messageID, channel, guild))
-                    .catch(() => OnError('ReactionRole', rr.messageID, channel, guild));
+                    .catch(err => OnError('ReactionRole', rr.messageID, channel, guild, err.message));
             });
         })
     }
@@ -79,7 +79,7 @@ function CacheFromDB(client) {
                 let channel = ToTextChannel(guild.channels.cache.get(giveaway.channel._id));
                 channel.messages.fetch(giveaway._id, false, true)
                     .then(() => OnFulfilled('Giveaway', giveaway._id, channel, guild))
-                    .catch(() => OnError('Giveaway', giveaway._id, channel, guild));
+                    .catch(err => OnError('Giveaway', giveaway._id, channel, guild, err.message));
             })
         })
     }
@@ -101,7 +101,7 @@ function CacheFromDB(client) {
                 let channel = ToTextChannel(guild.channels.cache.get(poll.channel._id));
                 channel.messages.fetch(poll._id, false, true)
                     .then(() => OnFulfilled('Poll', poll._id, channel, guild))
-                    .catch(() => OnError('Poll', poll._id, channel, guild));
+                    .catch(err => OnError('Poll', poll._id, channel, guild, err.message));
             })
         })
     }
@@ -124,7 +124,7 @@ function CacheFromDB(client) {
                 let channel = ToTextChannel(guild.channels.cache.get(suggestion.channel._id));
                 channel.messages.fetch(suggestion._id, false, true)
                     .then(() => OnFulfilled('Suggestion', suggestion._id, channel, guild))
-                    .catch(() => OnError('Suggestion', suggestion._id, channel, guild));
+                    .catch(err => OnError('Suggestion', suggestion._id, channel, guild, err.message));
             })
         })
     }
@@ -145,7 +145,7 @@ function CacheFromDB(client) {
      * @param {string} id
      * @param {TextChannel} channel
      * @param {Guild} guild*/
-    function OnError(type, id, channel, guild) {
-        return PinguLibrary.consoleLog(client, `Unable to cache ${type} "${id}" from #${channel.name}, ${guild.name}`)
+    function OnError(type, id, channel, guild, errMsg) {
+        return PinguLibrary.consoleLog(client, `Unable to cache ${type} "${id}" from #${channel.name}, ${guild.name} -- ${errMsg}`)
     }
 }
