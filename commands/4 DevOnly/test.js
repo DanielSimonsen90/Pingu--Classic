@@ -1,5 +1,5 @@
 const { Message } = require('discord.js');
-const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions } = require('PinguPackage');
+const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions, PinguGuildSchema } = require('PinguPackage');
 
 module.exports = {
     name: 'test',
@@ -11,6 +11,6 @@ module.exports = {
     permissions: [DiscordPermissions.SEND_MESSAGES],
     /**@param {{message: Message, args: string[], pAuthor: PinguUser, pGuild: PinguGuild}}*/
     async execute({ message, args, pAuthor, pGuild }) {
-
+        
     }
 }

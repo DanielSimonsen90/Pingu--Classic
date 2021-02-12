@@ -1,7 +1,7 @@
 ﻿const { Message, MessageEmbed, VoiceChannel, MessageReaction, User } = require('discord.js'),
+    { PinguGuild, Queue, Song, PinguLibrary, PClient, DiscordPermissions, config } = require('PinguPackage'),
     ytdl = require('ytdl-core'),
-    YouTube = require('simple-youtube-api'),
-const { PinguGuild, Queue, Song, PinguLibrary, PClient, DiscordPermissions, config } = require('PinguPackage');
+    YouTube = require('simple-youtube-api');
 var youTube = new YouTube(youtube_api), commandName = "", ms = require('ms');
 const { youtube_api } = config;
 

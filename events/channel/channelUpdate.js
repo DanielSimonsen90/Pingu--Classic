@@ -1,5 +1,5 @@
 const { Client, DMChannel, GuildChannel, MessageEmbed, PermissionOverwrites, Collection } = require("discord.js");
-const { PinguEvents } = require("../../PinguPackage");
+const { PinguEvents } = require("PinguPackage");
 
 module.exports = {
     name: 'events: channelUpdate',

@@ -1,5 +1,5 @@
 const { Client, DMChannel, GuildChannel, MessageEmbed } = require("discord.js");
-const { PinguLibrary, PinguUser, DiscordPermissions } = require("../../PinguPackage");
+const { PinguLibrary, PinguUser, DiscordPermissions } = require("PinguPackage");
 
 module.exports = {
     name: 'events: channelDelete',

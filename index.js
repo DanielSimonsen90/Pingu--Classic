@@ -5,6 +5,7 @@ const { Client, Collection, Guild, MessageEmbed, GuildAuditLogsEntry } = require
     client = new Client();
 client.commands = new Collection();
 client.events = new Collection();
+
 //#endregion
 
 //#region Set Commands & Events

@@ -1,5 +1,5 @@
 ﻿const { Client, MessageReaction, User, MessageEmbed } = require("discord.js");
-const { PinguLibrary, ReactionRole, Queue } = require("../../../PinguPackage");
+const { PinguLibrary, ReactionRole, Queue } = require("PinguPackage");
 
 module.exports = {
     name: 'events: messageReactionAdd',

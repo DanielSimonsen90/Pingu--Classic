@@ -1,5 +1,5 @@
 const { Client, Role, MessageEmbed } = require("discord.js");
-const { DiscordPermissions } = require("../../../PinguPackage");
+const { DiscordPermissions } = require("PinguPackage");
 
 module.exports = {
     name: 'events: roleDelete',

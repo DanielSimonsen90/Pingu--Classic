@@ -1,0 +1,3 @@
+C:\Users\Daniel Simonsen\source\repos\PinguPackage\PinguPackage\obj\Debug\PinguPackage.njsprojAssemblyReference.cache
+C:\Users\Daniel Simonsen\source\repos\PinguPackage\PinguPackage\obj\Debug\PinguPackage.njsproj.CoreCompileInputs.cache
+C:\Users\Daniel Simonsen\source\repos\PinguPackage\PinguPackage\bin\Microsoft.NodejsTools.WebRole.dll

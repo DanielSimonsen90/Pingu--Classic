@@ -1,5 +1,5 @@
 const { Client, Presence, MessageEmbed, Activity } = require("discord.js");
-const { PinguLibrary, PinguGuild } = require("../../PinguPackage");
+const { PinguLibrary, PinguGuild } = require("PinguPackage");
 
 module.exports = {
     name: 'events: presenceUpdate',

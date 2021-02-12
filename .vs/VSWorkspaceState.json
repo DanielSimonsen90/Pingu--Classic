@@ -3,14 +3,14 @@
     "",
     "\\commands",
     "\\commands\\2 Fun",
-    "\\commands\\2 Fun\\Images",
-    "\\commands\\2 Fun\\Pingu User",
-    "\\commands\\3 Support",
     "\\commands\\4 DevOnly",
-    "\\commands\\4 DevOnly\\Info",
-    "\\commands\\4 DevOnly\\Set",
-    "\\commands\\Archived Commands"
+    "\\events\\channel",
+    "\\events\\client",
+    "\\events\\guild",
+    "\\events\\guild\\emoji",
+    "\\events\\guild\\guildMember",
+    "\\events\\guild\\invite"
   ],
-  "SelectedNode": "\\commands\\2 Fun\\Pingu User\\marry.js",
+  "SelectedNode": "\\commands\\4 DevOnly\\test.js",
   "PreviewInSolutionExplorer": false
 }

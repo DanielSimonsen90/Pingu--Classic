@@ -1,5 +1,5 @@
 const { Client, Guild, User, MessageEmbed } = require("discord.js");
-const { PinguLibrary, PinguUser, PinguGuild } = require("../../PinguPackage");
+const { PinguLibrary, PinguUser, PinguGuild } = require("PinguPackage");
 
 module.exports = {
     name: 'events: guildBanRemove',

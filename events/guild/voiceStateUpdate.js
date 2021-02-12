@@ -1,5 +1,5 @@
 const { Client, VoiceState, MessageEmbed } = require("discord.js");
-const { PinguEvents } = require("../../PinguPackage");
+const { PinguEvents } = require("PinguPackage");
 
 module.exports = {
     name: 'events: voiceStateUpdate',

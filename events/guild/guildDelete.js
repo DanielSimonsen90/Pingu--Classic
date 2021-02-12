@@ -1,5 +1,5 @@
 const { Client, Guild, MessageEmbed } = require("discord.js");
-const { PinguGuild, PinguLibrary, PinguUser } = require("../../PinguPackage");
+const { PinguGuild, PinguLibrary, PinguUser } = require("PinguPackage");
 
 module.exports = {
     name: 'events: guildDelete',

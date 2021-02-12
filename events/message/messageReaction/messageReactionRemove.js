@@ -1,5 +1,5 @@
 const { Client, MessageReaction, User, MessageEmbed } = require("discord.js");
-const { PinguLibrary, ReactionRole, PinguGuild } = require("../../../PinguPackage");
+const { PinguLibrary, ReactionRole, PinguGuild } = require("PinguPackage");
 
 module.exports = {
     name: 'events: messageReactionRemove',
