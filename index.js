@@ -1,13 +1,13 @@
 ﻿//#region Variables
 //try {
-    const { Client, Collection, Guild, MessageEmbed, GuildAuditLogsEntry } = require('discord.js'),
-        { PinguLibrary, Error, DiscordPermissions, PinguGuild, PinguEvents, config } = require('PinguPackage'),
-        fs = require('fs'),
-        client = new Client();
-    client.commands = new Collection();
-    client.events = new Collection();
+const { Client, Collection, Guild, MessageEmbed, GuildAuditLogsEntry } = require('discord.js'),
+    { PinguLibrary, Error, DiscordPermissions, PinguGuild, PinguEvents, config } = require('PinguPackage'),
+    fs = require('fs'),
+    client = new Client();
+client.commands = new Collection();
+client.events = new Collection();
 //} catch (err) {
-    //console.log(err);
+//console.log(err);
 //}
 
 //#endregion
@@ -16,9 +16,9 @@
 /**@param {string} path
  @param {'event' | 'command'} type*/
 function HandlePath(path, type) {
-    try {
-        let collection = fs.readdirSync(path);
-        for (var file of collection) {
+    let collection = fs.readdirSync(path);
+    for (var file of collection) {
+        try {
             if (file.endsWith(`.js`)) {
                 let module = require(`${path}/${file}`);
                 module.path = `${path}/${file}`;
@@ -31,11 +31,11 @@ function HandlePath(path, type) {
                 else if (type == 'command') client.commands.set(module.name, module);
                 else PinguLibrary.errorLog(client, `"${type}" was not recognized!`);
             }
-            else if (file.endsWith('.png')) continue;
+            else if (file.endsWith('.png') || file.toLowerCase().includes('archived')) continue;
             else HandlePath(`${path}/${file}`, type);
+        } catch (err) {
+            PinguLibrary.DanhoDM(client, `"${file}" threw an exception:\n${err.message}\n${err.stack}\n`)
         }
-    } catch (err) {
-        PinguLibrary.DanhoDM(client, `"${file}" threw an exception:\n${err.message}\n${err.stack}\n`)
     }
 }
 HandlePath('./commands', 'command')
@@ -157,9 +157,7 @@ async function HandleEvent(path, parameters) {
         try { await SendToLog(); } catch (err) { PinguLibrary.errorLog(client, `${eventName}.setContent`, null, new Error(err)); throw `setContent`; }
     }
     catch (cause) {
-        let errorLogChannel = PinguLibrary.getChannel(client, PinguLibrary.SavedServers.PinguSupport(client).id, 'error-log-⚠');
-        if (errorLogChannel) return errorLogChannel.send("```\n" + `[Cause: ${cause}]\n` + JSON.stringify(parameters, null, 2) + "\n```")
-            .then(sent => sent.react(PinguLibrary.SavedServers.DanhoMisc(client).emojis.cache.find(e => e.name == 'Checkmark')));
+        PinguLibrary.errorLog(client, `Cause: ${cause}`, JSON.stringify(parameters, null, 2), null, PinguLibrary.errorCache.size - 1);
     }
 
     async function SendToLog() {

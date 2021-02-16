@@ -1,4 +1,4 @@
-﻿const { Message, MessageEmbed, VoiceChannel, MessageReaction, User } = require('discord.js'),
+﻿const { Message, MessageEmbed, VoiceChannel, MessageReaction, User, VoiceConnection } = require('discord.js'),
     { PinguGuild, Queue, Song, PinguLibrary, PClient, DiscordPermissions, config } = require('PinguPackage'),
     ytdl = require('ytdl-core'),
     YouTube = require('simple-youtube-api');
@@ -126,7 +126,8 @@ function PermissionCheck(message, voiceChannel) {
 
 //#region Command Handling
 /**@param {Message} message 
- * @param {string} channelData*/
+ * @param {string} channelData
+ * @returns {Promise<VoiceConnection>}*/
 async function HandleJoin(message, channelData) {
     var channel = channelData && message.guild.channels.cache.find(c =>
         c.type == 'voice' && ([c.id, c.name.toLowerCase()].includes(channelData.toLowerCase()))

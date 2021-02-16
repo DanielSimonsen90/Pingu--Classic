@@ -19,31 +19,11 @@ module.exports = {
     /**@param {Client} client
      @param {{reaction: MessageReaction, user: User}}*/
     execute(client, { reaction, user }) {
-        IsErrorMessage(client, reaction, user);
-
         if (user == client.user) return;
         ReactionRoleUser(client, reaction, user);
     }
 }
 
-/**@param {Client} client
- * @param {MessageReaction} reaction
- * @param {User} user*/
-function IsErrorMessage(client, reaction, user) {
-    if (reaction.emoji.name != 'Checkmark' || //Emote is :Checkmark:
-        reaction.message.channel.name != 'error-log-⚠' || //Channel is #error-log
-        reaction.message.guild.id != PinguLibrary.SavedServers.PinguSupport(client).id || //Server is Pingu Support
-        client.user.id != reaction.message.author.id || //Message author is Client
-        reaction.me) //Client didn't react
-        return;
-
-    //User is not Pingu Developer, and therefore can't decide whether or not an error was fixed
-    else if (!PinguLibrary.isPinguDev(user)) return reaction.remove();
-
-    return !reaction.message.deletable ?
-        user.send(`Unable to delete message!`) :
-        reaction.message.delete({ reason: `${user.tag} marked error as fixed` });
-}
 /**@param {Client} client
  * @param {MessageReaction} reaction
  * @param {User} user*/

@@ -177,7 +177,7 @@ module.exports = {
             if (command) return command;
 
             let commands = client.commands.array();
-            command = commands.find(cmd => cmd.aliases.includes(commandName))
+            command = commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName))
 
             //If command assignment failed, assign command
             var i = 0;
@@ -237,7 +237,6 @@ module.exports = {
                 if (commandName == "tell") HandleTell(message, args);
 
                 let pGuild = await PinguGuild.GetPGuild(message.guild);
-
                 command.execute({
                     message,
                     args,
@@ -251,7 +250,15 @@ module.exports = {
                     return; //Error occured, but cycled through permissions to find missing permission
 
                 ConsoleLog += `**failed!**\nError: ${err}`;
-                PinguLibrary.errorLog(client, `Trying to execute "${command.name}"!`, message.content, err);
+
+
+                let errorID = PinguLibrary.errorCache.size;
+                await PinguLibrary.errorLog(client, `Trying to execute "${command.name}"!`, message.content, err, errorID);
+                PinguLibrary.errorLog(client, `message:`, JSON.stringify(message.toJSON()), null, errorID);
+                PinguLibrary.errorLog(client, `args`, JSON.stringify(args), null, errorID);
+                PinguLibrary.errorLog(client, `pAuthor`, JSON.stringify(pAuthor), null, errorID);
+                PinguLibrary.errorLog(client, `pGuild`, JSON.stringify(pGuild), null, errorID);
+                PinguLibrary.errorLog(client, `pGuildClient`, JSON.stringify(pGuildClient), null, errorID);
             }
             console.log(" ");
             PinguLibrary.consoleLog(client, ConsoleLog);

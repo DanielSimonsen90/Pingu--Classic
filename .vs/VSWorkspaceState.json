@@ -3,8 +3,9 @@
     "",
     "\\commands",
     "\\commands\\2 Fun",
-    "\\commands\\4 DevOnly"
+    "\\events",
+    "\\events\\message"
   ],
-  "SelectedNode": "\\commands\\4 DevOnly\\test.js",
+  "SelectedNode": "\\commands\\2 Fun\\music.js",
   "PreviewInSolutionExplorer": false
 }

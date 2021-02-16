@@ -11,6 +11,8 @@ module.exports = {
         PinguLibrary.consoleLog(client, `Loaded ${client.commands.array().length} commands & ${client.events.array().length} events\n`);
 
         await client.users.fetch(PinguLibrary.Clients.PinguID);
+        await PinguLibrary.CacheDevelopers(client);
+
         CacheFromDB(client);
 
         await PinguLibrary.DBExecute(client, () => PinguLibrary.consoleLog(client, `Connected to MongolDB!`));
