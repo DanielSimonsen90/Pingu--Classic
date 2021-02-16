@@ -3,7 +3,7 @@ const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions, PClient, Handle
 const giveaway = require('./giveaway');
 
 module.exports = {
-    name: 'themes',
+    name: 'theme',
     description: `Themes for Danho's Discord`,
     usage: giveaway.usage,
     guildOnly: true,

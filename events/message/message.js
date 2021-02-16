@@ -182,7 +182,7 @@ module.exports = {
             //If command assignment failed, assign command
             var i = 0;
             while (!command && i < args.length) {
-                commandName = args[number].toLowerCase();
+                commandName = args[i].toLowerCase();
                 command = client.commands.get(commandName) || commands.find(cmd => cmd.aliases.includes(commandName));
             }
             return command;
