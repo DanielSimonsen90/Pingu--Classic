@@ -13,6 +13,7 @@ module.exports = {
         DiscordPermissions.MANAGE_MESSAGES,
         DiscordPermissions.ADD_REACTIONS
     ],
+    aliases: ["ga"],
     /**@param {{message: Message, args: string[], pGuild: PinguGuild, pGuildClient: PClient}}*/
     async execute({ message, args, pGuild, pGuildClient }) {
         return await HandleDecidables({

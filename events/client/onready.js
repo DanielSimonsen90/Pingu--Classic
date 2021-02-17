@@ -1,10 +1,9 @@
 const { Client, GuildChannel, TextChannel, Guild } = require("discord.js");
-const { PinguLibrary, PinguGuild } = require("PinguPackage");
+const { PinguLibrary, PinguGuild, PinguEvent } = require("PinguPackage");
 
-const CacheTypes = 'ReactionRole' || 'Giveaway' || 'Poll' || 'Suggestion';
+const CacheTypes = 'ReactionRole' || 'Giveaway' || 'Poll' || 'Suggestion' || 'Theme';
 
-module.exports = {
-    name: 'events: ready',
+module.exports = new PinguEvent('ready', {
     /**@param {Client} client*/
     async execute(client) {
         console.log('\n--== Client Info ==--');
@@ -23,7 +22,7 @@ module.exports = {
 
         console.log(`--== | == - == | ==--\n`);
     }
-}
+})
 
 /**@param {Client} client*/
 function CacheFromDB(client) {
@@ -31,6 +30,7 @@ function CacheFromDB(client) {
     RunCache('Poll', CacheActivePolls);
     RunCache('Giveaway', CacheActiveGiveaways);
     RunCache('Suggestion', CacheActiveSuggestions);
+    RunCache('Theme', CacheActiveThemes);
 
     /**@param {CacheTypes} type
      * @param {(client: Client) => void} callback*/
@@ -127,6 +127,29 @@ function CacheFromDB(client) {
                 channel.messages.fetch(suggestion._id, false, true)
                     .then(() => OnFulfilled('Suggestion', suggestion._id, channel, guild))
                     .catch(err => OnError('Suggestion', suggestion._id, channel, guild, err.message));
+            })
+        })
+    }
+    function CacheActiveThemes() {
+        client.guilds.cache.forEach(async guild => {
+            let pGuild = await PinguGuild.GetPGuild(guild);
+            if (!pGuild) return;
+
+            let { themes } = !pGuild.themeConfig.firstTimeExecuted && pGuild.themeConfig;
+            if (!themes) return;
+
+            if (client.user.id == PinguLibrary.Clients.BetaID &&
+                pGuild.clients[0] &&
+                client.users.cache.get(PinguLibrary.Clients.PinguID).presence.status != 'offline')
+                return; //Client is BETA but LIVE is in guild
+
+            themes.forEach(theme => {
+                if (new Date(theme.endsAt).getTime() < Date.now()) return;
+
+                let channel = ToTextChannel(guild.channels.cache.get(theme.channel._id));
+                channel.messages.fetch(theme._id, false, true)
+                    .then(() => OnFulfilled('Theme', theme._id, channel, guild))
+                    .catch(err => OnError('Theme', theme._id, channel, guild, err.message));
             })
         })
     }

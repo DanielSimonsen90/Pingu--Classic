@@ -1,5 +1,5 @@
 const { MessageEmbed, Message } = require('discord.js');
-const { PinguGuild, PinguLibrary, PClient, CommandIDs } = require('PinguPackage');
+const { PinguGuild, PinguLibrary, PClient, CommandIDs, PinguCommand } = require('PinguPackage');
 const fs = require('fs');
 
 module.exports = {
@@ -32,15 +32,31 @@ module.exports = {
  * @param {string} prefix*/
 function CategoryOrSpecificHelp(message, args, embed, prefix) {
     args[0] = args[0].toLowerCase();
-    let mainCategories = getMainCategories(message);
-    let category = mainCategories.find(c => c.name.includes(args[0]));
-    category.name = category.name.split(' ')[1];
+    /**@param {SubCategory[]} arr
+     * @returns {SubCategory}*/
+    let getCategory = (arr) => {
+        if (!arr) return null;
+        let result = arr.find(c => c.name.toLowerCase().includes(args[0]));
+
+        if (!result)
+            for (var subCategory of arr) {
+                result = getCategory(new Category(subCategory.path).subCategories);
+                if (result) return result;
+            }
+        return result;
+    }
+
+    let category = getCategory(getMainCategories(message));
 
     //Find category
-    if (!category)
-        return message.client.commands.find(cmd => [cmd.name, ...cmd.aliases].includes(args[0])) ?
-            CommandHelp(message, args, embed, prefix) :
-            message.channel.send(`I couldn't find what you were looking for!`);
+    if (!category) {
+        let command = message.client.commands.find(cmd => [...cmd.aliases || [], cmd.name].includes(args[0]));
+        if (command) {
+            args[0] = command.name.toLowerCase();
+            return CommandHelp(message, args, embed, prefix);
+        }
+        return message.channel.send(`I couldn't find what you were looking for!`);
+    }
 
     //If "DevOnly" was used
     if (args[0] == CommandIDs.DevOnly.toString() && !PinguLibrary.isPinguDev(message.author))
@@ -83,24 +99,29 @@ function CategoryOrSpecificHelp(message, args, embed, prefix) {
  * @param {string} prefix
  * @param {string} path*/
 function CategoryHelp(message, embed, prefix, path) {
-    embed.setTitle('Pingu Help Menu!')
-        .setFooter(`Developed by Simonsen Techs`);
-
     let pathFolder = new Category(path); //Path folder
-    let categories = pathFolder.subCategories.map(category => new Category(category.path)) //Get path's sub categories to category classes
+    let categories = pathFolder.subCategories.length && pathFolder.subCategories.map(category => new Category(category.path)) || [pathFolder] //Get path's sub categories to category classes
         .filter(cat => !cat.scripts.map(cmd => cmd.id).includes(CommandIDs.DevOnly) || PinguLibrary.isPinguDev(message.author)); //If a category has a DevOnly command && author isn't PinguDev, don't include it
 
-    embed.setDescription(`**Use these arguments to get more help!**\n\n` + categories.map(category =>
-        `**${category.name}**\n` +
+    if (!isNaN(parseInt(pathFolder.name[0])))
+        pathFolder.name = pathFolder.name.split(' ')[1];
 
-        //Category has sub categories
-        `${(category.subCategories.length ? `__Subcategories__\n` : ``)}` +
-        category.subCategories.map(sub => `${prefix}help ${sub.name}`).join('\n') +
 
-        //Category has commands
-        `${(category.scripts.lastIndexOf ? `__Commands__\n` : ``)}` +
-        category.scripts.map(cmd => `${prefix}help ${cmd.name}`).join('\n')
-    ).join('\n'));
+    embed.setTitle('Pingu Help Menu! - ' + Uppercased(pathFolder.name))
+        .setDescription(`**Use these arguments to get more help!**\n\n` + categories.map(category =>
+            `**__${category.name}__**\n` +
+
+            //Category has sub categories
+            `${(category.subCategories && category.subCategories.length ? `**Subcategories**\n` + "```\n" +
+                (category.subCategories.map(sub => `${prefix}help ${sub.name}`).join('\n') + '\n```') :
+                "")}` +
+
+            //Category has commands
+            `${(category.scripts && category.scripts.length ? `**Commands**\n` + "```\n" +
+                (category.scripts.map(cmd => `${prefix}help ${cmd.name}`).join('\n') + '\n```\n') :
+                "")}`
+        ).join('\n'))
+        .setFooter(`Developed by Simonsen Techs`);
 
     //Return embed
     return message.channel.send(embed)
@@ -122,16 +143,20 @@ function CommandHelp(message, args, embed, prefix) {
     embed.setTitle(prefix + command.name)
         .setDescription(
             "**Description**\n" +
-            "```\n" + command.description + "\n```\n" +
+            command.description + "\n" +
             "\n**Usage**\n" +
-            `${prefix}${command.name} ${command.usage}\n` +
-            (command.aliases.length ?
+            "```\n" + `${prefix}${command.name} ${command.usage}\n` + "```" +
+            (command.aliases && command.aliases.length ?
                 "\n**Aliases**\n" +
-                command.aliases.forEach(alias => `${prefix}${alias} ${command.usage}\n`)
+                "```\n" +
+                command.aliases.map(alias => `${prefix}${alias} ${command.usage}`).join('\n') +
+                "\n```"
                 : "") +
             (command.examples.length ?
                 "\n**Examples**\n" +
-                command.examples.forEach(example => `${prefix}${command.name} ${example}\n`)
+                "```\n" +
+                command.examples.map(example => `${prefix}${command.name} ${example}`).join('\n') +
+                "\n```"
                 : "")
         ).setFooter('Developed by Simonsen Techs');
 
@@ -141,29 +166,45 @@ function CommandHelp(message, args, embed, prefix) {
 
 /**@param {Message} message*/
 function getCommandsPath(message) {
-    let pathSplit = message.client.commands.get(module.exports.name).path.split('/');
-    pathSplit.shift();
-    pathSplit.pop();
-    return pathSplit.map(() => '../').join('');
+    //let splitPath = message.client.commands.get(module.exports.name).path.split('/');
+    //splitPath.pop();
+    //return splitPath.map(_ => `../`).join('');
+    return 'commands';
 }
 /**@param {Message} message*/
 function getMainCategories(message) {
     return new Category(getCommandsPath(message)).subCategories;
 }
+/**@param {string} item*/
+function Uppercased(item) {
+    return item.substring(0, 1).toUpperCase() + item.substring(1, item.length).toLowerCase();
+}
 
+
+class SubCategory {
+    /**@param {string} name
+     * @param {string} path*/
+    constructor(name, path) {
+        this.name = name;
+        this.path = path;
+    }
+}
 class Category {
     /**@param {string} path*/
     constructor(path) {
         let splitPath = path.split('/');
         this.name = splitPath[splitPath.length - 1];
 
-        let folder = fs.readdirSync(path);
-        this.subCategories = folder.filter(file => !file.toLowerCase().includes('archived') && !file.includes('.')).map(file => { return { name: file, path: `${path}/${file}` } });
+        let folder = fs.readdirSync(`./${path}`);
         this.scripts = GetScripts();
+        this.subCategories = folder
+            .filter(file => !file.toLowerCase().includes('archived') && !file.includes('.'))
+            .map(file => new SubCategory(file, `${path}/${file}`));
 
-        /**@returns {import('pingu-discord.js-addons').PinguCommand[]} */
+        /**@returns {PinguCommand[]} */
         function GetScripts() {
-            return folder.filter(file => file.endsWith('.js')).map(script => require(`${path}/${script}`));
+            let value = folder.filter(file => file.endsWith('.js')).map(script => require(`../../../${path}/${script}`));
+            return value;
         }
     }
 }

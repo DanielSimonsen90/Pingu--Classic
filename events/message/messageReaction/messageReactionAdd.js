@@ -1,5 +1,5 @@
 ﻿const { Client, MessageReaction, User, MessageEmbed } = require("discord.js");
-const { PinguLibrary, ReactionRole, Queue } = require("PinguPackage");
+const { PinguLibrary, ReactionRole, EmbedField } = require("PinguPackage");
 
 module.exports = {
     name: 'events: messageReactionAdd',
@@ -8,13 +8,15 @@ module.exports = {
         return module.exports.content = new MessageEmbed()
             .setDescription(reaction.message.content ? `"${reaction.message.content}"` : null)
             .setURL(reaction.message.url)
-            .setImage(reaction.message.attachments.first())
-            .addField(`User`, user.tag, true)
-            .addField(`Reaction`, reaction.emoji, true)
-            .addField("\u200B", "\u200B", true)
-            .addField(`Message ID`, reaction.message.id, true)
-            .addField(`Channel`, reaction.message.channel, true)
-            .addField(`Channel ID`, reaction.message.channel.id, true);
+            .setImage(reaction.message.attachments.first() && reaction.message.attachments.first().attachment)
+            .addFields([
+                new EmbedField('User', user.tag, true),
+                new EmbedField('Reaction', reaction.emoji, true),
+                PinguLibrary.BlankEmbedField(true),
+                new EmbedField(`Message ID`, reaction.message.id, true),
+                new EmbedField(`Channel`, reaction.message.channel, true),
+                new EmbedField(`Channel ID`, reaction.message.channel.id, true)
+            ]);
     },
     /**@param {Client} client
      @param {{reaction: MessageReaction, user: User}}*/

@@ -21,7 +21,8 @@ function HandlePath(path, type) {
         try {
             if (file.endsWith(`.js`)) {
                 let module = require(`${path}/${file}`);
-                module.path = `${path}/${file}`;
+                module.path = `${path.substring(1, path.length)}/${file}`;
+
                 if (module.name.includes(':')) {
                     module.name = module.name.split(':')[1];
                     module.name = module.name.substring(1, module.name.length);
@@ -38,7 +39,7 @@ function HandlePath(path, type) {
         }
     }
 }
-HandlePath('./commands', 'command')
+HandlePath('./commands', 'command');
 HandlePath(`./events`, 'event');
 //#endregion
 
@@ -144,7 +145,7 @@ client.on('messageReactionRemoveAll', message => HandleEvent(`${MessageString}/$
 client.on('userUpdate', (preUser, user) => HandleEvent(`userUpdate`, { preUser, user })); //User updated
 
 /**@param {string} path
- * @param {import('pingu-discord.js-addons').PinguEventData} parameters*/
+ * @param {import('PinguPackage').PinguEventParams} parameters*/
 async function HandleEvent(path, parameters) {
     let pathArr = path.split('/');
     let eventName = pathArr[pathArr.length - 1];

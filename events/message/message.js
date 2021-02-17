@@ -1,5 +1,5 @@
 ﻿const { Client, Guild, Message, MessageEmbed } = require("discord.js");
-const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error, PClient } = require("PinguPackage");
+const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error, PClient, CommandIDs, PinguCommand } = require("PinguPackage");
 const { musicCommands } = require('../../commands/2 Fun/music'), { HandleTell, ExecuteTellReply } = require('../../commands/2 Fun/Pingu User/tell');
 const { CheckRoleChange } = require("../guild/role/roleUpdate");
 
@@ -152,11 +152,11 @@ module.exports = {
             let clientIndex = guild.client.user.id == PinguLibrary.Clients.PinguID ? 0 : 1;
 
             if (!pGuildClient) {
-                pGuild.clients[clientIndex] = new PClient(client, guild);
-
-                const PinguGuildSchema = require('../../MongoSchemas/PinguGuild');
-                await PinguLibrary.DBExecute(client, () => PinguGuildSchema.updateOne({ _id: guild.id }, { clients: pGuild.clients }));
-                pGuildClient = pGuild.clients[clientIndex];
+                pGuildClient = pGuild.clients[clientIndex] = new PClient(client, guild);
+                await PinguGuild.UpdatePGuild(client, { clients: pGuild.clients }, pGuild, module.exports.name,
+                    `Added ${client.user.tag} to ${pGuild.name}'s PinguGuild`,
+                    `Failed to add ${client.user.tag} to ${pGuild.name}'s PinguGuild`,
+                );
             }
 
             if (pGuildClient.embedColor != guild.me.roles.cache.find(botRoles => botRoles.managed).color)
@@ -188,7 +188,7 @@ module.exports = {
             return command;
         }
         /**@param {Message} message
-         * @param {import('pingu-discord.js-addons').PinguCommand} command
+         * @param {PinguCommand} command
          * @returns {{value: boolean, message: string, type: "text" | "dm"}}*/
         function DecodeCommand(message, command) {
             let returnValue = {
@@ -209,11 +209,18 @@ module.exports = {
             }
 
             //If guildOnly
-            if (command.guildOnly && message.channel.type == 'dm')
-                return returnValue.setMessage(`I can't execute that command inside DMs!`)
+            if (command.guildOnly && !message.guild)
+                return returnValue.setMessage(`That command can only be executed in servers!`);
+
+            //If GuildSpecific
+            if (command.id == CommandIDs.GuildSpecific) {
+                if (!message.guild) return returnValue.setMessage(`That command can only be used in a specific server!`);
+                if (command.specificGuildID != message.guild.id)
+                    return returnValue.setMessage(`That command cannot be used in this server!`);
+            }
 
             //If DevOnly
-            if (command.id == 4 && !PinguLibrary.isPinguDev(message.author))
+            if (command.id == CommandIDs.DevOnly && !PinguLibrary.isPinguDev(message.author))
                 return returnValue.setMessage(`Who do you think you are exactly?`);
 
             if (message.channel.type != 'dm' && command.permissions) {
@@ -228,7 +235,7 @@ module.exports = {
          * @param {string[]} args 
          * @param {string} Prefix 
          * @param {string} commandName 
-         * @param {import('pingu-discord.js-addons').PinguCommand} command*/
+         * @param {import('PinguPackage').PinguCommand} command*/
         async function ExecuteAndLogCommand(message, args, commandName, command) {
             let ConsoleLog = `User **${message.author.username}** executed command **${commandName}**, from ${(!message.guild ? `DMs and ` : `"${message.guild}", #${message.channel.name}, and `)}`;
 
@@ -236,14 +243,11 @@ module.exports = {
             try {
                 if (commandName == "tell") HandleTell(message, args);
 
-                let pGuild = await PinguGuild.GetPGuild(message.guild);
-                command.execute({
-                    message,
-                    args,
-                    pAuthor: await PinguUser.GetPUser(message.author),
-                    pGuild,
-                    pGuildClient: message.guild ? PinguGuild.GetPClient(client, pGuild) : null
-                });
+                var pGuild = await PinguGuild.GetPGuild(message.guild);
+                var pAuthor = await PinguUser.GetPUser(message.author);
+                var pGuildClient = message.guild ? PinguGuild.GetPClient(client, pGuild) : null
+
+                command.execute({ message, args, pAuthor, pGuild, pGuildClient });
                 ConsoleLog += `**succeeded!**`;
             } catch (err) {
                 if (err.message == 'Missing Access' && message.guild.id == PinguLibrary.SavedServers.PinguEmotes(client).id && await FindPermission())
@@ -251,14 +255,16 @@ module.exports = {
 
                 ConsoleLog += `**failed!**\nError: ${err}`;
 
-
                 let errorID = PinguLibrary.errorCache.size;
                 await PinguLibrary.errorLog(client, `Trying to execute "${command.name}"!`, message.content, err, errorID);
-                PinguLibrary.errorLog(client, `message:`, JSON.stringify(message.toJSON()), null, errorID);
-                PinguLibrary.errorLog(client, `args`, JSON.stringify(args), null, errorID);
-                PinguLibrary.errorLog(client, `pAuthor`, JSON.stringify(pAuthor), null, errorID);
-                PinguLibrary.errorLog(client, `pGuild`, JSON.stringify(pGuild), null, errorID);
-                PinguLibrary.errorLog(client, `pGuildClient`, JSON.stringify(pGuildClient), null, errorID);
+
+                PinguLibrary.errorLog(client, `Parameters for message error:`, "," + JSON.stringify({
+                    message: JSON.stringify(message.toJSON()),
+                    args: JSON.stringify(args),
+                    pAuthor: JSON.stringify(pAuthor),
+                    pGuild: JSON.stringify(pGuild),
+                    pGuildClient: JSON.stringify(pGuildClient)
+                }), null, errorID);
             }
             console.log(" ");
             PinguLibrary.consoleLog(client, ConsoleLog);

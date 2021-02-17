@@ -1,6 +1,5 @@
 ﻿const { Message } = require("discord.js");
-const { PinguLibrary, DiscordPermissions, Error, PClient } = require("PinguPackage");
-const pathToMain = getPath();
+const { PinguLibrary, DiscordPermissions, Error } = require("PinguPackage");
 
 module.exports = {
     name: 'update',
@@ -18,16 +17,17 @@ module.exports = {
 
         if (!command && !event) return message.channel.send(`Unable to find file \`${script}.js\`!`);
 
-        if (command) delete require.cache[require.resolve(`${pathToMain}${command.path}`)];
-        else delete require.cache[require.resolve(`${pathToMain}${event.path}`)];
+        if (command) delete require.cache[require.resolve(`${getPath()}${command.path}`)];
+        else delete require.cache[require.resolve(`${getPath()}${event.path}`)];
 
         try {
             if (command) {
-                const newCommand = require(`${pathToMain}${command.path}`);
+                const newCommand = require(`${getPath()}${command.path}`);
+                newCommand.path = command.path;
                 message.client.commands.set(newCommand.name, newCommand);
             }
             else {
-                const newEvent = require(`${pathToMain}${event.path}`);
+                const newEvent = require(`${getPath()}${event.path}`);
                 newEvent.path = event.path;
                 newEvent.name = event.name;
                 message.client.events.set(newEvent.name, newEvent);
