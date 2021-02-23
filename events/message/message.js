@@ -1,12 +1,10 @@
-﻿const { Client, Guild, Message, MessageEmbed } = require("discord.js");
-const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error, PClient, CommandIDs, PinguCommand } = require("PinguPackage");
+﻿const { Guild, MessageEmbed } = require("discord.js");
+const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error, PClient, CommandCategories, PinguEvent } = require("PinguPackage");
 const { musicCommands } = require('../../commands/2 Fun/music'), { HandleTell, ExecuteTellReply } = require('../../commands/2 Fun/Pingu User/tell');
 const { CheckRoleChange } = require("../guild/role/roleUpdate");
 
-module.exports = {
-    name: 'events: message',
-    /**@param {{message: Message}}*/
-    setContent({ message }) {
+module.exports = new PinguEvent('message',
+    async function setContent(message) {
         try {
             return module.exports.content = new MessageEmbed()
                 .setDescription(message.content ? `"${message.content}"` : "")
@@ -36,17 +34,15 @@ module.exports = {
             return `No mentions`;
         }
     },
-    /**@param {Client} client
-     * @param {{message: Message}}*/
-    async execute(client, { message }) {
+    async function execute(client, message) {
         //Log latency
         try { PinguLibrary.latencyCheck(message); }
         catch (err) { PinguLibrary.errorLog(client, `LatencyCheck error`, message.content, err); }
 
-        if (await fromEmotesChannel(message)) return;
+        if (await fromEmotesChannel()) return;
 
         //Assign prefix
-        let prefix = message.guild ? await HandlePGuild(message.guild) : PinguLibrary.DefaultPrefix(message.client);
+        let prefix = message.guild ? await HandlePGuild(message.guild) : PinguLibrary.DefaultPrefix(client);
 
         //Split prefix from message content
         let args = message.content.slice(prefix.length).split(/ +/) ||
@@ -60,7 +56,7 @@ module.exports = {
             return message.channel.send(`My prefix is \`${prefix}\``);
 
         //If interacted via @
-        commandName = TestTagInteraction(commandName, args);
+        commandName = TestTagInteraction();
 
         var startsWithPrefix = () => message.content.startsWith(prefix) && !message.author.bot || message.content.includes(client.user.id);
 
@@ -78,21 +74,20 @@ module.exports = {
             args.unshift(commandName);
             commandName = `music`;
         } //music command was used without *music
-        let command = AssignCommand(commandName, args);
+        let command = AssignCommand();
         if (!command) return;
 
         //If I'm not interacted with don't do anything
         if ((!message.content.startsWith(prefix) || message.author.bot) && !message.content.includes(client.user.id)) return;
 
         //Decode command
-        let decoded = DecodeCommand(message, command);
+        let decoded = DecodeCommand();
         if (!decoded.value) return decoded.type == 'text' ? message.channel.send(decoded.message) : message.author.send(decoded.message);
 
         //Execute command and log it
-        ExecuteAndLogCommand(message, args, commandName, command);
+        ExecuteAndLogCommand();
 
-        /**@param {Message} message*/
-        async function fromEmotesChannel(message) {
+        async function fromEmotesChannel() {
             if (!message.guild || message.author.bot || !message.channel.name.includes('emote') || !message.channel.name.includes('emoji')) return false;
 
             let permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.MANAGE_EMOJIS, DiscordPermissions.SEND_MESSAGES])
@@ -148,8 +143,8 @@ module.exports = {
                 }, guild);
             }
 
-            let pGuildClient = PinguGuild.GetPClient(client, pGuild);
-            let clientIndex = guild.client.user.id == PinguLibrary.Clients.PinguID ? 0 : 1;
+            let pGuildClient = client.toPClient(pGuild);
+            let clientIndex = client.isLive ? 0 : 1;
 
             if (!pGuildClient) {
                 pGuildClient = pGuild.clients[clientIndex] = new PClient(client, guild);
@@ -161,18 +156,14 @@ module.exports = {
 
             if (pGuildClient.embedColor != guild.me.roles.cache.find(botRoles => botRoles.managed).color)
                 CheckRoleChange(guild, pGuild, module.exports.name);
-            return pGuildClient.prefix || PinguLibrary.DefaultPrefix(client);
+            return pGuildClient.prefix || client.DefaultPrefix
         }
-        /**@param {string} commandName 
-         * @param {string[]} args*/
-        function TestTagInteraction(commandName, args) {
+        function TestTagInteraction() {
             if (commandName.includes(client.user.id))
                 commandName = args.shift();
             return commandName;
         }
-        /**@param {string} commandName 
-         * @param {string[]} args*/
-        function AssignCommand(commandName, args) {
+        function AssignCommand() {
             let command = client.commands.get(commandName);
             if (command) return command;
 
@@ -187,10 +178,7 @@ module.exports = {
             }
             return command;
         }
-        /**@param {Message} message
-         * @param {PinguCommand} command
-         * @returns {{value: boolean, message: string, type: "text" | "dm"}}*/
-        function DecodeCommand(message, command) {
+        function DecodeCommand() {
             let returnValue = {
                 type: message.channel.type,
                 value: false,
@@ -213,14 +201,14 @@ module.exports = {
                 return returnValue.setMessage(`That command can only be executed in servers!`);
 
             //If GuildSpecific
-            if (command.id == CommandIDs.GuildSpecific) {
+            if (command.id == CommandCategories.GuildSpecific) {
                 if (!message.guild) return returnValue.setMessage(`That command can only be used in a specific server!`);
                 if (command.specificGuildID != message.guild.id)
                     return returnValue.setMessage(`That command cannot be used in this server!`);
             }
 
             //If DevOnly
-            if (command.id == CommandIDs.DevOnly && !PinguLibrary.isPinguDev(message.author))
+            if (command.id == CommandCategories.DevOnly && !PinguLibrary.isPinguDev(message.author))
                 return returnValue.setMessage(`Who do you think you are exactly?`);
 
             if (message.channel.type != 'dm' && command.permissions) {
@@ -231,12 +219,7 @@ module.exports = {
             }
             return returnValue.setValue(true);
         }
-        /**@param {Message} message 
-         * @param {string[]} args 
-         * @param {string} Prefix 
-         * @param {string} commandName 
-         * @param {import('PinguPackage').PinguCommand} command*/
-        async function ExecuteAndLogCommand(message, args, commandName, command) {
+        async function ExecuteAndLogCommand() {
             let ConsoleLog = `User **${message.author.username}** executed command **${commandName}**, from ${(!message.guild ? `DMs and ` : `"${message.guild}", #${message.channel.name}, and `)}`;
 
             //Attempt execution of command
@@ -245,7 +228,7 @@ module.exports = {
 
                 var pGuild = await PinguGuild.GetPGuild(message.guild);
                 var pAuthor = await PinguUser.GetPUser(message.author);
-                var pGuildClient = message.guild ? PinguGuild.GetPClient(client, pGuild) : null
+                var pGuildClient = message.guild && pGuild ? client.toPClient(pGuild) : null
 
                 command.execute({ message, args, pAuthor, pGuild, pGuildClient });
                 ConsoleLog += `**succeeded!**`;
@@ -270,9 +253,8 @@ module.exports = {
             PinguLibrary.consoleLog(client, ConsoleLog);
             async function FindPermission() {
                 //Find Danho and make check variable, to bypass "You don't have that permission!" (gotta abuse that PinguDev power)
-                let Danho = PinguLibrary.Developers(client).Danho;
                 let check = {
-                    author: Danho,
+                    author: PinguLibrary.Developers.get('Danho'),
                     channel: message.channel,
                     client: client,
                     content: message.content
@@ -333,4 +315,4 @@ module.exports = {
             }
         }
     }
-}
+);

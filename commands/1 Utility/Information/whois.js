@@ -1,34 +1,28 @@
 const { Message, MessageEmbed, GuildMember, User } = require('discord.js');
 const { GetColor } = require('../../../events/guild/presenceUpdate');
-const { DiscordPermissions, PinguLibrary } = require('PinguPackage');
-module.exports = {
-    name: 'whois',
-    cooldown: 5,
-    description: 'Gets the info of a specified user',
-    usage: '<ID> | <Mention>',
+const { PinguCommand, PinguLibrary } = require('PinguPackage');
+
+module.exports = new PinguCommand('whois', 'Utility', 'Gets the info of specified user', {
+    usage: '<ID> | <@Mention>',
     guildOnly: true,
-    id: 1,
-    example: ['245572699894710272', '@Danho#2105'],
-    permissions: [DiscordPermissions.SEND_MESSAGES],
-    /**@param {{message: Message, args: string[]}}*/
-    async execute({ message, args }) {
-        //Permission check
-        if (args[0] != null) {
-            if (args[0].includes('_')) args[0] = args[0].replace('_', ' ');
-            if (args[0].includes('!')) args[0] = args[0].replace('!', '');
-        }
+    example: ['245572699894710272', '@Danho#2105']
+}, async ({ message, args }) => {
+    //Permission check
+    if (args[0] != null) {
+        if (args[0].includes('_')) args[0] = args[0].replace('_', ' ');
+        if (args[0].includes('!')) args[0] = args[0].replace('!', '');
+    }
 
-        //Variables
-        var GuildMember = message.guild.members.cache.array().find(gm => [gm.user.username, gm.displayName, gm.user.id].includes(args[0])) ||
-                          message.mentions.members.first(), //No arguments provided || No member found
-            user = GuildMember ? GuildMember.user : await message.client.users.fetch(args[0]) || message.member;
+    //Variables
+    var GuildMember = message.guild.members.cache.array().find(gm => [gm.user.username, gm.displayName, gm.user.id].includes(args[0])) ||
+        message.mentions.members.first(), //No arguments provided || No member found
+        user = GuildMember ? GuildMember.user : await message.client.users.fetch(args[0]) || message.member;
 
-        //Promise becomes a user
-        return args[0] != null && user != (GuildMember && GuildMember.user || true) ?
-            await SendNonGuildMessage(message, user) :
-            await HandleGuildMember(message, GuildMember);
-    },
-};
+    //Promise becomes a user
+    return args[0] != null && user != (GuildMember && GuildMember.user || true) ?
+        await SendNonGuildMessage(message, user) :
+        await HandleGuildMember(message, GuildMember);
+});
 
 /**@param {Message} message 
  * @param {GuildMember} GuildMember*/

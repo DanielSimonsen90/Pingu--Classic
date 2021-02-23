@@ -1,10 +1,3 @@
-const { Client } = require("discord.js");
+const { PinguEvent } = require('PinguPackage');
 
-module.exports = {
-    name: 'events: shardReady',
-    /**@param {Client} client
-     @param {{id: string, deadGuildsIDs: Set<string>}}*/
-    execute(client, { id, deadGuildsIDs }) {
-
-    }
-}
+//module.exports = new PinguEvent('shardReady');

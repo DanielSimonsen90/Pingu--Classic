@@ -1,42 +1,35 @@
 const { Message, MessageEmbed, Collection } = require('discord.js');
-const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions, PClient, EmbedField, Queue, TimeLeftObject, Marry } = require('PinguPackage');
+const { PinguCommand, PinguLibrary, PinguGuild, PinguUser, PClient, EmbedField, Queue, TimeLeftObject, Marry } = require('PinguPackage');
 
 const availableTypes = ['server', 'guild', 'user', 'bot', 'client'];
 
-module.exports = {
-    name: 'info',
-    description: 'All da information you need',
-    usage: '<type: server | user> <property: all | <property>>',
-    guildOnly: false,
-    id: 1,
-    examples: [""],
-    permissions: [DiscordPermissions.SEND_MESSAGES],
-    /**@param {{message: Message, args: string[], pAuthor: PinguUser, pGuild: PinguGuild, pGuildClient: PClient}}*/
-    async execute({ message, args, pAuthor, pGuild, pGuildClient }) {
-        if (!args || !args[0]) args[0] = message.guild ? 'guild' : 'user';
-        if (!availableTypes.includes(args[0])) return message.channel.send(`**${type}** is an invalid type!`);
+module.exports = new PinguCommand('info', 'Utility', 'All da information you need', {
+    usage: '<type: server | iser> <property: all | <property>>'
+}, async ({ message, args, pAuthor, pGuild, pGuildClient }) => {
+    if (!args || !args[0]) args[0] = message.guild ? 'guild' : 'user';
+    if (!availableTypes.includes(args[0])) return message.channel.send(`**${type}** is an invalid type!`);
 
-        let userType = args.shift();
-        let type = ['server', 'guild'].includes(userType) ? 'guild' :
-            ['client', 'bot'].includes(userType) ? 'client' : 'user';
+    let userType = args.shift();
+    let type = ['server', 'guild'].includes(userType) ? 'guild' :
+        ['client', 'bot'].includes(userType) ? 'client' : 'user';
 
-        let obj = type == 'guild' ? pGuild : type == 'user' ? pAuthor : pGuildClient;
+    let obj = type == 'guild' ? pGuild : type == 'user' ? pAuthor : pGuildClient;
 
-        if (!args[0]) args[0] = 'all';
-        if (!obj[args[0]] && args[0] != 'all')
-            return message.channel.send(`Property for ${userType} is invalid! Please use any of the following:\n` + (() => {
-                let send = Object.keys({ ...obj, ...{ all: "All properties to be listed" } })
-                    .filter(v => !['_id', '__v'].includes(v))
-                    .sort()
-                    .map(v => `- ${v.toLowerCase()}`)
-                    .join('\n')
-                return "```\n" + send + "```";
-            })());
-        let prop = args.shift();
+    if (!args[0]) args[0] = 'all';
+    if (!obj[args[0]] && args[0] != 'all')
+        return message.channel.send(`Property for ${userType} is invalid! Please use any of the following:\n` + (() => {
+            let send = Object.keys({ ...obj, ...{ all: "All properties to be listed" } })
+                .filter(v => !['_id', '__v'].includes(v))
+                .sort()
+                .map(v => `- ${v.toLowerCase()}`)
+                .join('\n')
+            return "```\n" + send + "```";
+        })());
+    let prop = args.shift();
 
-        return await GetInfo(message, userType, type, obj, prop, pGuildClient);
-    }
-}
+    return await GetInfo(message, userType, type, obj, prop, pGuildClient);
+});
+
 
 //IMPORTANT INFORMATION
 //9 + 10 = 25
@@ -258,4 +251,3 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
         return titles.map((v, i) => `${v}: ${values[i]}`).join('\n') + "\n";
     }
 }
-

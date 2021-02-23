@@ -1,11 +1,7 @@
-const { Client, Guild } = require("discord.js");
-const { PinguGuild, PinguLibrary, PinguUser } = require("PinguPackage");
+const { PinguGuild, PinguLibrary, PinguUser, PinguEvent } = require("PinguPackage");
 
-module.exports = {
-    name: 'events: guildCreate',
-    /**@param {Client} client
-     * @param {{guild: Guild}}*/
-    async execute(client, { guild }) {
+module.exports = new PinguEvent('guildCreate', null,
+    async function execute(client, guild) {
         //Add to MongolDB
         PinguGuild.WritePGuild(client, guild, module.exports.name,
             `Successfully joined "**${guild.name}**", owned by ${guild.owner}`,
@@ -38,4 +34,4 @@ module.exports = {
             .then(PinguLibrary.consoleLog(guild.client, `Sent ${guild.owner.user.tag} my "thank you" message.`));
 
     }
-}
+);

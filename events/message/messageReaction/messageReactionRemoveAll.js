@@ -1,18 +1,14 @@
-const { Client, Message, MessageEmbed } = require("discord.js");
-const { PinguLibrary, PinguGuild } = require("PinguPackage");
+const { Message, MessageEmbed } = require("discord.js");
+const { PinguEvent, PinguLibrary, PinguGuild } = require("PinguPackage");
 
-module.exports = {
-    name: 'events: messageReactionRemoveAll',
-    /**@param {{message: Message}}*/
-    setContent({ message }) {
+module.exports = new PinguEvent('messageReactionRemoveAll', 
+    async function setContent(message) {
         return module.exports.content = new MessageEmbed().setDescription(`Removed all reactions from message, ${message.id}`);
     },
-    /**@param {Client} client
-     @param {{message: Message}}*/
-    execute(client, { message }) {
+    async function execute(client, message) {
         RemoveReactionRoles(message)
     }
-}
+);
 
 /**@param {Message} message*/
 async function RemoveReactionRoles(message) {

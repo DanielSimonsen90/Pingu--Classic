@@ -1,15 +1,7 @@
-const { Message } = require('discord.js');
-const { DiscordPermissions, PinguLibrary } = require('PinguPackage');
+const { PinguCommand, PinguLibrary } = require('PinguPackage');
 
-module.exports = {
-    name: 'ping',
-    description: `Tells you the latency`,
-    usage: '',
-    id: 1,
-    examples: null,
-    permissions: [DiscordPermissions.SEND_MESSAGES],
-    /**@param {{message: Message}}*/
-    async execute({ message }) {
+module.exports = new PinguCommand('ping', 'Utility', 'Tells you how much I lag', null,
+    async ({ message }) => {
         let sent = await message.channel.send(`Calculating...`);
         let latency = sent.createdTimestamp - message.createdTimestamp;
         PinguLibrary.consoleLog(message.client, `Ping: ${latency}ms`);
@@ -19,4 +11,4 @@ module.exports = {
             `Discord API latency: ${message.client.ws.ping}ms`
         );
     }
-}
+);

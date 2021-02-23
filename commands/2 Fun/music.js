@@ -1,18 +1,60 @@
-﻿const { Message, MessageEmbed, VoiceChannel, MessageReaction, User, VoiceConnection } = require('discord.js'),
-    { PinguGuild, Queue, Song, PinguLibrary, PClient, DiscordPermissions, config } = require('PinguPackage'),
-    ytdl = require('ytdl-core'),
-    YouTube = require('simple-youtube-api');
+﻿const { Message, MessageEmbed, VoiceChannel, MessageReaction, User, VoiceConnection } = require('discord.js');
+const { PinguCommand, PinguGuild, Queue, Song, PinguLibrary, PClient, config } = require('PinguPackage');
+const ytdl = require('ytdl-core'), YouTube = require('simple-youtube-api');
 const { youtube_api } = config;
 var youTube = new YouTube(youtube_api), commandName = "", ms = require('ms');
 
-
-module.exports = {
-    name: 'music',
-    description: 'plays moives and videos',
+module.exports = { ...new PinguCommand('music', 'Fun', 'Plays music', {
     usage: `<play <link | search>> | volume [new volume] | move <posA> <posB> | stop | skip | nowplaying | queue | pause | resume>`,
     guildOnly: true,
-    id: 2,
     example: ["play https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
+    aliases: [
+        'join', 'summon',
+        'disconnect', 'dc',
+        'play', 'p',
+        'playskip', 'ps',
+        'remove', 'yeet',
+        'stop', 'st',
+        'skip', 'sk',
+        'nowplaying', 'np',
+        'volume', 'vol',
+        'queue', 'q',
+        'pause', 'stfu',
+        'resume', 'speak',
+        'move', 'mo',
+        'loop', 'repeat',
+        'restart', 'previous',
+        'shuffle'
+    ]
+}, async ({ message, args }) => {
+    const voiceChannel = message.member.voice.channel,
+        PermCheck = PermissionCheck(message, voiceChannel);
+    if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
+
+    commandName = args.shift().toLowerCase();
+    var queue = Queue.get(message.guild.id);
+
+    switch (commandName) {
+        case "join": case "summon": return HandleJoin(message, args.join(' '));
+        case "disconnect": case "dc": return HandleDisconnect(message, queue);
+        case "play": case "p": return HandlePlay(message, args, voiceChannel, queue);
+        case "playskip": case "ps": return queue ?
+            HandlePlaySkip(message, queue, args) :
+            HandlePlay(message, args, voiceChannel, queue);
+    }
+
+    if (!queue) return message.channel.send('Nothing is playing!');
+    if (!queue.currentSong) queue.index = 0;
+
+    var command = this.musicCommands.find(cmd => [cmd.name, cmd.alias].includes(commandName))
+    if (!command) return message.channel.send(`I didn't recognize that command!`);
+
+    if (["pause", "stfu", "resume", "speak"].includes(commandName))
+        HandlePauseResume(message, queue, ["pause", "stfu"].includes(commandName));
+    else if (['vol', 'volume'].includes(commandName))
+        HandleVolume(message, queue, args[0]);
+    else command.cmdHandler(message, queue, args);
+}), ...{
     musicCommands: [
         { name: "join", alias: "summon", cmdHandler: HandleJoin },
         { name: "disconnect", alias: "dc", cmdHandler: HandleDisconnect },
@@ -31,37 +73,6 @@ module.exports = {
         { name: "restart", alias: "previous", cmdHandler: HandleRestart },
         { name: "shuffle", cmdHandler: HandleShuffle }
     ],
-    permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.SPEAK],
-    /**@param {{message: Message, args: string[]}}*/
-    async execute({ message, args }) {
-        const voiceChannel = message.member.voice.channel,
-            PermCheck = PermissionCheck(message, voiceChannel);
-        if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
-
-        commandName = args.shift().toLowerCase();
-        var queue = Queue.get(message.guild.id);
-
-        switch (commandName) {
-            case "join": case "summon": return HandleJoin(message, args.join(' '));
-            case "disconnect": case "dc": return HandleDisconnect(message, queue);
-            case "play": case "p": return HandlePlay(message, args, voiceChannel, queue);
-            case "playskip": case "ps": return queue ?
-                HandlePlaySkip(message, queue, args) :
-                HandlePlay(message, args, voiceChannel, queue);
-        }
-
-        if (!queue) return message.channel.send('Nothing is playing!');
-        if (!queue.currentSong) queue.index = 0;
-
-        var command = this.musicCommands.find(cmd => [cmd.name, cmd.alias].includes(commandName))
-        if (!command) return message.channel.send(`I didn't recognize that command!`);
-
-        if (["pause", "stfu", "resume", "speak"].includes(commandName))
-            HandlePauseResume(message, queue, ["pause", "stfu"].includes(commandName));
-        else if (['vol', 'volume'].includes(commandName))
-            HandleVolume(message, queue, args[0]);
-        else command.cmdHandler(message, queue, args);
-    },
     /**@param {Message} message
      * @param {Queue} queue
      * @param {boolean} pauseRequest*/
@@ -108,7 +119,7 @@ module.exports = {
                 })
         } catch { /*Null checking cus I cant be bothered to deal with in if-statements*/ }
     }
-};
+}};
 
 /**@param {Message} message 
  * @param {VoiceChannel} voiceChannel*/
@@ -121,7 +132,7 @@ function PermissionCheck(message, voiceChannel) {
         channel: voiceChannel,
         client: message.client,
         content: message.content
-    }, [DiscordPermissions.VIEW_CHANNEL, DiscordPermissions.SPEAK])
+    }, ['VIEW_CHANNEL', 'SPEAK'])
 }
 
 //#region Command Handling

@@ -9,17 +9,17 @@
     </Header>
     <Snippet>
       <Code Language="JavaScript">
-        <![CDATA[const { Client } = require("discord.js");
-          const { PinguLibrary } = require("PinguPackage");
+        <![CDATA[const { MessageEmbed } = require("discord.js");
+          const { PinguEvent } = require("PinguPackage");
 
-          module.exports = {
-              name: 'events: $name$',
-              /**@param {Client} client
-               @param {{$parameterSummary$}}*/
-              execute(client, { $end$ }) {
-                
-              }
-          }]]>
+          module.exports = new PinguEvent($name$,
+            async function setContent($parameterSummary$) {
+              $end$
+            },
+            async function execute(client, $parameterSummary$) {
+            
+            }
+          )]]>
       </Code>
       <Declarations>
         <Literal>

@@ -1,32 +1,30 @@
-const { Client, DMChannel, GuildChannel, MessageEmbed, PermissionOverwrites, Collection } = require("discord.js");
-const { PinguEvents } = require("PinguPackage");
+const { GuildChannel, MessageEmbed, PermissionOverwrites, Collection } = require("discord.js");
+const { PinguEvent } = require("PinguPackage");
 
-module.exports = {
-    name: 'events: channelUpdate',
-    /**@param {{preChannel: DMChannel | GuildChannel, channel: DMChannel | GuildChannel}}*/
-    setContent({ preChannel, channel }) {
+module.exports = new PinguEvent('channelUpdate',
+    async function setContent(preChannel, channel) {
         return module.exports.content = new MessageEmbed().setDescription(GetDescription(channel.type));
 
         function GetDescription(type) {
-            return type == 'dm' ? PinguEvents.UnknownUpdate(preChannel, channel) : GetGuildChannel(preChannel, channel);
-            
+            return type == 'dm' ? PinguEvent.UnknownUpdate(preChannel, channel) : GetGuildChannel(preChannel, channel);
+
             /**@param {GuildChannel} preGC
              * @param {GuildChannel} gC*/
             function GetGuildChannel(preGC, gC) {
-                if (gC.name != preGC.name) return PinguEvents.SetDescriptionValues('Name', preGC.name, gC.name);
-                else if (gC.parent != preGC.parent) return PinguEvents.SetRemove(
+                if (gC.name != preGC.name) return PinguEvent.SetDescriptionValues('Name', preGC.name, gC.name);
+                else if (gC.parent != preGC.parent) return PinguEvent.SetRemove(
                     'Parent',
                     `${preGC.parent}`,
                     `${gC.parent}`,
                     `Set ${gC.parent} as Category`,
                     `Removed ${preGC.parent} as Category`,
-                    PinguEvents.SetDescriptionValues
+                    PinguEvent.SetDescriptionValues
                 );
                 else if (gC.permissionOverwrites != preGC.permissionOverwrites) return GetPermissionChange(preGC.permissionOverwrites, gC.permissionOverwrites);
-                else if (gC.position != preGC.position) return PinguEvents.SetDescriptionValues('Position', preGC.position, gC.position);
-                else if (gC.type != preGC.type) return PinguEvents.SetDescriptionValues('Type', preGC.type, gC.type);
+                else if (gC.position != preGC.position) return PinguEvent.SetDescriptionValues('Position', preGC.position, gC.position);
+                else if (gC.type != preGC.type) return PinguEvent.SetDescriptionValues('Type', preGC.type, gC.type);
 
-                return PinguEvents.UnknownUpdate(preGC, gC);
+                return PinguEvent.UnknownUpdate(preGC, gC);
 
                 /**@param {Collection<string, PermissionOverwrites>} prePerms
                  * @param {Collection<string, PermissionOverwrites>} perms*/
@@ -53,10 +51,5 @@ module.exports = {
                 }
             }
         }
-    },
-    /**@param {Client} client
-     * @param {{preChannel: DMChannel | GuildChannel, channel: DMChannel | GuildChannel}}*/
-    execute(client, { preChannel, channel }) {
-
     }
-}
+);

@@ -1,0 +1,2933 @@
+[
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812273358989033501",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "messageReactionAdd",
+        "description": "\"```\nundefined[Provided Message]\nshardReady.setContent\n\n[Error message]: \nCannot read property 'guild' of undefined\n\n[Stack]\nError: Cannot read property 'guild' of undefined\n    at c:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (c:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": "https://discord.com/channels/756383096646926376/809717769628418068/812273353183199243",
+        "color": 1634641,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "Pingu BETA#2320",
+            "name": "User",
+            "inline": true
+          },
+          {
+            "value": "📄",
+            "name": "Reaction",
+            "inline": true
+          },
+          {
+            "value": "​",
+            "name": "​",
+            "inline": true
+          },
+          {
+            "value": "812273353183199243",
+            "name": "Message ID",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "809717769628418068",
+            "name": "Channel ID",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731460092,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812273358989033501",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "messageReactionAdd",
+        "description": "\"```\nundefined[Provided Message]\nshardReady.setContent\n\n[Error message]: \nCannot read property 'guild' of undefined\n\n[Stack]\nError: Cannot read property 'guild' of undefined\n    at c:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (c:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": "https://discord.com/channels/756383096646926376/809717769628418068/812273353183199243",
+        "color": 1634641,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "Pingu BETA#2320",
+            "name": "User",
+            "inline": true
+          },
+          {
+            "value": "📄",
+            "name": "Reaction",
+            "inline": true
+          },
+          {
+            "value": "​",
+            "name": "​",
+            "inline": true
+          },
+          {
+            "value": "812273353183199243",
+            "name": "Message ID",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "809717769628418068",
+            "name": "Channel ID",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731460092,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "messageID": "812273354182230036",
+    "users": [
+      "778288722055659520"
+    ],
+    "count": 1,
+    "me": true,
+    "emojiID": "754672076484378644"
+  },
+  {
+    "id": "778288722055659520",
+    "system": null,
+    "locale": null,
+    "flags": 0,
+    "username": "Pingu BETA",
+    "bot": true,
+    "discriminator": "2320",
+    "avatar": "8cd3d16e45965bf6e71bf6c07c87489a",
+    "lastMessageChannelID": null,
+    "verified": true,
+    "mfaEnabled": true,
+    "createdTimestamp": 1605628891243,
+    "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "tag": "Pingu BETA#2320",
+    "avatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp",
+    "displayAvatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp"
+  }
+][
+  {
+    "messageID": "812273355117035530",
+    "users": [
+      "778288722055659520"
+    ],
+    "count": 1,
+    "me": true,
+    "emojiID": "754672076484378644"
+  },
+  {
+    "id": "778288722055659520",
+    "system": null,
+    "locale": null,
+    "flags": 0,
+    "username": "Pingu BETA",
+    "bot": true,
+    "discriminator": "2320",
+    "avatar": "8cd3d16e45965bf6e71bf6c07c87489a",
+    "lastMessageChannelID": null,
+    "verified": true,
+    "mfaEnabled": true,
+    "createdTimestamp": 1605628891243,
+    "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "tag": "Pingu BETA#2320",
+    "avatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp",
+    "displayAvatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp"
+  }
+][
+  {
+    "messageID": "812273355850907649",
+    "users": [
+      "778288722055659520"
+    ],
+    "count": 1,
+    "me": true,
+    "emojiID": "754672076484378644"
+  },
+  {
+    "id": "778288722055659520",
+    "system": null,
+    "locale": null,
+    "flags": 0,
+    "username": "Pingu BETA",
+    "bot": true,
+    "discriminator": "2320",
+    "avatar": "8cd3d16e45965bf6e71bf6c07c87489a",
+    "lastMessageChannelID": null,
+    "verified": true,
+    "mfaEnabled": true,
+    "createdTimestamp": 1605628891243,
+    "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "tag": "Pingu BETA#2320",
+    "avatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp",
+    "displayAvatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp"
+  }
+][
+  {
+    "messageID": "812273357055590440",
+    "users": [
+      "778288722055659520"
+    ],
+    "count": 1,
+    "me": true,
+    "emojiID": "754672076484378644"
+  },
+  {
+    "id": "778288722055659520",
+    "system": null,
+    "locale": null,
+    "flags": 0,
+    "username": "Pingu BETA",
+    "bot": true,
+    "discriminator": "2320",
+    "avatar": "8cd3d16e45965bf6e71bf6c07c87489a",
+    "lastMessageChannelID": null,
+    "verified": true,
+    "mfaEnabled": true,
+    "createdTimestamp": 1605628891243,
+    "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "tag": "Pingu BETA#2320",
+    "avatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp",
+    "displayAvatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp"
+  }
+][
+  {
+    "messageID": "812273354182230036",
+    "users": [
+      "778288722055659520"
+    ],
+    "count": 1,
+    "me": true
+  },
+  {
+    "id": "778288722055659520",
+    "system": null,
+    "locale": null,
+    "flags": 0,
+    "username": "Pingu BETA",
+    "bot": true,
+    "discriminator": "2320",
+    "avatar": "8cd3d16e45965bf6e71bf6c07c87489a",
+    "lastMessageChannelID": null,
+    "verified": true,
+    "mfaEnabled": true,
+    "createdTimestamp": 1605628891243,
+    "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "tag": "Pingu BETA#2320",
+    "avatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp",
+    "displayAvatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp"
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812273378387820576",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Mailex#6538** started listening to **Alexis** by Joey Trap",
+        "url": null,
+        "color": 2021216,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731464717,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812273378387820576",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Mailex#6538** started listening to **Alexis** by Joey Trap",
+        "url": null,
+        "color": 2021216,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731464717,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812273380056236052",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "messageReactionAdd",
+        "description": "\"```\nundefined[Provided Message]\nmessageReactionAdd.setContent\n\n[Error message]: \nCannot read property 'guild' of undefined\n\n[Stack]\nError: Cannot read property 'guild' of undefined\n    at c:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (c:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": "https://discord.com/channels/756383096646926376/809717769628418068/812273355117035530",
+        "color": 1634641,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "Pingu BETA#2320",
+            "name": "User",
+            "inline": true
+          },
+          {
+            "value": "<:Checkmark:754672076484378644>",
+            "name": "Reaction",
+            "inline": true
+          },
+          {
+            "value": "​",
+            "name": "​",
+            "inline": true
+          },
+          {
+            "value": "812273355117035530",
+            "name": "Message ID",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "809717769628418068",
+            "name": "Channel ID",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731465115,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812273380056236052",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "messageReactionAdd",
+        "description": "\"```\nundefined[Provided Message]\nmessageReactionAdd.setContent\n\n[Error message]: \nCannot read property 'guild' of undefined\n\n[Stack]\nError: Cannot read property 'guild' of undefined\n    at c:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (c:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": "https://discord.com/channels/756383096646926376/809717769628418068/812273355117035530",
+        "color": 1634641,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "Pingu BETA#2320",
+            "name": "User",
+            "inline": true
+          },
+          {
+            "value": "<:Checkmark:754672076484378644>",
+            "name": "Reaction",
+            "inline": true
+          },
+          {
+            "value": "​",
+            "name": "​",
+            "inline": true
+          },
+          {
+            "value": "812273355117035530",
+            "name": "Message ID",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "809717769628418068",
+            "name": "Channel ID",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731465115,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "messageID": "812273355117035530",
+    "users": [
+      "778288722055659520"
+    ],
+    "count": 1,
+    "me": true
+  },
+  {
+    "id": "778288722055659520",
+    "system": null,
+    "locale": null,
+    "flags": 0,
+    "username": "Pingu BETA",
+    "bot": true,
+    "discriminator": "2320",
+    "avatar": "8cd3d16e45965bf6e71bf6c07c87489a",
+    "lastMessageChannelID": "801046375390380073",
+    "verified": true,
+    "mfaEnabled": true,
+    "createdTimestamp": 1605628891243,
+    "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "tag": "Pingu BETA#2320",
+    "avatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp",
+    "displayAvatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp"
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812273383533838376",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "message",
+        "description": "\"```\nundefined[Provided Message]\nmessageUpdate.setContent\n\n[Error message]: \nCannot read property 'guild' of undefined\n\n[Stack]\nError: Cannot read property 'guild' of undefined\n    at c:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (c:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": null,
+        "color": 3447003,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "812273382414483526",
+            "name": "ID",
+            "inline": true
+          },
+          {
+            "value": "https://discord.com/channels/756383096646926376/809717769628418068/812273382414483526",
+            "name": "URL",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "DEFAULT",
+            "name": "Type",
+            "inline": true
+          },
+          {
+            "value": "Pingu Support",
+            "name": "Guild",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Attachments?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Embeds?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "TTS?",
+            "inline": true
+          },
+          {
+            "value": "No mentions",
+            "name": "Mentions?",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731465944,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812273383533838376",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "message",
+        "description": "\"```\nundefined[Provided Message]\nmessageUpdate.setContent\n\n[Error message]: \nCannot read property 'guild' of undefined\n\n[Stack]\nError: Cannot read property 'guild' of undefined\n    at c:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (c:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": null,
+        "color": 3447003,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "812273382414483526",
+            "name": "ID",
+            "inline": true
+          },
+          {
+            "value": "https://discord.com/channels/756383096646926376/809717769628418068/812273382414483526",
+            "name": "URL",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "DEFAULT",
+            "name": "Type",
+            "inline": true
+          },
+          {
+            "value": "Pingu Support",
+            "name": "Guild",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Attachments?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Embeds?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "TTS?",
+            "inline": true
+          },
+          {
+            "value": "No mentions",
+            "name": "Mentions?",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731465944,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812273384465104916",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Emilie <3#7726** is  **online**",
+        "url": null,
+        "color": 4437377,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731466166,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812273384465104916",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Emilie <3#7726** is  **online**",
+        "url": null,
+        "color": 4437377,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731466166,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812273385190326293",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "message",
+        "description": "\"```\nundefined[Provided Message]\nmessageUpdate.setContent\n\n[Error message]: \nCannot read property 'guild' of undefined\n\n[Stack]\nError: Cannot read property 'guild' of undefined\n    at c:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (c:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": null,
+        "color": 3447003,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "812273383160152105",
+            "name": "ID",
+            "inline": true
+          },
+          {
+            "value": "https://discord.com/channels/756383096646926376/809717769628418068/812273383160152105",
+            "name": "URL",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "DEFAULT",
+            "name": "Type",
+            "inline": true
+          },
+          {
+            "value": "Pingu Support",
+            "name": "Guild",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Attachments?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Embeds?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "TTS?",
+            "inline": true
+          },
+          {
+            "value": "No mentions",
+            "name": "Mentions?",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731466339,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812273385190326293",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "message",
+        "description": "\"```\nundefined[Provided Message]\nmessageUpdate.setContent\n\n[Error message]: \nCannot read property 'guild' of undefined\n\n[Stack]\nError: Cannot read property 'guild' of undefined\n    at c:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (c:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": null,
+        "color": 3447003,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "812273383160152105",
+            "name": "ID",
+            "inline": true
+          },
+          {
+            "value": "https://discord.com/channels/756383096646926376/809717769628418068/812273383160152105",
+            "name": "URL",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "DEFAULT",
+            "name": "Type",
+            "inline": true
+          },
+          {
+            "value": "Pingu Support",
+            "name": "Guild",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Attachments?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Embeds?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "TTS?",
+            "inline": true
+          },
+          {
+            "value": "No mentions",
+            "name": "Mentions?",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731466339,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "messageID": "812273355850907649",
+    "users": [
+      "778288722055659520"
+    ],
+    "count": 1,
+    "me": true
+  },
+  {
+    "id": "778288722055659520",
+    "system": null,
+    "locale": null,
+    "flags": 0,
+    "username": "Pingu BETA",
+    "bot": true,
+    "discriminator": "2320",
+    "avatar": "8cd3d16e45965bf6e71bf6c07c87489a",
+    "lastMessageChannelID": "801046375390380073",
+    "verified": true,
+    "mfaEnabled": true,
+    "createdTimestamp": 1605628891243,
+    "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "tag": "Pingu BETA#2320",
+    "avatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp",
+    "displayAvatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp"
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274636871696415",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "messageReactionAdd",
+        "description": "\"```\nundefined[Provided Message]\nshardReady.setContent\n\n[Error message]: \nCannot read property 'guild' of undefined\n\n[Stack]\nError: Cannot read property 'guild' of undefined\n    at C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": "https://discord.com/channels/756383096646926376/809717769628418068/812274631489880104",
+        "color": 1634641,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "Pingu BETA#2320",
+            "name": "User",
+            "inline": true
+          },
+          {
+            "value": "📄",
+            "name": "Reaction",
+            "inline": true
+          },
+          {
+            "value": "​",
+            "name": "​",
+            "inline": true
+          },
+          {
+            "value": "812274631489880104",
+            "name": "Message ID",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "809717769628418068",
+            "name": "Channel ID",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731764763,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274636871696415",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "messageReactionAdd",
+        "description": "\"```\nundefined[Provided Message]\nshardReady.setContent\n\n[Error message]: \nCannot read property 'guild' of undefined\n\n[Stack]\nError: Cannot read property 'guild' of undefined\n    at C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": "https://discord.com/channels/756383096646926376/809717769628418068/812274631489880104",
+        "color": 1634641,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "Pingu BETA#2320",
+            "name": "User",
+            "inline": true
+          },
+          {
+            "value": "📄",
+            "name": "Reaction",
+            "inline": true
+          },
+          {
+            "value": "​",
+            "name": "​",
+            "inline": true
+          },
+          {
+            "value": "812274631489880104",
+            "name": "Message ID",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "809717769628418068",
+            "name": "Channel ID",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731764763,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "messageID": "812274632081145877",
+    "users": [
+      "778288722055659520"
+    ],
+    "count": 1,
+    "me": true,
+    "emojiID": "754672076484378644"
+  },
+  {
+    "id": "778288722055659520",
+    "system": null,
+    "locale": null,
+    "flags": 0,
+    "username": "Pingu BETA",
+    "bot": true,
+    "discriminator": "2320",
+    "avatar": "8cd3d16e45965bf6e71bf6c07c87489a",
+    "lastMessageChannelID": null,
+    "verified": true,
+    "mfaEnabled": true,
+    "createdTimestamp": 1605628891243,
+    "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "tag": "Pingu BETA#2320",
+    "avatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp",
+    "displayAvatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp"
+  }
+][
+  {
+    "messageID": "812274633004417025",
+    "users": [
+      "778288722055659520"
+    ],
+    "count": 1,
+    "me": true,
+    "emojiID": "754672076484378644"
+  },
+  {
+    "id": "778288722055659520",
+    "system": null,
+    "locale": null,
+    "flags": 0,
+    "username": "Pingu BETA",
+    "bot": true,
+    "discriminator": "2320",
+    "avatar": "8cd3d16e45965bf6e71bf6c07c87489a",
+    "lastMessageChannelID": null,
+    "verified": true,
+    "mfaEnabled": true,
+    "createdTimestamp": 1605628891243,
+    "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "tag": "Pingu BETA#2320",
+    "avatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp",
+    "displayAvatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp"
+  }
+][
+  {
+    "messageID": "812274633969369088",
+    "users": [
+      "778288722055659520"
+    ],
+    "count": 1,
+    "me": true,
+    "emojiID": "754672076484378644"
+  },
+  {
+    "id": "778288722055659520",
+    "system": null,
+    "locale": null,
+    "flags": 0,
+    "username": "Pingu BETA",
+    "bot": true,
+    "discriminator": "2320",
+    "avatar": "8cd3d16e45965bf6e71bf6c07c87489a",
+    "lastMessageChannelID": null,
+    "verified": true,
+    "mfaEnabled": true,
+    "createdTimestamp": 1605628891243,
+    "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "tag": "Pingu BETA#2320",
+    "avatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp",
+    "displayAvatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp"
+  }
+][
+  {
+    "messageID": "812274634816094208",
+    "users": [
+      "778288722055659520"
+    ],
+    "count": 1,
+    "me": true,
+    "emojiID": "754672076484378644"
+  },
+  {
+    "id": "778288722055659520",
+    "system": null,
+    "locale": null,
+    "flags": 0,
+    "username": "Pingu BETA",
+    "bot": true,
+    "discriminator": "2320",
+    "avatar": "8cd3d16e45965bf6e71bf6c07c87489a",
+    "lastMessageChannelID": null,
+    "verified": true,
+    "mfaEnabled": true,
+    "createdTimestamp": 1605628891243,
+    "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "tag": "Pingu BETA#2320",
+    "avatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp",
+    "displayAvatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp"
+  }
+][
+  {
+    "messageID": "812274632081145877",
+    "users": [
+      "778288722055659520"
+    ],
+    "count": 1,
+    "me": true
+  },
+  {
+    "id": "778288722055659520",
+    "system": null,
+    "locale": null,
+    "flags": 0,
+    "username": "Pingu BETA",
+    "bot": true,
+    "discriminator": "2320",
+    "avatar": "8cd3d16e45965bf6e71bf6c07c87489a",
+    "lastMessageChannelID": null,
+    "verified": true,
+    "mfaEnabled": true,
+    "createdTimestamp": 1605628891243,
+    "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "tag": "Pingu BETA#2320",
+    "avatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp",
+    "displayAvatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp"
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274659478208543",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "message",
+        "description": "\"```\nundefined[Provided Message]\nmessageUpdate.setContent\n\n[Error message]: \nCannot read property 'guild' of undefined\n\n[Stack]\nError: Cannot read property 'guild' of undefined\n    at C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": null,
+        "color": 3447003,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "812274658757705758",
+            "name": "ID",
+            "inline": true
+          },
+          {
+            "value": "https://discord.com/channels/756383096646926376/809717769628418068/812274658757705758",
+            "name": "URL",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "DEFAULT",
+            "name": "Type",
+            "inline": true
+          },
+          {
+            "value": "Pingu Support",
+            "name": "Guild",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Attachments?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Embeds?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "TTS?",
+            "inline": true
+          },
+          {
+            "value": "No mentions",
+            "name": "Mentions?",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731770153,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274659478208543",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "message",
+        "description": "\"```\nundefined[Provided Message]\nmessageUpdate.setContent\n\n[Error message]: \nCannot read property 'guild' of undefined\n\n[Stack]\nError: Cannot read property 'guild' of undefined\n    at C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": null,
+        "color": 3447003,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "812274658757705758",
+            "name": "ID",
+            "inline": true
+          },
+          {
+            "value": "https://discord.com/channels/756383096646926376/809717769628418068/812274658757705758",
+            "name": "URL",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "DEFAULT",
+            "name": "Type",
+            "inline": true
+          },
+          {
+            "value": "Pingu Support",
+            "name": "Guild",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Attachments?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Embeds?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "TTS?",
+            "inline": true
+          },
+          {
+            "value": "No mentions",
+            "name": "Mentions?",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731770153,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "messageID": "812274633004417025",
+    "users": [
+      "778288722055659520"
+    ],
+    "count": 1,
+    "me": true
+  },
+  {
+    "id": "778288722055659520",
+    "system": null,
+    "locale": null,
+    "flags": 0,
+    "username": "Pingu BETA",
+    "bot": true,
+    "discriminator": "2320",
+    "avatar": "8cd3d16e45965bf6e71bf6c07c87489a",
+    "lastMessageChannelID": null,
+    "verified": true,
+    "mfaEnabled": true,
+    "createdTimestamp": 1605628891243,
+    "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "tag": "Pingu BETA#2320",
+    "avatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp",
+    "displayAvatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp"
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274661106516030",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "message",
+        "description": "\"```\nundefined[Provided Message]\nmessageReactionAdd.setContent\n\n[Error message]: \nCannot read property 'guild' of undefined\n\n[Stack]\nError: Cannot read property 'guild' of undefined\n    at C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": null,
+        "color": 3447003,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "812274660573839370",
+            "name": "ID",
+            "inline": true
+          },
+          {
+            "value": "https://discord.com/channels/756383096646926376/809717769628418068/812274660573839370",
+            "name": "URL",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "DEFAULT",
+            "name": "Type",
+            "inline": true
+          },
+          {
+            "value": "Pingu Support",
+            "name": "Guild",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Attachments?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Embeds?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "TTS?",
+            "inline": true
+          },
+          {
+            "value": "No mentions",
+            "name": "Mentions?",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731770541,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274661106516030",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "message",
+        "description": "\"```\nundefined[Provided Message]\nmessageReactionAdd.setContent\n\n[Error message]: \nCannot read property 'guild' of undefined\n\n[Stack]\nError: Cannot read property 'guild' of undefined\n    at C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": null,
+        "color": 3447003,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "812274660573839370",
+            "name": "ID",
+            "inline": true
+          },
+          {
+            "value": "https://discord.com/channels/756383096646926376/809717769628418068/812274660573839370",
+            "name": "URL",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "DEFAULT",
+            "name": "Type",
+            "inline": true
+          },
+          {
+            "value": "Pingu Support",
+            "name": "Guild",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Attachments?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Embeds?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "TTS?",
+            "inline": true
+          },
+          {
+            "value": "No mentions",
+            "name": "Mentions?",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731770541,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "messageID": "812274633969369088",
+    "users": [
+      "778288722055659520"
+    ],
+    "count": 1,
+    "me": true
+  },
+  {
+    "id": "778288722055659520",
+    "system": null,
+    "locale": null,
+    "flags": 0,
+    "username": "Pingu BETA",
+    "bot": true,
+    "discriminator": "2320",
+    "avatar": "8cd3d16e45965bf6e71bf6c07c87489a",
+    "lastMessageChannelID": "801046375390380073",
+    "verified": true,
+    "mfaEnabled": true,
+    "createdTimestamp": 1605628891243,
+    "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "tag": "Pingu BETA#2320",
+    "avatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp",
+    "displayAvatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp"
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274665883697184",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "messageReactionAdd",
+        "description": "\"```\nundefined[Provided Message]\nmessageUpdate.setContent\n\n[Error message]: \nCannot read property 'guild' of undefined\n\n[Stack]\nError: Cannot read property 'guild' of undefined\n    at C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": "https://discord.com/channels/756383096646926376/809717769628418068/812274633969369088",
+        "color": 1634641,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "Pingu BETA#2320",
+            "name": "User",
+            "inline": true
+          },
+          {
+            "value": "📄",
+            "name": "Reaction",
+            "inline": true
+          },
+          {
+            "value": "​",
+            "name": "​",
+            "inline": true
+          },
+          {
+            "value": "812274633969369088",
+            "name": "Message ID",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "809717769628418068",
+            "name": "Channel ID",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731771680,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274665883697184",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "messageReactionAdd",
+        "description": "\"```\nundefined[Provided Message]\nmessageUpdate.setContent\n\n[Error message]: \nCannot read property 'guild' of undefined\n\n[Stack]\nError: Cannot read property 'guild' of undefined\n    at C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": "https://discord.com/channels/756383096646926376/809717769628418068/812274633969369088",
+        "color": 1634641,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "Pingu BETA#2320",
+            "name": "User",
+            "inline": true
+          },
+          {
+            "value": "📄",
+            "name": "Reaction",
+            "inline": true
+          },
+          {
+            "value": "​",
+            "name": "​",
+            "inline": true
+          },
+          {
+            "value": "812274633969369088",
+            "name": "Message ID",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "809717769628418068",
+            "name": "Channel ID",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731771680,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "messageID": "812274634816094208",
+    "users": [
+      "778288722055659520"
+    ],
+    "count": 1,
+    "me": true
+  },
+  {
+    "id": "778288722055659520",
+    "system": null,
+    "locale": null,
+    "flags": 0,
+    "username": "Pingu BETA",
+    "bot": true,
+    "discriminator": "2320",
+    "avatar": "8cd3d16e45965bf6e71bf6c07c87489a",
+    "lastMessageChannelID": null,
+    "verified": true,
+    "mfaEnabled": true,
+    "createdTimestamp": 1605628891243,
+    "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "tag": "Pingu BETA#2320",
+    "avatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp",
+    "displayAvatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp"
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274711777902622",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Danho#2105** started listening to **I Will Pick You up (feat. Tamika)** by S3RL,  Tamika",
+        "url": null,
+        "color": 2021216,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731782622,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274711777902622",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Danho#2105** started listening to **I Will Pick You up (feat. Tamika)** by S3RL,  Tamika",
+        "url": null,
+        "color": 2021216,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731782622,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274736406724648",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Мариа#7547** started listening to **Promises (with Sam Smith)** by Calvin Harris,  Sam Smith,  Jessie Reyez",
+        "url": null,
+        "color": 2021216,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731788494,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274736406724648",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Мариа#7547** started listening to **Promises (with Sam Smith)** by Calvin Harris,  Sam Smith,  Jessie Reyez",
+        "url": null,
+        "color": 2021216,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731788494,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274740927397919",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Squ1dz#4480** started listening to **Like a Drum** by Guy Sebastian",
+        "url": null,
+        "color": 2021216,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731789572,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274740927397919",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Squ1dz#4480** started listening to **Like a Drum** by Guy Sebastian",
+        "url": null,
+        "color": 2021216,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731789572,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274754559672360",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Cherry桜~#5499** is  **offline**",
+        "url": null,
+        "color": 7503242,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731792822,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274754559672360",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Cherry桜~#5499** is  **offline**",
+        "url": null,
+        "color": 7503242,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731792822,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274763270848512",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Shankxs#0690** started playing **Zombies | Playing Round Based on Firebase Z**",
+        "url": null,
+        "color": 4437377,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731794899,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274763270848512",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Shankxs#0690** started playing **Zombies | Playing Round Based on Firebase Z**",
+        "url": null,
+        "color": 4437377,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731794899,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274776693014528",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Mr. Robot#4970** is  **online**,  If you are gas lighting peoples words I am deleting you.",
+        "url": null,
+        "color": 4437377,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731798099,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274776693014528",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Mr. Robot#4970** is  **online**,  If you are gas lighting peoples words I am deleting you.",
+        "url": null,
+        "color": 4437377,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731798099,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274780530671627",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Mr. Robot#4970** has started their custom status:  If you are gas lighting peoples words I am deleting you.",
+        "url": null,
+        "color": 4437377,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731799014,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274780530671627",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Mr. Robot#4970** has started their custom status:  If you are gas lighting peoples words I am deleting you.",
+        "url": null,
+        "color": 4437377,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731799014,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274814781358130",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**COVID-19 Bot#5036** is  **online**, **Shard 0 | 76.49ms latency | 2771 servers | Mention for help**",
+        "url": null,
+        "color": 4437377,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731807180,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274814781358130",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**COVID-19 Bot#5036** is  **online**, **Shard 0 | 76.49ms latency | 2771 servers | Mention for help**",
+        "url": null,
+        "color": 4437377,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731807180,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274956943622145",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Father#9599** is online as **idle**",
+        "url": null,
+        "color": 16426522,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731841074,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274956943622145",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Father#9599** is online as **idle**",
+        "url": null,
+        "color": 16426522,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731841074,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274962416009216",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Mailex#6538** started listening to **Choppa Won't Miss (feat. Young Thug)** by Playboi Carti,  Young Thug",
+        "url": null,
+        "color": 2021216,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731842379,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812274962416009216",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "presenceUpdate",
+        "description": "**Mailex#6538** started listening to **Choppa Won't Miss (feat. Young Thug)** by Playboi Carti,  Young Thug",
+        "url": null,
+        "color": 2021216,
+        "timestamp": null,
+        "fields": [],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613731842379,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "messageID": "812275458083258418",
+    "users": [
+      "778288722055659520"
+    ],
+    "count": 1,
+    "me": true,
+    "emojiID": "754672076484378644"
+  },
+  {
+    "id": "778288722055659520",
+    "system": null,
+    "locale": null,
+    "flags": 0,
+    "username": "Pingu BETA",
+    "bot": true,
+    "discriminator": "2320",
+    "avatar": "8cd3d16e45965bf6e71bf6c07c87489a",
+    "lastMessageChannelID": null,
+    "verified": true,
+    "mfaEnabled": true,
+    "createdTimestamp": 1605628891243,
+    "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "tag": "Pingu BETA#2320",
+    "avatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp",
+    "displayAvatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp"
+  }
+][
+  {
+    "messageID": "812277992172552202",
+    "users": [
+      "778288722055659520"
+    ],
+    "count": 1,
+    "me": true
+  },
+  {
+    "id": "778288722055659520",
+    "system": null,
+    "locale": null,
+    "flags": 0,
+    "username": "Pingu BETA",
+    "bot": true,
+    "discriminator": "2320",
+    "avatar": "8cd3d16e45965bf6e71bf6c07c87489a",
+    "lastMessageChannelID": "809717769628418068",
+    "verified": true,
+    "mfaEnabled": true,
+    "createdTimestamp": 1605628891243,
+    "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "tag": "Pingu BETA#2320",
+    "avatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp",
+    "displayAvatarURL": "https://cdn.discordapp.com/avatars/778288722055659520/8cd3d16e45965bf6e71bf6c07c87489a.webp"
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812277997515702324",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "message",
+        "description": "\"```\nundefined[Provided Message]\nmessageUpdate.setContent\n\n[Error message]: \nPinguLibrary.eventLog is not a function\n\n[Stack]\nError: PinguLibrary.eventLog is not a function\n    at C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": null,
+        "color": 3447003,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "812277996458737685",
+            "name": "ID",
+            "inline": true
+          },
+          {
+            "value": "https://discord.com/channels/756383096646926376/809717769628418068/812277996458737685",
+            "name": "URL",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "DEFAULT",
+            "name": "Type",
+            "inline": true
+          },
+          {
+            "value": "Pingu Support",
+            "name": "Guild",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Attachments?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Embeds?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "TTS?",
+            "inline": true
+          },
+          {
+            "value": "No mentions",
+            "name": "Mentions?",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613732566003,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812277997515702324",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "message",
+        "description": "\"```\nundefined[Provided Message]\nmessageUpdate.setContent\n\n[Error message]: \nPinguLibrary.eventLog is not a function\n\n[Stack]\nError: PinguLibrary.eventLog is not a function\n    at C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": null,
+        "color": 3447003,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "812277996458737685",
+            "name": "ID",
+            "inline": true
+          },
+          {
+            "value": "https://discord.com/channels/756383096646926376/809717769628418068/812277996458737685",
+            "name": "URL",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "DEFAULT",
+            "name": "Type",
+            "inline": true
+          },
+          {
+            "value": "Pingu Support",
+            "name": "Guild",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Attachments?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "Embeds?",
+            "inline": true
+          },
+          {
+            "value": "false",
+            "name": "TTS?",
+            "inline": true
+          },
+          {
+            "value": "No mentions",
+            "name": "Mentions?",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613732566003,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+][
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812277998983708692",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "messageReactionAdd",
+        "description": "\"```\nundefined[Provided Message]\nonready.setContent\n\n[Error message]: \nPinguLibrary.raspberryLog is not a function\n\n[Stack]\nError: PinguLibrary.raspberryLog is not a function\n    at C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": "https://discord.com/channels/756383096646926376/809717769628418068/812277992172552202",
+        "color": 1634641,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "Pingu BETA#2320",
+            "name": "User",
+            "inline": true
+          },
+          {
+            "value": "📄",
+            "name": "Reaction",
+            "inline": true
+          },
+          {
+            "value": "​",
+            "name": "​",
+            "inline": true
+          },
+          {
+            "value": "812277992172552202",
+            "name": "Message ID",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "809717769628418068",
+            "name": "Channel ID",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613732566353,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  },
+  {
+    "channelID": "801079152430022658",
+    "deleted": false,
+    "id": "812277998983708692",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "",
+    "authorID": "562176550674366464",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [
+      {
+        "type": "rich",
+        "title": "messageReactionAdd",
+        "description": "\"```\nundefined[Provided Message]\nonready.setContent\n\n[Error message]: \nPinguLibrary.raspberryLog is not a function\n\n[Stack]\nError: PinguLibrary.raspberryLog is not a function\n    at C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:151:85\n    at Generator.throw (<anonymous>)\n    at rejected (C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Pingu\\node_modules\\PinguPackage\\live\\discord.js-addons\\PinguEvent.js:6:65)\n    at processTicksAndRejections (internal/process/task_queues.js:93:5)\n\n\n```\"",
+        "url": "https://discord.com/channels/756383096646926376/809717769628418068/812277992172552202",
+        "color": 1634641,
+        "timestamp": null,
+        "fields": [
+          {
+            "value": "Pingu BETA#2320",
+            "name": "User",
+            "inline": true
+          },
+          {
+            "value": "📄",
+            "name": "Reaction",
+            "inline": true
+          },
+          {
+            "value": "​",
+            "name": "​",
+            "inline": true
+          },
+          {
+            "value": "812277992172552202",
+            "name": "Message ID",
+            "inline": true
+          },
+          {
+            "value": "<#809717769628418068>",
+            "name": "Channel",
+            "inline": true
+          },
+          {
+            "value": "809717769628418068",
+            "name": "Channel ID",
+            "inline": true
+          }
+        ],
+        "thumbnail": null,
+        "image": null,
+        "video": null,
+        "provider": null,
+        "files": []
+      }
+    ],
+    "attachments": [],
+    "createdTimestamp": 1613732566353,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": ""
+  }
+]

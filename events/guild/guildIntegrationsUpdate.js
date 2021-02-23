@@ -1,15 +1,8 @@
-const { Client, Guild, MessageEmbed } = require("discord.js");
-const { PinguLibrary, PinguUser } = require("PinguPackage");
+const { MessageEmbed } = require("discord.js");
+const { PinguEvent } = require("PinguPackage");
 
-module.exports = {
-    name: 'events: guildIntegrationsUpdated',
-    /**@param {{guild: Guild}}*/
-    setContent({ guild }) {
+module.exports = new PinguEvent('guildIntegrationsUpdate',
+    async function setContent(guild) {
         return module.exports.content = new MessageEmbed().setDescription(`Integration Updated`);
-    },
-    /**@param {Client} client
-     @param {{guild: Guild}}*/
-    execute(client, { guild }) {
-
     }
-}
+);

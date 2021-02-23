@@ -1,28 +1,26 @@
 const { Client, MessageReaction, User, MessageEmbed } = require("discord.js");
-const { PinguLibrary, ReactionRole, PinguGuild } = require("PinguPackage");
+const { PinguLibrary, ReactionRole, PinguGuild, PinguEvent, EmbedField } = require("PinguPackage");
 
-module.exports = {
-    name: 'events: messageReactionRemove',
-    /**@param {{reaction: MessageReaction, user: User}}*/
-    setContent({ reaction, user }) {
+module.exports = new PinguEvent('messageReactionRemove', 
+    async function setContent(reaction, user) {
         return module.exports.content = new MessageEmbed()
             .setDescription(reaction.message.content ? `"${reaction.message.content}"` : null)
             .setURL(reaction.message.url)
             .setImage(reaction.message.attachments.first())
-            .addField(`User`, user.tag, true)
-            .addField(`Reaction`, reaction.emoji, true)
-            .addField("\u200B", "\u200B", true)
-            .addField(`Message ID`, reaction.message.id, true)
-            .addField(`Channel`, reaction.message.channel, true)
-            .addField(`Channel ID`, reaction.message.channel.id, true);
+            .addFields([
+                new EmbedField(`User`, user.tag, true),
+                new EmbedField(`Reaction`, reaction.emoji, true),
+                PinguLibrary.BlankEmbedField(true),
+                new EmbedField(`Message ID`, reaction.message.id, true),
+                new EmbedField(`Channel`, reaction.message.channel, true),
+                new EmbedField(`Channel ID`, reaction.message.channel.id, true)
+            ]);
     },
-    /**@param {Client} client
-     @param {{reaction: MessageReaction, user: User}}*/
-    execute(client, { reaction, user }) {
+    async function execute(client, reaction, user) {
         if (user == client.user) return ReactionRoleClient(client, reaction);
         ReactionRoleUser(client, reaction, user);
     }
-}
+);
 
 /**@param {Client} client
  * @param {MessageReaction} reaction*/

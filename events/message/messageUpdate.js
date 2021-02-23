@@ -1,21 +1,16 @@
-const { Client, Message, MessageEmbed, ReactionManager } = require("discord.js");
-const { PinguEvents } = require("PinguPackage");
+const { MessageEmbed, ReactionManager } = require("discord.js");
+const { PinguEvent } = require("PinguPackage");
 
-module.exports = {
-    name: 'events: messageUpdate',
-    /**@param {{
-     * preMessage: Message, 
-     * message: Message
-     * }}*/
-    setContent({ preMessage, message }) {
+module.exports = new PinguEvent('messageUpdate',
+    async function setContent(preMessage, message) {
         return module.exports.content = new MessageEmbed().setDescription(GetDifference());
 
         function GetDifference() {
-            if (message.content != preMessage.content) return PinguEvents.SetDescriptionValues('Content', preMessage.content, message.content);
-            else if (message.pinned != preMessage.pinned) return PinguEvents.SetDescriptionValues('Pin', preMessage.pinned, message.pinned);
+            if (message.content != preMessage.content) return PinguEvent.SetDescriptionValues('Content', preMessage.content, message.content);
+            else if (message.pinned != preMessage.pinned) return PinguEvent.SetDescriptionValues('Pin', preMessage.pinned, message.pinned);
             else if (message.reactions != preMessage.reactions) return FindReactionDifference(preMessage.reactions, message.reactions);
-            else if (message.embeds != preMessage.embeds) return PinguEvents.GoThroughObjectArray('Embed', preMessage.embeds, message.embeds);
-            return PinguEvents.UnknownUpdate(preMessage, message);
+            else if (message.embeds != preMessage.embeds) return PinguEvent.GoThroughObjectArray('Embed', preMessage.embeds, message.embeds);
+            return PinguEvent.UnknownUpdate(preMessage, message);
         }
 
         /**@param {ReactionManager} old
@@ -37,10 +32,5 @@ module.exports = {
 
             return updateMessage += `Unknown update - [message](${message.url})`;
         }
-    },
-    /**@param {Client} client
-     @param {{preMessage: Message, message: Message}}*/
-    execute(client, { preMessage, message }) {
-
-    },
-}
+    }
+);

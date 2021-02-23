@@ -1,15 +1,8 @@
-const { Client, Guild, MessageEmbed } = require("discord.js");
-const { PinguLibrary, PinguUser } = require("PinguPackage");
+const { MessageEmbed } = require("discord.js");
+const { PinguEvent } = require("PinguPackage");
 
-module.exports = {
-    name: 'events: guildUnavailable',
-    /**@param {{guild: Guild}}*/
-    setContent({ guild, Guild }) {
+module.exports = new PinguEvent('guildUnavailable',
+    async function setContent(guild) {
         return module.exports.content = new MessageEmbed().setDescription(`**${guild.name}** is now unavailable.`);
-    },
-    /**@param {Client} client
-     @param {{guild: Guild}}*/
-    execute(client, { guild: Guild }) {
-
     }
-}
+)

@@ -1,36 +1,32 @@
 const { MessageEmbed, Message } = require('discord.js');
-const { PinguGuild, PinguLibrary, PClient, CommandIDs, PinguCommand } = require('PinguPackage');
+const { PinguLibrary, PinguCommand } = require('PinguPackage');
 const fs = require('fs');
 
-module.exports = {
-    name: 'help',
-    description: 'List all of my commands or info about a specific command.',
+module.exports = new PinguCommand('help', 'Utility', 'List all of my commands or info about a specific command.', {
     usage: '[category | command]',
-    id: 1,
-    examples: ["", "giveaway", "activity"],
-    /**@param {{message: Message, args: string[], pGuild: PinguGuild, pGuildClient: PClient}}*/
-    async execute({ message, args, pGuild, pGuildClient }) {
-        //#region Create variables
-        let color = pGuildClient && pGuildClient.embedColor || PinguLibrary.DefaultEmbedColor;
-        let prefix = pGuildClient && pGuildClient.prefix || PinguLibrary.DefaultPrefix(message.client);
+    examples: ["", "giveaway", "Fun"]
+}, async ({ message, args, pGuildClient }) => {
+    //#region Create variables
+    let color = pGuildClient && pGuildClient.embedColor || PinguLibrary.DefaultEmbedColor;
+    let prefix = pGuildClient && pGuildClient.prefix || PinguLibrary.DefaultPrefix(message.client);
 
-        let embed = new MessageEmbed()
-            .setColor(color)
-            .setThumbnail(message.client.user.avatarURL());
-        //#endregion
+    let embed = new MessageEmbed()
+        .setColor(color)
+        .setThumbnail(message.client.user.avatarURL());
+    //#endregion
 
-        switch (args.length) {
-            case 0: return CategoryHelp(message, embed, prefix, getCommandsPath(message)); //If no argument was provided, send default help menu
-            default: return CategoryOrSpecificHelp(message, args, embed, prefix); //If 1 argument is provided || if args[0] exists
-        }
-    },
-};
+    switch (args.length) {
+        case 0: return CategoryHelp(message, embed, prefix, getCommandsPath()); //If no argument was provided, send default help menu
+        default: return CategoryOrSpecificHelp(message, args, embed, prefix, 'DevOnly'); //If 1 argument is provided || if args[0] exists
+    }
+});
 
 /**@param {Message} message
  * @param {string[]} args
  * @param {MessageEmbed} embed
- * @param {string} prefix*/
-function CategoryOrSpecificHelp(message, args, embed, prefix) {
+ * @param {string} prefix
+ * @param {import('PinguPackage').CommandCategories devOnlyType*/
+function CategoryOrSpecificHelp(message, args, embed, prefix, devOnlyType) {
     args[0] = args[0].toLowerCase();
     /**@param {SubCategory[]} arr
      * @returns {SubCategory}*/
@@ -46,7 +42,7 @@ function CategoryOrSpecificHelp(message, args, embed, prefix) {
         return result;
     }
 
-    let category = getCategory(getMainCategories(message));
+    let category = getCategory(getMainCategories());
 
     //Find category
     if (!category) {
@@ -59,7 +55,7 @@ function CategoryOrSpecificHelp(message, args, embed, prefix) {
     }
 
     //If "DevOnly" was used
-    if (args[0] == CommandIDs.DevOnly.toString() && !PinguLibrary.isPinguDev(message.author))
+    if (args[0] == devOnlyType && !PinguLibrary.isPinguDev(message.author))
         //If not, user cannot perform this help
         return message.channel.send(`Sorry ${message.author}, but you're not cool enough to use that!`);
 
@@ -164,16 +160,11 @@ function CommandHelp(message, args, embed, prefix) {
     return message.channel.send(embed);
 }
 
-/**@param {Message} message*/
-function getCommandsPath(message) {
-    //let splitPath = message.client.commands.get(module.exports.name).path.split('/');
-    //splitPath.pop();
-    //return splitPath.map(_ => `../`).join('');
+function getCommandsPath() {
     return 'commands';
 }
-/**@param {Message} message*/
-function getMainCategories(message) {
-    return new Category(getCommandsPath(message)).subCategories;
+function getMainCategories() {
+    return new Category(getCommandsPath()).subCategories;
 }
 /**@param {string} item*/
 function Uppercased(item) {

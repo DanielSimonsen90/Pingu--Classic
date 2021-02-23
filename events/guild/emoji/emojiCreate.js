@@ -1,19 +1,15 @@
-const { Client, GuildEmoji, MessageEmbed } = require("discord.js");
+const { MessageEmbed } = require("discord.js");
+const { PinguEvent, EmbedField } = require('PinguPackage');
 
-module.exports = {
-    name: 'events: emojiCreate',
-    /**@param {{emote: GuildEmoji}}*/
-    setContent({ emote }) {
+module.exports = new PinguEvent('emojiCreate',
+    async function setContent(emote) {
         return module.exports.content = new MessageEmbed()
-            .addField(`Name`, emote.name, true)
-            .addField(`ID`, emote.id, true)
-            .addField(`Author`, emote.author, true)
-            .addField(`Animated?`, emote.animated, true)
-            .addField(`Identifier`, emote.identifier, true);
-    },
-    /**@param {Client} client
-     @param {{emote: GuildEmoji}}*/
-    execute(client, { emote }) {
-
+            .addFields([
+                new EmbedField(`Name`, emote.name, true),
+                new EmbedField(`ID`, emote.id, true),
+                new EmbedField(`Author`, emote.author, true),
+                new EmbedField(`Animated?`, emote.animated, true),
+                new EmbedField(`Identifier`, emote.identifier, true)
+            ]);
     }
-}
+);

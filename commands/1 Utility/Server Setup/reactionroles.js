@@ -1,17 +1,13 @@
 const { Message, GuildChannel, TextChannel, GuildEmoji, Role, MessageEmbed} = require('discord.js');
-const { PinguLibrary, PinguGuild, DiscordPermissions, ReactionRole, PClient } = require('PinguPackage');
+const { PinguCommand, PinguLibrary, PinguGuild, ReactionRole } = require('PinguPackage');
 
-module.exports = {
-    name: 'reactionroles',
-    description: 'Gives/Removes roles for Users who reacted to a message',
+module.exports = new PinguCommand('reactionroles', 'Utility', 'Gives/Removes roles for users who reacted to a message', {
     usage: '<create [channel] <message id> <emoji> <role id> | delete [channel] <message id> <emoji> [remove from users? true/false]',
     guildOnly: true,
-    id: 1,
     examples: ["*reactionroles create #role-select 801055604222984223 :movie_camera: @Content Creators"],
-    permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.ADD_REACTIONS, DiscordPermissions.MANAGE_ROLES],
-    aliases: ["reactionrole", "rr"],
-    /**@param {{message: Message, args: string[], pGuildClient: PClient, pGuild: PinguGuild}}*/
-    async execute({ message, args, pGuildClient, pGuild }) {
+    permissions: ['ADD_REACTIONS', 'MANAGE_ROLES'],
+    aliases: ["reactionrole", "rr"]
+}, async ({ message, args, pGuild, pGuildClient }) => {
         //Get command
         let command = args.shift().toLowerCase();
         if (!command) return message.channel.send(`Sub-command not provided! Do I **create** or **delete** a reactionrole?`);
@@ -56,8 +52,8 @@ module.exports = {
             .setDescription(`Your reaction-role in ${channel} (${rrMessage.id}), giving ${role} for reacting with ${emote} is now ready!`)
             .setColor(pGuildClient.embedColor)
         )
-    }
-}
+})
+
 
 /**@param {string} command
  * @param {string[]} args*/

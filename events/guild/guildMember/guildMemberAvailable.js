@@ -1,10 +1,3 @@
-const { Client, GuildMember } = require("discord.js");
+const { PinguEvent } = require('PinguPackage');
 
-module.exports = {
-	name: 'events: guildMemberAvailable',
-	/**@param {Client} client
-	 @param {{member: GuildMember}}*/
-	execute(client, { member }) {
-		
-	}
-}
+module.exports = new PinguEvent('guildMemberAvailable');

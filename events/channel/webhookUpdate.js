@@ -1,16 +1,14 @@
-const { Client, TextChannel, MessageEmbed } = require("discord.js");
-const { PinguLibrary, PinguUser, DiscordPermissions } = require("PinguPackage");
+const { MessageEmbed } = require("discord.js");
+const { PinguLibrary, PinguEvent, EmbedField } = require("PinguPackage");
 
-module.exports = {
-    name: 'events: webhookUpdate',
-    /**@param {{channel: TextChannel}}*/
-    async setContent({ channel }) {
+module.exports = new PinguEvent('webhookUpdate',
+    async function setContent(channel) {
         if (PinguLibrary.PermissionCheck({
             client: channel.client,
             channel,
             author: channel.client.user,
             content: null
-        }, [DiscordPermissions.MANAGE_WEBHOOKS]) != PinguLibrary.PermissionGranted) return null;
+        }, ['MANAGE_WEBHOOKS']) != PinguLibrary.PermissionGranted) return null;
 
         let webhook = (await channel.fetchWebhooks()).last();
         if (!webhook) return;
@@ -21,16 +19,13 @@ module.exports = {
         }
 
         return module.exports.content = new MessageEmbed()
-            .addField(`Name`, webhook.name, true)
-            .addField(`Owner`, webhook.owner, true)
-            .addField(`Token`, webhook.token, true)
-            .addField(`Channel ID`, webhook.channelID, true)
-            .addField(`Type`, webhook.type, true)
+            .addFields([
+                new EmbedField(`Name`, webhook.name, true),
+                new EmbedField(`Owner`, webhook.owner, true),
+                new EmbedField(`Token`, webhook.token, true),
+                new EmbedField(`Channel ID`, webhook.channelID, true),
+                new EmbedField(`Type`, webhook.type, true)
+            ])
             .setURL(webhook.url);
-    },
-    /**@param {Client} client
-     @param {{channel: TextChannel}}*/
-    execute(client, { channel }) {
-
     }
-}
+);

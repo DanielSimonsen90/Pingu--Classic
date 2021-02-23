@@ -1,42 +1,38 @@
 const { Message, Role, GuildMember } = require('discord.js');
-const { PinguLibrary, DiscordPermissions } = require('PinguPackage');
+const { PinguCommand, PinguLibrary } = require('PinguPackage');
 
-module.exports = {
-    name: 'role',
-    description: 'Gives a role to author or mentioned',
+module.exports = new PinguCommand('role', 'Utility', 'Gives a role to author or mentioned', {
     usage: '<add | remove | create | delete | rename> <role | role ID | role name> [user]',
-    id: 1,
     guildOnly: true,
     example: ["add Admin", "remove SMod @DiaGuy", "rename 778022131178405918 Discord Bot Developer"],
-    permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.MANAGE_ROLES],
-    /**@param {{message: Message, args: string[]}}*/
-    async execute({ message, args }) {
-        var command = args.shift(),
-            getRoleResult = await getRole(message, args),
-            person = message.mentions.members.first() || message.guild.member(message.author);
-        var role = getRoleResult.role;
-        args = getRoleResult.args;
+    permissions: ['MANAGE_ROLES']
+}, async ({ message, args }) => {
+    var command = args.shift(),
+        getRoleResult = await getRole(message, args),
+        person = message.mentions.members.first() || message.guild.member(message.author);
+    var role = getRoleResult.role;
+    args = getRoleResult.args;
 
-        try {
-            switch (command) {
-                case 'give': case 'add': return AddRole(message, role, person);
-                case 'remove': case 'take': return RemoveRole(message, role, person);
-                case 'create': return CreateRole(message, args);
-                case 'delete': return DeleteRole(message, role);
-                case 'rename': return RenameRole(message, args, role);
-                case 'color': return ColorRole(message, args, role);
-                case 'set': case 'setpermission': return SetPermission(message, args, role);
-                case 'unset': case 'removepermission': return RemovePermission(message, args, role);
-                case 'check': case 'has': return CheckPermission(message, args, (role || person));
-                default: PinguLibrary.errorLog(message.client, `Ran default case in *role`, message.content); break;
-            }
-        }
-        catch (err) {
-            PinguLibrary.errorLog(message.client, message, message.content, err).then(() =>
-                message.channel.send("I encountered an error when checking! I've contacted my developers."));
+    try {
+        switch (command) {
+            case 'give': case 'add': return AddRole(message, role, person);
+            case 'remove': case 'take': return RemoveRole(message, role, person);
+            case 'create': return CreateRole(message, args);
+            case 'delete': return DeleteRole(message, role);
+            case 'rename': return RenameRole(message, args, role);
+            case 'color': return ColorRole(message, args, role);
+            case 'set': case 'setpermission': return SetPermission(message, args, role);
+            case 'unset': case 'removepermission': return RemovePermission(message, args, role);
+            case 'check': case 'has': return CheckPermission(message, args, (role || person));
+            default: PinguLibrary.errorLog(message.client, `Ran default case in *role`, message.content); break;
         }
     }
-}
+    catch (err) {
+        PinguLibrary.errorLog(message.client, message, message.content, err).then(() =>
+            message.channel.send("I encountered an error when checking! I've contacted my developers."));
+    }
+});
+
 /**@param {Message} message
  * @param {string[]} args*/
 async function getRole(message, args) {

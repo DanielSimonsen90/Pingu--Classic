@@ -1,10 +1,8 @@
 ﻿const { Client, MessageReaction, User, MessageEmbed } = require("discord.js");
-const { PinguLibrary, ReactionRole, EmbedField } = require("PinguPackage");
+const { PinguEvent, PinguLibrary, ReactionRole, EmbedField } = require("PinguPackage");
 
-module.exports = {
-    name: 'events: messageReactionAdd',
-    /**@param {{reaction: MessageReaction, user: User}}*/
-    setContent({ reaction, user }) {
+module.exports = new PinguEvent('messageReactionAdd', 
+    async function setContent(reaction, user) {
         return module.exports.content = new MessageEmbed()
             .setDescription(reaction.message.content ? `"${reaction.message.content}"` : null)
             .setURL(reaction.message.url)
@@ -18,13 +16,11 @@ module.exports = {
                 new EmbedField(`Channel ID`, reaction.message.channel.id, true)
             ]);
     },
-    /**@param {Client} client
-     @param {{reaction: MessageReaction, user: User}}*/
-    execute(client, { reaction, user }) {
+    async function execute(client, reaction, user) {
         if (user == client.user) return;
         ReactionRoleUser(client, reaction, user);
     }
-}
+);
 
 /**@param {Client} client
  * @param {MessageReaction} reaction

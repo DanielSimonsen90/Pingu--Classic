@@ -1,41 +1,36 @@
 ﻿const { MessageEmbed, Message, Guild } = require('discord.js');
-const { PinguGuild, PinguLibrary, DiscordPermissions, EmbedField } = require('PinguPackage');
-module.exports = {
-    name: 'serverinfo',
-    description: 'Sends server information.',
+const { PinguCommand, PinguGuild, PinguLibrary, DiscordPermissions, EmbedField } = require('PinguPackage');
+
+module.exports = new PinguCommand('serverinfo', 'Utility', 'Sends server information', {
     usage: '[BigBoiInfo: all] [emotes [emote name] | features]',
     guildOnly: true,
-    id: 1,
-    example: ["", "all", "emotes", "emotes FeelsBadMan", "features"],
-    permissions: [DiscordPermissions.SPEAK, DiscordPermissions.EMBED_LINKS, DiscordPermissions.USE_EXTERNAL_EMOJIS],
-    /**@param {{message: Message, args: string[]}}*/
-    async execute({ message, args }) {
-        const bigboiinfo = args[0] && args[0].toLowerCase() == 'all',
-            { guild } = message,
-            emote = guild.emojis.cache.find(e => args.includes(e.name));
+    permissions: ['EMBED_LINKS', 'USE_EXTERNAL_EMOJIS']
+}, async ({ message, args }) => {
+    const bigboiinfo = args[0] && args[0].toLowerCase() == 'all',
+        { guild } = message,
+        emote = guild.emojis.cache.find(e => args.includes(e.name));
 
-        if (!args.includes('emotes') && !args.includes('features'))
-            return SendEmbeds(message, guild, bigboiinfo);
+    if (!args.includes('emotes') && !args.includes('features'))
+        return SendEmbeds(message, guild, bigboiinfo);
 
-        else if (args.includes('emotes'))
-            if (emote) {
-                //const author = emote.author ? emote.author.username : 'null';
-                return message.channel.send(new MessageEmbed()
-                    .setTitle(`${emote.name}`)
-                    .setThumbnail(emote.url)
-                    .setColor(await GetPGuildColor())
-                    //.addField(`Created by`, author, true)
-                    .addField(`Created at`, emote.createdAt, true))
-            }
-            else return SendEmotes(message, guild);
+    else if (args.includes('emotes'))
+        if (emote) {
+            //const author = emote.author ? emote.author.username : 'null';
+            return message.channel.send(new MessageEmbed()
+                .setTitle(`${emote.name}`)
+                .setThumbnail(emote.url)
+                .setColor(await GetPGuildColor())
+                //.addField(`Created by`, author, true)
+                .addField(`Created at`, emote.createdAt, true))
+        }
+        else return SendEmotes(message, guild);
 
-        else if (args.includes('features'))
-            return SendFeatures(message, guild);
+    else if (args.includes('features'))
+        return SendFeatures(message, guild);
 
-        message.channel.send(`Something happened.. I shouldn't've been here..`);
-        PinguLibrary.errorLog(message.client, `Ran line 34, which was not intended`, message.content);
-    },
-};
+    message.channel.send(`Something happened.. I shouldn't've been here..`);
+    PinguLibrary.errorLog(message.client, `Ran line 34, which was not intended`, message.content);
+})
 
 /**@param {Message} message 
  * @param {boolean} bigboiinfo*/

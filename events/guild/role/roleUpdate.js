@@ -1,27 +1,24 @@
-const { Client, Role, Guild, MessageEmbed } = require("discord.js");
-const { PinguGuild, PinguLibrary, PinguEvents, PClient } = require("PinguPackage");
+const { Guild, MessageEmbed } = require("discord.js");
+const { PinguGuild, PinguLibrary, PinguEvent, PClient } = require("PinguPackage");
 
-module.exports = {
-    name: 'events: roleUpdate',
-    /**@param {{preRole: Role, role: Role}}*/
-    setContent({ preRole, role }) {
+module.exports = Object.assign(new PinguEvent('roleUpdate',
+    async function setContent(preRole, role) {
         return module.exports.content = new MessageEmbed().setDescription(GetDescription());
 
         function GetDescription() {
-            if (role.color != preRole.color) return PinguEvents.SetDescriptionValues('Color', preRole.color, role.color);
-            else if (role.hoist != preRole.hoist) return PinguEvents.SetDescriptionValues('Hoist', preRole.hoist, role.hoist);
-            else if (role.mentionable != preRole.mentionable) return PinguEvents.SetDescriptionValues('Mentionable', preRole.mentionable, role.mentionable);
-            else if (role.position != preRole.position) return PinguEvents.SetDescriptionValues('Position', preRole.position, role.position);
-            else if (role.permissions.toArray().length != preRole.permissions.toArray().length) return PinguEvents.GoThroughArrays(
+            if (role.color != preRole.color) return PinguEvent.SetDescriptionValues('Color', preRole.color, role.color);
+            else if (role.hoist != preRole.hoist) return PinguEvent.SetDescriptionValues('Hoist', preRole.hoist, role.hoist);
+            else if (role.mentionable != preRole.mentionable) return PinguEvent.SetDescriptionValues('Mentionable', preRole.mentionable, role.mentionable);
+            else if (role.position != preRole.position) return PinguEvent.SetDescriptionValues('Position', preRole.position, role.position);
+            else if (role.permissions.toArray().length != preRole.permissions.toArray().length) return PinguEvent.GoThroughArrays(
                 'Permissions',
                 preRole.permissions.toArray(),
                 role.permissions.toArray(),
-                PinguEvents.SetDescriptionValues
+                PinguEvent.SetDescriptionValues
             );
             else if (ChangedPermissions()) return ChangedPermissions();
-            else return PinguEvents.UnknownUpdate(preRole, role);
+            else return PinguEvent.UnknownUpdate(preRole, role);
         }
-
         function ChangedPermissions() {
             let roleArr = role.permissions.toArray();
             let preRoleArr = preRole.permissions.toArray();
@@ -38,20 +35,19 @@ module.exports = {
 
             if (added.length == 0 && removed.length == 0) return null;
 
-            return PinguEvents.SetDescription('Permission', `${(
+            return PinguEvent.SetDescription('Permission', `${(
                 added.length > 0 ? `**Added Permissions**\n${added.map(p => `• ${p}`).join(`\n`)}n` : ""
             )}${(
                 removed.length > 0 ? `**Removed Permissions**\n${removed.map(p => `• ${p}`).join(`\n`)}n` : ""
             )}`);
         }
     },
-    /**@param {Client} client
-     @param {{preRole: Role, role: Role}}*/
-    async execute(client, { preRole, role }) {
+    async function execute(client, preRole, role) {
         let guild = role.guild;
         let pGuild = await PinguGuild.GetPGuild(guild);
-        this.CheckRoleChange(guild, pGuild, this.name);
+        module.exports.CheckRoleChange(guild, pGuild, module.exports.name);
     },
+), {
     /**Checks if role color was changed, to update embed colors
      * @param {Guild} guild
      * @param {PinguGuild} pGuild
@@ -77,10 +73,9 @@ module.exports = {
         PinguLibrary.consoleLog(guild.client, `[**${guild.name}**]: Embedcolor for **${client.user.username}** updated from ${pGuildClient.embedColor} to ${guildRoleColor}`);
 
         //Update Pingu Guild
-        PinguGuild.UpdatePGuild(client, {clients: pGuild.clients}, pGuild, scriptName,
+        PinguGuild.UpdatePGuild(client, { clients: pGuild.clients }, pGuild, scriptName,
             `Successfully updated role color from **${guild.name}**`,
             `I encountered and error while updating my role color in **${guild.name}**`
         );
     }
-}
-
+});

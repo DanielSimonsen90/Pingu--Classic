@@ -2,12 +2,13 @@
   "ExpandedNodes": [
     "",
     "\\commands",
-    "\\commands\\1 Utility",
-    "\\commands\\1 Utility\\Decidable",
     "\\commands\\2 Fun",
-    "\\events",
-    "\\events\\message"
+    "\\commands\\3 Supporting",
+    "\\events\\client",
+    "\\events\\client\\shard",
+    "\\events\\guild",
+    "\\events\\guild\\guildMember"
   ],
-  "SelectedNode": "\\commands\\1 Utility\\Decidable\\theme.js",
+  "SelectedNode": "\\commands\\2 Fun\\music.js",
   "PreviewInSolutionExplorer": false
 }

@@ -1,13 +1,8 @@
-const { Client, User, MessageEmbed } = require("discord.js");
-const { PinguEvents, PinguUser } = require("PinguPackage");
+const { MessageEmbed } = require("discord.js");
+const { PinguEvent, PinguEvents, PinguUser } = require("PinguPackage");
 
-module.exports = {
-    name: 'events: userUpdate',
-    /**@param {{
-     * preUser: User,
-     * user: User
-     * }}*/
-    setContent({ preUser, user }) {
+module.exports = new PinguEvent('userUpdate', 
+    async function setContent(preUser, user) {
         return module.exports.content = GetDifference() ? new MessageEmbed().setDescription(GetDifference()) : null;
 
         function GetDifference() {
@@ -24,9 +19,7 @@ module.exports = {
             return null;
         }
     },
-    /**@param {Client} client
-     @param {{preUser: User, user: User}}*/
-    async execute(client, { preUser, user }) {
+    async function execute(client, preUser, user) {
         if (user.bot) return;
 
         let updated = {};
@@ -41,4 +34,4 @@ module.exports = {
             `Failed to update **${user.tag}** PinguUser.`,
         );
     }
-}
+);

@@ -1,10 +1,8 @@
-const { Client, Presence, MessageEmbed, Activity } = require("discord.js");
-const { PinguLibrary, PinguGuild } = require("PinguPackage");
+const { Presence, MessageEmbed, Activity } = require("discord.js");
+const { PinguEvent, PinguLibrary, PinguGuild } = require("PinguPackage");
 
-module.exports = {
-    name: 'events: presenceUpdate',
-    /**@param {{prePresence: Presence, presence: Presence}}*/
-    async setContent({ prePresence, presence }) {
+module.exports = Object.assign(new PinguEvent('presenceUpdate',
+    async function setContent(prePresence, presence) {
         let user = presence.user.tag;
         //let typical = ['STREAMING', 'PLAYING', 'LISTENING', 'CUSTOM_STATUS'];
 
@@ -44,11 +42,7 @@ module.exports = {
         try { var description = GetDescription(); }
         catch (err) {
             PinguLibrary.errorLog(presence.user.client, `Description Error`, null, err);
-            console.log({
-                user,
-                preActivity,
-                activity
-            });
+            console.log({ user, preActivity, activity });
         }
 
         return description ? module.exports.content = new MessageEmbed()
@@ -88,10 +82,13 @@ module.exports = {
             let userActivity = getActivity();
             return includeUserMessage ? userMessage + userActivity : userActivity;
         }
-    },
+    }
+), {
     /**@param {string} activityType
      * @param {Presence} presence
-     * @param {Presence} prePresence*/
+        * @param {
+        Presence
+    } prePresence*/
     async GetColor(activityType, presence, prePresence) {
         if (activityType) {
             if (activityType == 'listening to' && presence.status == prePresence.status) return '#1ED760';
@@ -108,10 +105,5 @@ module.exports = {
 
         let pGuild = await PinguGuild.GetPGuild(presence.guild);
         return PinguGuild.GetPClient(presence.guild.client, pGuild).embedColor || PinguLibrary.DefaultEmbedColor;
-    },
-    /**@param {Client} client
-     * @param {{prePresence: Presence, presence: Presence}}*/
-    execute(client, { prePresence, presence }) {
-
     }
-}
+});

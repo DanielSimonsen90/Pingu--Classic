@@ -1,17 +1,9 @@
-const { Message, MessageEmbed } = require('discord.js');
-const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions, TimeLeftObject, PClient } = require('PinguPackage');
+const { MessageEmbed } = require('discord.js');
+const { PinguCommand, PinguLibrary, PinguUser, TimeLeftObject } = require('PinguPackage');
 const timeBetweenClaims = 21;
 
-module.exports = {
-    name: 'daily',
-    description: 'Daily streaks',
-    usage: '',
-    guildOnly: false,
-    id: 2,
-    examples: [""],
-    permissions: [DiscordPermissions.SEND_MESSAGES],
-    /**@param {{message: Message, args: string[], pAuthor: PinguUser, pGuildClient: PClient}}*/
-    execute({ message, args, pAuthor, pGuildClient }) {
+module.exports = new PinguCommand('daily', 'Fun', `Daily streams just like as if you were having a Snapchat streak with me ;)`, null,
+    async ({ message, pAuthor, pGuildClient }) => {
         if (!pAuthor) {
             PinguLibrary.errorLog(message.client, `Unable to find pAuthor in daily using **${message.author.tag}**!`);
             return message.channel.send(`I couldn't find your Pingu User profile!`);
@@ -60,4 +52,4 @@ module.exports = {
             ), 5000);
         }
     }
-}
+);

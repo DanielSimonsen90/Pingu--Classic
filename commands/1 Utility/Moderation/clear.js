@@ -1,34 +1,33 @@
 const { Message, User, GuildChannel } = require('discord.js');
-const { PinguLibrary, DiscordPermissions } = require('PinguPackage');
+const { PinguLibrary, PinguCommand } = require('PinguPackage');
 
-module.exports = {
-    name: 'clear',
-    description: 'Clears specified messages.',
+module.exports = new PinguCommand('clear', 'Utility', 'Clears specified messages', {
     usage: '<messages [from @User] | all [channelID]> ',
-    id: 1,
     examples: ["5", "10 @Danho#2105", "all"],
-    permissions: [DiscordPermissions.SEND_MESSAGES, DiscordPermissions.MANAGE_MESSAGES],
-    /**@param {{message: Message, args: string[]}}*/
-    async execute({ message, args }) {
-        const PermCheck = PermissionCheck(message, args);
-        if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
+    guildOnly: true,
+    permissions: ['MANAGE_MESSAGES']
+}, async ({ message, args }) => {
+    const PermCheck = PermissionCheck(message, args);
+    if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
 
-        if (args[0].toLowerCase() == "all")
-            return message.author.send(await ClearAll(message, args[1]));
-        else if (args[0].toLowerCase() == "log" && PinguLibrary.isPinguDev(message.author)) {
-            console.clear();
-            return message.channel.send('I have cleared the log!');
-        }
-        else if (message.mentions.users.first())
-            return SpecificClear(message, args, message.mentions.users.first());
+    if (args[0].toLowerCase() == "all")
+        return message.author.send(await ClearAll(message, args[1]));
+    else if (args[0].toLowerCase() == "log" && PinguLibrary.isPinguDev(message.author)) {
+        console.clear();
+        return message.channel.send('I have cleared the log!');
+    }
+    else if (message.mentions.users.first())
+        return SpecificClear(message, args, message.mentions.users.first());
 
-        message.delete().then(() => {
-            ClearMessages(message, parseInt(args[0]));
-            message.reply(`I've deleted ${args[0]} ${(args[0] != '1' ? "messages" : "message")} for you!`)
-                .then(NewMessage => NewMessage.delete({ timeout: 1500 }));
-        });
-    },
-};
+    message.delete().then(() => {
+        ClearMessages(message, parseInt(args[0]));
+        message.reply(`I've deleted ${args[0]} ${(args[0] != '1' ? "messages" : "message")} for you!`)
+            .then(NewMessage => NewMessage.delete({ timeout: 1500 }));
+    });
+});
+
+
+
 /**@param {Message} message 
  * @param {string[]} args*/
 function PermissionCheck(message, args) {
@@ -47,7 +46,7 @@ async function ClearMessages(message, amount) {
 /**@param {Message} message
  @param {GuildChannel} channel*/
 async function ClearAll(message, channel) {
-    var permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.MANAGE_CHANNELS]);
+    var permCheck = PinguLibrary.PermissionCheck(message, ['MANAGE_CHANNELS']);
     if (permCheck != PinguLibrary.PermissionGranted) return permCheck;
 
     if (!channel) channel = message.channel;

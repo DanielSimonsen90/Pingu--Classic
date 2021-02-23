@@ -1,30 +1,29 @@
 const { Client, GuildChannel, TextChannel, Guild } = require("discord.js");
-const { PinguLibrary, PinguGuild, PinguEvent } = require("PinguPackage");
+const { PinguLibrary, PinguGuild, PinguEvent, PinguClient } = require("PinguPackage");
 
 const CacheTypes = 'ReactionRole' || 'Giveaway' || 'Poll' || 'Suggestion' || 'Theme';
 
-module.exports = new PinguEvent('ready', {
-    /**@param {Client} client*/
-    async execute(client) {
+module.exports = new PinguEvent('onready', 
+    async function execute(client) {
         console.log('\n--== Client Info ==--');
         PinguLibrary.consoleLog(client, `Loaded ${client.commands.array().length} commands & ${client.events.array().length} events\n`);
 
-        await client.users.fetch(PinguLibrary.Clients.PinguID);
+        await client.users.fetch(PinguClient.Clients.PinguID);
         await PinguLibrary.CacheDevelopers(client);
 
-        CacheFromDB(client);
+        //CacheFromDB(client);
 
         await PinguLibrary.DBExecute(client, () => PinguLibrary.consoleLog(client, `Connected to MongolDB!`));
         PinguLibrary.consoleLog(client, `I'm back online!\n`);
         console.log(`Logged in as ${client.user.username}`);
 
-        PinguLibrary.setActivity(client);
+        client.setActivity();
 
         console.log(`--== | == - == | ==--\n`);
     }
-})
+)
 
-/**@param {Client} client*/
+/**@param {PinguClient} client*/
 function CacheFromDB(client) {
     RunCache('ReactionRole', CacheReactionRoles);
     RunCache('Poll', CacheActivePolls);
@@ -44,16 +43,16 @@ function CacheFromDB(client) {
             let pGuild = await PinguGuild.GetPGuild(guild);
             if (!pGuild) return;
 
-            let { reactionRoles } = pGuild;
+            let { reactionRoles } = pGuild.settings;
             reactionRoles.forEach(rr => {
                 let gChannel = guild.channels.cache.get(rr.channel._id);
                 if (!gChannel) return;
 
                 let channel = ToTextChannel(gChannel);
 
-                if (client.user.id == PinguLibrary.Clients.BetaID &&
+                if (!client.isLive &&
                     pGuild.clients[0] &&
-                    client.users.cache.get(PinguLibrary.Clients.PinguID).presence.status != 'offline')
+                    client.users.cache.get(PinguClient.Clients.PinguID).presence.status != 'offline')
                     return; //Client is BETA but LIVE is in guild
 
                 //In .then function so it only logs if fetching is successful
@@ -68,12 +67,12 @@ function CacheFromDB(client) {
             let pGuild = await PinguGuild.GetPGuild(guild);
             if (!pGuild) return;
 
-            let { giveaways } = !pGuild.giveawayConfig.firstTimeExecuted && pGuild.giveawayConfig;
+            let { giveaways } = !pGuild.settings.giveawayConfig.firstTimeExecuted && pGuild.settings.giveawayConfig;
             if (!giveaways) return;
 
-            if (client.user.id == PinguLibrary.Clients.BetaID &&
+            if (!client.isLive &&
                 pGuild.clients[0] &&
-                client.users.cache.get(PinguLibrary.Clients.PinguID).presence.status != 'offline')
+                client.users.cache.get(PinguClient.Clients.PinguID).presence.status != 'offline')
                 return; //Client is BETA but LIVE is in guild
             giveaways.forEach(giveaway => {
                 if (new Date(giveaway.endsAt).getTime() < Date.now()) return;
@@ -90,12 +89,12 @@ function CacheFromDB(client) {
             let pGuild = await PinguGuild.GetPGuild(guild);
             if (!pGuild) return;
 
-            let { polls } = !pGuild.pollConfig.firstTimeExecuted && pGuild.pollConfig;
+            let { polls } = !pGuild.settings.pollConfig.firstTimeExecuted && pGuild.settings.pollConfig;
             if (!polls) return;
 
-            if (client.user.id == PinguLibrary.Clients.BetaID &&
+            if (!client.isLive &&
                 pGuild.clients[0] &&
-                client.users.cache.get(PinguLibrary.Clients.PinguID).presence.status != 'offline')
+                client.users.cache.get(PinguClient.Clients.PinguID).presence.status != 'offline')
                 return; //Client is BETA but LIVE is in guild
             polls.forEach(poll => {
                 if (new Date(poll.endsAt).getTime() < Date.now()) return;
@@ -112,12 +111,12 @@ function CacheFromDB(client) {
             let pGuild = await PinguGuild.GetPGuild(guild);
             if (!pGuild) return;
 
-            let { suggestions } = !pGuild.suggestionConfig.firstTimeExecuted && pGuild.suggestionConfig;
+            let { suggestions } = !pGuild.settings.suggestionConfig.firstTimeExecuted && pGuild.settings.suggestionConfig;
             if (!suggestions) return;
 
-            if (client.user.id == PinguLibrary.Clients.BetaID &&
+            if (!client.isLive &&
                 pGuild.clients[0] &&
-                client.users.cache.get(PinguLibrary.Clients.PinguID).presence.status != 'offline')
+                client.users.cache.get(PinguClient.Clients.PinguID).presence.status != 'offline')
                 return; //Client is BETA but LIVE is in guild
 
             suggestions.forEach(suggestion => {
@@ -135,12 +134,12 @@ function CacheFromDB(client) {
             let pGuild = await PinguGuild.GetPGuild(guild);
             if (!pGuild) return;
 
-            let { themes } = !pGuild.themeConfig.firstTimeExecuted && pGuild.themeConfig;
+            let { themes } = !pGuild.settings.themeConfig.firstTimeExecuted && pGuild.settings.themeConfig;
             if (!themes) return;
 
-            if (client.user.id == PinguLibrary.Clients.BetaID &&
+            if (!client.isLive &&
                 pGuild.clients[0] &&
-                client.users.cache.get(PinguLibrary.Clients.PinguID).presence.status != 'offline')
+                client.users.cache.get(PinguClient.Clients.PinguID).presence.status != 'offline')
                 return; //Client is BETA but LIVE is in guild
 
             themes.forEach(theme => {

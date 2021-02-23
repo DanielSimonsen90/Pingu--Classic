@@ -1,10 +1,8 @@
-const { Client, Guild, User, MessageEmbed } = require("discord.js");
-const { PinguLibrary, PinguUser, PinguGuild } = require("PinguPackage");
+const { MessageEmbed } = require("discord.js");
+const { PinguEvent, PinguGuild, PinguLibrary, EmbedField } = require("PinguPackage");
 
-module.exports = {
-    name: 'events: guildBanRemove',
-    /**@param {{guild: Guild, user: User}}*/
-    async setContent({ guild, user }) {
+module.exports = new PinguEvent('guildBanRemove',
+    async function setContent(guild, user) {
         let banAudits = await guild.fetchAuditLogs({ type: 'MEMBER_BAN_ADD' });
         let banAudit = banAudits.entries.find(e => e.target.id == user.id);
 
@@ -19,19 +17,18 @@ module.exports = {
             unBanSince: unBanAudit.createdAt
         }
 
+        let pGuild = await PinguGuild.GetPGuild(guild);
+        let pGuildClient = PinguGuild.GetPClient(guild.client, pGuild);
+
         return module.exports.content = new MessageEmbed()
             .setDescription(`**${user.tag}** was unbanned.`)
-            .setColor(PinguGuild.GetPGuild(guild).embedColor)
-            .addField(`Banned Since`, ban.banSince, true)
-            .addField(`Banned By`, ban.by, true)
-            .addField(`Ban Reason`, ban.reason, true)
-            .addField(`Unbanned At`, ban.unBanSince, true)
-            .addField(`Unbanned By`, ban.unbannedBy, true)
-
-    },
-    /**@param {Client} client
-     @param {{guild: Guild, user: User}}*/
-    execute(client, { guild, user }) {
-
+            .setColor(pGuildClient.embedColor || PinguLibrary.DefaultEmbedColor)
+            .addFields([
+                new EmbedField(`Banned Since`, ban.banSince, true),
+                new EmbedField(`Banned By`, ban.by, true),
+                new EmbedField(`Ban Reason`, ban.reason, true),
+                new EmbedField(`Unbanned At`, ban.unBanSince, true),
+                new EmbedField(`Unbanned By`, ban.unbannedBy, true)
+            ]);
     }
-}
+);

@@ -1,18 +1,12 @@
-const { Client, GuildEmoji, MessageEmbed } = require("discord.js");
-const { PinguEvents } = require("PinguPackage");
+const { MessageEmbed } = require("discord.js");
+const { PinguEvent } = require("PinguPackage");
 
-module.exports = {
-    name: 'events: emojiUpdate',
-    /**@param {{preEmote: GuildEmoji, emote: GuildEmoji}}*/
-    setContent({ preEmote, emote }) {
-        if (preEmote.name != emote.name)
-            return module.exports.content = new MessageEmbed()
-                .setDescription(PinguEvents.SetDescriptionValues('Name', preEmote.name, emote.name));
-        else return null;
-    },
-    /**@param {Client} client
-     @param {{preEmote: GuildEmoji, emote: GuildEmoji}}*/
-    execute(client, { preEmote, emote }) {
-
+module.exports = new PinguEvent('emojiUpdate',
+    async function setContent(preEmote, emote) {
+        return preEmote.name != emote.name ?
+            module.exports.content = new MessageEmbed()
+                .setDescription(PinguEvent.SetDescriptionValues('Name', preEmote.name, emote.name)
+                ) :
+            null;
     }
-}
+);

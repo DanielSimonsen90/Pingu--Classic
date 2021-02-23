@@ -1,19 +1,14 @@
-const { Client, Message, MessageEmbed } = require("discord.js");
-const { PinguGuild, PinguLibrary } = require("PinguPackage");
+const { Message, MessageEmbed } = require("discord.js");
+const { PinguGuild, PinguEvent, PinguClient } = require("PinguPackage");
 
-module.exports = {
-    name: 'events: messageDelete',
-     /**@param {{message: Message}}*/
-    setContent({ message }) {
+module.exports = new PinguEvent('messageDelete',
+    async function setContent(message) {
         return module.exports.content = new MessageEmbed().setDescription(`> ${message.content}\n- ${message.author}\n\n...was deleted from ${message.channel}.`);
     },
-    /**@param {Client} client
-     @param {{message: Message}}*/
-    execute(client, { message }) {
+    async function execute(client, message) {
         IsReactionRole(message);
     },
-
-}
+);
 
 /**@param {Message} message*/
 async function IsReactionRole(message) {
@@ -23,9 +18,9 @@ async function IsReactionRole(message) {
     let pGuild = await PinguGuild.GetPGuild(guild);
     if (!pGuild) return;
 
-    let pGuildClient = PinguGuild.GetPClient(message.client, pGuild);
+    let pGuildClient = PinguClient.ToPinguClient(message.client).toPClient(pGuild);
 
-    let { reactionRoles } = pGuild;
+    let { reactionRoles } = pGuild.settings;
     let rrFromMessage = reactionRoles.map(rr => rr.messageID == message.id && rr.pRole && rr).filter(v => v);
 
     if (!rrFromMessage) return;

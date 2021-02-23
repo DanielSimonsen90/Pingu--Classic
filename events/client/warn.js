@@ -1,11 +1,7 @@
-const { Client } = require("discord.js");
-const { PinguLibrary, PinguUser } = require("PinguPackage");
+const { PinguLibrary, PinguEvent } = require("PinguPackage");
 
-module.exports = {
-    name: 'events: warn',
-    /**@param {Client} client
-     @param {{warning: string}}*/
-    execute(client, { warning }) {
-        PinguLibrary.consoleLog(client, "**Warning:**\n```" + `${warning}\n` + "```");
+module.exports = new PinguEvent('warn', null,
+    async function execute(client, warning) {
+        return PinguLibrary.errorLog(client, "**Warning:**\n```" + `${warning}\n` + "```");
     }
-}
+);

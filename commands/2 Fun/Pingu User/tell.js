@@ -1,87 +1,82 @@
 ﻿const { Message, User, MessageEmbed } = require("discord.js");
-const { PinguLibrary, PinguUser, PUser, PinguGuild } = require("PinguPackage");
+const { PinguCommand, PinguLibrary, PinguUser, PUser, PinguGuild } = require("PinguPackage");
 
-module.exports = {
-    name: 'tell',
-    cooldown: 5,
-    description: 'Messages a user from Pingu :eyes:',
+module.exports = Object.assign(new PinguCommand('tell', 'Fun', 'Messages a user from Pingu 👀', {
     usage: '<user | username | unset> <message>',
-    id: 2,
-    example: ["Danho Hello!", "Danho's_Super_Cool_Nickname_With_Spaces why is this so long??", "unset"],
-    /**@param {{message: Message, args: string[], pAuthor: PinguUser}}*/
-    async execute({ message, args, pAuthor }) {
-        var permCheck = ArgumentCheck(message, args);
-        if (permCheck != PinguLibrary.PermissionGranted)
-            return message.channel.send(permCheck);
+    example: ["Danho Hello!", "Danho's_Super_Cool_Nickname_With_Spaces why is this so long??", "unset"]
+}, async ({ message, args, pAuthor }) => {
+    var permCheck = ArgumentCheck(message, args);
+    if (permCheck != PinguLibrary.PermissionGranted)
+        return message.channel.send(permCheck);
 
-        let UserMention = args.shift();
-        while (UserMention.includes('_')) UserMention = UserMention.replace('_', ' ');
+    let UserMention = args.shift();
+    while (UserMention.includes('_')) UserMention = UserMention.replace('_', ' ');
 
-        const Mention = UserMention == 'info' ? 'info' : module.exports.GetMention(message, UserMention);
-        if (!Mention) return PinguLibrary.errorLog(message.client, `Mention returned null`, message.content);
+    const Mention = UserMention == 'info' ? 'info' : module.exports.GetMention(message, UserMention);
+    if (!Mention) return PinguLibrary.errorLog(message.client, `Mention returned null`, message.content);
 
-        if (Mention == 'info') {
-            let AuthorAsReplyPerson = PinguUser.GetPUsers().filter(pUser => pUser.replyPerson && pUser.replyPerson.id == message.author.id && pUser);
+    if (Mention == 'info') {
+        let AuthorAsReplyPerson = PinguUser.GetPUsers().filter(pUser => pUser.replyPerson && pUser.replyPerson.id == message.author.id && pUser);
 
-            let tellInfoEmbed = new MessageEmbed()
-                .setTitle('Tell Info')
-                .setThumbnail(pAuthor.avatar)
-                .setColor(message.guild ? PinguGuild.GetPGuild(message.guild).embedColor : PinguLibrary.DefaultEmbedColor)
-                .setDescription(`Your replyPerson: **${pAuthor.replyPerson.name}**`);
+        let tellInfoEmbed = new MessageEmbed()
+            .setTitle('Tell Info')
+            .setThumbnail(pAuthor.avatar)
+            .setColor(message.guild ? PinguGuild.GetPGuild(message.guild).embedColor : PinguLibrary.DefaultEmbedColor)
+            .setDescription(`Your replyPerson: **${pAuthor.replyPerson.name}**`);
 
-            AuthorAsReplyPerson.forEach(pUser =>
-                tellInfoEmbed.addField(
-                    pUser.tag,
-                    pUser.sharedServers.filter(guild =>
-                        pAuthor.sharedServers.map(pAuthorGuilds =>
-                            pAuthorGuilds.name).includes(guild.name)
-                    ).map(guild => guild.name),
-                    true)
-            );
-
-            let dmChannel = await message.author.createDM();
-            return dmChannel.send(tellInfoEmbed);
-        }
-        if (Mention.id == message.author.id) return message.channel.send(`I have a feeling that not even *you* would want to talk to yourself...`);
-
-        pAuthor.replyPerson = new PUser(Mention);
-
-        let messages = {
-            /** @param {User} self @param {PinguUser} partner*/
-            success: (self, partner) => `Successfully updated **${PinguUser.PUserFileName(self)}.json**'s replyPerson to **${partner.replyPerson.name}**.`,
-            /** @param {User} self @param {PinguUser} partner*/
-            error: (self, partner) => `Failed updating **${PinguUser.PUserFileName(self)}**.json's replyPerson to **${partner.replyPerson.name}**!`
-        };
-
-        await PinguUser.UpdatePUser(message.client, { replyPerson: pAuthor.replyPerson }, pAuthor, 'tell',
-            messages.success(message.author, pAuthor),
-            messages.error(message.author, pAuthor)
+        AuthorAsReplyPerson.forEach(pUser =>
+            tellInfoEmbed.addField(
+                pUser.tag,
+                pUser.sharedServers.filter(guild =>
+                    pAuthor.sharedServers.map(pAuthorGuilds =>
+                        pAuthorGuilds.name).includes(guild.name)
+                ).map(guild => guild.name),
+                true)
         );
 
-        let pMention = await PinguUser.GetPUser(Mention);
-        pMention.replyPerson = new PUser(message.author);
+        let dmChannel = await message.author.createDM();
+        return dmChannel.send(tellInfoEmbed);
+    }
+    if (Mention.id == message.author.id) return message.channel.send(`I have a feeling that not even *you* would want to talk to yourself...`);
 
-        await PinguUser.UpdatePUser(message.client, { replyPerson: pMention.replyPerson }, pMention, "tell",
-            messages.success(Mention, pMention),
-            messages.error(Mention, pMention)
-        );
+    pAuthor.replyPerson = new PUser(Mention);
 
-        Mention.createDM().then(async tellChannel => {
-            const sendMessage = args.join(' ');
-            var sentMessage = await tellChannel.send(sendMessage, message.attachments.array());
+    let messages = {
+        /** @param {User} self @param {PinguUser} partner*/
+        success: (self, partner) => `Successfully updated **${PinguUser.PUserFileName(self)}.json**'s replyPerson to **${partner.replyPerson.name}**.`,
+        /** @param {User} self @param {PinguUser} partner*/
+        error: (self, partner) => `Failed updating **${PinguUser.PUserFileName(self)}**.json's replyPerson to **${partner.replyPerson.name}**!`
+    };
 
-            message.react('✅');
-            PinguLibrary.tellLog(message.client, message.author, Mention, sentMessage);
-            message.channel.send(`**Established conversation with __${Mention.tag}__**`);
+    await PinguUser.UpdatePUser(message.client, { replyPerson: pAuthor.replyPerson }, pAuthor, 'tell',
+        messages.success(message.author, pAuthor),
+        messages.error(message.author, pAuthor)
+    );
 
-        }).catch(async err => {
-            if (err.message == 'Cannot send messages to this user')
-                return message.channel.send(`Unable to send message to ${Mention.username}, as they have \`Allow direct messages from server members\` disabled!`);
+    let pMention = await PinguUser.GetPUser(Mention);
+    pMention.replyPerson = new PUser(message.author);
 
-            await PinguLibrary.errorLog(message.client, `${message.author} attempted to *tell ${Mention}`, message.content, err)
-            message.channel.send(`Attempted to message ${Mention.username} but couldn't.. I've contacted my developers.`);
-        })
-    },
+    await PinguUser.UpdatePUser(message.client, { replyPerson: pMention.replyPerson }, pMention, "tell",
+        messages.success(Mention, pMention),
+        messages.error(Mention, pMention)
+    );
+
+    Mention.createDM().then(async tellChannel => {
+        const sendMessage = args.join(' ');
+        var sentMessage = await tellChannel.send(sendMessage, message.attachments.array());
+
+        message.react('✅');
+        PinguLibrary.tellLog(message.client, message.author, Mention, sentMessage);
+        message.channel.send(`**Established conversation with __${Mention.tag}__**`);
+
+    }).catch(async err => {
+        if (err.message == 'Cannot send messages to this user')
+            return message.channel.send(`Unable to send message to ${Mention.username}, as they have \`Allow direct messages from server members\` disabled!`);
+
+        await PinguLibrary.errorLog(message.client, `${message.author} attempted to *tell ${Mention}`, message.content, err)
+        message.channel.send(`Attempted to message ${Mention.username} but couldn't.. I've contacted my developers.`);
+    })
+}), {
     /**@param {Message} message*/
     async ExecuteTellReply(message) {
         //Pingu sent message in PM
@@ -101,7 +96,7 @@ module.exports = {
         if (replyPersonPinguUser.replyPerson._id != message.author.id) {
             replyPersonPinguUser.replyPerson = new PUser(message.author);
 
-            PinguUser.UpdatePUser(message.client, {replyPerson: replyPersonPinguUser.replyPerson}, replyPersonPinguUser, "tell: ExecuteTellReply",
+            PinguUser.UpdatePUser(message.client, { replyPerson: replyPersonPinguUser.replyPerson }, replyPersonPinguUser, "tell: ExecuteTellReply",
                 `Successfully re-binded **${replyPersonUser.tag}**'s replyPerson to **${message.author.tag}**`,
                 `Failed re-binding **${replyPersonUser.tag}**'s replyPerson to **${message.author.tag}**!`
             );
@@ -172,10 +167,11 @@ module.exports = {
         let pAuthor = PinguUser.GetPUser(message.author);
         pAuthor.replyPerson = new PUser(module.exports.GetMention(message, Mention));
     },
-};
+});
 
 /**Checks if arguments are correct
- * @param {Message} message @param {string[]} args*/
+ * @param {Message} message 
+ * @param {string[]} args*/
 function ArgumentCheck(message, args) {
     if ((!args[0] || !args[1] && ["info", "unset"].includes(args[0].toLowerCase())) && !message.attachments.first())
         return `Not enough arguments provided`;

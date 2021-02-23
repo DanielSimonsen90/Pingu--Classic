@@ -1,15 +1,11 @@
-const { Client, Guild, MessageEmbed } = require("discord.js");
-const { PinguGuild, PinguLibrary, PinguUser } = require("PinguPackage");
+const { MessageEmbed } = require("discord.js");
+const { PinguGuild, PinguEvent, PinguUser } = require("PinguPackage");
 
-module.exports = {
-    name: 'events: guildDelete',
-    /**@param {{guild: Guild}}*/
-    setContent({ guild }) {
+module.exports = new PinguEvent('guildDelete',
+    async function setContent(guild) {
         return module.exports.content = new MessageEmbed().setDescription(`**${guild.name}** was deleted.`);
     },
-    /**@param {Client} client
-     * @param {{guild: Guild}}*/
-    async execute(client, { guild }) {
+    async function execute(client, guild) {
         let pGuild = await PinguGuild.GetPGuild(guild);
         if (pGuild.clients.find(c => c && c._id != client.user.id)) /*Other Pingu client is in guild*/ return;
 
@@ -36,4 +32,4 @@ module.exports = {
                 );
         }
     }
-}
+);

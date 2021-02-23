@@ -1,11 +1,7 @@
-const { Client } = require("discord.js");
-const { PinguLibrary, PinguUser } = require("PinguPackage");
+const { PinguLibrary, PinguEvent } = require("PinguPackage");
 
-module.exports = {
-    name: 'events: rateLimit',
-    /**@param {Client} client
-     @param {{info: import("discord.js").RateLimitData}}*/
-    execute(client, { info }) {
-        PinguLibrary.errorLog(client, `I'm being ratelimited by **${info.limit}**, which is costing me ${info.timeDifference}`);
+module.exports = new PinguEvent('rateLimit', null,
+    async function execute(client, info) {
+        return PinguLibrary.errorLog(client, `I'm being ratelimited by **${info.limit}**, which is costing me ${info.timeDifference}`);
     }
-}
+);

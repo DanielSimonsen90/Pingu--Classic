@@ -9,24 +9,13 @@
     </Header>
     <Snippet>
       <Code Language="JavaScript">
-        <![CDATA[const { Message } = require('discord.js');
-          const { PinguLibrary, PinguGuild, PinguUser, DiscordPermissions, PClient } = require('PinguPackage');
+        <![CDATA[const { PinguCommand } = require('PinguPackage');
 
-          module.exports = {
-              name: '$name$',
-              description: '$description$',
-              usage: '$usage$',
-              guildOnly: $guildOnly$,
-              id: $id$,
-              specificGuildID: undefined,
-              examples: ["$examples$"],
-              permissions: [DiscordPermissions.$permissions$],
-              aliases: [""],
-              /**@param {{message: Message, args: string[], pAuthor: PinguUser, pGuild: PinguGuild, pGuildClient: PClient}}*/
-              execute({message, args, pAuthor, pGuild, pGuildClient}) {
-                  $end$
-              }
-            }]]>
+          module.exports = new PinguCommand('$name$', '$commandCategory$', `$description$`, {
+            $data$
+          }, async ({ message, args, pAuthor, pGuild, pGuildClient }) => {
+            $end$
+          })]]>
       </Code>
       <Declarations>
         <Literal>
@@ -35,32 +24,18 @@
           <Default>script</Default>
         </Literal>
         <Literal>
+          <ID>commandCategory</ID>
+          <ToolTip>Script category for command</ToolTip>
+          <Default>DevOnly</Default>
+        </Literal>
+        <Literal>
           <ID>description</ID>
           <ToolTip>Description used when user executes *help</ToolTip>
           <Default>New Pingu Command</Default>
         </Literal>
         <Literal>
-          <ID>usage</ID>
-          <ToolTip>required and optional arguments</ToolTip>
-        </Literal>
-        <Literal>
-          <ID>guildOnly</ID>
-          <ToolTip>Command should only be used in guilds</ToolTip>
-          <Default>false</Default>
-        </Literal>
-        <Literal>
-          <ID>id</ID>
-          <ToolTip>Script ID for command categories</ToolTip>
-          <Default>4</Default> <!--Developer Only-->
-        </Literal>
-        <Literal>
-          <ID>examples</ID>
-          <ToolTip>Examples command could be used with good selection of usage</ToolTip>
-        </Literal>
-        <Literal>
-          <ID>permissions</ID>
-          <ToolTip>Necessary permissions to run command, excluding SEND_MESSAGES</ToolTip>
-          <Default>SEND_MESSAGES</Default>
+          <ID>data</ID>
+          <ToolTip>Additional data to add to command</ToolTip>
         </Literal>
       </Declarations>
     </Snippet>

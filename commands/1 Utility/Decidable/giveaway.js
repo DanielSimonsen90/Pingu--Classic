@@ -1,27 +1,17 @@
-﻿const { Message } = require('discord.js'),
-    { DiscordPermissions, HandleDecidables, DecidablesTypes, PinguGuild, PClient } = require('PinguPackage');
+﻿const { PinguCommand, HandleDecidables } = require('PinguPackage');
 
-module.exports = {
-    name: 'giveaway',
-    description: 'Giveaway time!',
+module.exports = new PinguCommand('giveaway', 'Utility', 'Giveaway time!', {
     usage: 'setup | list | <time> [winners] [channel] <prize>',
     guildOnly: true,
-    id: 1,
     examples: ["setup", "list", "10m Discord Nitro", "24h 2w Movie tickets for 2!"],
-    permissions: [
-        DiscordPermissions.SEND_MESSAGES,
-        DiscordPermissions.MANAGE_MESSAGES,
-        DiscordPermissions.ADD_REACTIONS
-    ],
-    aliases: ["ga"],
-    /**@param {{message: Message, args: string[], pGuild: PinguGuild, pGuildClient: PClient}}*/
-    async execute({ message, args, pGuild, pGuildClient }) {
-        return await HandleDecidables({
-            message, args, pGuild, pGuildClient,
-            decidablesType: DecidablesTypes.Giveaway,
-            reactionEmojis: ['🤞'],
-            listEmojis: ['⬅️', '🗑️', '➡️', '🛑'],
-            config: pGuild.giveawayConfig
-        })
-    },
-};
+    permissions: ["ADD_REACTIONS", "MANAGE_MESSAGES"],
+    aliases: ["ga"]
+}, async ({ message, args, pGuild, pGuildClient }) => {
+    return await HandleDecidables({
+        message, args, pGuild, pGuildClient,
+        decidablesType: 'Giveaway',
+        reactionEmojis: ['🤞'],
+        listEmojis: ['⬅️', '🗑️', '➡️', '🛑'],
+        config: pGuild.giveawayConfig
+    })
+});
