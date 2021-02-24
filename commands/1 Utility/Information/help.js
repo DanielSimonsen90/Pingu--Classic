@@ -1,18 +1,18 @@
 const { MessageEmbed, Message } = require('discord.js');
-const { PinguLibrary, PinguCommand } = require('PinguPackage');
+const { PinguLibrary, PinguCommand, PinguClient } = require('PinguPackage');
 const fs = require('fs');
 
 module.exports = new PinguCommand('help', 'Utility', 'List all of my commands or info about a specific command.', {
     usage: '[category | command]',
     examples: ["", "giveaway", "Fun"]
-}, async ({ message, args, pGuildClient }) => {
+}, async ({ client, message, args, pGuildClient }) => {
     //#region Create variables
-    let color = pGuildClient && pGuildClient.embedColor || PinguLibrary.DefaultEmbedColor;
-    let prefix = pGuildClient && pGuildClient.prefix || PinguLibrary.DefaultPrefix(message.client);
+        let color = pGuildClient && pGuildClient.embedColor || client.DefaultEmbedColor;
+        let prefix = pGuildClient && pGuildClient.prefix || client.DefaultPrefix;
 
     let embed = new MessageEmbed()
         .setColor(color)
-        .setThumbnail(message.client.user.avatarURL());
+        .setThumbnail(client.user.avatarURL());
     //#endregion
 
     switch (args.length) {
@@ -28,6 +28,8 @@ module.exports = new PinguCommand('help', 'Utility', 'List all of my commands or
  * @param {import('PinguPackage').CommandCategories devOnlyType*/
 function CategoryOrSpecificHelp(message, args, embed, prefix, devOnlyType) {
     args[0] = args[0].toLowerCase();
+    let client = PinguClient.ToPinguClient(message.client);
+
     /**@param {SubCategory[]} arr
      * @returns {SubCategory}*/
     let getCategory = (arr) => {
@@ -46,7 +48,7 @@ function CategoryOrSpecificHelp(message, args, embed, prefix, devOnlyType) {
 
     //Find category
     if (!category) {
-        let command = message.client.commands.find(cmd => [...cmd.aliases || [], cmd.name].includes(args[0]));
+        let command = client.commands.find(cmd => [...cmd.aliases || [], cmd.name].includes(args[0]));
         if (command) {
             args[0] = command.name.toLowerCase();
             return CommandHelp(message, args, embed, prefix);
@@ -60,35 +62,6 @@ function CategoryOrSpecificHelp(message, args, embed, prefix, devOnlyType) {
         return message.channel.send(`Sorry ${message.author}, but you're not cool enough to use that!`);
 
     return CategoryHelp(message, embed, prefix, category.path);
-
-    //Write all data into embed, if id matches the index of args[0] in CategoryNames
-    message.client.commands
-        .filter(cmd => cmd.id == args[0])
-        .forEach(command =>
-            embed.addField(
-                `**${prefix}${command.name}**`,
-                `${(`${command.description} \n\`${prefix}${command.name}` +
-                    (command.usage ? ` ${command.usage}` : "")
-                )}\``
-            )
-        );
-
-    //Create footer
-    let footer = args[0] <= 3 ?
-        `Try my other help commands! — ${prefix}help to view them!` :
-        `You are now viewing page ${args[0]}, being the help page of ${category.name}.\n`;
-
-    //Update embed's Footer with Footer
-    embed.setFooter(footer)
-        .setDescription(`All of my nooty commands in **${CategoryNames[args[0]]}** (")>`)
-        .setTitle(`Pingu Commands: ${category.name}`);
-
-    //Return embed
-    return message.channel.send(embed)
-        .catch(err => {
-            PinguLibrary.errorLog(message.client, `Could not send help DM to ${message.author.tag}.`, message.content, err);
-            message.reply(`It seems like I can't DM you! Do you have DMs disabled?`);
-        });
 }
 /**@param {Message} message
  * @param {MessageEmbed} embed
@@ -131,8 +104,10 @@ function CategoryHelp(message, embed, prefix, path) {
  * @param {MessageEmbed} embed
  * @param {string} prefix*/
 function CommandHelp(message, args, embed, prefix) {
+    let client = PinguClient.ToPinguClient(message.client);
+
     //Create variables to find the specific command message.author is looking for
-    const command = message.client.commands.get(args[0].toLowerCase());
+    const command = client.commands.get(args[0].toLowerCase());
     if (!command) return message.channel.send(`Command not recognized!`);
 
     //Update embed

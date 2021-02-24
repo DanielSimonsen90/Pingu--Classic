@@ -3,9 +3,9 @@ const { PinguCommand, PinguLibrary, PinguUser, TimeLeftObject } = require('Pingu
 const timeBetweenClaims = 21;
 
 module.exports = new PinguCommand('daily', 'Fun', `Daily streams just like as if you were having a Snapchat streak with me ;)`, null,
-    async ({ message, pAuthor, pGuildClient }) => {
+    async ({ client, message, pAuthor, pGuildClient }) => {
         if (!pAuthor) {
-            PinguLibrary.errorLog(message.client, `Unable to find pAuthor in daily using **${message.author.tag}**!`);
+            PinguLibrary.errorLog(client, `Unable to find pAuthor in daily using **${message.author.tag}**!`);
             return message.channel.send(`I couldn't find your Pingu User profile!`);
         }
 
@@ -19,7 +19,7 @@ module.exports = new PinguCommand('daily', 'Fun', `Daily streams just like as if
 
         nextClaim = new TimeLeftObject(now, endsAt);
 
-        PinguUser.UpdatePUser(message.client, { daily }, pAuthor, "daily",
+        PinguUser.UpdatePUser(client, { daily }, pAuthor, "daily",
             `Successfully updated **${message.author.tag}**'s daily endsAt.`,
             `Failed updating **${message.author.tag}**'s daily endsAt`
         );
@@ -27,7 +27,7 @@ module.exports = new PinguCommand('daily', 'Fun', `Daily streams just like as if
         let hourDiff = (now.getDate() > lastClaimDate.getDate() ? 24 : 0) - now.getHours() - lastClaimDate.getHours();
 
         if (nextClaim.toString())
-            return message.channel.send(`You've already claimed your daily! Come back in ${nextClaim.toString()} (**${endsAt.toLocaleTimeString('da-DK')}**, **${endsAt.toLocaleDateString('da-DK', { formatMatcher: "dd-MM-YY" })}**)`);
+            return message.channel.send(`You've already claimed your daily! Come back in ${nextClaim.toString()} (**${endsAt.toLocaleTimeString('da-DK')}**, **${endsAt.toLocaleDateString('da-DK', { formatMatcher: "dd/MM/YY" })}**)`);
         else if (daily.nextClaim.hours + 36 > hourDiff)
             return ClaimDaily(daily.streak += 1);
         return ClaimDaily(1);
@@ -41,12 +41,12 @@ module.exports = new PinguCommand('daily', 'Fun', `Daily streams just like as if
                 .setThumbnail(pAuthor.avatar)
                 .setTitle(`Daily claimed!`)
                 .setDescription(`Your daily has been claimed!\n**Streak: ${daily.streak}**`)
-                .setColor(message.guild ? pGuildClient.embedColor : PinguLibrary.DefaultEmbedColor)
+                .setColor(message.guild ? pGuildClient.embedColor : client.DefaultEmbedColor)
                 .setFooter(`Next daily claimable at`)
                 .setTimestamp(daily.nextClaim.endsAt)
             );
 
-            setTimeout(async () => await PinguUser.UpdatePUser(message.client, { daily: pAuthor.daily }, pAuthor, "daily",
+            setTimeout(async () => await PinguUser.UpdatePUser(client, { daily: pAuthor.daily }, pAuthor, "daily",
                 `Successfully updated **${message.author.tag}**'s daily streak.`,
                 `Failed updating **${message.author.tag}**'s daily streak`
             ), 5000);

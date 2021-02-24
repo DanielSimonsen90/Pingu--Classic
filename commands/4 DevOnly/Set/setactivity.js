@@ -1,9 +1,9 @@
-const { PinguCommand, PinguLibrary } = require("PinguPackage");
+const { PinguCommand } = require("PinguPackage");
 
 module.exports = new PinguCommand('setactivity', 'DevOnly', "Make me do something else than listening to people's screams", {
     usage: '<status type> <status message>',
     examples: ["listening my jam"]
-}, async ({ message, args }) => {
+}, async ({ client, message, args }) => {
     if (!args[0] || !args[1])
         return message.channel.send(`You didn't provide me with enough arguments!`);
     else if (!['PLAYING', 'WATCHING', 'LISTENING', 'COMPETING'].includes(args[0]))
@@ -11,7 +11,10 @@ module.exports = new PinguCommand('setactivity', 'DevOnly', "Make me do somethin
 
     let Activity = args.shift(),
         ActivityMessage = args.join(" ");
-    message.client.user.setActivity(`${ActivityMessage} ${PinguLibrary.DefaultPrefix(message.client)}help`, { type: Activity });
+        client.user.setActivity({
+            name: `${ActivityMessage} ${client.DefaultPrefix}help`,
+            type: Activity
+        });
 
     return message.channel.send(`Updated activity!`);
 });

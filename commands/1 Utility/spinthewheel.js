@@ -12,5 +12,5 @@ module.exports = new PinguCommand('spinthewheel', 'Utility', 'Get a random item 
     var result = options[ranItem];
     PinguLibrary.consoleLog(message.client, `Result: ${result}`);
 
-    message.channel.send(result);
+    return message.channel.send(result);
 });

@@ -1,9 +1,9 @@
 const { MessageEmbed } = require('discord.js');
-const { PinguCommand, PinguLibrary } = require('PinguPackage');
+const { PinguCommand } = require('PinguPackage');
 
 module.exports = new PinguCommand('fact', 'Fun', 'Pingu facts woah', {
     permissions: ['EMBED_LINKS']
-}, async ({ message, pGuildClient }) => {
+}, async ({ client, message, pGuildClient }) => {
     const Facts = [
         //Literal Penguin facts
         "Penguins are birds but they __cannot__ fly whatsoever. Visit LearnToFly to learn more.",
@@ -37,7 +37,7 @@ module.exports = new PinguCommand('fact', 'Fun', 'Pingu facts woah', {
     message.channel.send(new MessageEmbed()
         .setTitle(Title)
         .setDescription(Facts[Fact])
-        .setColor(message.channel.type != 'dm' ? pGuildClient.embedColor : PinguLibrary.DefaultEmbedColor)
+        .setColor(message.channel.type != 'dm' ? pGuildClient.embedColor : client.DefaultEmbedColor)
         .attachFiles([`./commands/4 DevOnly/pfps/Greeny_Boi.png`])
         .setThumbnail(`attachment://Greeny_Boi.png`)
         .setFooter('For more facts, use *fact again!')

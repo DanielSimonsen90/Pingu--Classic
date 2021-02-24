@@ -3,7 +3,8 @@ const { PinguEvent } = require("PinguPackage");
 
 module.exports = new PinguEvent('voiceStateUpdate', 
     async function setContent(preState, state) {
-        return module.exports.content = await GetEmbed();
+        let embed = await GetEmbed();
+        return module.exports.content = embed.description ? embed : null;
 
         async function GetEmbed() {
             let userTag = state.member.user.tag;

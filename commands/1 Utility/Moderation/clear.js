@@ -19,11 +19,9 @@ module.exports = new PinguCommand('clear', 'Utility', 'Clears specified messages
     else if (message.mentions.users.first())
         return SpecificClear(message, args, message.mentions.users.first());
 
-    message.delete().then(() => {
-        ClearMessages(message, parseInt(args[0]));
-        message.reply(`I've deleted ${args[0]} ${(args[0] != '1' ? "messages" : "message")} for you!`)
-            .then(NewMessage => NewMessage.delete({ timeout: 1500 }));
-    });
+    await message.delete()
+    ClearMessages(message, parseInt(args[0]));
+    return (await message.reply(`I've deleted ${args[0]} ${(args[0] != '1' ? "messages" : "message")} for you!`)).delete({ timeout: 1500 });
 });
 
 
@@ -36,26 +34,18 @@ function PermissionCheck(message, args) {
 /**@param {Message} message 
  * @param {number} amount*/
 async function ClearMessages(message, amount) {
-    try {
-        await message.channel.bulkDelete(amount);
-    } catch (err) {
+    return message.channel.bulkDelete(amount).catch(err =>
         PinguLibrary.errorLog(message.client, `Failed to remove message`, message.content, err)
-            .then(() => message.channel.send(`I had an error trying to delete the messages! I've already notified my developers.`));
-    }
+            .then(() => message.channel.send(`I had an error trying to delete the messages! I've already notified my developers.`)));
 }
 /**@param {Message} message
  @param {GuildChannel} channel*/
 async function ClearAll(message, channel) {
-    var permCheck = PinguLibrary.PermissionCheck(message, ['MANAGE_CHANNELS']);
+    var permCheck = PinguLibrary.PermissionCheck(message, 'MANAGE_CHANNELS');
     if (permCheck != PinguLibrary.PermissionGranted) return permCheck;
 
     if (!channel) channel = message.channel;
-    else channel = message.guild.channels.cache.find(c =>
-        c.id == channel ||
-        c.name == channel ||
-        c == channel ||
-        `<#${c.id}>` == channel
-    );
+    else channel = message.guild.channels.cache.find(c => [c.id, c.name, c, `<#${c.id}>`].includes(channel));
 
     if (message.guild.rulesChannelID == channel.id || !['text', 'voice', 'news'].includes(channel.type))
         return `I cannot replace that channel!`;
@@ -65,7 +55,7 @@ async function ClearAll(message, channel) {
     let pos = channel.position;
     var newChannel = await channel.clone();
     await newChannel.setPosition(pos);
-    return `I've deleted the previous #${channel.name}, and replaced it with ${(`${newChannel}` ||  `a new one!`)}!`;
+    return `I've deleted the previous #${channel.name}, and replaced it with ${(`${newChannel}` || `a new one!`)}!`;
 }
 /**@param {Message} message 
  * @param {string[]} args 

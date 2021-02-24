@@ -2,13 +2,13 @@
   "ExpandedNodes": [
     "",
     "\\commands",
-    "\\commands\\2 Fun",
-    "\\commands\\3 Supporting",
-    "\\events\\client",
-    "\\events\\client\\shard",
-    "\\events\\guild",
-    "\\events\\guild\\guildMember"
+    "\\commands\\4 DevOnly",
+    "\\commands\\5 GuildSpecific",
+    "\\errors",
+    "\\events",
+    "\\events\\message",
+    "\\Snippets"
   ],
-  "SelectedNode": "\\commands\\2 Fun\\music.js",
+  "SelectedNode": "\\Snippets\\PinguCommand.snippet",
   "PreviewInSolutionExplorer": false
 }

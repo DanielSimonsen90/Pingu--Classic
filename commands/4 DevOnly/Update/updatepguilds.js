@@ -4,8 +4,8 @@ const { PinguCommand, PinguGuild, PinguLibrary } = require('PinguPackage');
 module.exports = new PinguCommand('updatepguilds', 'DevOnly', `Creates new PinguGuilds to MongoDB, if they weren't added already`, {
     usage: '<guild name | guild id | show>',
     example: [`Pingu Support`, '460926327269359626', 'show']
-}, async ({ message, args }) => {
-    const BotGuilds = message.client.guilds.cache.array().sort((a, b) => a.name > b.name ? 1 : -1);
+}, async ({ client, message, args }) => {
+    const BotGuilds = client.guilds.cache.array().sort((a, b) => a.name > b.name ? 1 : -1);
     let arg = args.join(' ').toLowerCase();
 
     let PinguGuildsArr = [];
@@ -27,11 +27,11 @@ module.exports = new PinguCommand('updatepguilds', 'DevOnly', `Creates new Pingu
 
         try {
             if (!await PinguGuild.GetPGuild(BotGuilds[i]))
-                await PinguGuild.WritePGuild(message.client, BotGuilds[i], this.name,
+                await PinguGuild.WritePGuild(client, BotGuilds[i], module.exports.name,
                     `Successfully created PinguGuild for **${BotGuilds[i].name}**`,
                     `Failed creating PinguGuild for **${BotGuilds[i].name}**`
                 );
-        } catch (err) { PinguLibrary.errorLog(message.client, 'Adding to PinguGuilds failed', message.content, err); }
+        } catch (err) { PinguLibrary.errorLog(client, 'Adding to PinguGuilds failed', message.content, err); }
     }
 
     if (message.content.includes('updatepguilds'))

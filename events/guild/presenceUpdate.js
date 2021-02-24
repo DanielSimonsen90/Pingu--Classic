@@ -1,11 +1,9 @@
 const { Presence, MessageEmbed, Activity } = require("discord.js");
-const { PinguEvent, PinguLibrary, PinguGuild } = require("PinguPackage");
+const { PinguEvent, PinguLibrary, PinguGuild, PinguClient } = require("PinguPackage");
 
-module.exports = Object.assign(new PinguEvent('presenceUpdate',
+module.exports = { ...new PinguEvent('presenceUpdate',
     async function setContent(prePresence, presence) {
         let user = presence.user.tag;
-        //let typical = ['STREAMING', 'PLAYING', 'LISTENING', 'CUSTOM_STATUS'];
-
         function FindActivity() {
             if (!prePresence || !presence) return null;
 
@@ -45,9 +43,9 @@ module.exports = Object.assign(new PinguEvent('presenceUpdate',
             console.log({ user, preActivity, activity });
         }
 
-        return description ? module.exports.content = new MessageEmbed()
+        return module.exports.content = description ? new MessageEmbed()
             .setDescription(description)
-            .setColor(await this.GetColor(activityType, presence, prePresence)) : module.exports.content = null;
+            .setColor(await module.exports.GetColor(activityType, presence, prePresence)) : null;
 
         function GetDescription() {
             if (!prePresence || !activity || presence && presence.status != prePresence.status)
@@ -83,12 +81,10 @@ module.exports = Object.assign(new PinguEvent('presenceUpdate',
             return includeUserMessage ? userMessage + userActivity : userActivity;
         }
     }
-), {
+), ...{
     /**@param {string} activityType
      * @param {Presence} presence
-        * @param {
-        Presence
-    } prePresence*/
+     * @param {Presence} prePresence*/
     async GetColor(activityType, presence, prePresence) {
         if (activityType) {
             if (activityType == 'listening to' && presence.status == prePresence.status) return '#1ED760';
@@ -104,6 +100,7 @@ module.exports = Object.assign(new PinguEvent('presenceUpdate',
         }
 
         let pGuild = await PinguGuild.GetPGuild(presence.guild);
-        return PinguGuild.GetPClient(presence.guild.client, pGuild).embedColor || PinguLibrary.DefaultEmbedColor;
+        let client = PinguClient.ToPinguClient(presence.guild.client);
+        return client.toPClient(pGuild).embedColor || client.DefaultEmbedColor;
     }
-});
+}};

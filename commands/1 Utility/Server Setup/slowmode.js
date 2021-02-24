@@ -35,7 +35,7 @@ function PermissionCheck(message, args) {
     else if (isNaN(ms(args[0])) && isNaN(parseInt(args[0]))) return `${args[0]} is not a valid argument! How much slowmode do you want?`;
     else if (!channel.isText()) return `Channel must be a text channel!`;
 
-    return PinguLibrary.PermissionCheck(message, ['MANAGE_CHANNELS']);
+    return PinguLibrary.PermissionCheck(message, 'MANAGE_CHANNELS');
 }
 /**@param {Message} message
  * @param {string[]} args

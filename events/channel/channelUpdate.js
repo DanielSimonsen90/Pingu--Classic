@@ -3,7 +3,9 @@ const { PinguEvent } = require("PinguPackage");
 
 module.exports = new PinguEvent('channelUpdate',
     async function setContent(preChannel, channel) {
-        return module.exports.content = new MessageEmbed().setDescription(GetDescription(channel.type));
+        let description = GetDescription(channel.type);
+
+        return module.exports.content = description ? new MessageEmbed().setDescription(description) : null;
 
         function GetDescription(type) {
             return type == 'dm' ? PinguEvent.UnknownUpdate(preChannel, channel) : GetGuildChannel(preChannel, channel);

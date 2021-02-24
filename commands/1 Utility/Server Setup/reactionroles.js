@@ -88,7 +88,7 @@ function GetChannel(message, args) {
 function GetEmote(message, args) {
     let emoteString = args.shift();
 
-    if (emoteString.match(/<:\w{2,}:\d{18}>/g)) {
+    if (emoteString.match(/<:\w{2,}:\d{18}>/g)) { //stirng has <: + 2 characters or more + : + 18 digits + > | <:EmojiExample:123456789012345678>
         let emoteID = emoteString.split(':')[2];
         emoteID = emoteID.substring(0, emoteID.length - 1);
         var emote = message.guild.emojis.cache.get(emoteID);
@@ -122,7 +122,7 @@ async function GetRole(message, args) {
  * @param {Role} role*/
 async function SetReactionRoles(pGuild, rrMessage, emote, role) {
     let containsCheck = PinguLibrary.PermissionGranted;
-    let { reactionRoles } = pGuild;
+    let { reactionRoles } = pGuild.settings;
 
     reactionRoles.find(rr => {
         let check = !((rr.emoteName == emote && rr.emoteName.charCodeAt(0) == emote.charCodeAt(0) ||
@@ -152,7 +152,7 @@ async function Delete(message, channel, rrMessage, emote, args) {
     let removeFromUsers = args[0] && args.shift().toLowerCase() == `true`;
 
     let pGuild = await PinguGuild.GetPGuild(rrMessage.guild);
-    let { reactionRoles } = pGuild;
+    let { reactionRoles } = pGuild.settings;
     let rr = reactionRoles.find(rr => rr.channel._id == channel.id && rr.messageID == rrMessage.id && (rr.emoteName == emote.name || rr.emoteName == emote));
     if (!rr) return message.channel.send(`I wasn't able to find that reactionrole in your pGuild!`);
 
@@ -162,7 +162,7 @@ async function Delete(message, channel, rrMessage, emote, args) {
     if (removeFromUsers) {
         let role = await rrMessage.guild.roles.fetch(rr.pRole._id);
 
-        let gMembers = rrMessage.reactions.cache.array().map(reaction =>
+        let gMembers = rrMessage.reactions.cache.map(reaction =>
             reaction.emoji.name == rr.emoteName && reaction.users.cache.array().map(u =>
                 rrMessage.guild.member(u)
             )

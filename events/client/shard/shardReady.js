@@ -1,3 +1,3 @@
 const { PinguEvent } = require('PinguPackage');
 
-//module.exports = new PinguEvent('shardReady');
+module.exports = new PinguEvent('shardReady');

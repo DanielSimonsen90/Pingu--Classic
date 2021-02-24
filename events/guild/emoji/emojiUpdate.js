@@ -5,8 +5,6 @@ module.exports = new PinguEvent('emojiUpdate',
     async function setContent(preEmote, emote) {
         return preEmote.name != emote.name ?
             module.exports.content = new MessageEmbed()
-                .setDescription(PinguEvent.SetDescriptionValues('Name', preEmote.name, emote.name)
-                ) :
-            null;
+                .setDescription(PinguEvent.SetDescriptionValues('Name', preEmote.name, emote.name)) : null;
     }
 );

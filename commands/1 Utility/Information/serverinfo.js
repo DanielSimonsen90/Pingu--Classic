@@ -1,5 +1,5 @@
 ﻿const { MessageEmbed, Message, Guild } = require('discord.js');
-const { PinguCommand, PinguGuild, PinguLibrary, DiscordPermissions, EmbedField } = require('PinguPackage');
+const { PinguCommand, PinguGuild, PinguLibrary, EmbedField, PinguClient } = require('PinguPackage');
 
 module.exports = new PinguCommand('serverinfo', 'Utility', 'Sends server information', {
     usage: '[BigBoiInfo: all] [emotes [emote name] | features]',
@@ -102,8 +102,9 @@ async function SendCallerInfo(message, bigboiinfo) {
             embed.addField(title, await value(), inline != null ? inline : true) :
             embed.addField(title, `Missing **${humanize(permission)}** permission`, inline != null ? inline : true)
     }
+    /**@param {import('discord.js').PermissionString} permission*/
     function HasPermission(permission) {
-        return PinguLibrary.PermissionCheck(message, [permission]) == PinguLibrary.PermissionGranted;
+        return PinguLibrary.PermissionCheck(message, permission) == PinguLibrary.PermissionGranted;
     }
 
     let EmbedArray = [
@@ -148,25 +149,25 @@ async function SendCallerInfo(message, bigboiinfo) {
             .addField(`${savedEmotes.notification} Default Notifications`, humanize(guild.defaultMessageNotifications), true)
             .addField(`${savedEmotes.banner} Banner`, guild.bannerURL() ? guild.bannerURL() : "None", true)
 
-        if (HasPermission(DiscordPermissions.CREATE_INSTANT_INVITE)) EmbedArray[1].addField("\u200B", "\u200B", true);
+        if (HasPermission('CREATE_INSTANT_INVITE')) EmbedArray[1].addField("\u200B", "\u200B", true);
 
-        EmbedArray[1] = await addField(DiscordPermissions.MANAGE_GUILD, EmbedArray[1], `${savedEmotes.invite} Invites`, async () => (await guild.fetchInvites()).size, HasPermission(DiscordPermissions.MANAGE_GUILD));
-        EmbedArray[1] = await addField(DiscordPermissions.BAN_MEMBERS, EmbedArray[1], `${savedEmotes.banHammer} Banned Members`, async () => (await guild.fetchBans()).size, HasPermission(DiscordPermissions.BAN_MEMBERS));
+        EmbedArray[1] = await addField('MANAGE_GUILD', EmbedArray[1], `${savedEmotes.invite} Invites`, async () => (await guild.fetchInvites()).size, HasPermission('MANAGE_GUILD'));
+        EmbedArray[1] = await addField('BAN_MEMBERS', EmbedArray[1], `${savedEmotes.banHammer} Banned Members`, async () => (await guild.fetchBans()).size, HasPermission('BAN_MEMBERS'));
 
-        if (HasPermission(DiscordPermissions.BAN_MEMBERS)) EmbedArray[1].addField("\u200B", "\u200B", true);
+        if (HasPermission('BAN_MEMBERS')) EmbedArray[1].addField("\u200B", "\u200B", true);
 
-        EmbedArray[1] = await addField(DiscordPermissions.MANAGE_WEBHOOKS, EmbedArray[1], `${savedEmotes.webhook} Webhooks`, async () => (await guild.fetchWebhooks()).size, HasPermission(DiscordPermissions.MANAGE_WEBHOOKS));
+        EmbedArray[1] = await addField('MANAGE_WEBHOOKS', EmbedArray[1], `${savedEmotes.webhook} Webhooks`, async () => (await guild.fetchWebhooks()).size, HasPermission('MANAGE_WEBHOOKS'));
         EmbedArray[1].addField(`${savedEmotes.widget} Widgets enabled`, guild.widgetEnabled ? true : false, true);
         if (guild.widgetEnabled) EmbedArray[1].addField(`${savedEmotes.channelText} Widget channel`, guild.widgetChannel, true);
         else EmbedArray[1].addField("\u200B", "\u200B", true);
 
-        if (!HasPermission(DiscordPermissions.MANAGE_WEBHOOKS) && (!guild.widgetEnabled || guild.widgetEnabled && guild.widgetChannel)) EmbedArray[1].addField("\u200B", "\u200B", true);
+        if (!HasPermission('MANAGE_WEBHOOKS') && (!guild.widgetEnabled || guild.widgetEnabled && guild.widgetChannel)) EmbedArray[1].addField("\u200B", "\u200B", true);
 
-        EmbedArray[1]
-            .addField(`${savedEmotes.partner} Partnered Discord`, guild.partnered, true)
-            .addField(`${savedEmotes.verified} Verified Discord`, guild.verified, true);
-
-        if (!guild.widgetEnabled) EmbedArray[1].addField("\u200B", "\u200B", true);
+        EmbedArray[1].addFields([
+            new EmbedField(`${savedEmotes.partner} Partnered Discord`, guild.partnered, true),
+            new EmbedField(`${savedEmotes.verified} Verified Discord`, guild.verified, true),
+            !guild.widgetEnabled ? PinguLibrary.BlankEmbedField(true) : null
+        ].filter(v => v))
 
         //#endregion
 
@@ -205,7 +206,7 @@ async function SendCallerInfo(message, bigboiinfo) {
 async function SendEmbeds(message, serverGuild, bigboiinfo) {
     const EmbedArray = await SendCallerInfo(message, bigboiinfo)
 
-    if (!PinguLibrary.PermissionCheck(message, [DiscordPermissions.SEND_MESSAGES])) {
+    if (!PinguLibrary.PermissionCheck(message, 'SEND_MESSAGES')) {
         await message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!\nBut here's your information:`)
         EmbedArray.forEach(Embed => message.author.send(Embed));
     }
@@ -236,5 +237,5 @@ function SendFeatures(message, serverGuild) {
 
 /**@param {Guild} guild*/
 async function GetPGuildColor(guild) {
-    return PinguGuild.GetPClient(guild.client, await PinguGuild.GetPGuild(guild)).embedColor;
+    return PinguClient.ToPinguClient(guild.client).toPClient(await PinguGuild.GetPGuild(guild)).embedColor;
 }

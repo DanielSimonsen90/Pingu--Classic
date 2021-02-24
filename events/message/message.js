@@ -36,13 +36,13 @@ module.exports = new PinguEvent('message',
     },
     async function execute(client, message) {
         //Log latency
-        try { PinguLibrary.latencyCheck(message); }
-        catch (err) { PinguLibrary.errorLog(client, `LatencyCheck error`, message.content, err); }
+        PinguLibrary.latencyCheck(message).catch(err => PinguLibrary.errorLog(client, `LatencyCheck error`, message.content, err));
 
+        //User sent a message in #emotes, and is expecitng an emote to be made
         if (await fromEmotesChannel()) return;
 
         //Assign prefix
-        let prefix = message.guild ? await HandlePGuild(message.guild) : PinguLibrary.DefaultPrefix(client);
+        let prefix = message.guild ? await HandlePGuild(message.guild) : client.DefaultPrefix;
 
         //Split prefix from message content
         let args = message.content.slice(prefix.length).split(/ +/) ||
@@ -52,33 +52,23 @@ module.exports = new PinguEvent('message',
         let commandName = args.shift();
 
         //If mentioned without prefix
-        if (message.content.includes(client.user.id) && args.length == 0 && !message.author.bot)
+        if (message.content.includes(client.user.id) && !args.length && !message.author.bot)
             return message.channel.send(`My prefix is \`${prefix}\``);
 
         //If interacted via @
         commandName = TestTagInteraction();
 
-        var startsWithPrefix = () => message.content.startsWith(prefix) && !message.author.bot || message.content.includes(client.user.id);
+        var startsWithPrefix = message.content.startsWith(prefix) && !message.author.bot || message.content.includes(client.user.id);
 
         //If I'm not interacted with don't do anything
-        if (message.channel.type == 'dm' && (message.author.bot || (await PinguUser.GetPUser(message.author)).replyPerson) && (!startsWithPrefix() || commandName.includes(prefix))) {
-            try { return ExecuteTellReply(message); }
-            catch (err) { return PinguLibrary.errorLog(client, `Failed to execute tell reply`, message.content, err); }
-        }
+        if (message.channel.type == 'dm' && (message.author.bot || (await PinguUser.GetPUser(message.author)).replyPerson) && (!startsWithPrefix || commandName.includes(prefix)))
+            return ExecuteTellReply(message).catch(err => PinguLibrary.errorLog(client, `Failed to execute tell reply`, message.content, err));
 
-        if (!startsWithPrefix()) return;
+        if (!startsWithPrefix) return;
 
         //Attempt "command" assignment
-        let musicCommand = musicCommands.find(cmd => [cmd.name, cmd.alias].includes(commandName));
-        if (musicCommand) {
-            args.unshift(commandName);
-            commandName = `music`;
-        } //music command was used without *music
         let command = AssignCommand();
         if (!command) return;
-
-        //If I'm not interacted with don't do anything
-        if ((!message.content.startsWith(prefix) || message.author.bot) && !message.content.includes(client.user.id)) return;
 
         //Decode command
         let decoded = DecodeCommand();
@@ -90,13 +80,13 @@ module.exports = new PinguEvent('message',
         async function fromEmotesChannel() {
             if (!message.guild || message.author.bot || !message.channel.name.includes('emote') || !message.channel.name.includes('emoji')) return false;
 
-            let permCheck = PinguLibrary.PermissionCheck(message, [DiscordPermissions.MANAGE_EMOJIS, DiscordPermissions.SEND_MESSAGES])
+            let permCheck = PinguLibrary.PermissionCheck(message, 'MANAGE_EMOJIS', 'SEND_MESSAGES')
             if (permCheck != PinguLibrary.PermissionGranted) {
                 message.channel.send(permCheck);
                 return false;
             }
 
-            if (client.user.id == PinguLibrary.Clients.BetaID && message.guild.members.cache.has(PinguLibrary.Clients.PinguID)) return false;
+            if (!client.isLive && message.guild.members.cache.has(PinguClient.Clients.PinguID)) return false;
 
             for (var file of message.attachments.array()) {
                 let errMsg = "";
@@ -113,8 +103,11 @@ module.exports = new PinguEvent('message',
                     return false;
                 }
                 var newEmote = await message.guild.emojis.create(emote, name).catch(err => {
-                    return message.channel.send(err.message);
+                    message.channel.send(err.message);
+                    return null;
                 });
+                if (!newEmote) continue;
+
                 message.channel.send(`${newEmote} was created!`);
                 PinguLibrary.consoleLog(client, `Created :${newEmote.name}: for ${message.guild.name}`);
             }
@@ -133,15 +126,9 @@ module.exports = new PinguEvent('message',
                     `Successfully created PinguGuild for **${message.guild.name}**`,
                     `Failed creating PinguGuild for **${message.guild.name}**`
                 );
-                return PinguLibrary.DefaultPrefix(client);
+                return client.DefaultPrefix;
             }
-            else if (pGuild.name != guild.name) {
-                client.emit('guildUpdate', {
-                    name: pGuild.name,
-                    client: client,
-                    id: pGuild._id
-                }, guild);
-            }
+            else if (pGuild.name != guild.name) client.emit('guildUpdate', { name: pGuild.name, client, id: pGuild._id }, guild);
 
             let pGuildClient = client.toPClient(pGuild);
             let clientIndex = client.isLive ? 0 : 1;
@@ -201,19 +188,19 @@ module.exports = new PinguEvent('message',
                 return returnValue.setMessage(`That command can only be executed in servers!`);
 
             //If GuildSpecific
-            if (command.id == CommandCategories.GuildSpecific) {
+            if (command.category == CommandCategories.GuildSpecific) {
                 if (!message.guild) return returnValue.setMessage(`That command can only be used in a specific server!`);
                 if (command.specificGuildID != message.guild.id)
                     return returnValue.setMessage(`That command cannot be used in this server!`);
             }
 
             //If DevOnly
-            if (command.id == CommandCategories.DevOnly && !PinguLibrary.isPinguDev(message.author))
+            if (command.category == CommandCategories.DevOnly && !PinguLibrary.isPinguDev(message.author))
                 return returnValue.setMessage(`Who do you think you are exactly?`);
 
             if (message.channel.type != 'dm' && command.permissions) {
-                command.permissions.push(DiscordPermissions.SEND_MESSAGES);
-                let permCheck = PinguLibrary.PermissionCheck(message, command.permissions);
+                command.permissions.push('SEND_MESSAGES');
+                let permCheck = PinguLibrary.PermissionCheck(message, ...(command.permissions.includes('SEND_MESSAGES') ? command.permissions : [...command.permissions, 'SEND_MESSAGES']));
                 if (permCheck != PinguLibrary.PermissionGranted)
                     return returnValue.setMessage(permCheck);
             }
@@ -224,13 +211,13 @@ module.exports = new PinguEvent('message',
 
             //Attempt execution of command
             try {
-                if (commandName == "tell") HandleTell(message, args);
+                if (commandName == "tell") await HandleTell(message, args);
 
-                var pGuild = await PinguGuild.GetPGuild(message.guild);
+                var pGuild = message.guild ? await PinguGuild.GetPGuild(message.guild) : null;
                 var pAuthor = await PinguUser.GetPUser(message.author);
                 var pGuildClient = message.guild && pGuild ? client.toPClient(pGuild) : null
 
-                command.execute({ message, args, pAuthor, pGuild, pGuildClient });
+                await command.execute({ client, message, args, pAuthor, pGuild, pGuildClient });
                 ConsoleLog += `**succeeded!**`;
             } catch (err) {
                 if (err.message == 'Missing Access' && message.guild.id == PinguLibrary.SavedServers.PinguEmotes(client).id && await FindPermission())
@@ -242,6 +229,7 @@ module.exports = new PinguEvent('message',
                 await PinguLibrary.errorLog(client, `Trying to execute "${command.name}"!`, message.content, err, errorID);
 
                 PinguLibrary.errorLog(client, `Parameters for message error:`, "," + JSON.stringify({
+                    client: JSON.stringify(client.toJSON()),
                     message: JSON.stringify(message.toJSON()),
                     args: JSON.stringify(args),
                     pAuthor: JSON.stringify(pAuthor),
@@ -256,12 +244,12 @@ module.exports = new PinguEvent('message',
                 let check = {
                     author: PinguLibrary.Developers.get('Danho'),
                     channel: message.channel,
-                    client: client,
+                    client,
                     content: message.content
                 };
 
                 //Check if client has permission to Manage Roles in Pingu Emote Server
-                let hasManageRoles = PinguLibrary.PermissionCheck(check, [DiscordPermissions.MANAGE_ROLES]) == PinguLibrary.PermissionGranted;
+                let hasManageRoles = PinguLibrary.PermissionCheck(check, 'MANAGE_ROLES') == PinguLibrary.PermissionGranted;
                 if (hasManageRoles != PinguLibrary.PermissionGranted) return message.channel.send(hasManageRoles);
 
                 let roles = {
@@ -277,7 +265,7 @@ module.exports = new PinguEvent('message',
                 for (let i = 0; permissionInfo.permission != "Missing Permission" || i == permissionInfo.discordPermissions.length - 1; i++) {
                     //Find new permission and check if client already has that permission
                     let permission = permissionInfo.discordPermissions[i];
-                    let hasPermission = PinguLibrary.PermissionCheck(check, [permission]) == PinguLibrary.PermissionGranted;
+                    let hasPermission = PinguLibrary.PermissionCheck(check, permission) == PinguLibrary.PermissionGranted;
                     if (hasPermission) continue;
 
                     //Give Administrator permission

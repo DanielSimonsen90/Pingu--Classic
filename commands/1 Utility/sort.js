@@ -9,6 +9,6 @@ module.exports = new PinguCommand('sort', 'Utility', 'Alphabetically sorts given
     let arguments = args.join(' ').split(',').sort((a, b) => a > b ? 1 : -1);
     let result = arguments.join(', ');
 
-    message.channel.send(result);
     PinguLibrary.consoleLog(message.client, `Arguments:\n${arguments}\n\nResult:\n${result}`);
+    return message.channel.send(result);
 });

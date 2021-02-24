@@ -23,15 +23,13 @@ module.exports = {
                     .setThumbnail(member.guild.iconURL())
                 );
 
-            AddToPinguUsers();
-
-            async function AddToPinguUsers() {
+            (async function AddToPinguUsers() {
                 if (!member.user.bot && !await PinguUser.GetPUser(member.user))
                     PinguUser.WritePUser(client, member.user, module.exports.name,
                         `Added **${member.user.tag}** to PinguUsers`,
                         `Failed to add **${member.user.tag}** to PinguUsers!`
                     );
-            }
+            })();
         }
     ), ...{
         /**@param {Client} client
@@ -48,8 +46,10 @@ module.exports = {
                     guild.systemChannel ||
                     guild.channels.cache.find(c => c.isText() && c.name == 'general');
 
+                pGuild.settings.welcomeChannel = new PChannel(welcomeChannel);
+
                 if (welcomeChannel) {
-                    PinguGuild.UpdatePGuild(client, { welcomeChannel: new PChannel(welcomeChannel) }, pGuild, module.exports.name,
+                    PinguGuild.UpdatePGuild(client, { settings: pGuild.settings }, pGuild, module.exports.name,
                         `Successfully added welcome channel to **${guild.name}**'s pGuild.`,
                         `Error adding welcome channel to **${guild.name}**'s pGuild`
                     );

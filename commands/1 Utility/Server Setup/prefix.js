@@ -1,14 +1,15 @@
-const { PinguCommand, PinguGuild } = require('PinguPackage');
+const { PinguCommand, PinguGuild, PinguLibrary } = require('PinguPackage');
 
 module.exports = new PinguCommand('prefix', 'Utility', 'Set my prefix for the server', {
     usage: '<new prefix>',
     guildOnly: true,
     example: ["!"]
 }, async ({ message, args, pGuild, pGuildClient }) => {
-    if (!args || !args[0])
-        return message.channel.send(`My prefix is \`${pGuildClient.prefix}\``);
+    if (!args || !args[0]) return message.channel.send(`My prefix is \`${pGuildClient.prefix}\``);
 
-    pGuildClient = PinguGuild.GetPClient(message.client, pGuild);
+    const permCheck = PinguLibrary.PermissionCheck(message, 'ADMINISTRATOR');
+    if (permCheck != PinguLibrary.PermissionGranted) return permCheck;
+
     let prePrefix = pGuildClient.prefix;
 
     //Set new prefix

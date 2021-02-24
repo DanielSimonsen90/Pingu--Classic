@@ -51,9 +51,12 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
     /**@param {PinguGuild} pg*/
     async function SendPGuild(pg) {
         let pgProps = Object.keys(pg)
-            .sort((a, b) => ['welcomeChannel', 'guildOwner', 'name'].includes(a) ? -2 : a > b ? 1 : -1)
-            .filter(v => !['_id', '__v'].includes(v));
-        pgProps.push('musicQueue');
+            .sort((a, b) => ['guildOwner', 'name'].includes(a) ? -2 : a > b ? 1 : -1)
+            .filter(v => !['_id', '__v', 'settings'].includes(v));
+        pgProps.push('musicQueue',
+            ...Object.keys(pg.settings).filter(v => ['config', 'welcomeChannel'].includes(v)),
+            ...Object.keys(pg.settings.config)
+        );
 
         for (var item of pgProps) {
             if (prop != item && (prop != 'all' || ['welcomeChannel', 'guildOwner'].includes(item))) continue;
@@ -63,6 +66,7 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
 
             async function GetEmbed() {
                 let queue = Queue.get(message.guild.id);
+                let config = pg.settings.config;
 
                 switch (item) {
                     case 'musciQueue': return queue ? new MessageEmbed().addFields([
@@ -72,13 +76,13 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
                         new EmbedField('Looping?', queue.loop ? 'Yes' : 'No', true),
                         new EmbedField('Songs in Queue', queue.songs.filter((_, i) => i < 11).map(s => `**${s.title}** | ${s.requestedBy}`).join('\n'), false)
                     ]) : null;
-                    case 'pollConfig': return !pg.pollConfig.firstTimeExecuted ?
+                    case 'pollConfig': return !config.pollConfig.firstTimeExecuted ?
                         new MessageEmbed().addFields([
-                            new EmbedField('Poll Host Role', pg.pollConfig.pollRole ? `<@&${pg.pollConfig.pollRole._id}>` : 'None', true),
-                            pg.pollConfig.pollRole ? new EmbedField('Poll Hosters', message.guild.members.cache.filter(gm => gm.roles.cache.has(pg.pollConfig.pollRole._id)).size, true) : null,
-                            pg.pollConfig.pollRole ? PinguLibrary.BlankEmbedField(true) : null,
-                            new EmbedField('Polls Hosted', pg.pollConfig.polls.length, true),
-                            new EmbedField('Typical Poll Response', pg.pollConfig.polls
+                            new EmbedField('Poll Host Role', config.pollConfig.pollRole ? `<@&${config.pollConfig.pollRole._id}>` : 'None', true),
+                            config.pollConfig.pollRole ? new EmbedField('Poll Hosters', message.guild.members.cache.filter(gm => gm.roles.cache.has(config.pollConfig.pollRole._id)).size, true) : null,
+                            config.pollConfig.pollRole ? PinguLibrary.BlankEmbedField(true) : null,
+                            new EmbedField('Polls Hosted', config.pollConfig.polls.length, true),
+                            new EmbedField('Typical Poll Response', config.pollConfig.polls
                                 .filter(p => p) //Get new array, so .polls won't get modified
                                 .sort((a, b) => a.approved[0] > b.approved[0]) //Sort polls in alphabetical order, from .approved => [...No, ...Undecided, ...Yes]
                                 .find((_, __, arr) => {
@@ -91,19 +95,23 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
                                     return verdictKey == 'y' ? 'Yes' : verdictKey == 'n' ? 'No' : 'Undecided'; //Return result string from key
                                 }) || 'No polls hosted.', true
                             ),
-                            new EmbedField('Polls Channel', pg.pollConfig.channel ? `<#${pg.pollConfig.channel._id}>` : 'None', true)
+                            new EmbedField('Polls Channel', config.pollConfig.channel ? `<#${config.pollConfig.channel._id}>` : 'None', true)
                         ].map(v => v)) :
                         new MessageEmbed().setDescription(`Poll Config is not yet configured.`);
-                    case 'giveawayConfig': return !pg.giveawayConfig.firstTimeExecuted ?
+                    case 'giveawayConfig': return !config.giveawayConfig.firstTimeExecuted ?
                         new MessageEmbed().addFields([
-                            new EmbedField('Giveaway Host Role', pg.giveawayConfig.hostRole ? `<@&${pg.giveawayConfig.hostRole._id}>` : `None`, true),
-                            pg.giveawayConfig.hostRole ? new EmbedField(`Giveaway Hosters`, message.guild.members.cache.filter(gm => gm.roles.cache.has(pg.giveawayConfig.hostRole._id)).size, true) : null,
-                            pg.giveawayConfig.hostRole ? PinguLibrary.BlankEmbedField(true) : null,
-                            new EmbedField('Giveaway Winner Role', pg.giveawayConfig.winnerRole ? `<@&${pg.giveawayConfig.winnerRole._id}>` : `None`, true),
-                            pg.giveawayConfig.winnerRole ? new EmbedField(`Giveaway Winner${(message.guild.members.cache.filter(gm => gm.roles.cache.has(pg.giveawayConfig.winnerRole._id)).size > 1 ? 's' : '')}`, message.guild.members.cache.filter(gm => gm.roles.cache.has(pg.giveawayConfig.winnerRole._id)).size, true) : null,
-                            pg.giveawayConfig.winnerRole ? PinguLibrary.BlankEmbedField(true) : null,
-                            new EmbedField(`Giveaways Hosted`, pg.giveawayConfig.giveaways.length, true),
-                            new EmbedField(`The Lucky One (Most frequent winner)`, pg.giveawayConfig.giveaways
+                            new EmbedField('Giveaway Host Role', config.giveawayConfig.hostRole ? `<@&${config.giveawayConfig.hostRole._id}>` : `None`, true),
+                            config.giveawayConfig.hostRole ? new EmbedField(`Giveaway Hosters`, message.guild.members.cache.filter(gm => gm.roles.cache.has(config.giveawayConfig.hostRole._id)).size, true) : null,
+                            config.giveawayConfig.hostRole ? PinguLibrary.BlankEmbedField(true) : null,
+                            new EmbedField('Giveaway Winner Role', config.giveawayConfig.winnerRole ? `<@&${config.giveawayConfig.winnerRole._id}>` : `None`, true),
+                            config.giveawayConfig.winnerRole ? new EmbedField(`Giveaway Winner${(message.guild.members.cache.filter(gm =>
+                                gm.roles.cache.has(config.giveawayConfig.winnerRole._id)).size > 1 ? 's' : '')}`,
+                                message.guild.members.cache.filter(gm =>
+                                    gm.roles.cache.has(config.giveawayConfig.winnerRole._id)
+                                ).size, true) : null,
+                            config.giveawayConfig.winnerRole ? PinguLibrary.BlankEmbedField(true) : null,
+                            new EmbedField(`Giveaways Hosted`, config.giveawayConfig.giveaways.length, true),
+                            new EmbedField(`The Lucky One (Most frequent winner)`, config.giveawayConfig.giveaways
                                 .filter(g => g) //Get new array so original .giveaways don't get modified
                                 .find((_, __, arr) => {
                                     let winners = new Collection(); //Collection<string, number> => Collection<userID, amountOfWins>
@@ -129,11 +137,11 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
                         .addFields([
                             new EmbedField('Name', pg.name, true),
                             new EmbedField('Owner', `<@${pg.guildOwner._id}>`, true),
-                            new EmbedField(`Welcome Channel`, pg.welcomeChannel ? `<#${pg.welcomeChannel._id}>` : 'None', true)
+                            new EmbedField(`Welcome Channel`, pg.settings.welcomeChannel ? `<#${pg.settings.welcomeChannel._id}>` : 'None', true)
                         ])
                     case 'clients': return new MessageEmbed().setDescription(pg.clients.map(pc => pc ? getClientInfo(pc) : null).join('\n'));
-                    case 'reactionRoles': return pg.reactionRoles[0] ? new MessageEmbed().setDescription(
-                        pg.reactionRoles
+                    case 'reactionRoles': return pg.settings.reactionRoles[0] ? new MessageEmbed().setDescription(
+                        pg.settings.reactionRoles
                             .map(rr => rr.pRole ? (() => {
                                 let titles = ['Reaction Name', 'Role', 'Message ID', 'Channel'].map(v => `**${v}**`);
                                 let values = [rr.emoteName, `<@&${rr.pRole._id}>`, "`" + rr.messageID + "`", `<#${rr.channel._id}>`];
@@ -141,7 +149,29 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
                             })() : null)
                             .filter(v => v)
                     ) : new MessageEmbed().setDescription(`No Reaction Roles saved.`);
-                    case 'suggestions': return null; //Not implemented
+                    case 'suggestions': return !config.suggestionConfig.firstTimeExecuted ?
+                        new MessageEmbed().addFields([
+                            new EmbedField('Suggestion Manager Role', config.suggestionConfig.managerRole ? `<@&${config.suggestionConfig.managerRole._id}>` : `None`, true),
+                            config.suggestionConfig.managerRole ? new EmbedField(`Suggestion Managers`, message.guild.members.cache.filter(gm => gm.roles.cache.has(config.suggestionConfig.managerRole._id)).size, true) : null,
+                            config.suggestionConfig.managerRole ? PinguLibrary.BlankEmbedField(true) : null,
+                            new EmbedField(`Suggestions suggested(?)`, config.suggestionConfig.suggestions.length, true),
+                            new EmbedField(`Typical Suggestion Response`, config.suggestionConfig.suggestions
+                                .filter(s => s)
+                                .sort((a, b) => a.approved[0] > b.approved[0])
+                                .find((_, __, arr) => {
+                                    let verdicts = new Collection(); //Save Yes/No/Undecided in Discord.Collection<string, number> => verdicts<approvedKey: "y" | "n" | "u", amountOfApproved>
+                                    verdicts.set('y', 0).set('n', 0).set('u', 0); //Set all verdicts to 0 as reset
+
+                                    arr.forEach(v => verdicts.set(v.approved[0], verdicts.get(v.approved[0]) + 1)); //For each value/poll in array, replace the first letter of approved ("y", "n", "u") to previous value + 1
+
+                                    let verdictKey = verdicts.findKey(v => v == Math.max(verdicts.array())) //Find the highest value in verdicts, and save the key in verdictKey
+                                    return verdictKey == 'y' ? 'Yes' : verdictKey == 'n' ? 'No' : 'Undecided'; //Return result string from key
+                                }) || 'No suggestions suggested.', true
+                            ),
+                            new EmbedField(`Suggestion Channel`, config.suggestionConfig.channel ? `<#${config.suggestionConfig.channel._id}>` : `None`, true)
+                        ].map(v => v)) :
+                        new MessageEmbed().setDescription('Suggestion Config is not yet configured!')
+                    case 'themes':
                     default: return null;
                 }
             }

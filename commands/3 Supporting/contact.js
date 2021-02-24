@@ -3,12 +3,12 @@ const { PinguCommand, PinguLibrary } = require('PinguPackage');
 
 module.exports = new PinguCommand('contact', 'Supporting', 'Contact information incase something is :b:roke or if any questions may occur about mr. bot owner', {
     permissions: ["EMBED_LINKS"]
-}, async ({ message, pGuildClient }) => {
+}, async ({ client, message, pGuildClient }) => {
     let Danho = PinguLibrary.Developers.get('Danho');
 
     return message.channel.send(new MessageEmbed()
         .setTitle('Support of Pingu')
-        .setColor(message.guild ? pGuildClient.embedColor : PinguLibrary.DefaultEmbedColor)
+        .setColor(message.guild ? pGuildClient.embedColor : client.DefaultEmbedColor)
         .setThumbnail(Danho.avatarURL())
         .setFooter(`Please don't send him pointless stuff to waste his time :)`)
         .setDescription(

@@ -1,8 +1,12 @@
 const { MessageEmbed } = require("discord.js");
-const { PinguUser, PinguLibrary, PinguEvent } = require("PinguPackage");
+const { PinguUser, PinguEvent, PinguClient } = require("PinguPackage");
 
 module.exports = new PinguEvent('guildMemberRemove',
     async function setContent(member) {
+        if (!member.guild.me.hasPermission('VIEW_AUDIT_LOG'))
+            return module.exports.content = new MessageEmbed()
+                .setDescription(`${member.displayName} (${member.user.tag}, ${member.id}) is no longer a part of ${member.guild.name}`)
+
         let kicked = await PinguEvent.GetAuditLogs(member.guild, 'MEMBER_KICK');
         let banned = await PinguEvent.GetAuditLogs(member.guild, 'MEMBER_BAN_ADD');
 
@@ -13,15 +17,12 @@ module.exports = new PinguEvent('guildMemberRemove',
             );
     },
     async function execute(client, member) {
-        if (client.user.id == PinguLibrary.Clients.BetaID && member.guild.members.cache.has(PinguLibrary.Clients.PinguID)) return;
+        if (!client.isLive && member.guild.members.cache.has(PinguClient.Clients.PinguID)) return;
 
         let welcomeChannel = await require('./guildMemberAdd').getWelcomeChannel(client, member.guild);
-        if (welcomeChannel)
-            welcomeChannel.send(`**${member.displayName}** ${(member.displayName != member.user.username ? `(${member.user.username})` : ``)}has left ${member.guild.name}...`);
+        if (welcomeChannel) welcomeChannel.send(`**${member.displayName}** ${(member.displayName != member.user.username ? `(${member.user.username})` : ``)}has left ${member.guild.name}...`);
 
-        UpdateSharedServers();
-
-        async function UpdateSharedServers() {
+        (async function UpdateSharedServers() {
             if (member.user.bot) return;
             let pUser = await PinguUser.GetPUser(member.user);
             pUser.sharedServers = pUser.sharedServers.filter(guild => guild._id != member.guild.id);
@@ -35,6 +36,6 @@ module.exports = new PinguEvent('guildMemberRemove',
                     `Successfully removed **${member.guild.name}** from **${pUser.tag}**'s SharedServers.`,
                     `Failed to remove **${member.guild.name}** from **${pUser.tag}**'s SharedServers.`,
                 );
-        }
+        })();
     }
 );

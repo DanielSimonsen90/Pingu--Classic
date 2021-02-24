@@ -67,7 +67,7 @@ function CacheFromDB(client) {
             let pGuild = await PinguGuild.GetPGuild(guild);
             if (!pGuild) return;
 
-            let { giveaways } = !pGuild.settings.giveawayConfig.firstTimeExecuted && pGuild.settings.giveawayConfig;
+            let { giveaways } = !pGuild.settings.config.giveawayConfig.firstTimeExecuted && pGuild.settings.config.giveawayConfig;
             if (!giveaways) return;
 
             if (!client.isLive &&
@@ -89,7 +89,7 @@ function CacheFromDB(client) {
             let pGuild = await PinguGuild.GetPGuild(guild);
             if (!pGuild) return;
 
-            let { polls } = !pGuild.settings.pollConfig.firstTimeExecuted && pGuild.settings.pollConfig;
+            let { polls } = !pGuild.settings.config.pollConfig.firstTimeExecuted && pGuild.settings.config.pollConfig;
             if (!polls) return;
 
             if (!client.isLive &&
@@ -111,7 +111,7 @@ function CacheFromDB(client) {
             let pGuild = await PinguGuild.GetPGuild(guild);
             if (!pGuild) return;
 
-            let { suggestions } = !pGuild.settings.suggestionConfig.firstTimeExecuted && pGuild.settings.suggestionConfig;
+            let { suggestions } = !pGuild.settings.config.suggestionConfig.firstTimeExecuted && pGuild.settings.config.suggestionConfig;
             if (!suggestions) return;
 
             if (!client.isLive &&
@@ -134,7 +134,7 @@ function CacheFromDB(client) {
             let pGuild = await PinguGuild.GetPGuild(guild);
             if (!pGuild) return;
 
-            let { themes } = !pGuild.settings.themeConfig.firstTimeExecuted && pGuild.settings.themeConfig;
+            let { themes } = !pGuild.settings.config.themeConfig.firstTimeExecuted && pGuild.settings.config.themeConfig;
             if (!themes) return;
 
             if (!client.isLive &&

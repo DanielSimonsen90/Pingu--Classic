@@ -11,6 +11,6 @@ module.exports = new PinguCommand('poll', 'Utility', 'Create a poll for users to
         decidablesType: 'Poll',
         reactionEmojis: ['👍', '👎'],
         listEmojis: ['⬅️', '🗑️', '➡️', '🛑'],
-        config: pGuild.pollConfig
+        config: pGuild.settings.config.pollConfig
     })
 });

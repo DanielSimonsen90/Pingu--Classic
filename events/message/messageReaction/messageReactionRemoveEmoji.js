@@ -17,13 +17,13 @@ async function TestForReactionRole(reaction) {
     if (!guild) return;
 
     let pGuild = await PinguGuild.GetPGuild(guild);
-    let rr = pGuild.reactionRoles.find(rr => rr.messageID == reaction.message.id && reaction.emoji.name == rr.emoteName);
+    let rr = pGuild.settings.reactionRoles.find(rr => rr.messageID == reaction.message.id && reaction.emoji.name == rr.emoteName);
     if (!rr) return;
 
-    let i = pGuild.reactionRoles.indexOf(rr);
-    pGuild.reactionRoles[i] = null;
+    let i = pGuild.settings.reactionRoles.indexOf(rr);
+    pGuild.settings.reactionRoles[i] = null;
 
-    PinguGuild.UpdatePGuild(reaction.client, {reactionRoles: pGuild.reactionRoles}, pGuild, `${module.exports.name}, TestForReactionRole()`,
+    PinguGuild.UpdatePGuild(reaction.client, {settings: pGuild.settings}, pGuild, `${module.exports.name}, TestForReactionRole()`,
         `Successfully removed **${reaction.message.guild.name}**'s Reaction Role for ${reaction.emoji.name}.`,
         `Failed removing **${reaction.message.guild.name}**'s Reaction Role for ${reaction.emoji.name}.`
     );

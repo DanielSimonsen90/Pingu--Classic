@@ -11,7 +11,7 @@ module.exports = new PinguCommand('fetch', 'Utility', 'Fetches provided message 
         args[0] = id;
     }
 
-    if (PinguLibrary.PermissionCheck(message, ['READ_MESSAGE_HISTORY']) != PinguLibrary.PermissionGranted)
+    if (PinguLibrary.PermissionCheck(message, 'READ_MESSAGE_HISTORY') != PinguLibrary.PermissionGranted)
         return message.channel.send(`I don't have permission to **read message history** here!`);
 
     let fetched = await message.channel.messages.fetch(args[0]).catch(_ => null);

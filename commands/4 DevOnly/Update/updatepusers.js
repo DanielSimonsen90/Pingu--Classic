@@ -1,10 +1,10 @@
 ﻿const { MessageEmbed, Guild, User } = require("discord.js");
-const { PinguCommand, PinguLibrary, PinguUser } = require('PinguPackage');
+const { PinguCommand, PinguLibrary, PinguClient, PinguUser, EmbedField } = require('PinguPackage');
 
 module.exports = new PinguCommand('updatepusers', 'DevOnly', `Creates new PinguUsers to MongoDB, if they weren't added already`, {
     usage: '<user tag | user id | show>',
     example: [`Danho#2105`, '460926327269359626', 'show']
-}, async ({ message, args }) => {
+}, async ({ message, args, pGuildClient }) => {
     let BotGuilds = message.client.guilds.cache.array().sort((a, b) => a.name > b.name ? 1 : -1);
     let Users = GetUsers(BotGuilds).filter(u => !u.bot).sort((a, b) => a.tag > b.tag ? 1 : -1);
 
@@ -18,13 +18,14 @@ module.exports = new PinguCommand('updatepusers', 'DevOnly', `Creates new PinguU
         if (arg && arg == "show")
             await message.channel.send(new MessageEmbed()
                 .setTitle(pUser.tag)
-                .setColor(pGuildClient && pGuildClient.embedColor || PinguLibrary.DefaultEmbedColor)
+                .setColor(pGuildClient && pGuildClient.embedColor || PinguClient.ToPinguClient(message.client).DefaultEmbedColor)
                 .setThumbnail(pUser.avatar)
                 .setDescription(`ID: ${pUser._id}`)
-                .setFooter(`Servers shared: ${SharedServersString(pUser.sharedServers.map(pg => pg.name))}`)
-                .addField('Daily Streak', pUser.daily.streak, true)
-                .addField('Last Messaged', pUser.replyPerson && pUser.replyPerson.name | "Unset", true)
-                .addField(`Playlists`, pUser.playlists && pUser.playlists.length || null, true)
+                .addFields([
+                    new EmbedField('Daily Streak', pUser.daily.streak, true),
+                    new EmbedField('Last Messaged', pUser.replyPerson && pUser.replyPerson.name | "Unset", true),
+                    new EmbedField(`Playlists`, pUser.playlists && pUser.playlists.length || null, true)
+                ]).setFooter(`Servers shared: ${SharedServersString(pUser.sharedServers.map(pg => pg.name))}`)
             );
         if (arg && arg != "show" && (![pUser.tag.toLowerCase(), pUser._id, `<@${pUser._id}>`, `<@!${pUser._id}>`].includes(arg))) continue;
 

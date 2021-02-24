@@ -1,10 +1,10 @@
 const { Message } = require('discord.js');
-const { PinguCommand, PinguLibrary, PinguGuild } = require('PinguPackage');
+const { PinguCommand, PinguLibrary } = require('PinguPackage');
 
 module.exports = new PinguCommand('setpfp', 'DevOnly', 'Changes my profile picutre', {
     usage: ' [preview] <1k | AFools | Cool | Christmas | Green | Hollywood | Blogger | Sithlord | Wiking>',
     example: ["AFools", "preview Green"]
-}, async ({ message, args }) => {
+}, async ({ client, message, args, pGuildClient }) => {
     if (!args[0]) args[0] = "preview";
     let PFP = args[0].toLowerCase() == "preview" ? args[1] : args[0];
 
@@ -28,9 +28,9 @@ module.exports = new PinguCommand('setpfp', 'DevOnly', 'Changes my profile picut
 
     var newPFP = `./commands/4 DevOnly/pfps/${PFP}`;
 
-    message.client.user.setAvatar(newPFP).then(() => {
-        PinguLibrary.SavedServers.PinguSupport(message.client).setIcon(newPFP, `${message.author.username} called ${PinguGuild.GetPGuild(PinguLibrary.SavedServers.PinguSupport(message.client)).botPrefix}setpfp in "${message.guild.name}", #${message.channel.name}.`);
-        PinguLibrary.consoleLog(message.client, `${message.author.username} set profile picture to "${PFP}".`);
+        client.user.setAvatar(newPFP).then(() => {
+            PinguLibrary.SavedServers.PinguSupport(client).setIcon(newPFP, `${message.author.username} called ${pGuildClient.prefix}setpfp in "${message.guild.name}", #${message.channel.name}.`);
+        PinguLibrary.consoleLog(client, `${message.author.username} set profile picture to "${PFP}".`);
 
         return message.channel.send(`Successfully changed my profile picture!`);
     }).catch(err => message.channel.send(`Error while changing picture\n${err}`));
@@ -39,7 +39,7 @@ module.exports = new PinguCommand('setpfp', 'DevOnly', 'Changes my profile picut
 /**@param {Message} message 
  * @param {string} imageToPreview*/
 function HandlePreview(message, imageToPreview) {
-    let permCheck = PinguLibrary.PermissionCheck(message, ['ATTACH_FILES']);
+    let permCheck = PinguLibrary.PermissionCheck(message, 'ATTACH_FILES');
     if (permCheck != PinguLibrary.PermissionGranted) return message.channel.send(permCheck);
 
     if (!imageToPreview) return message.channel.send(`Preview image not specified!`);

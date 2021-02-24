@@ -1,5 +1,5 @@
 ﻿const { Message, MessageEmbed, VoiceChannel, MessageReaction, User, VoiceConnection } = require('discord.js');
-const { PinguCommand, PinguGuild, Queue, Song, PinguLibrary, PClient, config } = require('PinguPackage');
+const { PinguCommand, PinguGuild, Queue, Song, PinguLibrary, PClient, config, PinguClient } = require('PinguPackage');
 const ytdl = require('ytdl-core'), YouTube = require('simple-youtube-api');
 const { youtube_api } = config;
 var youTube = new YouTube(youtube_api), commandName = "", ms = require('ms');
@@ -132,7 +132,7 @@ function PermissionCheck(message, voiceChannel) {
         channel: voiceChannel,
         client: message.client,
         content: message.content
-    }, ['VIEW_CHANNEL', 'SPEAK'])
+    }, 'VIEW_CHANNEL', 'SPEAK')
 }
 
 //#region Command Handling
@@ -388,7 +388,7 @@ async function HandleVolume(message, queue, newVolume) {
  * @param {Queue} queue*/
 async function HandleQueue(message, queue) {
     let pGuild = await PinguGuild.GetPGuild(message.guild);
-    let pGuildClient = PinguGuild.GetPClient(message.client, pGuild);
+    let pGuildClient = PinguClient.ToPinguClient(message.client).toPClient(pGuild);
 
     const embed = new MessageEmbed()
         .setTitle(`Queue for ${queue.voiceChannel.name}${(queue.loop ? ' [**LOOPED**]' : '')}`)
@@ -497,10 +497,10 @@ async function HandleMove(message, queue, args) {
  * @param {string[]} args*/
 async function HandleLoop(message, queue, args) {
     var loopType = args[0] && args[0] == 'song' ? 'song' : 'queue';
-    var looping = loopType == 'queue' ? !queue.loop : !queue.songs[queue.index].loop;
+    var looping = loopType == 'queue' ? !queue.loop : !queue.currentSong.loop;
 
     if (loopType == 'queue') queue.loop = !queue.loop;
-    else queue.songs[queue.index].loop = !queue.songs[queue.index].loop;
+    else queue.currentSong.loop = !queue.currentSong.loop;
 
     await queue.Update(message, "HandleLoop",
         `Updated loop (${looping}) for ${loopType}`
@@ -532,7 +532,7 @@ async function HandleShuffle(message, queue) {
         queueSongs.sort(() => Math.round(Math.random() * 2) == 1 ? 1 : -1);
     }
 
-    queue.songs = [queue.songs[queue.index]];
+    queue.songs = [queue.currentSong];
     queueSongs.forEach(song => queue.add(song));
 
     queue.Update(message, "HandleShuffle",
@@ -551,7 +551,7 @@ async function HandleShuffle(message, queue) {
  * @param {Queue} queue*/
 async function Play(message, song, queue) {
     var pGuild = await PinguGuild.GetPGuild(message.guild);
-    var pGuildClient = PinguGuild.GetPClient(message.client, pGuild);
+    var pGuildClient = PinguClient.ToPinguClient(message.client).toPClient(pGuild);
     Queue.set(message.guild.id, queue);
 
     if (!song) {
@@ -606,10 +606,10 @@ async function Play(message, song, queue) {
                 .array()
                 .filter((_, i) => i <= 5)
                 .find(v =>
-                    v.embeds &&
-                    v.embeds[0] &&
-                    v.embeds[0].title &&
-                    v.embeds[0].title.startsWith('Now playing:')
+                    v.embeds && //Embeds is an array
+                    v.embeds[0] && //First one exists
+                    v.embeds[0].title && //First one has a title
+                    v.embeds[0].title.startsWith('Now playing:') //First one's title starts with Now playing:
                 );
 
             //If last message in logChannel was the "Now Playing" embed, edit that embed with the new one, else send embed
@@ -649,10 +649,11 @@ async function Play(message, song, queue) {
  * @param {Queue} queue*/
 async function ResetClient(message) {
     let pGuild = await PinguGuild.GetPGuild(message.guild);
-    let pGuildClient = PinguGuild.GetPClient(message.client, pGuild);
+    let client = PinguClient.ToPinguClient(message.client);
+    let pGuildClient = client.toPClient(pGuild);
 
     if (message.guild.me.permissions.has("CHANGE_NICKNAME"))
         await message.guild.me.setNickname(pGuildClient.displayName);
 
-    await PinguLibrary.setActivity(message.client);
+    await client.setActivity();
 }

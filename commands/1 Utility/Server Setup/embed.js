@@ -50,7 +50,7 @@ module.exports = new PinguCommand('embed', 'Utility', 'Creates an embed', {
                 channel: channel,
                 client: message.client,
                 content: message.content
-            }, ['SEND_MESSAGES', 'EMBED_LINKS']);
+            }, 'VIEW_CHANNEL', 'SEND_MESSAGES', 'EMBED_LINKS');
             return permCheck;
         }
         let getEmbedResult = await getEmbed();
@@ -108,7 +108,7 @@ module.exports = new PinguCommand('embed', 'Utility', 'Creates an embed', {
                     channel: embedMessage.channel,
                     client: message.client,
                     content: message.content
-                }, ['READ_MESSAGE_HISTORY']);
+                }, 'READ_MESSAGE_HISTORY');
                 if (permCheck != PinguLibrary.PermissionGranted) return result.setReturnMessage(permCheck);
                 return result.setReturnMessage(`Unable to find an embed in ${embedMessage.channel}! Try giving me a message id`);
             }
@@ -136,7 +136,7 @@ module.exports = new PinguCommand('embed', 'Utility', 'Creates an embed', {
     }
     function getAuthor() {
         try {
-            let newAuthor = message.mentions.users.first() || message.guild.members.cache.find(gm => args[0] && (gm.id == args[0] || gm.displayName == args[0] || gm.user.username == args[0])).user;
+            let newAuthor = message.mentions.users.first() || message.guild.members.cache.find(gm => args[0] && ([gm.id, gm.displayName, gm.user.username].includes(args[0]))).user;
             return embed.setAuthor(newAuthor.tag, newAuthor.avatarURL());
         }
         catch (err) {
@@ -236,7 +236,7 @@ module.exports = new PinguCommand('embed', 'Utility', 'Creates an embed', {
             channel,
             client: message.client,
             content: message.content
-        }, ['VIEW_CHANNEL', 'SEND_MESSAGES']);
+        }, 'VIEW_CHANNEL', 'SEND_MESSAGES');
         if (permCheck != PinguLibrary.PermissionGranted) return message.channel.send(permCheck);
 
         let sent = await channel.send(embed);

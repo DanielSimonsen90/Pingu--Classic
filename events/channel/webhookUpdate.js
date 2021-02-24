@@ -6,9 +6,8 @@ module.exports = new PinguEvent('webhookUpdate',
         if (PinguLibrary.PermissionCheck({
             client: channel.client,
             channel,
-            author: channel.client.user,
-            content: null
-        }, ['MANAGE_WEBHOOKS']) != PinguLibrary.PermissionGranted) return null;
+            author: channel.client.user
+        }, 'MANAGE_WEBHOOKS') != PinguLibrary.PermissionGranted) return null;
 
         let webhook = (await channel.fetchWebhooks()).last();
         if (!webhook) return;

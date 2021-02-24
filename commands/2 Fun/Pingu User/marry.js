@@ -7,15 +7,19 @@ module.exports = new PinguCommand('marry', 'Fun', 'Marries a user', {
     examples: ["@Danho2105", "divorce"]
 }, async ({ message, args, pAuthor, pGuildClient }) => {
     if (!pAuthor) return message.channel.send(`I can't find your PinguUser in my database!`);
+
     else if (args[0] && args[0].toLowerCase() == `divorce`) {
         if (pAuthor.marry.partner) return HandleDivorce(message, pAuthor);
         else return message.channel.send(`Divorce who? ${PinguLibrary.getEmote(message.client, 'kekw', PinguLibrary.SavedServers.DeadlyNinja(message.client))}`);
     }
+
     else if (!message.mentions.users.first()) {
         if (pAuthor.marry.partner) return message.channel.send(new Marry(pAuthor.marry.partner, pAuthor.marry.internalDate).marriedMessage);
         return message.channel.send(pAuthor.marry.marriedMessage + "\n\nYou can marry others by typing `" + pGuildClient.prefix + "marry <@user>`");
     }
+
     else if (pAuthor.marry.partner) return message.channel.send(`You're already married, you unloyal filth!`);
+
     let partner = message.mentions.users.first();
     let pPartner = await PinguUser.GetPUser(partner);
 

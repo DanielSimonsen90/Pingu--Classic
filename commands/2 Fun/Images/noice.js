@@ -12,7 +12,7 @@ module.exports = new PinguCommand('noice', 'Fun', 'Noice', {
         channel: voiceChannel,
         client: message.client,
         content: message.content
-    }, ['CONNECT', 'SPEAK', 'VIEW_CHANNEL']);
+    }, 'CONNECT', 'SPEAK', 'VIEW_CHANNEL');
     if (permCheck != PinguLibrary.PermissionGranted) return message.channel.send(permCheck);
 
     (await voiceChannel.join()).play(ytdl('https://www.youtube.com/watch?v=Akwm2UZJ34o', { filter: 'audioonly' }))

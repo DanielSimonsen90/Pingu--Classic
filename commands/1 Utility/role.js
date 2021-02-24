@@ -9,7 +9,7 @@ module.exports = new PinguCommand('role', 'Utility', 'Gives a role to author or 
 }, async ({ message, args }) => {
     var command = args.shift(),
         getRoleResult = await getRole(message, args),
-        person = message.mentions.members.first() || message.guild.member(message.author);
+        person = message.mentions.members.first() || message.member;
     var role = getRoleResult.role;
     args = getRoleResult.args;
 
@@ -59,7 +59,7 @@ async function getRole(message, args) {
  * @param {Role} role
  * @param {GuildMember} person*/
 function AddRole(message, role, person) {
-    message.guild.member(person).roles.add(role, `Requested by: ${message.author.username}`)
+    person.roles.add(role, `Requested by: ${message.author.username}`)
         .then(() => {
             var messagePerson = person.user == message.author ? "you" : person.displayName;
             return message.channel.send(`I have given ${messagePerson} ${role.name}.`);
@@ -74,7 +74,7 @@ function AddRole(message, role, person) {
  * @param {Role} role
  * @param {GuildMember} person*/
 function RemoveRole(message, role, person) {
-    message.guild.member(person).roles.remove(role, `Requested by: ${message.author.username}`)
+    person.roles.remove(role, `Requested by: ${message.author.username}`)
         .then(() => {
             var messagePerson = person.user == message.author ? "you" : person.displayName;
             return message.channel.send(`I have removed ${role.name} from ${messagePerson}.`);
@@ -90,7 +90,7 @@ function RemoveRole(message, role, person) {
 function CreateRole(message, args) {
     var argString = args.join(' ');
     var name = argString.split('"')[0];
-    message.guild.roles.create({ data: { name: name }, reason: `Requested by: ${message.author.username}` })
+    message.guild.roles.create({ data: { name }, reason: `Requested by: ${message.author.username}` })
         .then(role => message.channel.send(`${role.name} was created.`))
         .catch(err => {
             PinguLibrary.errorLog(message.client, `Unable to create role`, message.content, err)
@@ -137,7 +137,7 @@ function SetPermission(message, args, role) {
     if (role.permissions.has(permission))
         return message.channel.send(`${role.name} already has the "${permission}" permission!`);
     else if (!message.guild.me.hasPermission(permission))
-        return message.channel.send(`I can't set this permission, as I don't even have that permission myself!`);
+        return message.channel.send(`I can't set this permission, as I don't have that permission myself!`);
     role.setPermissions(role.permissions.add(permission), `Requested by: ${message.author.username}`)
         .then(() => message.channel.send(`Permission set!`))
         .catch(err =>

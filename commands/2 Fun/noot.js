@@ -5,7 +5,7 @@ module.exports = new PinguCommand('noot', 'Fun', 'Speak through my beak', {
     examples: ["Pingu said this message!"]
 }, async ({ message, args }) => {
     if (message.channel.type != 'dm') {
-        let hasManageMessages = PinguLibrary.PermissionCheck(message, ['MANAGE_MESSAGES']) == PinguLibrary.PermissionGranted;
+        let hasManageMessages = PinguLibrary.PermissionCheck(message, 'MANAGE_MESSAGES') == PinguLibrary.PermissionGranted;
         if (hasManageMessages) message.delete();
     }
     message.channel.send(args.join(' '));

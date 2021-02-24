@@ -1,9 +1,10 @@
 const { MessageEmbed } = require("discord.js");
-const { PinguGuild, PinguEvent, PChannel } = require("PinguPackage");
+const { PinguGuild, PinguEvent, PChannel, PGuildMember } = require("PinguPackage");
 
 module.exports = new PinguEvent('guildUpdate',
     async function setContent(preGuild, guild) {
-        return module.exports.content = await GetDifference() ? new MessageEmbed().setDescription(await GetDifference()) : null;
+        let description = await GetDifference();
+        return module.exports.content = description ? new MessageEmbed().setDescription(description) : null;
 
         async function GetDifference() {
             let now = new Date(Date.now());
@@ -178,26 +179,28 @@ module.exports = new PinguEvent('guildUpdate',
 
         if (preGuild.name != guild.name) updated.name = guild.name;
 
-        let welcomePChannel = pGuild.welcomeChannel;
+        let welcomePChannel = pGuild.settings.welcomeChannel;
         let welcomeChannel = welcomePChannel && guild.channels.cache.find(c => c.id == welcomePChannel._id)
-        if (welcomeChannel && welcomeChannel.name != welcomePChannel.name) updated.welcomeChannel = new PChannel(welcomeChannel);
-
-        if (pGuild.reactionRoles.length) {
-            let rrPChannels = pGuild.reactionRoles.map(rr => rr.channel._id);
+        if (welcomeChannel && welcomeChannel.name != welcomePChannel.name) {
+            updated.settings = pGuild.settings;
+            updated.settings.welcomeChannel = new PChannel(welcomeChannel);
+        }
+        if (pGuild.settings.reactionRoles.length) {
+            let rrPChannels = pGuild.settings.reactionRoles.map(rr => rr.channel._id);
             let rrChannels = guild.channels.cache.filter(c => rrPChannels.includes(c.id));
-            let newReactionRoles = pGuild.reactionRoles;
+            let newReactionRoles = pGuild.settings.reactionRoles;
 
             rrChannels.array().forEach((c, i) => {
                 if (c.name != pGuild.reactionRoles[i].channel.name)
-                    pGuild.reactionRoles[i].channel.name = c.name;
+                    pGuild.settings.reactionRoles[i].channel.name = c.name;
             });
 
-            if (pGuild.reactionRoles.find((rr, i) =>
+            if (pGuild.settings.reactionRoles.find((rr, i) =>
                 rr.channel.name != newReactionRoles[i].channel.name))
                 updated.reactionRoles = newReactionRoles;
         }
 
-        if (guild.ownerID != pGuild.guildOwner._id) updated.guildOwner = { id: guild.ownerID, name: guild.owner.user.tag };
+        if (guild.ownerID != pGuild.guildOwner._id) updated.guildOwner = new PGuildMember(guild.owner);
 
         //Event didn't update something that should be saved to MongolDB
         if (!Object.keys(updated)[0]) return;

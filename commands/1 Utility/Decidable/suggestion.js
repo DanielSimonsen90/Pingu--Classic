@@ -12,6 +12,6 @@ module.exports = new PinguCommand('suggestion', 'Utility', 'Suggest something', 
         decidablesType: 'Suggestion',
         reactionEmojis: [PinguLibrary.SavedServers.DanhoMisc(client).emojis.cache.find(e => e.name == 'Checkmark'), '❌'],
         listEmojis: ['⬅️', '🗑️', '➡️', '🛑'],
-        config: pGuild.suggestionConfig
+        config: pGuild.settings.config.suggestionConfig
     })
 });

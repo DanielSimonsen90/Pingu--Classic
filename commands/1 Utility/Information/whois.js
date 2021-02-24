@@ -1,6 +1,6 @@
 const { Message, MessageEmbed, GuildMember, User } = require('discord.js');
 const { GetColor } = require('../../../events/guild/presenceUpdate');
-const { PinguCommand, PinguLibrary } = require('PinguPackage');
+const { PinguCommand, PinguLibrary, EmbedField } = require('PinguPackage');
 
 module.exports = new PinguCommand('whois', 'Utility', 'Gets the info of specified user', {
     usage: '<ID> | <@Mention>',
@@ -42,11 +42,13 @@ async function SendGuildMessage(message, gm, SharedServers) {
     return await message.channel.send(new MessageEmbed()
         .setTitle(`"${gm.displayName}" (${gm.user.username})`)
         .setThumbnail(gm.user.avatarURL())
-        .setColor(GetColor(null, user.presence))
-        .addField(`ID`, gm.id, true)
-        .addField(`Created at`, gm.user.createdAt, true)
-        .addField(`Joined at`, gm.joinedAt, true)
-        .addField(`Shared Servers`, SharedServers)
+        .setColor(GetColor(null, gm.user.presence))
+        .addFields([
+            new EmbedField(`ID`, gm.id, true),
+            new EmbedField(`Created at`, gm.user.createdAt, true),
+            new EmbedField(`Joined at`, gm.joinedAt, true),
+            new EmbedField(`Shared Servers`, SharedServers)
+        ])
     );
 }
 /**@param {Message} message 
@@ -56,8 +58,10 @@ async function SendNonGuildMessage(message, user) {
         .setTitle(user.tag)
         .setThumbnail(user.avatarURL())
         .setColor(GetColor(null, user.presence))
-        .addField(`ID`, user.id, true)
-        .addField(`Created at`, user.createdAt, true)
-        .addField("\u200B", "\u200B", true)
+        .addFields([
+            new EmbedField(`ID`, user.id, true),
+            new EmbedField(`Created at`, user.createdAt, true),
+            PinguLibrary.BlankEmbedField(true)
+        ])
     );
 }
