@@ -35,7 +35,11 @@ function CacheFromDB(client) {
      * @param {(client: Client) => void} callback*/
     function RunCache(type, callback) {
         try { callback(client); }
-        catch (err) { PinguLibrary.errorLog(client, `[${type}] Unable to cache ${type} messages!`, null, err); }
+        catch (err) {
+            PinguLibrary.errorLog(client, `[${type}] Unable to cache ${type} messages!`, null, err, {
+                params: { client, type, callback }
+            });
+        }
     }
 
     function CacheReactionRoles() {

@@ -19,7 +19,10 @@ module.exports = new PinguCommand('slowmode', 'Utility', 'Sets the slowmode to s
     let auditLogMessage = `${pGuildClient.prefix}slowmode used by ${message.member.displayName}`;
 
     channel.setRateLimitPerUser((time < 0 ? 0 : time), auditLogMessage).catch(err => {
-        PinguLibrary.errorLog(message.client, `Error changing slowmode`, message.content, err);
+        PinguLibrary.errorLog(message.client, `Error changing slowmode`, message.content, err, {
+            params: { message, args, pGuildClient },
+            additional: { channel, timeArgument, time, auditLogMessage }
+        });
         message.channel.send(`I had an error setting the slowmode! I've contacted my developers...`);
         return channel.rateLimitPerUser;
     }).then(channel => message.channel.send(`Successfully set ${channel}'s slowmode to ${getTimeString(message, time)}`));

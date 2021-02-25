@@ -2,13 +2,8 @@
   "ExpandedNodes": [
     "",
     "\\commands",
-    "\\commands\\4 DevOnly",
-    "\\commands\\5 GuildSpecific",
-    "\\errors",
-    "\\events",
-    "\\events\\message",
-    "\\Snippets"
+    "\\commands\\1 Utility"
   ],
-  "SelectedNode": "\\Snippets\\PinguCommand.snippet",
+  "SelectedNode": "\\commands\\1 Utility\\spinthewheel.js",
   "PreviewInSolutionExplorer": false
 }

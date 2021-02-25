@@ -78,7 +78,10 @@ async function SpecificClear(message, args, SpecificUser) {
         return message.channel.send(`Removed ${args[0]} messages from ${SpecificUser.username}`)
             .then(sent => sent.delete({ timeout: 1500 }));
     }).catch(err => {
-        PinguLibrary.errorLog(message.client, `Tried to clear ${args[0]} messages from ${SpecificUser.username}`, message.content, err);
+        PinguLibrary.errorLog(message.client, `Tried to clear ${args[0]} messages from ${SpecificUser.username}`, message.content, err, {
+            params: { message, args, SpecificUser },
+            additional: { messagesRemoved, messageCache, messagesToRemove, cacheSize }
+        });
         return message.channel.send(`I attempted to delete the messages, but couldn't finish!`);
     })
 }

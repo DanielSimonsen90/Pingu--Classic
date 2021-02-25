@@ -26,12 +26,19 @@ module.exports = new PinguCommand('updatepguilds', 'DevOnly', `Creates new Pingu
         if (arg && arg != "show" && ![PinguGuildsArr[i].name.toLowerCase(), PinguGuildsArr[i]._id].includes(arg)) continue;
 
         try {
-            if (!await PinguGuild.GetPGuild(BotGuilds[i]))
+            var pGuild = await PinguGuild.GetPGuild(BotGuilds[i]);
+            if (!pGuild)
                 await PinguGuild.WritePGuild(client, BotGuilds[i], module.exports.name,
                     `Successfully created PinguGuild for **${BotGuilds[i].name}**`,
                     `Failed creating PinguGuild for **${BotGuilds[i].name}**`
                 );
-        } catch (err) { PinguLibrary.errorLog(client, 'Adding to PinguGuilds failed', message.content, err); }
+        } catch (err) {
+            PinguLibrary.errorLog(client, 'Adding to PinguGuilds failed', message.content, err, {
+                params: { client, message, args },
+                additional: { arg, BotGuilds, owner, pGuild: PinguGuildArr[i] },
+                trycatch: { pGuild }
+            });
+        }
     }
 
     if (message.content.includes('updatepguilds'))

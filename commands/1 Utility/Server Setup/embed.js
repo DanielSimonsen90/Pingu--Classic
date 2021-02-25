@@ -121,7 +121,10 @@ module.exports = new PinguCommand('embed', 'Utility', 'Creates an embed', {
             try { var fetchedMessage = await channel.messages.fetch(messageID); }
             catch (err) {
                 continue;
-                PinguLibrary.errorLog(message.client, `Unable to fetch message from ${messageID}`, message.content, new Error(err));
+                PinguLibrary.errorLog(message.client, `Unable to fetch message from ${messageID}`, message.content, new Error(err), {
+                    params: { message, args },
+                    additional: { result, channel, messageID, command }
+                });
                 return result.setReturnMessage(`Unable to fetch message from ${messageID}`);
             }
 
@@ -136,13 +139,17 @@ module.exports = new PinguCommand('embed', 'Utility', 'Creates an embed', {
     }
     function getAuthor() {
         try {
-            let newAuthor = message.mentions.users.first() || message.guild.members.cache.find(gm => args[0] && ([gm.id, gm.displayName, gm.user.username].includes(args[0]))).user;
+            var newAuthor = message.mentions.users.first() || message.guild.members.cache.find(gm => args[0] && ([gm.id, gm.displayName, gm.user.username].includes(args[0]))).user;
             return embed.setAuthor(newAuthor.tag, newAuthor.avatarURL());
         }
         catch (err) {
             if (err.message == `Cannot read property 'user' of undefined`)
                 message.channel.send(`Please tag a valid user!`);
-            else PinguLibrary.errorLog(message.client, `Unable to set embed author`, message.content, new Error(err));
+            else PinguLibrary.errorLog(message.client, `Unable to set embed author`, message.content, new Error(err), {
+                params: { message, args },
+                additional: { messageID, command },
+                trycatch: { newAuthor }
+            });
             return embed;
         }
     }

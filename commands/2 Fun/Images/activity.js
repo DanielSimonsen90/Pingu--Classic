@@ -19,7 +19,16 @@ module.exports = new PinguCommand('activity', 'Fun', 'You <activity> <person>!',
 
     //ActivityLink Function
     if (!config || !config.api_key || !config.google_custom_search) {
-        PinguLibrary.errorLog(message.client, 'Unable to send gif\nImage search requires both a YouTube API key and a Google Custom Search key!').then(() =>
+        PinguLibrary.errorLog(message.client, 'Unable to send gif\nImage search requires both a YouTube API key and a Google Custom Search key!', message.content, null, {
+            params: { message, pGuildClient },
+            additional: {
+                activity: { User, Activity, Person },
+                keys: {
+                    api_key: config.api_key,
+                    google_custom_search: config.google_custom_search
+                }
+            }
+        }).then(() =>
             message.channel.send(`I was unable to search for a gif! I have contacted my developers...`));
     }
 
@@ -28,16 +37,38 @@ module.exports = new PinguCommand('activity', 'Fun', 'You <activity> <person>!',
 
     //We request 10 items
     request('https://www.googleapis.com/customsearch/v1?key=' + config.api_key + '&cx=' + config.google_custom_search + '&q=' + (`"anime" "${args[0]}" person "gif"`) + '&searchType=image&alt=json&num=10&start=' + page, function (err, res, body) {
-        let data;
-        try { data = JSON.parse(body); }
-        catch (err) { PinguLibrary.errorLog(`Getting data`, err); }
+        try { var data = JSON.parse(body); }
+        catch (err) {
+            PinguLibrary.errorLog(message.client, `Getting data`, message.content, err, {
+                params: { message, pGuildClient },
+                additional: {
+                    activity: { User, Activity, Person },
+                    keys: {
+                        api_key: config.api_key,
+                        google_custom_search: config.google_custom_search
+                    }
+                }
+            });
+        }
 
         if (!data) {
-            PinguLibrary.errorLog(`Data is null, *Activity`).then(() =>
+            PinguLibrary.errorLog(message.client, `Getting data in activity`, message.content, null, {
+                params: { message, pGuildClient },
+                additional: {
+                    page, data,
+                    activity: { User, Activity, Person }
+                }
+            }).then(() =>
                 message.channel.send(`I was unable to recieve a gif! I have contacted my developers...`));
         }
-        else if (!data.items || data.items.length == 0) {
-            PinguLibrary.errorLog(`I was unable to get data for activity\n${data}`).then(() =>
+        else if (!data.items || !data.items.length) {
+            PinguLibrary.errorLog(message.client, `I was unable to get data for activity`, message.content, null, {
+                params: { message, pGuildClient },
+                additional: {
+                    page, data,
+                    activity: { User, Activity, Person }
+                }
+            }).then(() =>
                 message.channel.send(`I was unable to find a gif! I have contacted my developers...`));
         }
 

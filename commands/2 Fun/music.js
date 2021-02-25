@@ -179,7 +179,11 @@ async function HandlePlay(message, args, voiceChannel, queue) {
         var video = await youTube.getVideo(url)
     } catch (convErr) {
         if (!convErr.message.includes(`No video ID found in URL:`))
-            PinguLibrary.errorLog(message.client, `URL failed`, message.content, convErr);
+            PinguLibrary.errorLog(message.client, `URL failed`, message.content, convErr, {
+                params: { message, args, voiceChannel, queue },
+                additional: { searchType, url },
+                trycatch: { video }
+            });
 
         try {
             if (searchType == 'video') {
@@ -220,13 +224,20 @@ async function HandlePlay(message, args, voiceChannel, queue) {
             if (err.message == "Cannot read property 'id' of undefined")
                 return message.channel.send(`I couldn't find that!`);
 
-            return PinguLibrary.errorLog(message.client, `Search failed`, message.content, err);
+            return PinguLibrary.errorLog(message.client, `Search failed`, message.content, err, {
+                params: { message, args, voiceChannel, queue },
+                additional: { searchType, url },
+                trycatch: { searchResultVideos, video, playlist, playlistVideos, ytdlCoreVideos }
+            });
         }
     }
 
     ytdl.getInfo((video.url || queue.songs[0].link))
         .catch(async err => {
-            await PinguLibrary.errorLog(message.client, `Unable to get video info`, message.content, err);
+            await PinguLibrary.errorLog(message.client, `Unable to get video info`, message.content, err, {
+                params: { message, args, voiceChannel, queue },
+                additional: { video },
+            });
             await queue.AnnounceMessage(message, `I ran into an error trying to get the video information! I've contacted my developers.`)
             return null;
         })
@@ -242,11 +253,15 @@ async function HandlePlay(message, args, voiceChannel, queue) {
             }
             else if (!args[0]) {
                 queue.connection = await queue.voiceChannel.join();
-                try { HandlePauseResume(message, queue, false); }
+                try { var pauseResume = await HandlePauseResume(message, queue, false); }
                 catch (err) {
                     if (err.message == `Cannot read property 'resume' of null`)
                         return Play(message, queue.currentSong, queue);
-                    PinguLibrary.errorLog(message.client, `Unable to resume dispatcher`, message.content, err);
+                    PinguLibrary.errorLog(message.client, `Unable to resume dispatcher`, message.content, err, {
+                        params: { message, args, voiceChannel, queue },
+                        additional: { song },
+                        trycatch: { pauseResume, pauseRequest: false }
+                    });
                 }
             }
             else {
@@ -327,7 +342,10 @@ async function HandleStop(message, queue) {
     try { queue.connection.dispatcher.end(); }
     catch (err) {
         if (!["Cannot read property 'dispatcher' of null", "Cannot read property 'end' of null"].includes(err.message))
-            PinguLibrary.errorLog(message.client, "Dispatcher error in music, HandleStop", message.content, err);
+            PinguLibrary.errorLog(message.client, "Dispatcher error in music, HandleStop", message.content, err, {
+                params: { message, queue },
+                trycatch: { dispatcher: queue.connection.dispatcher }
+            });
     }
 
     await ResetClient(message);
@@ -397,13 +415,13 @@ async function HandleQueue(message, queue) {
         .setFooter(`Queue looping: ${queue.loop ? 'Yes' : 'No'} | Song looping: ${queue.currentSong.loop ? 'Yes' : 'No'}`)
 
     try {
-        let loopIndex = 0;
+        var loopIndex = 0;
         for (var i = queue.index; loopIndex < queue.songs.length || loopIndex < 10 && queue.songs.length > 10; i++) {
             if (i == queue.songs.length)
                 if (queue.loop) i = 0;
                 else break;
 
-            let indexSong = queue.songs[i];
+            var indexSong = queue.songs[i];
 
             if (!indexSong.endsAt)
                 indexSong.endsAt = new Date(queue.songs[(i - 1 > -1 ? i - 1 : queue.songs.length - 1 - i)].endsAt.getTime() + indexSong.lengthMS);
@@ -429,7 +447,10 @@ async function HandleQueue(message, queue) {
         }
     }
     catch (err) {
-        PinguLibrary.errorLog(message.client, `Tried to send queue for ${message.guild.name}`, message.content, err);
+        PinguLibrary.errorLog(message.client, `Tried to send queue for ${message.guild.name}`, message.content, err, {
+            params: { message, queue },
+            trycatch: { loopIndex, i, indexSong }
+        });
         return message.channel.send(`I ran into an error trying to get the queue, and sent a message to my developers!`);
     }
 
@@ -625,7 +646,10 @@ async function Play(message, song, queue) {
         .on('error', err => {
             PinguLibrary.consoleLog(message.client, `Error: ${song.title}`);
 
-            PinguLibrary.errorLog(message.client, "Voice connection error", message.content, err);
+            PinguLibrary.errorLog(message.client, "Voice connection error", message.content, err, {
+                params: { message, song, queue },
+                additional: { streamItem }
+            });
             queue.AnnounceMessage(message, `I had a voice connection error! I've notified my developers.`)
         })
         .on('finish', async () => {

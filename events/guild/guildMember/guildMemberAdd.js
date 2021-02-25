@@ -1,5 +1,5 @@
 ﻿const { TextChannel, MessageEmbed, Client, Guild } = require("discord.js");
-const { PinguEvent, PinguGuild, PChannel, PinguLibrary, PinguUser, PinguClient } = require("PinguPackage");
+const { PinguEvent, PinguGuild, PChannel, PinguUser, PinguClient } = require("PinguPackage");
 
 module.exports = {
     ...new PinguEvent('guildMemberAdd',

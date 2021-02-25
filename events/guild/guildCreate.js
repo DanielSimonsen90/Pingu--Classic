@@ -21,7 +21,7 @@ module.exports = new PinguEvent('guildCreate', null,
 
         //Thank guild owner for adding Pingu
         let OwnerDM = await guild.owner.user.createDM();
-        if (!OwnerDM) return PinguLibrary.errorLog(client, `Unable to create DM to ${guild.owner}!`);
+        if (!OwnerDM) return PinguLibrary.errorLog(client, `Unable to create DM to ${guild.owner}!`, null, null, { params: { client, guild } });
 
         OwnerDM.send(
             `Hi, ${guild.owner.user}!\n` +
@@ -30,7 +30,7 @@ module.exports = new PinguEvent('guildCreate', null,
             `Thank you for adding me!\n` +
             `Use \`*help\`, if you don't know how I work!`
         )
-            .catch(err => PinguLibrary.errorLog(client, `Failed to send ${guild.owner} a DM`, null, err))
+            .catch(err => PinguLibrary.errorLog(client, `Failed to send ${guild.owner} a DM`, null, err, { params: { client, guild }, additional: { OwnerDM } }))
             .then(PinguLibrary.consoleLog(guild.client, `Sent ${guild.owner.user.tag} my "thank you" message.`));
 
     }

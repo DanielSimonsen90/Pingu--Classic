@@ -30,12 +30,19 @@ module.exports = new PinguCommand('updatepusers', 'DevOnly', `Creates new PinguU
         if (arg && arg != "show" && (![pUser.tag.toLowerCase(), pUser._id, `<@${pUser._id}>`, `<@!${pUser._id}>`].includes(arg))) continue;
 
         try {
-            if (!await PinguUser.GetPUser(Users[i]))
+            var awaitedPUser = await PinguUser.GetPUser(Users[i]);
+            if (!awaitedPUser)
                 await PinguUser.WritePUser(message.client, Users[i], module.exports.name,
                     `Successfully created PinguUser for **${Users[i].tag}**`,
                     `Failed creating PinguUser for **${Users[i].tag}**`
                 );
-        } catch (err) { PinguLibrary.errorLog(message.client, `Adding to PinguUsers failed`, message.content, err); }
+        } catch (err) {
+            PinguLibrary.errorLog(message.client, `Adding to PinguUsers failed`, message.content, err, {
+                params: { message, args, pGuildClient },
+                additional: { arg, Users, user: Users[i], pUser },
+                trycatch: { awaitedPUser }
+            });
+        }
     }
     PinguLibrary.pUserLog(message.client, module.exports.name, 'Going through users complete!');
 

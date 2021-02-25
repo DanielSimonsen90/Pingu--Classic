@@ -5,7 +5,9 @@ const timeBetweenClaims = 21;
 module.exports = new PinguCommand('daily', 'Fun', `Daily streams just like as if you were having a Snapchat streak with me ;)`, null,
     async ({ client, message, pAuthor, pGuildClient }) => {
         if (!pAuthor) {
-            PinguLibrary.errorLog(client, `Unable to find pAuthor in daily using **${message.author.tag}**!`);
+            PinguLibrary.errorLog(client, `Unable to find pAuthor in daily using **${message.author.tag}**!`, message.content, null, {
+                params: { client, message, pAuthor, pGuildClient }
+            });
             return message.channel.send(`I couldn't find your Pingu User profile!`);
         }
 

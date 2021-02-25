@@ -16,7 +16,10 @@ module.exports = new PinguCommand('noice', 'Fun', 'Noice', {
     if (permCheck != PinguLibrary.PermissionGranted) return message.channel.send(permCheck);
 
     (await voiceChannel.join()).play(ytdl('https://www.youtube.com/watch?v=Akwm2UZJ34o', { filter: 'audioonly' }))
-        .on('error', err => PinguLibrary.errorLog(message.client, `Voice dispatcher error in *noice`, message.content, err))
+        .on('error', err => PinguLibrary.errorLog(message.client, `Voice dispatcher error in *noice`, message.content, err, {
+            params: { message },
+            additional: { voiceChannel }
+        }))
         .on('end', () => voiceChannel.leave())
         .setVolume(0.5);
 });

@@ -1,5 +1,5 @@
 const { MessageEmbed } = require("discord.js");
-const { PinguEvent, PinguLibrary, PinguGuild, EmbedField, PinguClient } = require("PinguPackage");
+const { PinguEvent, PinguGuild, EmbedField, PinguClient } = require("PinguPackage");
 
 module.exports = new PinguEvent('guildBanAdd',
     async function setContent(guild, user) {

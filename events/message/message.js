@@ -1,6 +1,6 @@
 ﻿const { Guild, MessageEmbed } = require("discord.js");
 const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error, PClient, CommandCategories, PinguEvent } = require("PinguPackage");
-const { musicCommands } = require('../../commands/2 Fun/music'), { HandleTell, ExecuteTellReply } = require('../../commands/2 Fun/Pingu User/tell');
+const { HandleTell, ExecuteTellReply } = require('../../commands/2 Fun/Pingu User/tell');
 const { CheckRoleChange } = require("../guild/role/roleUpdate");
 
 module.exports = new PinguEvent('message',
@@ -36,7 +36,9 @@ module.exports = new PinguEvent('message',
     },
     async function execute(client, message) {
         //Log latency
-        PinguLibrary.latencyCheck(message).catch(err => PinguLibrary.errorLog(client, `LatencyCheck error`, message.content, err));
+        PinguLibrary.latencyCheck(message).catch(err => PinguLibrary.errorLog(client, `LatencyCheck error`, message.content, err, {
+            params: client, message
+        }));
 
         //User sent a message in #emotes, and is expecitng an emote to be made
         if (await fromEmotesChannel()) return;
@@ -62,7 +64,10 @@ module.exports = new PinguEvent('message',
 
         //If I'm not interacted with don't do anything
         if (message.channel.type == 'dm' && (message.author.bot || (await PinguUser.GetPUser(message.author)).replyPerson) && (!startsWithPrefix || commandName.includes(prefix)))
-            return ExecuteTellReply(message).catch(err => PinguLibrary.errorLog(client, `Failed to execute tell reply`, message.content, err));
+            return ExecuteTellReply(message).catch(err => PinguLibrary.errorLog(client, `Failed to execute tell reply`, message.content, err, {
+                params: { client, message },
+                additional: { prefix, args, commandName, startsWithPrefix }
+            }));
 
         if (!startsWithPrefix) return;
 
@@ -199,7 +204,6 @@ module.exports = new PinguEvent('message',
                 return returnValue.setMessage(`Who do you think you are exactly?`);
 
             if (message.channel.type != 'dm' && command.permissions) {
-                command.permissions.push('SEND_MESSAGES');
                 let permCheck = PinguLibrary.PermissionCheck(message, ...(command.permissions.includes('SEND_MESSAGES') ? command.permissions : [...command.permissions, 'SEND_MESSAGES']));
                 if (permCheck != PinguLibrary.PermissionGranted)
                     return returnValue.setMessage(permCheck);
@@ -216,8 +220,9 @@ module.exports = new PinguEvent('message',
                 var pGuild = message.guild ? await PinguGuild.GetPGuild(message.guild) : null;
                 var pAuthor = await PinguUser.GetPUser(message.author);
                 var pGuildClient = message.guild && pGuild ? client.toPClient(pGuild) : null
+                var parameters = { client, message, args, pAuthor, pGuild, pGuildClient }
 
-                await command.execute({ client, message, args, pAuthor, pGuild, pGuildClient });
+                await command.execute(parameters);
                 ConsoleLog += `**succeeded!**`;
             } catch (err) {
                 if (err.message == 'Missing Access' && message.guild.id == PinguLibrary.SavedServers.PinguEmotes(client).id && await FindPermission())
@@ -225,17 +230,11 @@ module.exports = new PinguEvent('message',
 
                 ConsoleLog += `**failed!**\nError: ${err}`;
 
-                let errorID = PinguLibrary.errorCache.size;
-                await PinguLibrary.errorLog(client, `Trying to execute "${command.name}"!`, message.content, err, errorID);
-
-                PinguLibrary.errorLog(client, `Parameters for message error:`, "," + JSON.stringify({
-                    client: JSON.stringify(client.toJSON()),
-                    message: JSON.stringify(message.toJSON()),
-                    args: JSON.stringify(args),
-                    pAuthor: JSON.stringify(pAuthor),
-                    pGuild: JSON.stringify(pGuild),
-                    pGuildClient: JSON.stringify(pGuildClient)
-                }), null, errorID);
+                PinguLibrary.errorLog(client, `Trying to execute "${command.name}"!`, message.content, err, {
+                    params: { client, message },
+                    additional: { args, ConsoleLog, commandName, command },
+                    trycatch: { pAuthor, pGuild, pGuildClient }
+                });
             }
             console.log(" ");
             PinguLibrary.consoleLog(client, ConsoleLog);
@@ -277,7 +276,7 @@ module.exports = new PinguEvent('message',
 
                     //Execute command again
                     try {
-                        command.execute(message, args);
+                        await command.execute(parameters);
 
                         //Command was executed with no error, so we have our missing permission
                         permissionInfo.permission = permission;
@@ -285,7 +284,16 @@ module.exports = new PinguEvent('message',
                     catch (err) {
                         //Another error occured, but we found the missing permission
                         if (err.message != 'Missing Access') {
-                            PinguLibrary.errorLog(client, `Looked for missing permission, but ran into another error`, message.content, new Error(err));
+                            PinguLibrary.errorLog(client, `Looked for missing permission, but ran into another error`, message.content, new Error(err), {
+                                params: { client, message },
+                                additional: {
+                                    command, params: parameters,
+                                    findPermissions: {
+                                        check, roles, permissionInfo,
+                                        loop: { i, permission, hasPermission, newPermissions }
+                                    },
+                                }
+                            });
                             permissionInfo.permission = permission;
                         }
                     }
@@ -295,8 +303,7 @@ module.exports = new PinguEvent('message',
 
                 //If we cycled through all permissions with no luck
                 if (permissionInfo.permission == "Missing Permission") {
-                    message.channel.send(`Attempted to find missing permission to execute ${command.name}, but ran out of permissions to check! Am I mising more than 1 permission?`);
-                    return PinguLibrary.errorLog(client, `Trying to execute "${command.name}"!`, message.content, err);
+                    return message.channel.send(`Attempted to find missing permission to execute ${command.name}, but ran out of permissions to check! Am I mising more than 1 permission?`);
                 }
 
                 return message.channel.send(`I'm missing the **${permissionInfo.permission}** permission to execute **${command.name}**!`);

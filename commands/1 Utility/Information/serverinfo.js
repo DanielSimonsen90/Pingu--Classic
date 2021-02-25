@@ -29,7 +29,10 @@ module.exports = new PinguCommand('serverinfo', 'Utility', 'Sends server informa
         return SendFeatures(message, guild);
 
     message.channel.send(`Something happened.. I shouldn't've been here..`);
-    PinguLibrary.errorLog(message.client, `Ran line 34, which was not intended`, message.content);
+    PinguLibrary.errorLog(message.client, `Ran line 34, which was not intended`, message.content, null, {
+        params: { message, args },
+        additional: { bigboiinfo, emote }
+    });
 })
 
 /**@param {Message} message 
@@ -64,26 +67,28 @@ async function SendCallerInfo(message, bigboiinfo) {
 
     /**@param {string} region*/
     function getRegionEmoji(region) {
-        let america = {
-            countries: ['us-east', 'brazil', 'us-central', 'us-south', 'us-west'],
-            value: '🌎'
-        };
-        let europe = {
-            countries: ['europe', 'africa', 'india', 'southafrica'],
-            value: '🌍'
-        };
-        let asia = {
-            countries: ['hongkong', 'japan', 'russia', 'singapore', 'sydney'],
-            value: '🌏'
+        class Region {
+            /**@param {'🌎' | '🌍' | '🌏'} emote
+             * @param {...string} countries*/
+            constructor(emote, ...countries) {
+                this.value = emote;
+                this.countries = countries;
+            }
         }
 
-        let returnValue;
-        if (america.countries.includes(region)) returnValue = america.value;
+        let america = new Region('🌎', 'us-east', 'brazil', 'us-central', 'us-south', 'us-west');
+        let europe = new Region('🌍', 'europe', 'africa', 'india', 'southafrica');
+        let asia = new Region('🌏', 'hongkong', 'japan', 'russia', 'singapore', 'sydney');
+
+        if (america.countries.includes(region)) var returnValue = america.value;
         else if (europe.countries.includes(region)) returnValue = europe.value;
         else if (asia.countries.includes(region)) returnValue = asia.value;
         else {
             returnValue = europe.value;
-            PinguLibrary.errorLog(message.client, `Unable to find region for ${region}`, message.content);
+            PinguLibrary.errorLog(message.client, `Unable to find region for ${region}`, message.content, null, {
+                params: { message, bigboiinfo, region },
+                additional: { america, europe, asia }
+            });
         }
 
         return returnValue + " Region";

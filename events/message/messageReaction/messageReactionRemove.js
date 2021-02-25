@@ -43,16 +43,24 @@ module.exports = new PinguEvent('messageReactionRemove',
         }
         async function ReactionRoleUser() {
             try {
-                let role = await ReactionRole.GetReactionRole(client, reaction, user);
+                var role = await ReactionRole.GetReactionRole(client, reaction, user);
                 if (!role) return;
 
-                let member = reaction.message.guild.member(user);
+                var member = reaction.message.guild.member(user);
 
                 member.roles.remove(role, `ReactionRole in ${reaction.message.channel.name}.`)
-                    .catch(err => PinguLibrary.errorLog(message.client, `Unable to remove ${user.username}'s ${role.name} role for unreacting!`, null, err));
+                    .catch(err => PinguLibrary.errorLog(message.client, `Unable to remove ${user.username}'s ${role.name} role for unreacting!`, null, err, {
+                        params: { client, reaction, user },
+                        trycatch: { role, member }
+                    }));
                 PinguLibrary.consoleLog(client, `Removed ${user.username}'s ${role.name} role for ReactionRole`);
 
-            } catch (err) { PinguLibrary.errorLog(client, `${module.exports.name} error`, null, err); }
+            } catch (err) {
+                PinguLibrary.errorLog(client, `${module.exports.name} error`, null, err, {
+                    params: { client, reaction, user },
+                    trycatch: { role, member }
+                });
+            }
         }
     }
 );

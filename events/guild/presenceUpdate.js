@@ -39,7 +39,11 @@ module.exports = { ...new PinguEvent('presenceUpdate',
         activityType = activityType == 'listening' ? 'listening to' : activityType == 'competing' ? 'competing in' : activityType;
         try { var description = GetDescription(); }
         catch (err) {
-            PinguLibrary.errorLog(presence.user.client, `Description Error`, null, err);
+            PinguLibrary.errorLog(presence.user.client, `Description Error`, null, err, {
+                params: { prePresence, presence },
+                additional: { user, pre: { preActivity, preActivityType }, cur: { activity, activityType } },
+                trycatch: { description }
+            });
             console.log({ user, preActivity, activity });
         }
 

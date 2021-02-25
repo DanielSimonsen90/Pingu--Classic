@@ -95,7 +95,10 @@ function CategoryHelp(message, embed, prefix, path) {
     //Return embed
     return message.channel.send(embed)
         .catch(err => {
-            PinguLibrary.errorLog(message.client, `Unable to send help DM to ${message.author.tag}.`, message.content, err);
+            PinguLibrary.errorLog(message.client, `Unable to send help DM to ${message.author.tag}.`, message.content, err, {
+                params: { message, embed, prefix, path },
+                additional: { pathFolder, categories }
+            });
             message.reply(`It seems like I can't DM you! Do you have DMs disabled?`);
         });
 }

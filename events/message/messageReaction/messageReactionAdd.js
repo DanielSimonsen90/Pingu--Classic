@@ -31,10 +31,18 @@ module.exports = new PinguEvent('messageReactionAdd',
                     member.roles.add(role, `ReactionRole in ${reaction.message.channel.name}.`);
                     PinguLibrary.consoleLog(client, `Gave ${user.username} ${role.name} for ReactionRole`);
                 } catch (err) {
-                    PinguLibrary.errorLog(client, `Unable to give ${user.username} the ${role.name} role for reacting!`, null, err);
+                    PinguLibrary.errorLog(client, `Unable to give ${user.username} the ${role.name} role for reacting!`, null, err, {
+                        params: { client, reaction, user },
+                        trycatch: { role, member }
+                    });
                 }
 
-            } catch (err) { PinguLibrary.errorLog(client, `${module.exports.name} error`, null, err); }
+            } catch (err) {
+                PinguLibrary.errorLog(client, `${module.exports.name} error`, null, err, {
+                    params: { client, reaction, user },
+                    trycatch: { role, member }
+                });
+            }
         }
 
     }

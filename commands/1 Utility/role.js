@@ -6,7 +6,7 @@ module.exports = new PinguCommand('role', 'Utility', 'Gives a role to author or 
     guildOnly: true,
     example: ["add Admin", "remove SMod @DiaGuy", "rename 778022131178405918 Discord Bot Developer"],
     permissions: ['MANAGE_ROLES']
-}, async ({ message, args }) => {
+}, async ({ client, message, args }) => {
     var command = args.shift(),
         getRoleResult = await getRole(message, args),
         person = message.mentions.members.first() || message.member;
@@ -24,11 +24,17 @@ module.exports = new PinguCommand('role', 'Utility', 'Gives a role to author or 
             case 'set': case 'setpermission': return SetPermission(message, args, role);
             case 'unset': case 'removepermission': return RemovePermission(message, args, role);
             case 'check': case 'has': return CheckPermission(message, args, (role || person));
-            default: PinguLibrary.errorLog(message.client, `Ran default case in *role`, message.content); break;
+            default: PinguLibrary.errorLog(message.client, `Ran default case in *role`, message.content, null, {
+                params: { client, message, args },
+                additional: { command, person, role }
+            }); break;
         }
     }
     catch (err) {
-        PinguLibrary.errorLog(message.client, message, message.content, err).then(() =>
+        PinguLibrary.errorLog(message.client, `${client.DefaultPrefix}role command error`, message.content, err, {
+            params: { client, message, args },
+            additional: { command, person, role }
+        }).then(() =>
             message.channel.send("I encountered an error when checking! I've contacted my developers."));
     }
 });
@@ -65,7 +71,7 @@ function AddRole(message, role, person) {
             return message.channel.send(`I have given ${messagePerson} ${role.name}.`);
         })
         .catch(err => {
-            PinguLibrary.errorLog(message.client, `Unable to give ${person} a role`, message.content, err);
+            PinguLibrary.errorLog(message.client, `Unable to give ${person} a role`, message.content, err, { params: { message, role, person } });
             message.author.send(`I was unable to give you ${name}!`);
         })
 }
@@ -80,7 +86,7 @@ function RemoveRole(message, role, person) {
             return message.channel.send(`I have removed ${role.name} from ${messagePerson}.`);
         })
         .catch(err => {
-            PinguLibrary.errorLog(message.client, `Unable to remove role from ${person}`, message.content, err)
+            PinguLibrary.errorLog(message.client, `Unable to remove role from ${person}`, message.content, err, { params: { message, role, person } })
             message.author.send(`I was unable to remove ${name}!`);
         });
 }
@@ -93,7 +99,10 @@ function CreateRole(message, args) {
     message.guild.roles.create({ data: { name }, reason: `Requested by: ${message.author.username}` })
         .then(role => message.channel.send(`${role.name} was created.`))
         .catch(err => {
-            PinguLibrary.errorLog(message.client, `Unable to create role`, message.content, err)
+            PinguLibrary.errorLog(message.client, `Unable to create role`, message.content, err, {
+                params: { message, args },
+                additional: { argString, name }
+            })
             message.author.send(`I was unable to create ${name}!`);
         });
 }
@@ -126,7 +135,7 @@ function ColorRole(message, args, role) {
         .then(() => message.channel.send(`Recolored ${role.name} from \`${oldColor}\` to \`${role.hexColor}\``))
         .catch(err => {
             message.channel.send(`Unable to color ${role.name} to ${args.join(' ')}!`);
-            PinguLibrary.errorLog(message.client, `Unable to color role with ${args.join(' ')}!`, message.content, err);
+            PinguLibrary.errorLog(message.client, `Unable to color role with ${args.join(' ')}!`, message.content, err, { params: { message, role, args }, additional: { oldColor } });
         });
 }
 /**@param {Message} message
@@ -140,11 +149,12 @@ function SetPermission(message, args, role) {
         return message.channel.send(`I can't set this permission, as I don't have that permission myself!`);
     role.setPermissions(role.permissions.add(permission), `Requested by: ${message.author.username}`)
         .then(() => message.channel.send(`Permission set!`))
-        .catch(err =>
-            err.message == 'Missing Permissions' ?
-                message.channel.send(`That role is above my highest role!`) :
-                PinguLibrary.errorLog(message.client, "Error when setting perm to role", message.content, err)
-                    .then(() => message.channel.send(`I encountered an error while setting that permission! I have contacted my developers.`)));
+        .catch(err => err.message == 'Missing Permissions' ?
+            message.channel.send(`That role is above my highest role!`) :
+            PinguLibrary.errorLog(message.client, "Error when setting perm to role", message.content, err, {
+                params: { message, args, role },
+                additional: { permission }
+            }).then(() => message.channel.send(`I encountered an error while setting that permission! I have contacted my developers.`)));
 }
 /**@param {Message} message
  * @param {string[]} args

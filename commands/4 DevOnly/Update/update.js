@@ -1,4 +1,4 @@
-﻿const { PinguCommand, PinguLibrary, Error } = require("PinguPackage");
+﻿const { PinguCommand, PinguLibrary } = require("PinguPackage");
 
 module.exports = new PinguCommand('update', 'DevOnly', 'Reloads a script', {
     usage: '<script/command>',
@@ -27,7 +27,10 @@ module.exports = new PinguCommand('update', 'DevOnly', 'Reloads a script', {
             client.events.set(newEvent.name, newEvent);
         }
     } catch (error) {
-        PinguLibrary.errorLog(message.client, `Error creating updated version of ${script}`, message.content, new Error(error));
+        PinguLibrary.errorLog(message.client, `Error creating updated version of ${script}`, message.content, error, {
+            params: { client, message, args },
+            command, event, script, path: getPath(),
+        });
         return message.channel.send(`There was an error while updating \`${script}\`!\n\n\`${error.message}\``);
     }
     if (message.channel.type != 'dm') {
