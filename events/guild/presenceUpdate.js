@@ -36,6 +36,11 @@ module.exports = { ...new PinguEvent('presenceUpdate',
 
         let activity = FindActivity();
         let activityType = activity && activity.type.toLowerCase();
+
+        if (presence.userID == PinguLibrary.Developers.get('Danho') && PinguLibrary.Developers.get('Danho').id && activityType == 'streaming') {
+            PinguClient.ToPinguClient(presence.guild.client).setActivity();
+        }
+
         activityType = activityType == 'listening' ? 'listening to' : activityType == 'competing' ? 'competing in' : activityType;
         try { var description = GetDescription(); }
         catch (err) {

@@ -2,8 +2,13 @@
   "ExpandedNodes": [
     "",
     "\\commands",
-    "\\commands\\1 Utility"
+    "\\commands\\1 Utility",
+    "\\commands\\1 Utility\\Decidable",
+    "\\commands\\4 DevOnly",
+    "\\events",
+    "\\events\\client",
+    "\\events\\guild"
   ],
-  "SelectedNode": "\\commands\\1 Utility\\spinthewheel.js",
+  "SelectedNode": "\\commands\\1 Utility\\Decidable\\suggestion.js",
   "PreviewInSolutionExplorer": false
 }
