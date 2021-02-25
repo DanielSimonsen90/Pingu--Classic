@@ -22,7 +22,7 @@ module.exports = new PinguEvent('channelUpdate',
                     `Removed ${preGC.parent} as Category`,
                     PinguEvent.SetDescriptionValues
                 );
-                else if (gC.permissionOverwrites != preGC.permissionOverwrites) return GetPermissionChange(preGC.permissionOverwrites, gC.permissionOverwrites);
+                else if (gC.permissionOverwrites.array() != preGC.permissionOverwrites.array()) return GetPermissionChange(preGC.permissionOverwrites, gC.permissionOverwrites);
                 else if (gC.position != preGC.position) return PinguEvent.SetDescriptionValues('Position', preGC.position, gC.position);
                 else if (gC.type != preGC.type) return PinguEvent.SetDescriptionValues('Type', preGC.type, gC.type);
 

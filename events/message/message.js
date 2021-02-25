@@ -54,16 +54,16 @@ module.exports = new PinguEvent('message',
         let commandName = args.shift();
 
         //If mentioned without prefix
-        if (message.content.includes(client.user.id) && !args.length && !message.author.bot)
+        if (message.content && message.content.includes(client.user.id) && !args.length && !message.author.bot)
             return message.channel.send(`My prefix is \`${prefix}\``);
 
         //If interacted via @
         commandName = TestTagInteraction();
 
-        var startsWithPrefix = message.content.startsWith(prefix) && !message.author.bot || message.content.includes(client.user.id);
+        var startsWithPrefix = message.content.startsWith(prefix) && !message.author.bot || message.content && message.content.includes(client.user.id);
 
         //If I'm not interacted with don't do anything
-        if (message.channel.type == 'dm' && (message.author.bot || (await PinguUser.GetPUser(message.author)).replyPerson) && (!startsWithPrefix || commandName.includes(prefix)))
+        if (message.channel.type == 'dm' && (message.author.bot || (await PinguUser.GetPUser(message.author)).replyPerson) && (!startsWithPrefix || commandName && commandName.includes(prefix)))
             return ExecuteTellReply(message).catch(err => PinguLibrary.errorLog(client, `Failed to execute tell reply`, message.content, err, {
                 params: { client, message },
                 additional: { prefix, args, commandName, startsWithPrefix }

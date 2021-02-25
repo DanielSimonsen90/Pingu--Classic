@@ -5,13 +5,15 @@ module.exports = {
     ...new PinguEvent('roleUpdate',
         async function setContent(preRole, role) {
             let description = GetDescription();
-            return module.exports.content = description ? new MessageEmbed().setDescription(description) : null;
+            return module.exports.content = description ? new MessageEmbed()
+                .setTitle(module.exports.name + ` - ${role.name} ${(role.name != preRole.name ? `(${preRole.name})` : "")}`)
+                .setDescription(description) : null;
 
             function GetDescription() {
                 if (role.color != preRole.color) return PinguEvent.SetDescriptionValues('Color', preRole.color, role.color);
                 else if (role.hoist != preRole.hoist) return PinguEvent.SetDescriptionValues('Hoist', preRole.hoist, role.hoist);
                 else if (role.mentionable != preRole.mentionable) return PinguEvent.SetDescriptionValues('Mentionable', preRole.mentionable, role.mentionable);
-                else if (role.position != preRole.position) return PinguEvent.SetDescriptionValues('Position', preRole.position, role.position);
+                else if (role.rawPosition != preRole.rawPosition) return PinguEvent.SetDescriptionValues('Position', preRole.rawPosition, role.rawPosition);
                 else if (role.permissions.toArray().length != preRole.permissions.toArray().length) return PinguEvent.GoThroughArrays(
                     'Permissions',
                     preRole.permissions.toArray(),
@@ -35,12 +37,12 @@ module.exports = {
                         removed.push(preRoleArr[i]);
                 }
 
-                if (added.length == 0 && removed.length == 0) return null;
+                if (!added.length && !removed.length) return null;
 
                 return PinguEvent.SetDescription('Permission', `${(
-                    added.length > 0 ? `**Added Permissions**\n${added.map(p => `• ${p}`).join(`\n`)}n` : ""
+                    added.length ? `**Added Permissions**\n${added.map(p => `- ${p}`).join(`\n`)}n` : ""
                 )}${(
-                    removed.length > 0 ? `**Removed Permissions**\n${removed.map(p => `• ${p}`).join(`\n`)}n` : ""
+                    removed.length ? `**Removed Permissions**\n${removed.map(p => `- ${p}`).join(`\n`)}n` : ""
                 )}`);
             }
         },

@@ -1,9 +1,11 @@
-const { PinguCommand } = require('PinguPackage');
+const { PinguCommand, PinguLibrary, Error } = require('PinguPackage');
 
 module.exports = new PinguCommand('test', 'DevOnly', `Test command for Danho`, {
-
-}, async ({ message, args, pAuthor, pGuild, pGuildClient }) => {
-
+    
+}, async ({ client, message, args, pAuthor, pGuild, pGuildClient }) => {
+        PinguLibrary.errorLog(client, `#error-log test`, message.content, {message: "Error testing!"}, {
+            params: { pGuildClient }
+        })
 })
 
 

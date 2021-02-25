@@ -3,7 +3,8 @@ const { PinguEvent } = require("PinguPackage");
 
 module.exports = new PinguEvent('messageUpdate',
     async function setContent(preMessage, message) {
-        return module.exports.content = new MessageEmbed().setDescription(GetDifference());
+        let description = GetDifference();
+        return module.exports.content = description ? new MessageEmbed().setDescription(description.length < 2048 ? description : description.substring(0, description[2040]) + "...") : null;
 
         function GetDifference() {
             if (message.content != preMessage.content) return PinguEvent.SetDescriptionValues('Content', preMessage.content, message.content);
