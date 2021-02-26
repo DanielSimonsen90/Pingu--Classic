@@ -1,7 +1,7 @@
 ﻿const { Collection } = require('discord.js');
 const { PinguCommand } = require('PinguPackage');
 
-module.exports = new PinguCommand('reset', 'GuildSpecific', `Resets theme in Deadly Ninja`, {
+module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme in Deadly Ninja`, {
     permissions: ["MANAGE_CHANNELS", "MANAGE_ROLES", "MANAGE_GUILD"],
     guildOnly: true,
     specificGuildID: '405763731079823380'
@@ -16,7 +16,7 @@ module.exports = new PinguCommand('reset', 'GuildSpecific', `Resets theme in Dea
             name: message.guild.name
         };
 
-        const reason = `Themer reset requested by ${message.author.tag}`;
+        const reason = `Theme reset requested by ${message.author.tag}`;
 
         await (async function setChannels() {
             const defaultChannles = (function setDefaultChannels() {
@@ -81,6 +81,7 @@ module.exports = new PinguCommand('reset', 'GuildSpecific', `Resets theme in Dea
                 (function setGamingChannels() {
                     collection.set('473158504874508318', '🖥 Gaming Channels ⌨');
                     collection.set('777323885884342282', 'aqw-grind🐌');
+                    collection.set('814885150504124426', 'cod-cold-war🥶');
                     collection.set('745351317412905112', 'fall-guys👑');
                     collection.set('799070160458874950', 'genshin-impact🌠');
                     collection.set('476051063502274560', 'gta🏎');
