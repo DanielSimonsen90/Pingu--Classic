@@ -166,7 +166,7 @@ module.exports = new PinguEvent('message',
             var i = 0;
             while (!command && i < args.length) {
                 commandName = args[i].toLowerCase();
-                command = client.commands.get(commandName) || commands.find(cmd => cmd.aliases.includes(commandName));
+                command = client.commands.get(commandName) || commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
             }
             return command;
         }

@@ -1,4 +1,4 @@
-const { PinguCommand, PinguLibrary, Error } = require('PinguPackage');
+const { PinguCommand, PinguLibrary } = require('PinguPackage');
 
 module.exports = new PinguCommand('test', 'DevOnly', `Test command for Danho`, {
     
