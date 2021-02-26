@@ -1,14 +1,8 @@
 {
   "ExpandedNodes": [
     "",
-    "\\commands",
-    "\\commands\\1 Utility",
-    "\\commands\\1 Utility\\Decidable",
-    "\\commands\\4 DevOnly",
-    "\\events",
-    "\\events\\client",
-    "\\events\\guild"
+    "\\commands\\1 Utility\\Moderation"
   ],
-  "SelectedNode": "\\commands\\1 Utility\\Decidable\\suggestion.js",
+  "SelectedNode": "\\events",
   "PreviewInSolutionExplorer": false
 }
