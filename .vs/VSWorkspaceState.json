@@ -1,6 +1,10 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\errors",
+    "\\events",
+    "\\events\\client"
   ],
+  "SelectedNode": "\\errors",
   "PreviewInSolutionExplorer": false
 }

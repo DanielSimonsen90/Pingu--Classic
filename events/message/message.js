@@ -47,8 +47,7 @@ module.exports = new PinguEvent('message',
         let prefix = message.guild ? await HandlePGuild(message.guild) : client.DefaultPrefix;
 
         //Split prefix from message content
-        let args = message.content.slice(prefix.length).split(/ +/) ||
-            message.content.slice(client.user.id).split(/ +/);
+        let args = message.content.slice(prefix.length).split(/ +/);
 
         //Get commandName
         let commandName = args.shift();
