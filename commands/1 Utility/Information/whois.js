@@ -9,7 +9,7 @@ module.exports = new PinguCommand('whois', 'Utility', 'Gets the info of specifie
 }, async ({ message, args }) => {
     //Permission check
     if (args[0] != null) {
-        if (args[0].includes('_')) args[0] = args[0].replace('_', ' ');
+        if (args[0].includes('_')) args[0] = args[0].replace('_', ' ', );
         if (args[0].includes('!')) args[0] = args[0].replace('!', '');
     }
 
