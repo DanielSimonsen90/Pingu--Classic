@@ -16,10 +16,10 @@ module.exports = new PinguCommand('whois', 'Utility', 'Gets the info of specifie
     //Variables
     var GuildMember = message.guild.members.cache.array().find(gm => [gm.user.username, gm.displayName, gm.user.id].includes(args[0])) ||
         message.mentions.members.first(), //No arguments provided || No member found
-        user = GuildMember ? GuildMember.user : await message.client.users.fetch(args[0]) || message.member;
+        user = GuildMember ? GuildMember.user : !isNaN(parseInt(args[0])) ? await message.client.users.fetch(args[0]) : message.mentions.users.first() || message.author;
 
     //Promise becomes a user
-    return args[0] != null && user != (GuildMember && GuildMember.user || true) ?
+    return args[0] != null && user != (GuildMember?.user || true) ?
         await SendNonGuildMessage(message, user) :
         await HandleGuildMember(message, GuildMember);
 });
@@ -57,7 +57,7 @@ async function SendNonGuildMessage(message, user) {
     return await message.channel.send(new MessageEmbed()
         .setTitle(user.tag)
         .setThumbnail(user.avatarURL())
-        .setColor(GetColor(null, user.presence))
+        .setColor(await GetColor(null, user.presence))
         .addFields([
             new EmbedField(`ID`, user.id, true),
             new EmbedField(`Created at`, user.createdAt, true),
