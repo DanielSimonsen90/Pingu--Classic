@@ -27,9 +27,14 @@ module.exports = new PinguCommand('daily', 'Fun', `Daily streams just like as if
         );
 
         let hourDiff = (now.getDate() > lastClaimDate.getDate() ? 24 : 0) - now.getHours() - lastClaimDate.getHours();
+        const format = {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        };
 
         if (nextClaim.toString())
-            return message.channel.send(`You've already claimed your daily! Come back in ${nextClaim.toString()} (**${endsAt.toLocaleTimeString('da-DK')}**, **${endsAt.toLocaleDateString('da-DK', { formatMatcher: "dd/MM/YY" })}**)`);
+            return message.channel.send(`You've already claimed your daily! Come back in ${nextClaim.toString()} (**${endsAt.toLocaleTimeString('da-DK')}**, **${endsAt.toLocaleDateString('da-DK', format)}**)`);
         else if (daily.nextClaim.hours + 36 > hourDiff)
             return ClaimDaily(daily.streak += 1);
         return ClaimDaily(1);

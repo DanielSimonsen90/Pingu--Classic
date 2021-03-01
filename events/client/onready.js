@@ -26,7 +26,7 @@ module.exports = new PinguEvent('onready',
         client.setActivity();
         setInterval(() => client.setActivity(), ms('24h'));
 
-        if (client.config.updateStats) {
+        if (client.config.updateStats && client.isLive) {
             UpdateStats();
             setInterval(() => UpdateStats, ms('24h'));
             function UpdateStats() {

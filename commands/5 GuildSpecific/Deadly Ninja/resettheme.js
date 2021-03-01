@@ -201,7 +201,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('631563372428787735', new Role("Pornhub Premium paid by Mommy", '#F1C40F'));
                     collection.set('707891197045112922', new Role("Red Circle", '#c90000'));
                     collection.set('760822983848755221', new Role("SKP Bois", '#F1C40F'));
-                    collection.set('773087069395484683', new Role("Still Sword Staff", '#3e70dd'));
+                    collection.set('773087069395484683', new Role("Still Sword Staff", 3447003));
                     collection.set('724517363281690686', new Role("Tweeka Family", '#8c00ff'));
                     collection.set('504717717731934229', new Role("Weebs", '#a641f7'));
                     collection.set('801101308887040032', new Role("woman ?", '#979C9F'));
@@ -234,12 +234,12 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('505806408810233866', new Role("GiveawayBot [g!]", '#F1C40F'));
                     collection.set('710093698385576026', new Role("Groovy [-]", '#71368A'));
                     collection.set('776958941384409128', new Role("Groovy 2 [--]", '#ff50fd'));
-                    collection.set('472130394326564864', new Role("Mee6 [!]", '#3e70dd'));
+                    collection.set('472130394326564864', new Role("Mee6 [!]", 3447003));
                     collection.set('641886780345417732', new Role("Miki [>]", '#E67E22'));
                     collection.set('746726375326613605', new Role("Mudae [$]", 0));
                     collection.set('746728547560718367', new Role("Mudamaid 22 [$]", 0));
                     collection.set('796647920593141761', new Role("NordBot [+]", 0));
-                    collection.set('646349988632199188', new Role("Pingu [*]", '#3e70dd'));
+                    collection.set('646349988632199188', new Role("Pingu [*]", 3447003));
                     collection.set('804253990564790285', new Role("Pingu BETA [b*]", '#206694'));
                     collection.set('566716709407293443', new Role("Pokecord [p!]", '#ff0000'));
                     collection.set('639546087459520563', new Role("ReactionRoles [rr!]", '#7359B6'));
