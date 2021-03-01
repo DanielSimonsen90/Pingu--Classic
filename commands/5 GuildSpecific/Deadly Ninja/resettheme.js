@@ -1,5 +1,5 @@
 ﻿const { Collection } = require('discord.js');
-const { PinguCommand } = require('PinguPackage');
+const { PinguCommand, PinguLibrary } = require('PinguPackage');
 
 module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme in Deadly Ninja`, {
     permissions: ["MANAGE_CHANNELS", "MANAGE_ROLES", "MANAGE_GUILD"],
@@ -8,6 +8,13 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
 }, async ({ client, message, args, pAuthor, pGuild, pGuildClient }) => {
         if (!message.member.roles.cache.has('497439032138006530') || message.author.id == '361815289278627851')
             return message.channel.send(`Only cool people have access to this command!`);
+        let adminCheck = PinguLibrary.PermissionCheck({
+            author: client.user,
+            channel: message.channel,
+            client,
+            content: message.content
+        }, 'ADMINISTRATOR');
+        if (adminCheck != PinguLibrary.PermissionGranted) return message.channel.send(`Gib me the **eye**`);
 
         const channels = message.guild.channels.cache.sort((a, b) => a.position < b.position);
         const roles = message.guild.roles.cache.sort((a, b) => a.position < b.position);

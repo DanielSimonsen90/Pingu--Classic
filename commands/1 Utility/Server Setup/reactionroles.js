@@ -8,51 +8,51 @@ module.exports = new PinguCommand('reactionroles', 'Utility', 'Gives/Removes rol
     permissions: ['ADD_REACTIONS', 'MANAGE_ROLES'],
     aliases: ["reactionrole", "rr"]
 }, async ({ message, args, pGuild, pGuildClient }) => {
-        //Get command
-        let command = args.shift().toLowerCase();
-        if (!command) return message.channel.send(`Sub-command not provided! Do I **create** or **delete** a reactionrole?`);
+    //Get command
+    let command = args.shift().toLowerCase();
+    if (!command) return message.channel.send(`Sub-command not provided! Do I **create** or **delete** a reactionrole?`);
 
-        //Ensure correct command & args[0 & 1] exists
-        let permCheck = PermissionCheck(command, args);
-        if (permCheck != PinguLibrary.PermissionGranted) return message.channel.send(permCheck);
+    //Ensure correct command & args[0 & 1] exists
+    let permCheck = PermissionCheck(command, args);
+    if (permCheck != PinguLibrary.PermissionGranted) return message.channel.send(permCheck);
 
-        //User mentioned a channel
-        let channelResult = GetChannel(message, args);
-        if (channelResult.result != PinguLibrary.PermissionGranted) return message.channel.send(channelResult.result);
-        args = channelResult.args;
-        let { channel } = channelResult;
+    //User mentioned a channel
+    let channelResult = GetChannel(message, args);
+    if (channelResult.result != PinguLibrary.PermissionGranted) return message.channel.send(channelResult.result);
+    args = channelResult.args;
+    let { channel } = channelResult;
 
-        //Get reaction role message
-        var rrMessage = await channel.messages.fetch(args.shift());
-        if (!rrMessage) return message.channel.send(`Message ID is not from ${channel}!`);
+    //Get reaction role message
+    var rrMessage = await channel.messages.fetch(args.shift());
+    if (!rrMessage) return message.channel.send(`Message ID is not from ${channel}!`);
 
-        //Get emote
-        let emoteResult = GetEmote(message, args)
-        if (emoteResult.result != PinguLibrary.PermissionGranted) return message.channel.send(emoteResult.result);
-        args = emoteResult.args;
-        let { emote } = emoteResult;
+    //Get emote
+    let emoteResult = GetEmote(message, args)
+    if (emoteResult.result != PinguLibrary.PermissionGranted) return message.channel.send(emoteResult.result);
+    args = emoteResult.args;
+    let { emote } = emoteResult;
 
-        //IF command is delete, perform delete method
-        if (command == 'delete') return Delete(message, channel, rrMessage, emote, args);
+    //IF command is delete, perform delete method
+    if (command == 'delete') return Delete(message, channel, rrMessage, emote, args);
 
-        //Get role
-        let roleResult = await GetRole(message, args);
-        if (roleResult.result != PinguLibrary.PermissionGranted) return message.channel.send(roleResult.result);
-        args = roleResult.args;
-        let { role } = roleResult;
+    //Get role
+    let roleResult = await GetRole(message, args);
+    if (roleResult.result != PinguLibrary.PermissionGranted) return message.channel.send(roleResult.result);
+    args = roleResult.args;
+    let { role } = roleResult;
 
-        //Set ReactionRole
-        let setRRResult = await SetReactionRoles(pGuild, rrMessage, emote, role);
-        if (setRRResult != PinguLibrary.PermissionGranted) return message.channel.send(`I cannot create that reactionrole, as I already have a reactionrole with that ${setRRResult}!`);
+    //Set ReactionRole
+    let setRRResult = await SetReactionRoles(pGuild, rrMessage, emote, role);
+    if (setRRResult != PinguLibrary.PermissionGranted) return message.channel.send(`I cannot create that reactionrole, as I already have a reactionrole with that ${setRRResult}!`);
 
-        await rrMessage.react(emote);
+    await rrMessage.react(emote);
 
-        return message.channel.send(new MessageEmbed()
-            .setTitle(`Reaction Role Created!`)
-            .setURL(rrMessage.url)
-            .setDescription(`Your reaction-role in ${channel} (${rrMessage.id}), giving ${role} for reacting with ${emote} is now ready!`)
-            .setColor(pGuildClient.embedColor)
-        )
+    return message.channel.send(new MessageEmbed()
+        .setTitle(`Reaction Role Created!`)
+        .setURL(rrMessage.url)
+        .setDescription(`Your reaction-role in ${channel} (${rrMessage.id}), giving ${role} for reacting with ${emote} is now ready!`)
+        .setColor(pGuildClient.embedColor)
+    )
 })
 
 
@@ -98,7 +98,7 @@ function GetEmote(message, args) {
         emote = emoteString;
     }
     else return { result: `${emoteString} is not an emote!` };
-    if (!emote) return { result: `Emote not found!`};
+    if (!emote) return { result: `Emote not found!` };
 
     return { result: PinguLibrary.PermissionGranted, emote, args };
 }
@@ -136,7 +136,7 @@ async function SetReactionRoles(pGuild, rrMessage, emote, role) {
 
     reactionRoles.push(new ReactionRole(rrMessage, emote && emote.name || emote, role));
 
-    await PinguGuild.UpdatePGuild(rrMessage.client, {settings: pGuild.settings}, pGuild, `ReactionRoles: SetReactionRoles`,
+    await PinguGuild.UpdatePGuild(rrMessage.client, { settings: pGuild.settings }, pGuild, `ReactionRoles: SetReactionRoles`,
         `Successfully saved **${rrMessage.guild.name}**'s ReactionRole using ${(emote.name || emote)} giving ${role.name}.`,
         `Failed saving **${rrMessage.guild.name}**'s ReactionRole!`
     );
@@ -180,7 +180,7 @@ async function Delete(message, channel, rrMessage, emote, args) {
             await reaction.remove();
     }
 
-    await PinguGuild.UpdatePGuild(message.client, {settings: pGuild.settings}, pGuild, `reactionroles: Delete()`,
+    await PinguGuild.UpdatePGuild(message.client, { settings: pGuild.settings }, pGuild, `reactionroles: Delete()`,
         `Successfully deleted **${rrMessage.guild.name}**'s ${rr.emoteName} ReactionRole`,
         `Failed deleting **${rrMessage.guild.name}**'s ${rr.emoteName} ReactionRole`
     );
