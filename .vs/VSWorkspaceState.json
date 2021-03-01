@@ -1,10 +1,16 @@
 {
   "ExpandedNodes": [
     "",
+    "\\commands",
+    "\\commands\\1 Utility",
+    "\\commands\\1 Utility\\Server Setup",
+    "\\commands\\5 GuildSpecific\\Deadly Ninja",
+    "\\embedImages",
     "\\errors",
     "\\events",
-    "\\events\\client"
+    "\\events\\guild\\guildMember",
+    "\\events\\message"
   ],
-  "SelectedNode": "\\errors",
+  "SelectedNode": "\\events\\message\\message.js",
   "PreviewInSolutionExplorer": false
 }

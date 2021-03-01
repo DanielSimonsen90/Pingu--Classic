@@ -1,11 +1,6 @@
 const { PinguCommand } = require('PinguPackage');
-
-module.exports = new PinguCommand('login', 'DevOnly', `Relogs me`, {
-    
-}, async ({ client, message, args, pAuthor, pGuild, pGuildClient }) => {
-        const token = client.token;
-        client.destroy();
-        console.log('Disconnected!');
-        await client.login(token);
-        console.log("Reconnected!");
+module.exports = new PinguCommand('login', 'DevOnly', `Relogs me`, null, async () => {
+    var shell = require('shelljs');
+    shell.exec('git pull');
+    process.exit(1);
 })
