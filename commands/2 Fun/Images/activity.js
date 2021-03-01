@@ -7,7 +7,7 @@ module.exports = new PinguCommand('activity', 'Fun', 'You <activity> <person>!',
     guildOnly: true,
     example: ["hug @Danho#2105"],
     permissions: ['EMBED_LINKS']
-}, async ({ message, pGuildClient }) => {
+}, async ({ message, args, pGuildClient }) => {
     //Permission check
     const PermCheck = PermissionCheck(message, args);
     if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);

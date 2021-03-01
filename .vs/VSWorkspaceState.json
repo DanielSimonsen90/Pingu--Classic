@@ -3,14 +3,13 @@
     "",
     "\\commands",
     "\\commands\\1 Utility",
-    "\\commands\\1 Utility\\Server Setup",
-    "\\commands\\5 GuildSpecific\\Deadly Ninja",
+    "\\commands\\1 Utility\\Information",
+    "\\commands\\4 DevOnly",
     "\\embedImages",
     "\\errors",
     "\\events",
-    "\\events\\guild\\guildMember",
     "\\events\\message"
   ],
-  "SelectedNode": "\\events\\message\\message.js",
+  "SelectedNode": "\\commands\\4 DevOnly\\restart.js",
   "PreviewInSolutionExplorer": false
 }
