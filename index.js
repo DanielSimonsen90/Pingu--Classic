@@ -8,7 +8,7 @@ catch (err) {
 async function main() {
     const { config, PinguClient } = require('PinguPackage');
     const client = new PinguClient(config, [
-        'channelCreate', 'channelDelete', 'channelPinsUpdate', 'channelUpdate', 'typingStart', 'webhookUpdate',
+        'channelCreate', 'channelDelete', 'channelPinsUpdate', 'channelUpdate', 'typingStart', 'webhookUpdate',                                                                                 //channel
         'error', 'invalidated', 'ready',
         'emojiCreate', 'emojiDelete', 'emojiUpdate',
         'guildMemberAdd', 'guildMemberAvailable', 'guildMemberRemove', 'guildMemberUpdate',

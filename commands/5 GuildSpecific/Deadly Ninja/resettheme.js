@@ -176,7 +176,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('737073804890734654', new Role("DiscordM", '#aefff4'));
                     collection.set('756406381904396288', new Role("Elektrikker pleb", '#ff00d9'));
                     collection.set('800476348995993650', new Role("Member #69", '#ff00de'));
-                    collection.set('773524857001476096', new Role("Mwoah Gertje", '#2ECC71'));
+                    collection.set('773524857001476096', new Role("Granddad", '#ff2700'));
                     collection.set('754454781178806422', new Role("Pin this BITCh", 0));
                     collection.set('754454781178806422', new Role("Professional Fortnite Gaymer", '#71368A'));
                     collection.set('796001764260053002', new Role("Shtoje", '#F1C40F'));

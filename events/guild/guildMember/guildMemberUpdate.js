@@ -21,7 +21,7 @@ module.exports = new PinguEvent('guildMemberUpdate',
                 member.permissions.toArray(),
                 ((i, l) => i == l)
             );
-            else if (member.premiumSince != preMember.premiumSince) return PinguEvent.SetRemove(
+            else if (member.premiumSinceTimestamp != preMember.premiumSinceTimestamp) return PinguEvent.SetRemove(
                 'Boost',
                 preMember.premiumSince,
                 member.premiumSince,
