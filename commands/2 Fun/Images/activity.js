@@ -93,7 +93,7 @@ function PermissionCheck(message, args) {
 }
 /**@param {Message} message*/
 function DefinePerson(message) {
-    let Person = message.mentions.users.first().username || message.author.username;
+    let Person = message.mentions.users.first()?.username || message.author.username;
 
     return Person.includes('!') ? Person.replace('!', '') : Person;
 }
