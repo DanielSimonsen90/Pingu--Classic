@@ -1,5 +1,5 @@
 const { MessageEmbed } = require("discord.js");
-const { PinguLibrary, ReactionRole, PinguGuild, PinguEvent, EmbedField } = require("PinguPackage");
+const { PinguLibrary, ReactionRole, PinguEvent, EmbedField } = require("PinguPackage");
 
 module.exports = new PinguEvent('messageReactionRemove',
     async function setContent(reaction, user) {
@@ -17,50 +17,14 @@ module.exports = new PinguEvent('messageReactionRemove',
             ]);
     },
     async function execute(client, reaction, user) {
-        if (user == client.user) return ReactionRoleClient();
+        if (user.id == client.id) return ReactionRoleClient();
         ReactionRoleUser();
 
         async function ReactionRoleClient() {
-            let guild = reaction.message.guild;
-            if (!guild) return;
-
-            let pGuild = await PinguGuild.GetPGuild(guild);
-            if (!pGuild) return;
-
-            let { reactionRoles } = pGuild.settings;
-            if (!reactionRoles) return;
-
-            let rr = reactionRoles.find(rr => rr.emoteName == reaction.emoji.name && rr.messageID == reaction.message.id);
-            if (!rr) return;
-
-            let index = reactionRoles.indexOf(rr);
-            reactionRoles[index] = null;
-
-            PinguGuild.UpdatePGuild(client, { settings: pGuild.settings }, pGuild, module.exports.name,
-                `Successfully removed ${rr.emoteName} from **${pGuild.name}**'s Pingu Guild.`,
-                `Failed to remove ${rr.emoteName} from **${pGuild.name}**'s Pingu Guild.`
-            )
+            return ReactionRole.RemoveReaction(reaction, user);
         }
         async function ReactionRoleUser() {
-            try {
-                var role = await ReactionRole.GetReactionRole(client, reaction, user);
-                if (!role) return;
-
-                var member = reaction.message.guild.member(user);
-
-                member.roles.remove(role, `ReactionRole in ${reaction.message.channel.name}.`)
-                    .catch(err => PinguLibrary.errorLog(message.client, `Unable to remove ${user.username}'s ${role.name} role for unreacting!`, null, err, {
-                        params: { client, reaction, user },
-                        trycatch: { role, member }
-                    }));
-                PinguLibrary.consoleLog(client, `Removed ${user.username}'s ${role.name} role for ReactionRole`);
-
-            } catch (err) {
-                PinguLibrary.errorLog(client, `${module.exports.name} error`, null, err, {
-                    params: { client, reaction, user },
-                    trycatch: { role, member }
-                });
-            }
+            return ReactionRole.OnReactionRemove(reaction, user);
         }
     }
 );

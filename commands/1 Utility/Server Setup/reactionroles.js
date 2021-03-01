@@ -1,4 +1,4 @@
-const { Message, GuildChannel, TextChannel, GuildEmoji, Role, MessageEmbed} = require('discord.js');
+const { Message, GuildChannel, TextChannel, GuildEmoji, Role, MessageEmbed } = require('discord.js');
 const { PinguCommand, PinguLibrary, PinguGuild, ReactionRole } = require('PinguPackage');
 
 module.exports = new PinguCommand('reactionroles', 'Utility', 'Gives/Removes roles for users who reacted to a message', {
@@ -49,6 +49,7 @@ module.exports = new PinguCommand('reactionroles', 'Utility', 'Gives/Removes rol
 
         return message.channel.send(new MessageEmbed()
             .setTitle(`Reaction Role Created!`)
+            .setURL(rrMessage.url)
             .setDescription(`Your reaction-role in ${channel} (${rrMessage.id}), giving ${role} for reacting with ${emote} is now ready!`)
             .setColor(pGuildClient.embedColor)
         )
@@ -135,7 +136,7 @@ async function SetReactionRoles(pGuild, rrMessage, emote, role) {
 
     reactionRoles.push(new ReactionRole(rrMessage, emote && emote.name || emote, role));
 
-    await PinguGuild.UpdatePGuild(rrMessage.client, {reactionRoles}, pGuild, `ReactionRoles: SetReactionRoles`,
+    await PinguGuild.UpdatePGuild(rrMessage.client, {settings: pGuild.settings}, pGuild, `ReactionRoles: SetReactionRoles`,
         `Successfully saved **${rrMessage.guild.name}**'s ReactionRole using ${(emote.name || emote)} giving ${role.name}.`,
         `Failed saving **${rrMessage.guild.name}**'s ReactionRole!`
     );
@@ -179,7 +180,7 @@ async function Delete(message, channel, rrMessage, emote, args) {
             await reaction.remove();
     }
 
-    await PinguGuild.UpdatePGuild(message.client, {reactionRoles}, pGuild, `reactionroles: Delete()`,
+    await PinguGuild.UpdatePGuild(message.client, {settings: pGuild.settings}, pGuild, `reactionroles: Delete()`,
         `Successfully deleted **${rrMessage.guild.name}**'s ${rr.emoteName} ReactionRole`,
         `Failed deleting **${rrMessage.guild.name}**'s ${rr.emoteName} ReactionRole`
     );
