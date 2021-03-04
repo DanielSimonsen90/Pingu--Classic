@@ -1,4 +1,4 @@
-const { Collection, Client, GuildChannel, TextChannel, Guild, VoiceChannel } = require("discord.js");
+const { Collection, GuildChannel, TextChannel, Guild, VoiceChannel } = require("discord.js");
 const { PinguLibrary, PinguGuild, PinguEvent, PinguClient, PinguUser } = require("PinguPackage");
 const ms = require('ms');
 
@@ -122,137 +122,38 @@ module.exports = new PinguEvent('onready',
         }
 
         function CacheFromDB() {
-            RunCache('ReactionRole', CacheReactionRoles);
-            RunCache('Poll', CacheActivePolls);
-            RunCache('Giveaway', CacheActiveGiveaways);
-            RunCache('Suggestion', CacheActiveSuggestions);
-            RunCache('Theme', CacheActiveThemes);
+            client.guilds.cache.forEach(async guild => {
+                let pGuild = await PinguGuild.GetPGuild(guild);
+                if (!pGuild) return;
 
-            /**@param {CacheTypes} type
-             * @param {(client: Client) => void} callback*/
-            function RunCache(type, callback) {
-                try { callback(client); }
-                catch (err) {
-                    PinguLibrary.errorLog(client, `[${type}] Unable to cache ${type} messages!`, null, err, {
-                        params: { client, type, callback }
-                    });
-                }
-            }
 
-            function CacheReactionRoles() {
-                client.guilds.cache.forEach(async guild => {
-                    let pGuild = await PinguGuild.GetPGuild(guild);
-                    if (!pGuild) return;
+                let { reactionRoles } = pGuild.settings;
 
-                    let { reactionRoles } = pGuild.settings;
-                    reactionRoles.forEach(rr => {
-                        let gChannel = guild.channels.cache.get(rr.channel._id);
-                        if (!gChannel) return;
+                reactionRoles.forEach(rr => {
+                    let gChannel = guild.channels.cache.get(rr.channel._id);
+                    if (!gChannel) return;
 
-                        let channel = ToTextChannel(gChannel);
+                    let channel = ToTextChannel(gChannel);
 
-                        if (!client.isLive &&
-                            pGuild.clients[0] &&
-                            client.users.cache.get(PinguClient.Clients.PinguID).presence.status != 'offline')
-                            return; //Client is BETA but LIVE is in guild
+                    //In .then function so it only logs if fetching is successful
+                    channel.messages.fetch(rr.messageID)
+                        .then(() => OnFulfilled('ReactionRole', rr.messageID, channel, guild))
+                        .catch(err => OnError('ReactionRole', rr.messageID, channel, guild, err.message));
+                });
 
-                        //In .then function so it only logs if fetching is successful
-                        channel.messages.fetch(rr.messageID)
-                            .then(() => OnFulfilled('ReactionRole', rr.messageID, channel, guild))
-                            .catch(err => OnError('ReactionRole', rr.messageID, channel, guild, err.message));
-                    });
+                let { pollConfig, giveawayConfig, suggestionConfig, themeConfig } = pGuild.settings.config.decidables;
+                let configs = [pollConfig, giveawayConfig, suggestionConfig, themeConfig].filter(config => !config.firstTimeExecuted);
+                let decidables = configs.map(config => config.polls || config.giveaways || config.suggestions || config.themes);
+                decidables.forEach(decidable => {
+                    if (!decidable.endsAt || new Date(decidable.endsAt).getTime() < Date.now() || decidable.approved != undefined) return;
+                    let channel = ToTextChannel(guild.channels.cache.get(decidable.channel._id));
+
+                    channel.messages.fetch(decidable._id, false, true)
+                        .then(() => OnFulfilled(decidable.constructor.name, decidable._id, channel, guild))
+                        .catch(err => OnError(decidable.constructor.name, decidable._id, channel, guild, err.message));
                 })
-            }
-            function CacheActiveGiveaways() {
-                client.guilds.cache.forEach(async guild => {
-                    let pGuild = await PinguGuild.GetPGuild(guild);
-                    if (!pGuild) return;
 
-                    let { giveaways } = !pGuild.settings.config.giveawayConfig.firstTimeExecuted && pGuild.settings.config.giveawayConfig;
-                    if (!giveaways) return;
-
-                    if (!client.isLive &&
-                        pGuild.clients[0] &&
-                        client.users.cache.get(PinguClient.Clients.PinguID).presence.status != 'offline')
-                        return; //Client is BETA but LIVE is in guild
-                    giveaways.forEach(giveaway => {
-                        if (new Date(giveaway.endsAt).getTime() < Date.now()) return;
-
-                        let channel = ToTextChannel(guild.channels.cache.get(giveaway.channel._id));
-                        channel.messages.fetch(giveaway._id, false, true)
-                            .then(() => OnFulfilled('Giveaway', giveaway._id, channel, guild))
-                            .catch(err => OnError('Giveaway', giveaway._id, channel, guild, err.message));
-                    })
-                })
-            }
-            function CacheActivePolls() {
-                client.guilds.cache.forEach(async guild => {
-                    let pGuild = await PinguGuild.GetPGuild(guild);
-                    if (!pGuild) return;
-
-                    let { polls } = !pGuild.settings.config.pollConfig.firstTimeExecuted && pGuild.settings.config.pollConfig;
-                    if (!polls) return;
-
-                    if (!client.isLive &&
-                        pGuild.clients[0] &&
-                        client.users.cache.get(PinguClient.Clients.PinguID).presence.status != 'offline')
-                        return; //Client is BETA but LIVE is in guild
-                    polls.forEach(poll => {
-                        if (new Date(poll.endsAt).getTime() < Date.now()) return;
-
-                        let channel = ToTextChannel(guild.channels.cache.get(poll.channel._id));
-                        channel.messages.fetch(poll._id, false, true)
-                            .then(() => OnFulfilled('Poll', poll._id, channel, guild))
-                            .catch(err => OnError('Poll', poll._id, channel, guild, err.message));
-                    })
-                })
-            }
-            function CacheActiveSuggestions() {
-                client.guilds.cache.forEach(async guild => {
-                    let pGuild = await PinguGuild.GetPGuild(guild);
-                    if (!pGuild) return;
-
-                    let { suggestions } = !pGuild.settings.config.suggestionConfig.firstTimeExecuted && pGuild.settings.config.suggestionConfig;
-                    if (!suggestions) return;
-
-                    if (!client.isLive &&
-                        pGuild.clients[0] &&
-                        client.users.cache.get(PinguClient.Clients.PinguID).presence.status != 'offline')
-                        return; //Client is BETA but LIVE is in guild
-
-                    suggestions.forEach(suggestion => {
-                        if (suggestion.approved != undefined) return;
-
-                        let channel = ToTextChannel(guild.channels.cache.get(suggestion.channel._id));
-                        channel.messages.fetch(suggestion._id, false, true)
-                            .then(() => OnFulfilled('Suggestion', suggestion._id, channel, guild))
-                            .catch(err => OnError('Suggestion', suggestion._id, channel, guild, err.message));
-                    })
-                })
-            }
-            function CacheActiveThemes() {
-                client.guilds.cache.forEach(async guild => {
-                    let pGuild = await PinguGuild.GetPGuild(guild);
-                    if (!pGuild) return;
-
-                    let { themes } = !pGuild.settings.config.themeConfig.firstTimeExecuted && pGuild.settings.config.themeConfig;
-                    if (!themes) return;
-
-                    if (!client.isLive &&
-                        pGuild.clients[0] &&
-                        client.users.cache.get(PinguClient.Clients.PinguID).presence.status != 'offline')
-                        return; //Client is BETA but LIVE is in guild
-
-                    themes.forEach(theme => {
-                        if (new Date(theme.endsAt).getTime() < Date.now()) return;
-
-                        let channel = ToTextChannel(guild.channels.cache.get(theme.channel._id));
-                        channel.messages.fetch(theme._id, false, true)
-                            .then(() => OnFulfilled('Theme', theme._id, channel, guild))
-                            .catch(err => OnError('Theme', theme._id, channel, guild, err.message));
-                    })
-                })
-            }
+            })
 
             /**@param {GuildChannel} guildChannel
              * @returns {TextChannel}*/

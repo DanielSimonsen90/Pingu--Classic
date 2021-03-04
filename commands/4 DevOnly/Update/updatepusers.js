@@ -1,10 +1,10 @@
 ﻿const { MessageEmbed, Guild, User } = require("discord.js");
-const { PinguCommand, PinguLibrary, PinguClient, PinguUser, EmbedField } = require('PinguPackage');
+const { PinguCommand, PinguLibrary, PinguClient, PinguUser, EmbedField, UserAchievementConfig } = require('PinguPackage');
 
 module.exports = new PinguCommand('updatepusers', 'DevOnly', `Creates new PinguUsers to MongoDB, if they weren't added already`, {
     usage: '<user tag | user id | show>',
     example: [`Danho#2105`, '460926327269359626', 'show']
-}, async ({ message, args, pGuildClient }) => {
+}, async ({ client, message, args, pGuildClient }) => {
     let BotGuilds = message.client.guilds.cache.array().sort((a, b) => a.name > b.name ? 1 : -1);
     let Users = GetUsers(BotGuilds).filter(u => !u.bot).sort((a, b) => a.tag > b.tag ? 1 : -1);
 
@@ -36,6 +36,13 @@ module.exports = new PinguCommand('updatepusers', 'DevOnly', `Creates new PinguU
                     `Successfully created PinguUser for **${Users[i].tag}**`,
                     `Failed creating PinguUser for **${Users[i].tag}**`
                 );
+            else {
+                awaitedPUser.achievementConfig = new UserAchievementConfig('DM');
+                await PinguUser.UpdatePUser(client, { achievementConfig: awaitedPUser.achievementConfig }, awaitedPUser, this.name,
+                    `Added achievement config to ${awaitedPUser.tag}`,
+                    `Failed to add achievement config to ${awaitedPUser.tag}!`
+                );
+            }
         } catch (err) {
             PinguLibrary.errorLog(message.client, `Adding to PinguUsers failed`, message.content, err, {
                 params: { message, args, pGuildClient },

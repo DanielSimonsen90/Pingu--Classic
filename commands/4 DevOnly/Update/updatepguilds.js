@@ -1,5 +1,5 @@
 ﻿const { MessageEmbed } = require("discord.js");
-const { PinguCommand, PinguGuild, PinguLibrary } = require('PinguPackage');
+const { PinguCommand, PinguGuild, PinguLibrary, PinguGuildMember, GuildAchievementConfig } = require('PinguPackage');
 
 module.exports = new PinguCommand('updatepguilds', 'DevOnly', `Creates new PinguGuilds to MongoDB, if they weren't added already`, {
     usage: '<guild name | guild id | show>',
@@ -32,10 +32,25 @@ module.exports = new PinguCommand('updatepguilds', 'DevOnly', `Creates new Pingu
                     `Successfully created PinguGuild for **${BotGuilds[i].name}**`,
                     `Failed creating PinguGuild for **${BotGuilds[i].name}**`
                 );
+            else {
+                pGuild.settings.config.achievements = new GuildAchievementConfig({
+                    guild: 'OWNER',
+                    members: 'DM'
+                }, pGuild._id);
+                pGuild.members = new Map();
+                BotGuilds[i].members.cache.array().forEach(gm => {
+                    let pgm = new PinguGuildMember(gm, pGuild.settings.config.achievements.notificationTypes.members);
+                    pGuild.members.set(pgm._id, pgm);
+                })
+                await PinguGuild.UpdatePGuild(client, { members: pGuild.members, settings: pGuild.settings }, pGuild, this.name,
+                    `Added members & settings to ${pGuild.name}`,
+                    `Failed to add members & settings to ${pGuild.name}`
+                )
+            }
         } catch (err) {
             PinguLibrary.errorLog(client, 'Adding to PinguGuilds failed', message.content, err, {
                 params: { client, message, args },
-                additional: { arg, BotGuilds, owner, pGuild: PinguGuildArr[i] },
+                additional: { arg, BotGuilds, owner, pGuild: PinguGuildsArr[i] },
                 trycatch: { pGuild }
             });
         }
