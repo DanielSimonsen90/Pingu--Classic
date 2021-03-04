@@ -1,8 +1,9 @@
 ﻿const Discord = require('discord.js');
+const fs = require('fs');
 
 try { main(); }
 catch (err) {
-    console.log(err);
+    fs.writeFile('./errors/startUpError', JSON.stringify(err, null, 2));
 }
 
 async function main() {

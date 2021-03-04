@@ -167,6 +167,12 @@ module.exports = new PinguEvent('message',
                 commandName = args[i].toLowerCase();
                 command = client.commands.get(commandName) || commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
             }
+
+            if (command.name == 'music') {
+                args.unshift(commandName);
+                commandName = command.name;
+            }
+
             return command;
         }
         function DecodeCommand() {

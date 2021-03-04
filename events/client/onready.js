@@ -121,15 +121,14 @@ module.exports = new PinguEvent('onready',
             }
         }
 
-        function CacheFromDB() {
-            client.guilds.cache.forEach(async guild => {
+        async function CacheFromDB() {
+            for (var guild of client.guilds.cache) {
                 let pGuild = await PinguGuild.GetPGuild(guild);
                 if (!pGuild) return;
 
-
                 let { reactionRoles } = pGuild.settings;
 
-                reactionRoles.forEach(rr => {
+                for (var rr of reactionRoles) {
                     let gChannel = guild.channels.cache.get(rr.channel._id);
                     if (!gChannel) return;
 
@@ -139,21 +138,21 @@ module.exports = new PinguEvent('onready',
                     channel.messages.fetch(rr.messageID)
                         .then(() => OnFulfilled('ReactionRole', rr.messageID, channel, guild))
                         .catch(err => OnError('ReactionRole', rr.messageID, channel, guild, err.message));
-                });
+                }
 
                 let { pollConfig, giveawayConfig, suggestionConfig, themeConfig } = pGuild.settings.config.decidables;
                 let configs = [pollConfig, giveawayConfig, suggestionConfig, themeConfig].filter(config => !config.firstTimeExecuted);
                 let decidables = configs.map(config => config.polls || config.giveaways || config.suggestions || config.themes);
-                decidables.forEach(decidable => {
+
+                for (var decidable of decidables) {
                     if (!decidable.endsAt || new Date(decidable.endsAt).getTime() < Date.now() || decidable.approved != undefined) return;
                     let channel = ToTextChannel(guild.channels.cache.get(decidable.channel._id));
 
                     channel.messages.fetch(decidable._id, false, true)
                         .then(() => OnFulfilled(decidable.constructor.name, decidable._id, channel, guild))
                         .catch(err => OnError(decidable.constructor.name, decidable._id, channel, guild, err.message));
-                })
-
-            })
+                }
+            }
 
             /**@param {GuildChannel} guildChannel
              * @returns {TextChannel}*/
@@ -172,6 +171,7 @@ module.exports = new PinguEvent('onready',
              * @param {TextChannel} channel
              * @param {Guild} guild*/
             function OnError(type, id, channel, guild, errMsg) {
+                if (errMsg == 'Missing Access') return;
                 return PinguLibrary.consoleLog(client, `Unable to cache ${type} "${id}" from #${channel.name}, ${guild.name} -- ${errMsg}`)
             }
         }
