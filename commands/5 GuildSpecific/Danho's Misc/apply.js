@@ -2,7 +2,7 @@ const { TextChannel, Message, MessageAttachment } = require('discord.js');
 const { PinguCommand, config, PinguLibrary } = require('PinguPackage');
 
 const nodemailer = require('nodemailer');
-const { emailer } = config, { google } = require('googleapis'), { OAuth2 } = google.auth,
+const { emailer, testingMode } = config, { google } = require('googleapis'), { OAuth2 } = google.auth,
     googleClient = new OAuth2(emailer.id, emailer.secret, "https://developers.google.com/oauthplayground");
 googleClient.setCredentials({ refresh_token: config.emailer.refreshToken });
 
@@ -11,7 +11,8 @@ module.exports = new PinguCommand('apply', 'GuildSpecific', `Filters through pre
     specificGuildID: '460926327269359626',
     usage: '[amount of companies to select]'
 }, async ({ client, message, args, pAuthor, pGuild, pGuildClient }) => {
-        if (message.author.id != PinguLibrary.Developers.get('Danho').id) return message.channel.send(`You are not authorized to run this command!`);
+        if (message.author.id != PinguLibrary.Developers.get('Danho').id)
+            return message.channel.send(`You are not authorized to run this command!`);
 
     if (message.channel.name != 'applications-cmd') {
         //Find channel or make one and deny @everyone from viewing
@@ -22,7 +23,7 @@ module.exports = new PinguCommand('apply', 'GuildSpecific', `Filters through pre
     let applicationsChannel = await getChannel('applications');
 
     let messages = (await applicationsChannel.messages.fetch({ limit: 3 })).array();
-    let companyInfo = messages.map(m => messageToCompanies(m);
+    let companyInfo = messages.map(m => messageToCompanies(m));
 
     let companies = (await Company.getCompanies()).filter(c => {
         let preCompanies = [];
@@ -104,7 +105,7 @@ module.exports = new PinguCommand('apply', 'GuildSpecific', `Filters through pre
 
         /**@returns {Promise<Company[]>} */
         static async getCompanies() {
-            let companiesChannel = await getChannel('companies');
+            let companiesChannel = await getChannel(testingMode ? 'companies-test' : 'companies');
             if (!companiesChannel) return null;
 
             let messages = await companiesChannel.messages.fetch();
@@ -139,7 +140,7 @@ class Mail {
         return {
             from,
             to: company.link,
-            bcc: 'Ansoegningdata@techcollege.dk',
+            bcc: testingMode ? null : 'Ansoegningdata@techcollege.dk',
             subject: "Datatekniker m. speciale i programmering",
             text: message.content.replace('$name$', company.name),
             attachments: message.attachments.map(a => { return { filename: a.name, path: a.url } })
