@@ -57,7 +57,7 @@ module.exports = new PinguCommand('apply', 'GuildSpecific', `Filters through pre
     for (var company of companiesToBother) {
         if (company.link.includes('@'))
             await transporter.sendMail(await Mail.send(company, templateMessage)).catch(err => applicationsChannel.send(err))
-        responseMessage += `${company.name} | ${company.link}\n`
+        responseMessage += `${company.link} | ${company.link}\n`
     }
 
     applicationsChannel.send(responseMessage);
