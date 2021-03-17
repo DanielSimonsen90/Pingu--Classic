@@ -4,5 +4,5 @@ module.exports = new PinguCommand('invite', 'Supporting', 'Sends link to invite 
     let pinguPermissions = 0;
     PinguLibrary.Permissions().given.forEach(perm => pinguPermissions += perm.bit);
 
-    message.channel.send(`https://discord.com/api/oauth2/authorize?client_id=${message.client.user.id}&permissions=${pinguPermissions}&scope=bot`);
+    return message.channel.send(`https://discord.com/api/oauth2/authorize?client_id=${message.client.user.id}&permissions=${pinguPermissions}&scope=bot`);
 });

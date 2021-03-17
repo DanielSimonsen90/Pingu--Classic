@@ -1,11 +1,11 @@
 const { MessageEmbed, Message } = require('discord.js');
-const { PinguLibrary, PinguCommand, PinguClient } = require('PinguPackage');
+const { PinguLibrary, PinguCommand, PinguClient, PinguUser } = require('PinguPackage');
 const fs = require('fs');
 
 module.exports = new PinguCommand('help', 'Utility', 'List all of my commands or info about a specific command.', {
     usage: '[category | command]',
     examples: ["", "giveaway", "Fun"]
-}, async ({ client, message, args, pGuildClient }) => {
+}, async ({ client, message, args, pAuthor, pGuildClient }) => {
     //#region Create variables
         let color = pGuildClient && pGuildClient.embedColor || client.DefaultEmbedColor;
         let prefix = pGuildClient && pGuildClient.prefix || client.DefaultPrefix;
@@ -15,9 +15,10 @@ module.exports = new PinguCommand('help', 'Utility', 'List all of my commands or
         .setThumbnail(client.user.avatarURL());
     //#endregion
 
+    let members = message.guild.members.cache.filter(member => member.roles.cache.has('<roleID>'))
     switch (args.length) {
-        case 0: return CategoryHelp(message, embed, prefix, getCommandsPath()); //If no argument was provided, send default help menu
-        default: return CategoryOrSpecificHelp(message, args, embed, prefix, 'DevOnly'); //If 1 argument is provided || if args[0] exists
+        case 0: return CategoryHelp(message, embed, prefix, getCommandsPath(), pAuthor); //If no argument was provided, send default help menu
+        default: return CategoryOrSpecificHelp(message, args, embed, prefix, 'DevOnly', pAuthor); //If 1 argument is provided || if args[0] exists
     }
 });
 
@@ -25,8 +26,9 @@ module.exports = new PinguCommand('help', 'Utility', 'List all of my commands or
  * @param {string[]} args
  * @param {MessageEmbed} embed
  * @param {string} prefix
- * @param {import('PinguPackage').CommandCategories devOnlyType*/
-function CategoryOrSpecificHelp(message, args, embed, prefix, devOnlyType) {
+ * @param {import('PinguPackage').CommandCategories devOnlyType
+ * @param {PinguUser} pAuthor*/
+function CategoryOrSpecificHelp(message, args, embed, prefix, devOnlyType, pAuthor) {
     args[0] = args[0].toLowerCase();
     let client = PinguClient.ToPinguClient(message.client);
 
@@ -61,16 +63,18 @@ function CategoryOrSpecificHelp(message, args, embed, prefix, devOnlyType) {
         //If not, user cannot perform this help
         return message.channel.send(`Sorry ${message.author}, but you're not cool enough to use that!`);
 
-    return CategoryHelp(message, embed, prefix, category.path);
+    return CategoryHelp(message, embed, prefix, category.path, pAuthor);
 }
 /**@param {Message} message
  * @param {MessageEmbed} embed
  * @param {string} prefix
- * @param {string} path*/
-function CategoryHelp(message, embed, prefix, path) {
+ * @param {string} path
+ * @param {PinguUser} pAuthor*/
+function CategoryHelp(message, embed, prefix, path, pAuthor) {
     let pathFolder = new Category(path); //Path folder
     let categories = pathFolder.subCategories.length && pathFolder.subCategories.map(category => new Category(category.path)) || [pathFolder] //Get path's sub categories to category classes
-        .filter(cat => !cat.scripts.map(cmd => cmd.id).includes(CommandIDs.DevOnly) || PinguLibrary.isPinguDev(message.author)); //If a category has a DevOnly command && author isn't PinguDev, don't include it
+        .filter(cat => !cat.scripts.map(cmd => cmd.category).includes('DevOnly') || PinguLibrary.isPinguDev(message.author)) //If a category has a DevOnly command && author isn't PinguDev, don't include it
+        .filter(cat => !cat.scripts.map(cmd => cmd.category).includes('GuildSpecific') || cat.scripts.filter(cmd => pAuthor.sharedServers.map(pg => pg._id).includes(cmd.specificGuildID))) //If a category has a GuildSpecific command && author isn't in that guild, don't include it
 
     if (!isNaN(parseInt(pathFolder.name[0])))
         pathFolder.name = pathFolder.name.split(' ')[1];

@@ -1,5 +1,5 @@
 ﻿const { Guild, MessageEmbed } = require("discord.js");
-const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error, PClient, CommandCategories, PinguEvent } = require("PinguPackage");
+const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error, PClient, CommandCategories, PinguEvent, PinguGuildMember } = require("PinguPackage");
 const { HandleTell, ExecuteTellReply } = require('../../commands/2 Fun/Pingu User/tell');
 const { CheckRoleChange } = require("../guild/role/roleUpdate");
 
@@ -53,16 +53,16 @@ module.exports = new PinguEvent('message',
         let commandName = args.shift();
 
         //If mentioned without prefix
-        if (message.content && message.content.includes(client.user.id) && !args.length && !message.author.bot)
+        if (message.content?.includes(client.user.id) && !args.length && !message.author.bot)
             return message.channel.send(`My prefix is \`${prefix}\``);
 
         //If interacted via @
         commandName = TestTagInteraction();
 
-        var startsWithPrefix = message.content.startsWith(prefix) && !message.author.bot || message.content && message.content.includes(client.user.id);
+        var startsWithPrefix = message.content.startsWith(prefix) && !message.author.bot || message.content?.includes(client.user.id);
 
         //If I'm not interacted with don't do anything
-        if (message.channel.type == 'dm' && (message.author.bot || (await PinguUser.GetPUser(message.author)).replyPerson) && (!startsWithPrefix || commandName && commandName.includes(prefix)))
+        if (message.channel.type == 'dm' && (message.author.bot || (await PinguUser.GetPUser(message.author)).replyPerson) && (!startsWithPrefix || commandName?.includes(prefix)))
             return ExecuteTellReply(message).catch(err => PinguLibrary.errorLog(client, `Failed to execute tell reply`, message.content, err, {
                 params: { client, message },
                 additional: { prefix, args, commandName, startsWithPrefix }
@@ -159,15 +159,16 @@ module.exports = new PinguEvent('message',
             if (command) return command;
 
             let commands = client.commands.array();
-            command = commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName))
+            command = commands.find(cmd => cmd.aliases?.includes(commandName))
+            if (command) return command;
 
             //If command assignment failed, assign command
-            var i = 0;
-            while (!command && i < args.length) {
-                commandName = args[i].toLowerCase();
-                command = client.commands.get(commandName) || commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
-            }
+            commandName = args[0]?.toLowerCase();
+            if (!commandName) return null;
 
+            command = client.commands.get(commandName) || commands.find(cmd => cmd.aliases?.includes(commandName));
+
+            //Music alias was used
             if (command.name == 'music') {
                 args.unshift(commandName);
                 commandName = command.name;
@@ -224,21 +225,53 @@ module.exports = new PinguEvent('message',
 
                 var pGuild = message.guild ? await PinguGuild.GetPGuild(message.guild) : null;
                 var pAuthor = await PinguUser.GetPUser(message.author);
+
+                
+
+                if (!pAuthor) {
+                    await PinguUser.WritePUser(client, message.author, module.exports.name,
+                        `Successfully added ${message.author.tag} to PinguUsers`,
+                        `Failed to add ${message.author.tag} to PinguUsers`
+                    );
+                    pAuthor = await PinguUser.GetPUser(message.author);
+                }
+
+                var pGuildMember = await PinguGuildMember.GetPGuildMember(message.member);
                 var pGuildClient = message.guild && pGuild ? client.toPClient(pGuild) : null
-                var parameters = { client, message, args, pAuthor, pGuild, pGuildClient }
+                var parameters = { client, message, args, pGuild, pAuthor, pGuildMember, pGuildClient }
 
                 await command.execute(parameters);
                 ConsoleLog += `**succeeded!**`;
+
+                const achieverClasses = {
+                    USER: message.author,
+                    GUILDMEMBER: message.member,
+                    GUILD: message.guild
+                };
+                const achieverConfigs = {
+                    USER: pAuthor.achievementConfig,
+                    GUILDMEMBER: pGuildMember.achievementsConfig,
+                    GUILD: pGuild.settings.config.achievements
+                };
+
+                await PinguLibrary.AchievementCheck(client, achieverClasses, achieverConfigs, 'COMMAND', command.name).catch(err => {
+                    PinguLibrary.errorLog(client, `Handling COMMAND achievement check`, message.content, err, {
+                        params: parameters,
+                        additional: { achieverClasses, achieverConfigs }
+                    })
+                })
             } catch (err) {
                 if (err.message == 'Missing Access' && message.guild.id == PinguLibrary.SavedServers.PinguEmotes(client).id && await FindPermission())
                     return; //Error occured, but cycled through permissions to find missing permission
 
                 ConsoleLog += `**failed!**\nError: ${err}`;
 
+                
+
                 PinguLibrary.errorLog(client, `Trying to execute "${command.name}"!`, message.content, err, {
                     params: { client, message },
                     additional: { args, ConsoleLog, commandName, command },
-                    trycatch: { pAuthor, pGuild, pGuildClient }
+                    trycatch: { pAuthor, pGuild, pGuildMember, pGuildClient }
                 });
             }
             console.log(" ");

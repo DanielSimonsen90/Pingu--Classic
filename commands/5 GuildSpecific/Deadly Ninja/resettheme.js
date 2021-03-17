@@ -45,6 +45,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                 (function setChats() {
                     collection.set('405763731713425419', '⌨ Chats 💬');
                     collection.set('405763731713425420', 'general-chat💬');
+                    collection.set('819131502431698975', 'music🎶');
                     collection.set('477214451683295291', 'motd🌞');
                     collection.set('485532271319842825', 'quotes📌');
                 })();
@@ -151,10 +152,12 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                 }
 
                 (function setManagement() {
+                    collection.set('816289109705883678', new Role("Upper Management", 0));
+                    collection.set('816289454259830784', new Role("Birthday Child", "#cc2b1a"));
                     collection.set('549611213374488578', new Role("—=—=— Managment Roles —=—=—", 0));
                     collection.set('762403363727736844', new Role("Creator", '#b99bf3'));
                     collection.set('672100455127711774', new Role("Theme Winner", '#ff75fa'));
-                    collection.set('699870814421516301', new Role("Big Boi", '#fab54b'));
+                    collection.set('699870814421516301', new Role("Big Boi", '#ff5e00'));
                     collection.set('497439032138006530', new Role("Slaves with Perms", 0));
                     collection.set('682547571721371679', new Role("All-Seeing Eye", 0));
                     collection.set('720894710092267550', new Role("HAdmins", 0));
@@ -174,6 +177,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('716613307624062977', new Role("Dad", '#4671b5'));
                     collection.set('802955952361308211', new Role("The Best Little Sister", '#a2bcff'));
                     collection.set('737073804890734654', new Role("DiscordM", '#aefff4'));
+                    collection.set('818555826917736488', new Role("Documentary Boy", "8dacff"));
                     collection.set('756406381904396288', new Role("Elektrikker pleb", '#ff00d9'));
                     collection.set('800476348995993650', new Role("Member #69", '#ff00de'));
                     collection.set('773524857001476096', new Role("Granddad", '#ff2700'));

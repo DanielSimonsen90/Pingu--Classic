@@ -46,7 +46,7 @@ module.exports = { ...new PinguCommand('music', 'Fun', 'Plays music', {
     if (!queue) return message.channel.send('Nothing is playing!');
     if (!queue.currentSong) queue.index = 0;
 
-    var command = this.musicCommands.find(cmd => [cmd.name, cmd.alias].includes(commandName))
+    var command = module.exports.musicCommands.find(cmd => [cmd.name, cmd.alias].includes(commandName))
     if (!command) return message.channel.send(`I didn't recognize that command!`);
 
     if (["pause", "stfu", "resume", "speak"].includes(commandName))

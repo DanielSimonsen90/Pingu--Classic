@@ -4,10 +4,9 @@ const { PinguCommand, PinguLibrary, PinguGuild, PinguUser, PClient, EmbedField, 
 const availableTypes = ['server', 'guild', 'user', 'bot', 'client'];
 
 module.exports = new PinguCommand('info', 'Utility', 'All da information you need', {
-    usage: '<type: server | iser> <property: all | <property>>'
+    usage: '<type: server | user> <property: all | <property>>'
 }, async ({ message, args, pAuthor, pGuild, pGuildClient }) => {
     if (!args || !args[0]) args[0] = message.guild ? 'guild' : 'user';
-    if (!availableTypes.includes(args[0])) return message.channel.send(`**${type}** is an invalid type!`);
 
     let userType = args.shift();
     let type = ['server', 'guild'].includes(userType) ? 'guild' :
@@ -217,11 +216,11 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
 
                 switch (item) {
                     case 'marry': return new MessageEmbed()
-                        .setDescription(partner ? new Marry(await PinguUser.GetPUser(partner), pu.marry.internalDate).marriedMessage : `You've never been married rip`)
+                        .setDescription(partner ? new Marry(await PinguUser.GetPUser(partner), pu.marry.internalDate).marriedMessage() : `You've never been married rip`)
                         .setThumbnail(partner ? partner.avatarURL() : pu.avatar)
                     case 'daily': return new MessageEmbed()
                         .setDescription(`Your current daily streak is at **${(!dailyStreakValid ? 0 : pu.daily.streak)}**`)
-                        .setTimestamp(dailyStreakValid ? pu.daily.nextClaim.endsAt : Date.now())
+                        .setTimestamp(dailyStreakValid ? pu.daily.nextClaim?.endsAt : Date.now())
                         .setFooter(`Viewing information for: ${userType} | Daily claimable at`);
                     case 'sharedServers': return new MessageEmbed().setDescription(sharedServerInfo)
                     case 'playlists': return null //Not implemented

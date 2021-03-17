@@ -1,5 +1,5 @@
 ﻿const { MessageEmbed, Guild, User } = require("discord.js");
-const { PinguCommand, PinguLibrary, PinguClient, PinguUser, EmbedField, UserAchievementConfig } = require('PinguPackage');
+const { PinguCommand, PinguLibrary, PinguClient, PinguUser, EmbedField, UserAchievementConfig, PinguUserSchema } = require('PinguPackage');
 
 module.exports = new PinguCommand('updatepusers', 'DevOnly', `Creates new PinguUsers to MongoDB, if they weren't added already`, {
     usage: '<user tag | user id | show>',
@@ -37,11 +37,7 @@ module.exports = new PinguCommand('updatepusers', 'DevOnly', `Creates new PinguU
                     `Failed creating PinguUser for **${Users[i].tag}**`
                 );
             else {
-                awaitedPUser.achievementConfig = new UserAchievementConfig('DM');
-                await PinguUser.UpdatePUser(client, { achievementConfig: awaitedPUser.achievementConfig }, awaitedPUser, this.name,
-                    `Added achievement config to ${awaitedPUser.tag}`,
-                    `Failed to add achievement config to ${awaitedPUser.tag}!`
-                );
+                await PinguUserSchema.updateMany({}, { $set: { achievementConfig: new UserAchievementConfig('DM') } }).exec();
             }
         } catch (err) {
             PinguLibrary.errorLog(message.client, `Adding to PinguUsers failed`, message.content, err, {
@@ -51,6 +47,7 @@ module.exports = new PinguCommand('updatepusers', 'DevOnly', `Creates new PinguU
             });
         }
     }
+
     PinguLibrary.pUserLog(message.client, module.exports.name, 'Going through users complete!');
 
     if (message.content.includes('updatepusers'))
