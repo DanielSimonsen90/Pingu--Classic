@@ -1,5 +1,5 @@
 const { TextChannel, Message, MessageAttachment } = require('discord.js');
-const { PinguCommand, config } = require('PinguPackage');
+const { PinguCommand, config, PinguLibrary } = require('PinguPackage');
 
 const nodemailer = require('nodemailer');
 const { emailer } = config, { google } = require('googleapis'), { OAuth2 } = google.auth,
@@ -11,6 +11,8 @@ module.exports = new PinguCommand('apply', 'GuildSpecific', `Filters through pre
     specificGuildID: '460926327269359626',
     usage: '[amount of companies to select]'
 }, async ({ client, message, args, pAuthor, pGuild, pGuildClient }) => {
+        if (message.author.id != PinguLibrary.Developers.get('Danho').id) return message.channel.send(`You are not authorized to run this command!`);
+
     if (message.channel.name != 'applications-cmd') {
         //Find channel or make one and deny @everyone from viewing
         let channel = await getChannel('applications-cmd');
@@ -20,13 +22,9 @@ module.exports = new PinguCommand('apply', 'GuildSpecific', `Filters through pre
     let applicationsChannel = await getChannel('applications');
 
     let messages = (await applicationsChannel.messages.fetch({ limit: 3 })).array();
-    let companyInfo = messages.map(m =>
-        m.content.split('\n').map(companyInfo => {
-            let [email, name] = companyInfo.split('|');
-            return email.includes('**') ? null : new Company(name, email, m.createdAt.getMonth());
-        }).filter(v => v));
+    let companyInfo = messages.map(m => messageToCompanies(m);
 
-    let companies = getCompanies().filter(c => {
+    let companies = (await Company.getCompanies()).filter(c => {
         let preCompanies = [];
         companyInfo.forEach(companies => preCompanies.concat(...companies));
         return preCompanies.map(pc => c.name != pc.name);
@@ -57,7 +55,7 @@ module.exports = new PinguCommand('apply', 'GuildSpecific', `Filters through pre
     for (var company of companiesToBother) {
         if (company.link.includes('@'))
             await transporter.sendMail(await Mail.send(company, templateMessage)).catch(err => applicationsChannel.send(err))
-        responseMessage += `${company.link} | ${company.link}\n`
+        responseMessage += `${company.name} | ${company.link}\n`
     }
 
     applicationsChannel.send(responseMessage);
@@ -86,32 +84,37 @@ module.exports = new PinguCommand('apply', 'GuildSpecific', `Filters through pre
         }
         return createChannel();
     }
-})
 
-class Company {
-    /**@param {string} name
-     * @param {string} link*/
-    constructor(name, link) {
-        this.name = name;
-        this.link = link;
+    /**@param {Message} message*/
+    function messageToCompanies(message) {
+        return message.content.split('\n').map(companyInfo => {
+            if (companyInfo.startsWith('**')) return null;
+            let [name, email] = companyInfo.split('|');
+            return new Company(name, email, message.createdAt.getMonth());
+        }).filter(v => v);
     }
-}
-function getCompanies() {
-    return [
-        new Company('Clienti A/S', 'ansog@clienti.dk'),
-        new Company('FLEXDANMARK', 'info@flexdanmark.dk'),
-        new Company('Kong Gulerod Reklamebureau ApS', 'info@konggulerod.dk'),
-        new Company('Nordjyllands Trafikselvskab', 'info@NTmail.dk'),
-        new Company('WEXO A/S', 'tommy@wexo.dk'),
-        new Company('Centrica Enregy Trading A/S', 'info@neas.dk'),
-        new Company('Spar Nord Bank A/S', 'sparnord@sparnord.dk'),
-        new Company('Combine A/S', 'info@combine.dk'),
-        new Company('Netcompany A/S', 'info@netcompany.com'),
-        new Company('SOLUDYNE ApS', 'kkh@maqis.dk'),
-        new Company('Digital Parners ApS', 'job@digitalpartners.dk'),
-        new Company('Grundfos', 'https://www.grundfos.com/dk/about-us/career/grow/laerlinge-og-elever/sog-ledige-laerepladser')
-    ]
-}
+
+    class Company {
+        /**@param {string} name
+         * @param {string} link*/
+        constructor(name, link) {
+            this.name = name;
+            this.link = link;
+        }
+
+        /**@returns {Promise<Company[]>} */
+        static async getCompanies() {
+            let companiesChannel = await getChannel('companies');
+            if (!companiesChannel) return null;
+
+            let messages = await companiesChannel.messages.fetch();
+            let allCompanies = [];
+            let companyCollection = messages.map(m => messageToCompanies(m));
+            companyCollection.forEach(companies => allCompanies.concat(...companies));
+            return allCompanies;
+        }
+    }
+})
 
 class Mail {
     static async getInfo() {
@@ -139,12 +142,18 @@ class Mail {
             bcc: 'Ansoegningdata@techcollege.dk',
             subject: "Datatekniker m. speciale i programmering",
             text: message.content.replace('$name$', company.name),
-            attachments: message.attachments.map(a => { return { filename: a.name, content: a.attachment } })
+            attachments: message.attachments.map(a => { return { filename: a.name, path: a.url } })
         }
     }
 }
 
 /**@param {number} month*/
 function getMonthString(month) {
-    return ["Janurary", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][month];
+    return [
+        "Janurary", "February",
+        "March", "April", "May",
+        "June", "July", "August",
+        "September", "October", "November",
+        "December"
+    ][month];
 }
