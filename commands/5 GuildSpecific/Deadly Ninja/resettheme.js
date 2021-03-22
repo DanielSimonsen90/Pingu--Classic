@@ -31,7 +31,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
 
                 (function setInformation() {
                     collection.set('629308933340921856', '👓 Information 👓');
-                    collection.set('752563633464017016', 'rules-ig📜');
+                    collection.set('752563633464017016', 'guidelines📜');
                     collection.set('472484901237686292', 'announcements📢');
                     collection.set('646736836861100043', 'themes🎭');
                     collection.set('781087883259543563', 'themes-log🎭');
@@ -40,7 +40,6 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('505809025221525525', 'promotions🎥');
                     collection.set('639546268410052609', 'roles🤷🏼');
                     collection.set('761266999279878154', 'how-to-get-roles❔');
-                    collection.set('755088361584066632', 'reddit-suggestions🧐');
                 })();
                 (function setChats() {
                     collection.set('405763731713425419', '⌨ Chats 💬');
