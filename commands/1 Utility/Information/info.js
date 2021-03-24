@@ -220,7 +220,7 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
                         .setThumbnail(partner ? partner.avatarURL() : pu.avatar)
                     case 'daily': return new MessageEmbed()
                         .setDescription(`Your current daily streak is at **${(!dailyStreakValid ? 0 : pu.daily.streak)}**`)
-                        .setTimestamp(dailyStreakValid ? pu.daily.nextClaim?.endsAt : Date.now())
+                        .setTimestamp(dailyStreakValid ? pu.daily.nextClaim && pu.daily.nextClaim.endsAt : Date.now())
                         .setFooter(`Viewing information for: ${userType} | Daily claimable at`);
                     case 'sharedServers': return new MessageEmbed().setDescription(sharedServerInfo)
                     case 'playlists': return null //Not implemented

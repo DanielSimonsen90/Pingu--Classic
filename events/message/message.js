@@ -53,16 +53,16 @@ module.exports = new PinguEvent('message',
         let commandName = args.shift();
 
         //If mentioned without prefix
-        if (message.content?.includes(client.user.id) && !args.length && !message.author.bot)
+        if (message.content && message.content.includes(client.user.id) && !args.length && !message.author.bot)
             return message.channel.send(`My prefix is \`${prefix}\``);
 
         //If interacted via @
         commandName = TestTagInteraction();
 
-        var startsWithPrefix = message.content.startsWith(prefix) && !message.author.bot || message.content?.includes(client.user.id);
+        var startsWithPrefix = message.content.startsWith(prefix) && !message.author.bot || message.content && message.content.includes(client.user.id);
 
         //If I'm not interacted with don't do anything
-        if (message.channel.type == 'dm' && (message.author.bot || (await PinguUser.GetPUser(message.author)).replyPerson) && (!startsWithPrefix || commandName?.includes(prefix)))
+        if (message.channel.type == 'dm' && (message.author.bot || (await PinguUser.GetPUser(message.author)).replyPerson) && (!startsWithPrefix || commandName && commandName.includes(prefix)))
             return ExecuteTellReply(message).catch(err => PinguLibrary.errorLog(client, `Failed to execute tell reply`, message.content, err, {
                 params: { client, message },
                 additional: { prefix, args, commandName, startsWithPrefix }
@@ -159,14 +159,14 @@ module.exports = new PinguEvent('message',
             if (command) return command;
 
             let commands = client.commands.array();
-            command = commands.find(cmd => cmd.aliases?.includes(commandName))
+            command = commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName))
             if (command) return command;
 
             //If command assignment failed, assign command
-            commandName = args[0]?.toLowerCase();
+            commandName = args[0] && args[0].toLowerCase();
             if (!commandName) return null;
 
-            command = client.commands.get(commandName) || commands.find(cmd => cmd.aliases?.includes(commandName));
+            command = client.commands.get(commandName) || commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
 
             //Music alias was used
             if (command.name == 'music') {

@@ -19,7 +19,7 @@ module.exports = new PinguCommand('whois', 'Utility', 'Gets the info of specifie
         user = GuildMember ? GuildMember.user : !isNaN(parseInt(args[0])) ? await message.client.users.fetch(args[0]) : message.mentions.users.first() || message.author;
 
     //Promise becomes a user
-    return args[0] != null && user != (GuildMember?.user || true) ?
+    return args[0] != null && user != (GuildMember && GuildMember.user || true) ?
         await SendNonGuildMessage(message, user) :
         await HandleGuildMember(message, GuildMember);
 });

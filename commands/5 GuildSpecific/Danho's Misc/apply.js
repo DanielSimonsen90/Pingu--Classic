@@ -44,7 +44,8 @@ module.exports = new PinguCommand('apply', 'GuildSpecific', `Filters through pre
 
     var transporter = nodemailer.createTransport(await Mail.getInfo());
 
-    let templateMessages = (await (await getChannel('application-template'))?.messages.fetch({ limit: 2 })).array().reverse();
+        let applicationTemplateChannel = await getChannel('application-template');
+    let templateMessages = applicationTemplateChannel && (await applicationTemplateChannel.messages.fetch({ limit: 2 })).array().reverse();
     if (!templateMessages.length) return message.channel.send(`No template message!`);
     let templateMessage = {
         content: templateMessages[0].content,
