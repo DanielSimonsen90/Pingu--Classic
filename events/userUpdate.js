@@ -20,14 +20,8 @@ module.exports = new PinguEvent('userUpdate',
         }
     },
     async function execute(client, preUser, user) {
-        if (user.bot) return;
-
-        let updated = {};
-        if (user.avatarURL() != preUser.avatarURL()) updated.avatar = user.avatarURL();
-        if (user.tag != preUser.tag) updated.tag = user.tag;
-
-        //Neither avatar or tag was updated in this event
-        if (!Object.keys(updated)[0]) return;
+        let updated = await PinguUser.IsUpdated(preUser, user);
+        if (!Object.keys(updated)[0]) 
 
         return await PinguUser.UpdatePUser(client, updated, await PinguUser.GetPUser(user), module.exports.name,
             `Successfully updated **${user.tag}** PinguUser.`,
