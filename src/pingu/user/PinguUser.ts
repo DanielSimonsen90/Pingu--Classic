@@ -38,6 +38,19 @@ export async function DeletePUser(client: Client, user: User, scriptName: string
 export async function GetPUsers(): Promise<PinguUser[]> {
     return (await PinguUserSchema.find({}).exec()).map(collDoc => collDoc.toObject());
 }
+export async function IsUpdated(preUser: User, user: User) {
+    if (user.bot) return;
+
+    const updated = {
+        avatar: null,
+        tag: null
+    };
+
+    if (user.avatarURL() != preUser.avatarURL()) updated.avatar = user.avatarURL();
+    if (user.tag != preUser.tag) updated.tag = user.tag;
+
+    return updated;
+}
 
 export const cache = new Collection<string, PinguUser>(); 
 

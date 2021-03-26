@@ -46,12 +46,12 @@ extends PItem {
     public setCallback<setCBType extends keyof AchievementCallbackParams[Key]>
     (
         type: setCBType,
-        callback: (params: AchievementCallbackParams[Key][setCBType]) => boolean
+        callback: (...params: AchievementCallbackParams[Key][setCBType]) => Promise<boolean>
     ) { 
         this.callback = callback;
         return this;
     }
-    public callback(params: AchievementCallbackParams[Key][keyof AchievementCallbackParams[Key]]) {
+    public async callback(...params: AchievementCallbackParams[Key][keyof AchievementCallbackParams[Key]]) {
         return true;
     }
 
