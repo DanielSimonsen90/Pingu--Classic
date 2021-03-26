@@ -1,0 +1,18 @@
+{
+  "name": "pingupackage",
+  "version": "1.0.0",
+  "description": "Library used to develop Pingu the Discord bot",
+  "main": "live/index.js",
+  "types": "live/index.d.ts",
+  "author": "Daniel Simonsen",
+  "license": "ISC",
+  "dependencies": {
+    "commonjs": "0.0.1",
+    "fliegdoc": "^0.4.7",
+    "fs": "0.0.1-security",
+    "mongoose": "^5.11.15",
+    "request": "^2.88.2",
+    "typescript": "^4.1.5",
+    "ytdl-core": "^4.4.5"
+  }
+}

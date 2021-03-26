@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2015",
+    "declaration": true,
+    "outDir": "./live",
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src/**/*", "src/config.json"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
