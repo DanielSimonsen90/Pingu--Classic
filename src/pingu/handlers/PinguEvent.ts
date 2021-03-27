@@ -9,9 +9,15 @@ import {
 } from 'discord.js'
 
 import { PinguClient, ToPinguClient } from '../client/PinguClient'
-export interface PinguClientEvents extends ClientEvents {
+interface ChosenOnes {
+    chosenGuild: [Guild, PinguGuild],
+    chosenGuildMember: [GuildMember, Guild, PinguGuildMember],
+    chosenUser: [User, PinguUser]
+}
+
+export interface PinguClientEvents extends ClientEvents, ChosenOnes {
     onready: [PinguClient],
-    ondebug: [PinguClient]
+    ondebug: [PinguClient],
 }
 
 import { PinguHandler } from './PinguHandler'
@@ -21,6 +27,8 @@ const PinguLibrary = { errorLog, eventLog, errorCache, SavedServers }
 
 import { PinguGuild } from '../guild/PinguGuild';
 import { Error } from '../../helpers';
+import { PinguGuildMember } from '../guildMember/PinguGuildMember';
+import { PinguUser } from '../user/PinguUser';
 
 export interface PinguEventParams {
     client?: Client,

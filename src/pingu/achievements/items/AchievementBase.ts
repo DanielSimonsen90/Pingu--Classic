@@ -1,11 +1,6 @@
-import { PItem } from "../../../database/json/PItem";
-import { PinguClientEvents } from "../../handlers/PinguEvent";
-import { PinguCommandParams } from "../../handlers/PinguCommand";
-import { Guild } from "discord.js";
-import { Percentage } from "../../../helpers/Percentage";
-
 export type AchieverTypes = 'USER' | 'GUILD' | 'GUILDMEMBER';
 
+import { PinguClientEvents } from "../../handlers/PinguEvent";
 export interface AchievementBaseType {
     CHAT: string,
     EVENT: keyof PinguClientEvents
@@ -14,46 +9,40 @@ export interface AchievementBaseType {
 
 export type noGuildOnlyCommands = 
     'help' | 'info' | 'ping' | 'sort' | 'spinthewheel' | //Utility
-    'fact' | 'gif' | 'meme' | 'noot' | 'daily' | 'tell' |  //Fun
+    'fact' | 'gif' | 'marry' | 'meme' | 'noot' | 'daily' | 'tell' |  //Fun
     'contact' | 'invite'; //Supporting
 export type guildOnlyCommands = 
     'giveaway' | 'poll' | 'suggestion' | 'serverinfo' | 'whois' | 'clear' | 'role' | 'embed' | 'fetch' | 'prefix' | 'publish' | 'reactionroles' | 'slowmode' |
-    'boomer' | 'activity' | 'noice' | 'music' | 'marry' | 'quote' | 'viberate';
+    'boomer' | 'activity' | 'noice' | 'music' | 'quote' | 'viberate';
 export type Commands = noGuildOnlyCommands | guildOnlyCommands
 
+import { Guild, Message, VoiceState } from "discord.js";
+import { PinguCommandParams } from "../../handlers/PinguCommand";
+export interface PinguCommandParamsResponse extends PinguCommandParams {
+    response: Message
+}
+
 export interface AchievementCallbackParams {
-    CHAT: [string],
+    CHAT: [[string]],
     EVENT: PinguClientEvents,
-    COMMAND: [PinguCommandParams]
+    COMMAND: [[PinguCommandParamsResponse]]
+    VOICE: [[VoiceState]]
 }
 
 
-export abstract class AchievementBase
-<Key extends keyof AchievementBaseType, 
-Type extends AchievementBaseType[Key]> 
-extends PItem {
-    constructor(id: number, name: string, key: Key, type: Type, description: string) {
+import { PItem } from "../../../database/json/PItem";
+import { Percentage } from "../../../helpers/Percentage";
+export abstract class AchievementBase extends PItem {
+    constructor(id: number, name: string, description: string) {
         super({ id: id.toString(), name });
-
-        this.key = key;
-        this.type = type;
         this.description = description;
     }
 
-    public key: Key;
-    public type: Type;
-    public description: string
-    public setCallback<setCBType extends keyof AchievementCallbackParams[Key]>
-    (
-        type: setCBType,
-        callback: (...params: AchievementCallbackParams[Key][setCBType]) => Promise<boolean>
-    ) { 
-        this.callback = callback;
-        return this;
-    }
-    public async callback(...params: AchievementCallbackParams[Key][keyof AchievementCallbackParams[Key]]) {
-        return true;
-    }
+    public description: string;
 
+    
     public abstract getPercentage(guild?: Guild): Promise<Percentage>;
+    protected static useCommand(command: Commands, extraInfo: string) {
+        return `Use the \`${command}\` command to ${extraInfo}`;
+    }
 }
