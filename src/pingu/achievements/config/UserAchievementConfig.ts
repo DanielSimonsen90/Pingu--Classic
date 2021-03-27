@@ -1,4 +1,4 @@
-import { UserAchievement, UserAchievementTypeKey } from "../items/UserAchievement";
+import { UserAchievement, UserAchievementType } from "../items/UserAchievement";
 import { Client, MessageEmbed, User } from "discord.js";
 import { AchievementConfigBase } from "../config/AchievementConfigBase";
 
@@ -11,8 +11,8 @@ export class UserAchievementConfig extends AchievementConfigBase {
 
     public notificationType: UserAchievementNotificationType;
 
-    public async notify<Type extends UserAchievementTypeKey>(client: Client, achiever: User, achievement: UserAchievement<Type>) {
-        return super._notify<'USER'>(client, achievement, (percentage => new MessageEmbed()
+    public async notify<Key extends keyof UserAchievementType>(client: Client, achiever: User, achievement: UserAchievement<Key, UserAchievementType[Key]>) {
+        return super._notify(client, achievement, (percentage => new MessageEmbed()
             .setTitle(`🏆 Achievement Unlocked! 🏆\n${achievement.name}`)
             .setDescription(achievement.description)
             .setFooter(`${percentage.value}% of all Pingu users have achieved this!`)

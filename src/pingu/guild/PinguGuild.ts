@@ -37,7 +37,7 @@ export async function UpdatePGuild(client: Client, updatedProperty: object, pGui
         if (err) return PinguLibrary.pGuildLog(client, scriptName, errMsg, err);
         PinguLibrary.pGuildLog(client, scriptName, succMsg);
         
-        cache.set(pGuild._id, await GetPGuild({id: pGuild._id}))
+        cache.set(pGuild._id, await GetPGuild(client.guilds.cache.get(pGuild._id)))
     });
 }
 export async function DeletePGuild(client: Client, guild: Guild, scriptName: string, succMsg: string, errMsg: string): Promise<PinguGuild> {

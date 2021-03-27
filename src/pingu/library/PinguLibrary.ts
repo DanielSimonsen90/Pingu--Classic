@@ -423,7 +423,7 @@ import { GetPGuildMember, UpdatePGuildMember } from "../guildMember/PinguGuildMe
 import { GetPGuild, UpdatePGuild } from "../guild/PinguGuild";
 import { PAchievement } from "../../database/json/PAchievement";
 
-import { UserAchievementConfig } from "../achievements/config/UserAchievementConfig";
+import { UserAchievementConfig, UserAchievementNotificationType } from "../achievements/config/UserAchievementConfig";
 import { GuildMemberAchievementConfig } from "../achievements/config/GuildMemberAchievementConfig";
 import { GuildAchievementConfig } from "../achievements/config/GuildAchievementConfig";
 
@@ -517,9 +517,9 @@ export async function AchievementCheckType
 
     return (function notify() {
         switch (achieverType) {
-            case 'USER': return (config as UserAchievementConfig).notify(client, achiever as User, achievement as UserAchievement<UserAchievementTypeKey>);
-            case 'GUILDMEMBER': return (config as GuildMemberAchievementConfig).notify(client, achiever as GuildMember, achievement as GuildMemberAchievement<GuildMemberAchievementTypeKey>);
-            case 'GUILD': return (config as GuildAchievementConfig).notify(client, achiever as Guild, achievement as GuildAchievement<GuildMemberAchievementTypeKey>);
+            case 'USER': return (config as UserAchievementConfig).notify(client, achiever as User, achievement as UserAchievement<UserAchievementTypeKey, UserAchievementType[UserAchievementTypeKey]>);
+            case 'GUILDMEMBER': return (config as GuildMemberAchievementConfig).notify(client, achiever as GuildMember, achievement as GuildMemberAchievement<GuildMemberAchievementTypeKey, GuildMemberAchievementType[GuildMemberAchievementTypeKey]>);
+            case 'GUILD': return (config as GuildAchievementConfig).notify(client, achiever as Guild, achievement as GuildAchievement<GuildMemberAchievementTypeKey, GuildMemberAchievementType[GuildMemberAchievementTypeKey]>);
             default: return null;
         }
     })();
@@ -530,12 +530,8 @@ interface AchievementCheckData {
     guild?: Guild
 }
 
-interface AllAchievementTypes extends GuildMemberAchievementType, GuildAchievementType, AchievementBaseType {
-    COMMAND: Commands
-}
-
 export async function AchievementCheck
-<AchievementType extends AllAchievementTypes,
+<AchievementType extends GuildMemberAchievementType | GuildAchievementType | AchievementBaseType,
 Key extends keyof AchievementType, Type extends AchievementType[Key]>
 (client: Client, data: AchievementCheckData, key: Key, type: Type) {
     let pUser = await GetPUser(data.user);

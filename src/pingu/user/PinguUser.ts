@@ -26,7 +26,7 @@ export async function UpdatePUser(client: Client, updatedProperty: object, pUser
         if (err) return pUserLog(client, scriptName, errMsg, err);
         pUserLog(client, scriptName, succMsg);
 
-        cache.set(pUser._id, await GetPUser({ id: pUser._id })); 
+        cache.set(pUser._id, await GetPUser(client.users.cache.get(pUser._id))); 
     })
 }
 export async function DeletePUser(client: Client, user: User, scriptName: string, succMsg: string, errMsg: string): Promise<PinguUser> {

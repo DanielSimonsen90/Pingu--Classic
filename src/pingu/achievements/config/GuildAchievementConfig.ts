@@ -1,6 +1,6 @@
 import { Client, Guild, MessageEmbed, Snowflake } from "discord.js";
 import { AchievementConfigBase } from "./AchievementConfigBase";
-import { GuildAchievement, GuildAchievementTypeKey } from "../items/GuildAchievement";
+import { GuildAchievement, GuildAchievementType, GuildAchievementTypeKey } from "../items/GuildAchievement";
 import { GuildMemberAchievementNotificationType } from "../config/GuildMemberAchievementConfig";
 
 export type GuildAchievementNotificationType = 'OWNER' | 'CHANNEL'
@@ -19,9 +19,9 @@ export class GuildAchievementConfig extends AchievementConfigBase {
     public guildID: Snowflake
     public notificationTypes: Notifications;
 
-    public async notify(client: Client, achiever: Guild, achievement: GuildAchievement<GuildAchievementTypeKey>) {
+    public async notify(client: Client, achiever: Guild, achievement: GuildAchievement<GuildAchievementTypeKey, GuildAchievementType[GuildAchievementTypeKey]>) {
         switch (this.notificationTypes.guild) {
-            case 'CHANNEL': return super._notify<'GUILD'>(client, achievement, (percentage => new MessageEmbed()
+            case 'CHANNEL': return super._notify(client, achievement, (percentage => new MessageEmbed()
                 .setTitle(`🏆 Achievement Unlocked! 🏆\n${achievement.name}`)
                 .setDescription(achievement.description)
                 .setFooter(`${achiever.name} is one of the ${percentage.value}% of servers, that have achieved this!`)
@@ -30,7 +30,7 @@ export class GuildAchievementConfig extends AchievementConfigBase {
             ));
             case 'OWNER':
                 let { owner } = achiever;
-                return super._notify<'GUILD'>(client, achievement, (percentage) => new MessageEmbed()
+                return super._notify(client, achievement, (percentage) => new MessageEmbed()
                     .setTitle(`🏆 Achievement Unlocked! 🏆\n${achievement.name}`)
                     .setDescription(achievement.description)
                     .setFooter(`${achiever.name} is one of the ${percentage.value}% of servers, that have achieved this!`)

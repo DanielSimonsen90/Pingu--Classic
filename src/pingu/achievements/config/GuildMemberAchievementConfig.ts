@@ -1,6 +1,6 @@
 import { AchievementConfigBase } from "./AchievementConfigBase";
 import { UserAchievementNotificationType } from "./UserAchievementConfig";
-import { GuildMemberAchievement, GuildMemberAchievementTypeKey } from "../items/GuildMemberAchievement";
+import { GuildMemberAchievement, GuildMemberAchievementType, GuildMemberAchievementTypeKey } from "../items/GuildMemberAchievement";
 import { Client, GuildMember, MessageEmbed } from "discord.js";
 
 export type GuildMemberAchievementNotificationType = UserAchievementNotificationType | 'GUILD'
@@ -12,8 +12,8 @@ export class GuildMemberAchievementConfig extends AchievementConfigBase {
 
     public notificationType: GuildMemberAchievementNotificationType;
 
-    public notify<Type extends GuildMemberAchievementTypeKey>(client: Client, achiever: GuildMember, achievement: GuildMemberAchievement<Type>) {
-        return super._notify<'GUILDMEMBER'>(client, achievement, (percentage => new MessageEmbed()
+    public notify<Key extends keyof GuildMemberAchievementType>(client: Client, achiever: GuildMember, achievement: GuildMemberAchievement<Key, GuildMemberAchievementType[Key]>) {
+        return super._notify(client, achievement, (percentage => new MessageEmbed()
             .setTitle(`🏆 Achievement Unlocked! 🏆\n${achievement.name}`)
             .setDescription(achievement.description)
             .setFooter(`${percentage.value}% of all members have achieved this!`)

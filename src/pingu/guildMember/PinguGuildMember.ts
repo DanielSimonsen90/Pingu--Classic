@@ -51,8 +51,8 @@ export class PinguGuildMember extends PGuildMember {
     //#region Statics
     public static async WritePGuildMember(member: GuildMember, log: boolean) { return WritePGuildMember(member, log); }
     public static async GetPGuildMember(member: GuildMember) { return GetPGuildMember(member); }
-    public static async UpdatePGuildMember(guild: Guild, pGuildMember: PinguGuildMember, scriptName: string, succmsg: string, errMsg: string) 
-    { return UpdatePGuildMember(guild, pGuildMember, scriptName, succmsg, errMsg); }
+    public static async UpdatePGuildMember(member: GuildMember, pGuildMember: PinguGuildMember, scriptName: string, succmsg: string, errMsg: string) 
+    { return UpdatePGuildMember(member, pGuildMember, scriptName, succmsg, errMsg); }
     public static async DeletePGuildMember(member: GuildMember) { return DeletePGuildMember(member); }
     public static async GetPGuildMembers(guild: Guild) { return GetPGuildMembers(guild); }
     //#endregion
