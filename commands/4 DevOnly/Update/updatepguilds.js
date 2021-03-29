@@ -34,8 +34,9 @@ module.exports = new PinguCommand('updatepguilds', 'DevOnly', `Creates new Pingu
                 );
             else {
                 pGuild.settings.config.achievements = new GuildAchievementConfig({
-                    guild: 'NONE',
+                    guild: 'OWNER',
                     members: 'NONE'
+                    //members: 'DM'
                 }, pGuild._id);
                 pGuild.members = new Map();
                 BotGuilds[i].members.cache.array().forEach(gm => {

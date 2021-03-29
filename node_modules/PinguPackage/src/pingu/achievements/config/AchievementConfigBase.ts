@@ -1,18 +1,10 @@
-import { Client, DMChannel, Guild, MessageEmbed, TextChannel } from "discord.js";
+export type AchievementBaseNotificationType = 'NONE';
+
+import { Client, Guild, MessageEmbed, TextChannel } from "discord.js";
 import { PChannel, PAchievement } from "../../../database/json";
 import { Percentage } from "../../../helpers/Percentage";
 import { SavedServers } from "../../library/PinguLibrary";
-import { 
-    GuildAchievement, GuildAchievementType, 
-    GuildMemberAchievement, GuildMemberAchievementType,
-    UserAchievement, UserAchievementType
-} from "../items";
 import { AchievementBase } from "../items/AchievementBase";
-
-type NotifyAchievementType = 
-    GuildAchievement<keyof GuildAchievementType, GuildAchievementType[keyof GuildAchievementType]> |
-    GuildMemberAchievement<keyof GuildMemberAchievementType, GuildMemberAchievementType[keyof GuildMemberAchievementType]> |
-    UserAchievement<keyof UserAchievementType, UserAchievementType[keyof UserAchievementType]>
 
 export abstract class AchievementConfigBase {
     public enabled: boolean = true;

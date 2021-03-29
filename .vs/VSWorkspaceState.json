@@ -4,13 +4,10 @@
     "\\commands",
     "\\commands\\1 Utility",
     "\\commands\\1 Utility\\Server Setup",
-    "\\errors",
-    "\\events",
-    "\\events\\guild",
-    "\\events\\guild\\Ban",
-    "\\events\\guild\\guildMember",
-    "\\events\\message"
+    "\\commands\\4 DevOnly",
+    "\\commands\\4 DevOnly\\Update",
+    "\\errors"
   ],
-  "SelectedNode": "\\events\\message\\message.js",
+  "SelectedNode": "\\Archived",
   "PreviewInSolutionExplorer": false
 }

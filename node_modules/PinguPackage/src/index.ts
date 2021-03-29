@@ -1,4 +1,4 @@
-export { PChannel, PClient, PGuild, PGuildMember, PItem, PMarry, PQueue, PRole, PUser } from './database';
+export { PAchievement, PChannel, PClient, PGuild, PGuildMember, PItem, PMarry, PQueue, PRole, PUser } from './database';
 
 export { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from './decidable/config';
 export { Giveaway, Poll, Suggestion, Theme, Decidable } from './decidable/items';
