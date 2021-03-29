@@ -2,6 +2,7 @@ import { Client, Guild, MessageEmbed, Snowflake } from "discord.js";
 import { AchievementConfigBase } from "./AchievementConfigBase";
 import { GuildAchievement, GuildAchievementType, GuildAchievementTypeKey } from "../items/GuildAchievement";
 import { GuildMemberAchievementNotificationType } from "../config/GuildMemberAchievementConfig";
+import { ToPinguClient } from "../../client/PinguClient";
 
 export type GuildAchievementNotificationType = 'OWNER' | 'CHANNEL'
 
@@ -19,15 +20,17 @@ export class GuildAchievementConfig extends AchievementConfigBase {
     public guildID: Snowflake
     public notificationTypes: Notifications;
 
-    public async notify(client: Client, achiever: Guild, achievement: GuildAchievement<GuildAchievementTypeKey, GuildAchievementType[GuildAchievementTypeKey]>) {
-        switch (this.notificationTypes.guild) {
+    public static async notify(client: Client, achiever: Guild, achievement: GuildAchievement<GuildAchievementTypeKey, GuildAchievementType[GuildAchievementTypeKey]>, config: GuildAchievementConfig) {
+        const color = ToPinguClient(client).DefaultEmbedColor;
+        switch (config.notificationTypes.guild) {
             case 'CHANNEL': return super._notify(client, achievement, (percentage => new MessageEmbed()
                 .setTitle(`🏆 Achievement Unlocked! 🏆\n${achievement.name}`)
                 .setDescription(achievement.description)
                 .setFooter(`${achiever.name} is one of the ${percentage.value}% of servers, that have achieved this!`)
                 .setTimestamp(Date.now())
                 .setThumbnail(achiever.iconURL())
-            ));
+                .setColor(color)
+            ), config.channel);
             case 'OWNER':
                 let { owner } = achiever;
                 return super._notify(client, achievement, (percentage) => new MessageEmbed()
@@ -35,9 +38,10 @@ export class GuildAchievementConfig extends AchievementConfigBase {
                     .setDescription(achievement.description)
                     .setFooter(`${achiever.name} is one of the ${percentage.value}% of servers, that have achieved this!`)
                     .setTimestamp(Date.now())
-                    .setThumbnail(achiever.iconURL()
-                ), await owner.createDM());
-            default: throw { message: `GuildNotificationType **${this.notificationTypes.guild}** was not recognized!`};
+                    .setThumbnail(achiever.iconURL())
+                    .setColor(color)
+                    , {_id: (await owner.createDM()).id });
+            default: throw { message: `GuildNotificationType **${config.notificationTypes.guild}** was not recognized!`};
         }
     }
 }

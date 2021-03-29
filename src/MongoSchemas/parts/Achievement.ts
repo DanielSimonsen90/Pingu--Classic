@@ -1,4 +1,4 @@
 export const Achievement = {
-    id: String,
+    _id: String,
     achievedAt: Date
 }

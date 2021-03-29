@@ -316,6 +316,12 @@ export async function eventLog(client: Client, content: MessageEmbed) {
     LoggedCache.unshift(content);
     return await eventLogChannel.send(content);
 }
+export async function achievementLog(client: Client, achievementEmbed: MessageEmbed) {
+    const achievementChannel = getTextChannel(client, SavedServers.PinguSupport(client).id, 'achievement-log-🏆');
+    if (!achievementChannel) return DanhoDM(`Couldn't get #achievement-log-🏆 channel in Pingu Support, ${PinguSupportInvite}`);
+
+    return achievementChannel.send(achievementEmbed);
+}
 export async function tellLog(client: Client, sender: User, reciever: User, message: Message | MessageEmbed) {
     if (!ToPinguClient(client).isLive) return;
 
@@ -365,7 +371,7 @@ export async function tellLog(client: Client, sender: User, reciever: User, mess
 export async function latencyCheck(message: Message) {
     //Get latency
     let pingChannel = getTextChannel(message.client, SavedServers.PinguSupport(message.client).id, "ping-log-🏓");
-    if (!pingChannel) return DanhoDM(`Couldn't get #ping-log-🏓 channel in Pingu Support, ${PinguLibrary.PinguSupportInvite}`)
+    if (!pingChannel) return DanhoDM(`Couldn't get #ping-log-🏓 channel in Pingu Support, ${PinguSupportInvite}`)
 
     if (message.channel == pingChannel || message.author.bot) return null;
 
@@ -413,7 +419,7 @@ export async function raspberryLog(client: Client) {
 //#endregion
 
 //#region Achievements
-import { AchieverTypes, Commands, noGuildOnlyCommands, guildOnlyCommands, AchievementBaseType } from "../achievements/items/AchievementBase";
+import { AchieverTypes, AchievementBaseType } from "../achievements/items/AchievementBase";
 import { UserAchievement, UserAchievementType, UserAchievementTypeKey } from "../achievements/items/UserAchievement";
 import { GuildMemberAchievement, GuildMemberAchievementType, GuildMemberAchievementTypeKey } from "../achievements/items/GuildMemberAchievement";
 import { GuildAchievement, GuildAchievementType, GuildAchievementTypeKey } from "../achievements/items/GuildAchievement";
@@ -423,7 +429,7 @@ import { GetPGuildMember, UpdatePGuildMember } from "../guildMember/PinguGuildMe
 import { GetPGuild, UpdatePGuild } from "../guild/PinguGuild";
 import { PAchievement } from "../../database/json/PAchievement";
 
-import { UserAchievementConfig, UserAchievementNotificationType } from "../achievements/config/UserAchievementConfig";
+import { UserAchievementConfig } from "../achievements/config/UserAchievementConfig";
 import { GuildMemberAchievementConfig } from "../achievements/config/GuildMemberAchievementConfig";
 import { GuildAchievementConfig } from "../achievements/config/GuildAchievementConfig";
 
@@ -517,9 +523,9 @@ export async function AchievementCheckType
 
     return (function notify() {
         switch (achieverType) {
-            case 'USER': return (config as UserAchievementConfig).notify(client, achiever as User, achievement as UserAchievement<UserAchievementTypeKey, UserAchievementType[UserAchievementTypeKey]>);
-            case 'GUILDMEMBER': return (config as GuildMemberAchievementConfig).notify(client, achiever as GuildMember, achievement as GuildMemberAchievement<GuildMemberAchievementTypeKey, GuildMemberAchievementType[GuildMemberAchievementTypeKey]>);
-            case 'GUILD': return (config as GuildAchievementConfig).notify(client, achiever as Guild, achievement as GuildAchievement<GuildMemberAchievementTypeKey, GuildMemberAchievementType[GuildMemberAchievementTypeKey]>);
+            case 'USER': return UserAchievementConfig.notify(client, achiever as User, achievement as UserAchievement<UserAchievementTypeKey, UserAchievementType[UserAchievementTypeKey]>);
+            case 'GUILDMEMBER': return GuildMemberAchievementConfig.notify(client, achiever as GuildMember, achievement as GuildMemberAchievement<GuildMemberAchievementTypeKey, GuildMemberAchievementType[GuildMemberAchievementTypeKey]>, config as GuildMemberAchievementConfig);
+            case 'GUILD': return GuildAchievementConfig.notify(client, achiever as Guild, achievement as GuildAchievement<GuildMemberAchievementTypeKey, GuildMemberAchievementType[GuildMemberAchievementTypeKey]>, config as GuildAchievementConfig);
             default: return null;
         }
     })();
@@ -662,6 +668,15 @@ export class PinguLibrary {
     public static async tellLog(client: Client, sender: User, reciever: User, message: Message | MessageEmbed) { return tellLog(client, sender, reciever, message); }
     public static async latencyCheck(message: Message) { return latencyCheck(message); }
     public static async raspberryLog(client: Client) { return raspberryLog(client); }
+    //#endregion
+
+    //#region Achievement
+    public static async AchievementCheck
+    <AchievementType extends GuildMemberAchievementType | GuildAchievementType | AchievementBaseType,
+    Key extends keyof AchievementType, Type extends AchievementType[Key]>
+    (client: Client, data: AchievementCheckData, key: Key, type: Type) {
+        return AchievementCheck<AchievementType, Key, Type>(client, data, key, type);
+    }
     //#endregion
 
     //#region Statics

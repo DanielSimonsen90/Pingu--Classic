@@ -19,11 +19,10 @@ export abstract class AchievementConfigBase {
     public channel: PChannel;
     public achievements: PAchievement[];
 
-    protected async _notify
-    (client: Client, achievement: AchievementBase, embed: (percentage: Percentage) => MessageEmbed, channel?: DMChannel | TextChannel, guild?: Guild) {
-        let announceChannel = channel? channel : (await client.channels.fetch(this.channel._id) as TextChannel);
-        let percentage = await achievement.getPercentage(guild);
-        let message = await announceChannel.send(embed(percentage));
+    protected static async _notify
+    (client: Client, achievement: AchievementBase, embed: (percentage: Percentage) => MessageEmbed, channel: {_id: string}, guild?: Guild) {
+        const [announceChannel, percentage] = await Promise.all([client.channels.fetch(channel._id), achievement.getPercentage(guild)]);
+        let message = await (announceChannel as TextChannel).send(embed(percentage));
         await message.react(SavedServers.PinguSupport(client).emojis.cache.find(e => e.name == 'hypers'));
         return message;
     }

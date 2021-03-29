@@ -24,16 +24,17 @@ export async function WritePGuild(client: Client, guild: Guild, scriptName: stri
 }
 export async function GetPGuild(guild: Guild): Promise<PinguGuild> {
     if (!guild) return null;
-    let pGuildDoc = await PinguGuildSchema.findOne({ _id: guild.id }).exec();
+    let pGuildDoc = await PinguGuildSchema.findOne({ _id: guild.id as unknown }).exec();
     if (!pGuildDoc) return null;
-    cache.set(guild.id, pGuildDoc.toObject());
-    return pGuildDoc.toObject();
+    let pGuild = pGuildDoc.toObject()  as unknown  as PinguGuild;
+    cache.set(guild.id, pGuild);
+    return pGuild;
 }
 export async function UpdatePGuild(client: Client, updatedProperty: object, pGuild: PinguGuild, scriptName: string, succMsg: string, errMsg: string) {
     let guild = await client.guilds.fetch(pGuild._id);
     if (!guild) throw new Error(`Guild not found!`);
 
-    return await PinguGuildSchema.updateOne({ _id: pGuild._id }, updatedProperty, null, async err => {
+    return await PinguGuildSchema.updateOne({ _id: pGuild._id as unknown }, updatedProperty, null, async err => {
         if (err) return PinguLibrary.pGuildLog(client, scriptName, errMsg, err);
         PinguLibrary.pGuildLog(client, scriptName, succMsg);
         
@@ -47,7 +48,7 @@ export async function DeletePGuild(client: Client, guild: Guild, scriptName: str
     });
 }
 export async function GetPGuilds(): Promise<PinguGuild[]> {
-    return (await PinguGuildSchema.find({}).exec()).map(collDoc => collDoc.toObject());
+    return (await PinguGuildSchema.find({}).exec()).map(collDoc => collDoc.toObject())  as unknown  as PinguGuild[];
 }
 //#endregion
 
