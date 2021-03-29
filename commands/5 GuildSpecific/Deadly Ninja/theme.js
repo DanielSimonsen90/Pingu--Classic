@@ -18,6 +18,6 @@ module.exports = new PinguCommand('theme', 'GuildSpecific', `Themes for Danho's 
         decidablesType: 'Theme',
         reactionEmojis: ['🎭'],
         listEmojis: ['⬅️', '🗑️', '➡️', '🛑'],
-        config: pGuild.settings.config.themeConfig
+        config: pGuild.settings.config.decidables.themeConfig
     })
 });

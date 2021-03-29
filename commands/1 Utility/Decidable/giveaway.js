@@ -12,6 +12,6 @@ module.exports = new PinguCommand('giveaway', 'Utility', 'Giveaway time!', {
         decidablesType: 'Giveaway',
         reactionEmojis: ['🤞'],
         listEmojis: ['⬅️', '🗑️', '➡️', '🛑'],
-        config: pGuild.settings.config.giveawayConfig
+        config: pGuild.settings.config.decidables.giveawayConfig
     })
 });

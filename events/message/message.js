@@ -240,24 +240,19 @@ module.exports = new PinguEvent('message',
                 var pGuildClient = message.guild && pGuild ? client.toPClient(pGuild) : null
                 var parameters = { client, message, args, pGuild, pAuthor, pGuildMember, pGuildClient }
 
-                await command.execute(parameters);
+                let achievementParams = { ...parameters, response: await command.execute(parameters) };
                 ConsoleLog += `**succeeded!**`;
 
                 const achieverClasses = {
-                    USER: message.author,
-                    GUILDMEMBER: message.member,
-                    GUILD: message.guild
-                };
-                const achieverConfigs = {
-                    USER: pAuthor.achievementConfig,
-                    GUILDMEMBER: pGuildMember.achievementsConfig,
-                    GUILD: pGuild.settings.config.achievements
+                    user: message.author,
+                    guildMember: message.member,
+                    guild: message.guild
                 };
 
-                await PinguLibrary.AchievementCheck(client, achieverClasses, achieverConfigs, 'COMMAND', command.name).catch(err => {
+                await PinguLibrary.AchievementCheck(client, achieverClasses, 'COMMAND', command.name).catch(err => {
                     PinguLibrary.errorLog(client, `Handling COMMAND achievement check`, message.content, err, {
-                        params: parameters,
-                        additional: { achieverClasses, achieverConfigs }
+                        params: achievementParams,
+                        additional: { achieverClasses }
                     })
                 })
             } catch (err) {

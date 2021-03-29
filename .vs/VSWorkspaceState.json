@@ -2,11 +2,15 @@
   "ExpandedNodes": [
     "",
     "\\commands",
-    "\\commands\\4 DevOnly",
-    "\\commands\\5 GuildSpecific",
-    "\\commands\\5 GuildSpecific\\Danho's Misc",
-    "\\commands\\5 GuildSpecific\\Deadly Ninja"
+    "\\commands\\1 Utility",
+    "\\commands\\1 Utility\\Server Setup",
+    "\\errors",
+    "\\events",
+    "\\events\\guild",
+    "\\events\\guild\\Ban",
+    "\\events\\guild\\guildMember",
+    "\\events\\message"
   ],
-  "SelectedNode": "\\commands\\5 GuildSpecific\\Deadly Ninja\\resettheme.js",
+  "SelectedNode": "\\events\\message\\message.js",
   "PreviewInSolutionExplorer": false
 }
