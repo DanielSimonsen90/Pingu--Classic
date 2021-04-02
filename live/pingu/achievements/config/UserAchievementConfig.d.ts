@@ -1,7 +1,7 @@
 import { UserAchievement, UserAchievementType } from "../items/UserAchievement";
 import { Client, User } from "discord.js";
-import { AchievementConfigBase } from "../config/AchievementConfigBase";
-export declare type UserAchievementNotificationType = 'DM';
+import { AchievementConfigBase, AchievementBaseNotificationType } from "../config/AchievementConfigBase";
+export declare type UserAchievementNotificationType = AchievementBaseNotificationType | 'DM';
 export declare class UserAchievementConfig extends AchievementConfigBase {
     constructor(notificationType: UserAchievementNotificationType);
     notificationType: UserAchievementNotificationType;

@@ -542,15 +542,15 @@ Key extends keyof AchievementType, Type extends AchievementType[Key]>
 (client: Client, data: AchievementCheckData, key: Key, type: Type) {
     let pUser = await GetPUser(data.user);
     
-    let givenAchievement = AchievementCheckType(client, 'USER', data.user, key as keyof UserAchievementType, type as unknown as string, pUser.achievementConfig);
+    let givenAchievement = await AchievementCheckType(client, 'USER', data.user, key as keyof UserAchievementType, type as unknown as string, pUser.achievementConfig);
 
     if (data.guild) {
         let pGuild = await GetPGuild(data.guild);
-        givenAchievement ?? AchievementCheckType(client, 'GUILD', data.guild, key as keyof GuildAchievementType, type as unknown as string, pGuild.settings.config.achievements);
+        givenAchievement ?? await AchievementCheckType(client, 'GUILD', data.guild, key as keyof GuildAchievementType, type as unknown as string, pGuild.settings.config.achievements);
     }
     if (data.guildMember) {
         let pGuildMember = await GetPGuildMember(data.guildMember);
-        givenAchievement ?? AchievementCheckType(client, 'GUILDMEMBER', data.guildMember, key as keyof GuildMemberAchievementType, type as unknown as string, pGuildMember.achievementsConfig);
+        givenAchievement ?? await AchievementCheckType(client, 'GUILDMEMBER', data.guildMember, key as keyof GuildMemberAchievementType, type as unknown as string, pGuildMember.achievementsConfig);
     }
     return givenAchievement != null;
 }

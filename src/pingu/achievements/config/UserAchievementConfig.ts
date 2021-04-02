@@ -1,9 +1,9 @@
 import { UserAchievement, UserAchievementType } from "../items/UserAchievement";
 import { Client, MessageEmbed, User } from "discord.js";
-import { AchievementConfigBase } from "../config/AchievementConfigBase";
+import { AchievementConfigBase, AchievementBaseNotificationType } from "../config/AchievementConfigBase";
 import { ToPinguClient } from "../../client/PinguClient";
 
-export type UserAchievementNotificationType = 'DM'
+export type UserAchievementNotificationType = AchievementBaseNotificationType | 'DM'
 export class UserAchievementConfig extends AchievementConfigBase {
     constructor(notificationType: UserAchievementNotificationType) {
         super();

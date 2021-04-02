@@ -1,8 +1,8 @@
 import { Client, Guild, Snowflake } from "discord.js";
-import { AchievementConfigBase } from "./AchievementConfigBase";
+import { AchievementConfigBase, AchievementBaseNotificationType } from "./AchievementConfigBase";
 import { GuildAchievement, GuildAchievementType, GuildAchievementTypeKey } from "../items/GuildAchievement";
 import { GuildMemberAchievementNotificationType } from "../config/GuildMemberAchievementConfig";
-export declare type GuildAchievementNotificationType = 'OWNER' | 'CHANNEL';
+export declare type GuildAchievementNotificationType = AchievementBaseNotificationType | 'OWNER' | 'CHANNEL';
 interface Notifications {
     guild: GuildAchievementNotificationType;
     members: GuildMemberAchievementNotificationType;

@@ -1,10 +1,10 @@
 import { Client, Guild, MessageEmbed, Snowflake } from "discord.js";
-import { AchievementConfigBase } from "./AchievementConfigBase";
+import { AchievementConfigBase, AchievementBaseNotificationType } from "./AchievementConfigBase";
 import { GuildAchievement, GuildAchievementType, GuildAchievementTypeKey } from "../items/GuildAchievement";
 import { GuildMemberAchievementNotificationType } from "../config/GuildMemberAchievementConfig";
 import { ToPinguClient } from "../../client/PinguClient";
 
-export type GuildAchievementNotificationType = 'OWNER' | 'CHANNEL'
+export type GuildAchievementNotificationType = AchievementBaseNotificationType | 'OWNER' | 'CHANNEL'
 
 interface Notifications {
     guild: GuildAchievementNotificationType,

@@ -472,14 +472,14 @@ exports.AchievementCheckType = AchievementCheckType;
 function AchievementCheck(client, data, key, type) {
     return __awaiter(this, void 0, void 0, function* () {
         let pUser = yield PinguUser_1.GetPUser(data.user);
-        let givenAchievement = AchievementCheckType(client, 'USER', data.user, key, type, pUser.achievementConfig);
+        let givenAchievement = yield AchievementCheckType(client, 'USER', data.user, key, type, pUser.achievementConfig);
         if (data.guild) {
             let pGuild = yield PinguGuild_1.GetPGuild(data.guild);
-            givenAchievement !== null && givenAchievement !== void 0 ? givenAchievement : AchievementCheckType(client, 'GUILD', data.guild, key, type, pGuild.settings.config.achievements);
+            givenAchievement !== null && givenAchievement !== void 0 ? givenAchievement : yield AchievementCheckType(client, 'GUILD', data.guild, key, type, pGuild.settings.config.achievements);
         }
         if (data.guildMember) {
             let pGuildMember = yield PinguGuildMember_1.GetPGuildMember(data.guildMember);
-            givenAchievement !== null && givenAchievement !== void 0 ? givenAchievement : AchievementCheckType(client, 'GUILDMEMBER', data.guildMember, key, type, pGuildMember.achievementsConfig);
+            givenAchievement !== null && givenAchievement !== void 0 ? givenAchievement : yield AchievementCheckType(client, 'GUILDMEMBER', data.guildMember, key, type, pGuildMember.achievementsConfig);
         }
         return givenAchievement != null;
     });

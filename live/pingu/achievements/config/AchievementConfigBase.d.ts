@@ -1,3 +1,4 @@
+export declare type AchievementBaseNotificationType = 'NONE';
 import { Client, Guild, MessageEmbed } from "discord.js";
 import { PChannel, PAchievement } from "../../../database/json";
 import { Percentage } from "../../../helpers/Percentage";
