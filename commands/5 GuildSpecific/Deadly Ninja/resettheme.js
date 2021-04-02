@@ -59,12 +59,21 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('801101138043863080', 'Women Gaymers');
                     collection.set('475616873115811860', 'Schleepy💤');
                 })();
+                (function setStreaming() {
+                    collection.set('826102288338780221', '🎙️ Streaming 📹');
+                    collection.set('826102383238184990', 'stream-announcements📢');
+                    collection.set('826102461600235630', 'stream-clips🎬');
+                    collection.set('826909661268934697', "I'm on stream🔴");
+                    collection.set('826909732576821259', "I'm on stream too🔴");
+                })();
                 (function setBotSpam() {
                     collection.set('472714293012332554', '🤖 Bot Spam 👾');
                     collection.set('641887302418956318', 'daily-spam🌅');
                     collection.set('474129152065273866', 'bot-spam🤖');
                     collection.set('655020851216908289', 'music-bots📻');
                     collection.set('472484741023531012', 'memes😂');
+                    collection.set('752613661800923147', 'bot-updates🔔');
+                    collection.set('801030503531806720', 'bot-status🔔');
                 })();
                 (function setPrivateChannels() {
                     collection.set('652207743880527886', '🤫 Private Channels 🔐');
@@ -113,9 +122,8 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                 (function setManagement() {
                     collection.set('752613523858784264', '🔧 Management 🕵🏼');
                     collection.set('651046560863354891', 'big-boi-place🤵🏻');
+                    collection.set('825013875635519548', 'biggest-bois-only');
                     collection.set('752613635179675648', 'logs📝');
-                    collection.set('752613661800923147', 'bot-updates🔔');
-                    collection.set('801030503531806720', 'bot-status🔔');
                 })();
                 (function setBigBoiGrouping() {
                     collection.set('752571680089702522', '🧍🏽 Big Boi Grouping 👫🏽');
@@ -153,6 +161,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                 (function setManagement() {
                     collection.set('816289109705883678', new Role("Upper Management", 0));
                     collection.set('816289454259830784', new Role("Birthday Child", "#cc2b1a"));
+                    collection.set('822469954040234044', new Role("Pog Streamer", "#9247FF"));
                     collection.set('549611213374488578', new Role("—=—=— Managment Roles —=—=—", 0));
                     collection.set('762403363727736844', new Role("Creator", '#b99bf3'));
                     collection.set('672100455127711774', new Role("Theme Winner", '#ff75fa'));
@@ -275,7 +284,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                 return collection;
             })();
             for (var item of defaultRoles) {
-                let id = item[0], role = item[1];
+                let [id, role] = item;
 
                 let currentRole = roles.get(id);
                 if (!currentRole || currentRole.name == role.name && (typeof role.color == 'string' && currentRole.hexColor == role.color || currentRole.color == role.color)) continue;
