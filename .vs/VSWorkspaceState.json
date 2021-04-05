@@ -2,14 +2,12 @@
   "ExpandedNodes": [
     "",
     "\\commands",
+    "\\commands\\1 Utility",
+    "\\commands\\3 Supporting",
     "\\commands\\4 DevOnly",
-    "\\commands\\4 DevOnly\\Update",
-    "\\commands\\5 GuildSpecific",
-    "\\commands\\5 GuildSpecific\\Deadly Ninja",
-    "\\errors",
-    "\\events",
-    "\\events\\guild"
+    "\\commands\\4 DevOnly\\pfps",
+    "\\commands\\4 DevOnly\\Set"
   ],
-  "SelectedNode": "\\commands\\4 DevOnly\\Update\\updatepusers.js",
+  "SelectedNode": "\\commands\\4 DevOnly\\pfps\\Greeny_boi.png",
   "PreviewInSolutionExplorer": false
 }
