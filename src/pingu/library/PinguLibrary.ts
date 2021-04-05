@@ -420,9 +420,9 @@ export async function raspberryLog(client: Client) {
 
 //#region Achievements
 import { AchieverTypes, AchievementBaseType } from "../achievements/items/AchievementBase";
-import { UserAchievement, UserAchievementType, UserAchievementTypeKey } from "../achievements/items/UserAchievement";
-import { GuildMemberAchievement, GuildMemberAchievementType, GuildMemberAchievementTypeKey } from "../achievements/items/GuildMemberAchievement";
-import { GuildAchievement, GuildAchievementType, GuildAchievementTypeKey } from "../achievements/items/GuildAchievement";
+import { UserAchievement, UserAchievementType, UserAchievementTypeKey, UserAchievementCallbackParams } from "../achievements/items/UserAchievement";
+import { GuildMemberAchievement, GuildMemberAchievementType, GuildMemberAchievementTypeKey, GuildMemberAchievementCallbackParams } from "../achievements/items/GuildMemberAchievement";
+import { GuildAchievement, GuildAchievementType, GuildAchievementTypeKey, GuildAchievementCallbackParams } from "../achievements/items/GuildAchievement";
 
 import { GetPUser, UpdatePUser } from "../user/PinguUser";
 import { GetPGuildMember, UpdatePGuildMember } from "../guildMember/PinguGuildMember";
@@ -453,16 +453,26 @@ interface Achievers {
     GUILDMEMBER: GuildMember,
     GUILD: Guild
 }
+interface AchievementCallbackParams {
+    USER: UserAchievementCallbackParams,
+    GUILDMEMBER: GuildMemberAchievementCallbackParams,
+    GUILD: GuildAchievementCallbackParams
+}
 export async function AchievementCheckType
     <AchieverType extends AchieverTypes,
-    AchievementType extends Achievements[AchieverType]>
+    AchievementType extends Achievements[AchieverType],
+    Key extends keyof AchievementTypes[AchieverType],
+    Type extends AchievementTypes[AchieverType][Key],
+    CallbackKey extends keyof AchievementCallbackParams[AchieverType]>
     (
         client: Client,
         achieverType: AchieverType, 
         achiever: Achievers[AchieverType], 
-        key: keyof AchievementTypes[AchieverType], 
-        keyType: AchievementTypes[AchieverType][keyof AchievementTypes[AchieverType]],
-        config: AchieverConfigs[AchieverType]
+        key: Key, 
+        keyType: Type,
+        config: AchieverConfigs[AchieverType],
+        callbackKey: CallbackKey,
+        callback: AchievementCallbackParams[AchieverType][CallbackKey][keyof AchievementCallbackParams[AchieverType][CallbackKey]]
     ) {
     const filter = (arr: AchievementType[]) =>  arr.filter(i => i.key == key && i.type == (keyType as any));
 
@@ -485,7 +495,14 @@ export async function AchievementCheckType
         }
     })()).map(pa => pa._id);
 
-    let achievement = allAchievements.find(a => !pAchievements.includes(a._id));
+    //Find an achievement matching Key & Type, that achiever doesn't have, and the achievement's callback returns true
+    let achievement = await (async function Find() {
+        for (const a of allAchievements)
+            if (!pAchievements.includes(a._id) && await a.callback(callback as never))
+                return a;
+        return null;
+    })();
+
     if (!achievement) return null;
 
     let pAchievement = new PAchievement({
@@ -538,19 +555,44 @@ interface AchievementCheckData {
 
 export async function AchievementCheck
 <AchievementType extends GuildMemberAchievementType | GuildAchievementType | AchievementBaseType,
-Key extends keyof AchievementType, Type extends AchievementType[Key]>
-(client: Client, data: AchievementCheckData, key: Key, type: Type) {
+Key extends keyof AchievementType, Type extends AchievementType[Key],>
+(client: Client, data: AchievementCheckData, key: Key, type: Type, callback: any[]) {
     let pUser = await GetPUser(data.user);
-    
-    let givenAchievement = await AchievementCheckType(client, 'USER', data.user, key as keyof UserAchievementType, type as unknown as string, pUser.achievementConfig);
+    let givenAchievement = await AchievementCheckType(
+        client, 
+        'USER', 
+        data.user, 
+        key as keyof UserAchievementType, 
+        type as unknown as string, pUser.achievementConfig, 
+        key as keyof UserAchievementType, 
+        callback as never
+    );
 
     if (data.guild) {
         let pGuild = await GetPGuild(data.guild);
-        givenAchievement ?? await AchievementCheckType(client, 'GUILD', data.guild, key as keyof GuildAchievementType, type as unknown as string, pGuild.settings.config.achievements);
+        givenAchievement = await AchievementCheckType(
+            client, 
+            'GUILD', 
+            data.guild, 
+            key as keyof GuildAchievementType, 
+            type as unknown as string, 
+            pGuild.settings.config.achievements, 
+            key as keyof GuildAchievementType, 
+            callback as never
+        );
     }
     if (data.guildMember) {
         let pGuildMember = await GetPGuildMember(data.guildMember);
-        givenAchievement ?? await AchievementCheckType(client, 'GUILDMEMBER', data.guildMember, key as keyof GuildMemberAchievementType, type as unknown as string, pGuildMember.achievementsConfig);
+        givenAchievement = await AchievementCheckType(
+            client, 
+            'GUILDMEMBER', 
+            data.guildMember, 
+            key as keyof GuildMemberAchievementType, 
+            type as unknown as string, 
+            pGuildMember.achievementsConfig, 
+            key as keyof GuildMemberAchievementType, 
+            callback as never
+        );
     }
     return givenAchievement != null;
 }
@@ -674,8 +716,8 @@ export class PinguLibrary {
     public static async AchievementCheck
     <AchievementType extends GuildMemberAchievementType | GuildAchievementType | AchievementBaseType,
     Key extends keyof AchievementType, Type extends AchievementType[Key]>
-    (client: Client, data: AchievementCheckData, key: Key, type: Type) {
-        return AchievementCheck<AchievementType, Key, Type>(client, data, key, type);
+    (client: Client, data: AchievementCheckData, key: Key, type: Type, callbackParams: any[]) {
+        return AchievementCheck<AchievementType, Key, Type>(client, data, key, type, callbackParams);
     }
     //#endregion
 

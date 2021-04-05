@@ -10,6 +10,7 @@ import { IUserAchievement } from "./IAchievementBase";
 import { User } from "discord.js";
 import { GetPUsers, GetPUser, IsUpdated } from "../../user/PinguUser";
 import { Percentage } from "../../../helpers";
+import { SavedServers } from "../../library/PinguLibrary";
 
 export class UserAchievement
 <Key extends keyof UserAchievementType, 
@@ -90,5 +91,7 @@ extends AchievementBase implements IUserAchievement<Key, Type, AchievementCallba
         new UserAchievement(21, "Can I have your autograph?", 'COMMAND', 'contact', "Use the `contact` command to get information about Pingu's Owner"),
         new UserAchievement(22, "You! With me.", 'COMMAND', 'invite', "Use the `invite` command to invite Pingu to your server"),
         new UserAchievement(23, "Marry me!", 'COMMAND', 'marry', "Use the `marry` command to marry someone"),
+        new UserAchievement(24, "I'm the chosen one!", 'EVENT', 'chosenUser', "Become the chosen user in Pingu Support")
+            .setCallback('chosenUser', async ([user, pUser]) => pUser.sharedServers.find(pg => pg._id == SavedServers.PinguSupport(user.client).id) != null)
     ];
 }

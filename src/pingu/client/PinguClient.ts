@@ -1,4 +1,4 @@
-import { ActivityOptions, ActivityType, Client, ClientEvents, ClientOptions, Collection, GuildChannel, Message } from "discord.js";
+import { ActivityOptions, ActivityType, Client, ClientEvents, ClientOptions, Collection } from "discord.js";
 import * as fs from 'fs';
 
 export const Clients = {
@@ -9,7 +9,7 @@ export function ToPinguClient(client: Client) {
     return client as PinguClient;
 }
 
-import { errorLog, DanhoDM, Developers, SavedServers, isPinguDev } from '../library/PinguLibrary';
+import { errorLog, DanhoDM, Developers, AchievementCheckType } from '../library/PinguLibrary';
 import { PinguGuild } from '../guild/PinguGuild';
 
 import { PinguCommand, PinguEvent, PinguClientEvents } from '../handlers';
@@ -21,7 +21,7 @@ export class PinguClient extends Client {
     public static Clients = Clients;
     public static ToPinguClient(client: Client) { return ToPinguClient(client); }
 
-    constructor(config: IConfigRequirements, subscribedEvents: [keyof ClientEvents], commandsPath?: string, evensPath?: string, options?: ClientOptions) {
+    constructor(config: IConfigRequirements, subscribedEvents: [keyof PinguClientEvents], commandsPath?: string, evensPath?: string, options?: ClientOptions) {
         super(options);
 
         this.config = new Config(config);
@@ -42,6 +42,7 @@ export class PinguClient extends Client {
     public DefaultEmbedColor = 3447003;
     public DefaultPrefix: string;
     public subscribedEvents: [keyof PinguClientEvents];
+    public config: Config;
 
     //Pubic methods
     public setActivity(options?: ActivityOptions) {
@@ -93,28 +94,33 @@ export class PinguClient extends Client {
         return pGuild.clients.find(c => c && c._id == this.user.id);
     }
 
-    private handleEvent<eventType extends keyof PinguClientEvents>(caller: eventType, ...args: PinguClientEvents[eventType]) {
-        if (this.subscribedEvents.includes(caller)) 
-            PinguEvent.HandleEvent(caller, this, this.events.get(caller).path, ...args as PinguClientEvents[eventType]);
-        return this;
-    }
+    public emit<K extends keyof PinguClientEvents>(key: K, ...args: PinguClientEvents[K]) {
+        const chosenEvents = ['chosenUser', 'chosenGuild'];
 
-    private getEventParams<eventType extends keyof PinguClientEvents>(client: PinguClient, caller: eventType, ...args: PinguClientEvents[eventType]) {
-        switch (caller) {
-            case 'ready': case 'onready': return { caller: (caller == 'onready' ? 'ready' : caller) as eventType, args: [client] as PinguClientEvents[eventType] }
-            case 'debug': case 'ondebug': return { caller: (caller == 'ondebug' ? 'debug' : caller) as eventType, args: [client] as PinguClientEvents[eventType] }
-            default: return { caller: caller as eventType, args: args as PinguClientEvents[eventType] };
-        }
+        if (chosenEvents.includes(key)) return AchievementCheckType(
+            this, 
+            key.substring(6, key.length).toUpperCase() as any, 
+            args[0], 
+            'EVENT', 
+            key, (function getConfig(){
+                switch (key) {
+                    case 'chosenUser': return (args[1] as any).achievementConfig;
+                    case 'chosenGuild': return (args[1] as PinguGuild).settings.config.achievements;
+                    default: return null;
+                }
+            })(), 
+            key, 
+            args
+        )
+
+        return true;
     }
 
     async login(token?: string){
-        let res = await super.login(token);        
+        let result = await super.login(token);        
         this.DefaultPrefix = this.isLive || !this.config.BetaPrefix ? this.config.Prefix : this.config.BetaPrefix;
-        return res;
+        return result;
     }
-
-    //Private properties
-    public config: Config;
 
     //Private methods
     private HandlePath(path: string, type: 'command' | 'event') {
@@ -148,6 +154,19 @@ export class PinguClient extends Client {
             } catch (err) {
                 DanhoDM(`"${file}" threw an exception:\n${err.message}\n${err.stack}\n`)
             }
+        }
+    }
+    private handleEvent<eventType extends keyof PinguClientEvents>(caller: eventType, ...args: PinguClientEvents[eventType]) {
+        if (this.subscribedEvents.includes(caller)) 
+            PinguEvent.HandleEvent(caller, this, this.events.get(caller).path, ...args as PinguClientEvents[eventType]);
+        return this;
+    }
+
+    private getEventParams<eventType extends keyof PinguClientEvents>(client: PinguClient, caller: eventType, ...args: PinguClientEvents[eventType]) {
+        switch (caller) {
+            case 'ready': case 'onready': return { caller: (caller == 'onready' ? 'ready' : caller) as eventType, args: [client] as PinguClientEvents[eventType] }
+            case 'debug': case 'ondebug': return { caller: (caller == 'ondebug' ? 'debug' : caller) as eventType, args: [client] as PinguClientEvents[eventType] }
+            default: return { caller: caller as eventType, args: args as PinguClientEvents[eventType] };
         }
     }
 }

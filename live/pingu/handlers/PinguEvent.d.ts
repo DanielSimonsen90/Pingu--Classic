@@ -2,7 +2,6 @@ import { Client, Collection, Message, MessageReaction, Invite, Guild, GuildMembe
 import { PinguClient } from '../client/PinguClient';
 interface ChosenOnes {
     chosenGuild: [Guild, PinguGuild];
-    chosenGuildMember: [GuildMember, Guild, PinguGuildMember];
     chosenUser: [User, PinguUser];
 }
 export interface PinguClientEvents extends ClientEvents, ChosenOnes {
@@ -11,7 +10,6 @@ export interface PinguClientEvents extends ClientEvents, ChosenOnes {
 }
 import { PinguHandler } from './PinguHandler';
 import { PinguGuild } from '../guild/PinguGuild';
-import { PinguGuildMember } from '../guildMember/PinguGuildMember';
 import { PinguUser } from '../user/PinguUser';
 export interface PinguEventParams {
     client?: Client;

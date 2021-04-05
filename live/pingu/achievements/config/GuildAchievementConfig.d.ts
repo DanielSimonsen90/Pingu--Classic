@@ -11,6 +11,6 @@ export declare class GuildAchievementConfig extends AchievementConfigBase {
     constructor(notificationTypes: Notifications, guildID: Snowflake);
     guildID: Snowflake;
     notificationTypes: Notifications;
-    static notify(client: Client, achiever: Guild, achievement: GuildAchievement<GuildAchievementTypeKey, GuildAchievementType[GuildAchievementTypeKey]>, config: GuildAchievementConfig): Promise<import("discord.js").Message>;
+    static notify(client: Client, achiever: Guild, achievement: GuildAchievement<GuildAchievementTypeKey, GuildAchievementType[GuildAchievementTypeKey]>, config: GuildAchievementConfig): any;
 }
 export {};

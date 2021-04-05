@@ -408,7 +408,7 @@ const PAchievement_1 = require("../../database/json/PAchievement");
 const UserAchievementConfig_1 = require("../achievements/config/UserAchievementConfig");
 const GuildMemberAchievementConfig_1 = require("../achievements/config/GuildMemberAchievementConfig");
 const GuildAchievementConfig_1 = require("../achievements/config/GuildAchievementConfig");
-function AchievementCheckType(client, achieverType, achiever, key, keyType, config) {
+function AchievementCheckType(client, achieverType, achiever, key, keyType, config, callbackKey, callback) {
     return __awaiter(this, void 0, void 0, function* () {
         const filter = (arr) => arr.filter(i => i.key == key && i.type == keyType);
         let allAchievements = filter((function getAllAchievements() {
@@ -431,7 +431,15 @@ function AchievementCheckType(client, achieverType, achiever, key, keyType, conf
                 }
             });
         })()).map(pa => pa._id);
-        let achievement = allAchievements.find(a => !pAchievements.includes(a._id));
+        //Find an achievement matching Key & Type, that achiever doesn't have, and the achievement's callback returns true
+        let achievement = yield (function Find() {
+            return __awaiter(this, void 0, void 0, function* () {
+                for (const a of allAchievements)
+                    if (!pAchievements.includes(a._id) && (yield a.callback(callback)))
+                        return a;
+                return null;
+            });
+        })();
         if (!achievement)
             return null;
         let pAchievement = new PAchievement_1.PAchievement({
@@ -469,17 +477,17 @@ function AchievementCheckType(client, achieverType, achiever, key, keyType, conf
     });
 }
 exports.AchievementCheckType = AchievementCheckType;
-function AchievementCheck(client, data, key, type) {
+function AchievementCheck(client, data, key, type, callback) {
     return __awaiter(this, void 0, void 0, function* () {
         let pUser = yield PinguUser_1.GetPUser(data.user);
-        let givenAchievement = yield AchievementCheckType(client, 'USER', data.user, key, type, pUser.achievementConfig);
+        let givenAchievement = yield AchievementCheckType(client, 'USER', data.user, key, type, pUser.achievementConfig, key, callback);
         if (data.guild) {
             let pGuild = yield PinguGuild_1.GetPGuild(data.guild);
-            givenAchievement !== null && givenAchievement !== void 0 ? givenAchievement : yield AchievementCheckType(client, 'GUILD', data.guild, key, type, pGuild.settings.config.achievements);
+            givenAchievement = yield AchievementCheckType(client, 'GUILD', data.guild, key, type, pGuild.settings.config.achievements, key, callback);
         }
         if (data.guildMember) {
             let pGuildMember = yield PinguGuildMember_1.GetPGuildMember(data.guildMember);
-            givenAchievement !== null && givenAchievement !== void 0 ? givenAchievement : yield AchievementCheckType(client, 'GUILDMEMBER', data.guildMember, key, type, pGuildMember.achievementsConfig);
+            givenAchievement = yield AchievementCheckType(client, 'GUILDMEMBER', data.guildMember, key, type, pGuildMember.achievementsConfig, key, callback);
         }
         return givenAchievement != null;
     });
@@ -612,9 +620,9 @@ class PinguLibrary {
     }
     //#endregion
     //#region Achievement
-    static AchievementCheck(client, data, key, type) {
+    static AchievementCheck(client, data, key, type, callbackParams) {
         return __awaiter(this, void 0, void 0, function* () {
-            return AchievementCheck(client, data, key, type);
+            return AchievementCheck(client, data, key, type, callbackParams);
         });
     }
     //#endregion
