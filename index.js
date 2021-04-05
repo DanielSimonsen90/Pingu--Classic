@@ -12,7 +12,8 @@
         'guildBanAdd', 'guildBanRemove', 'guildCreate', 'guildDelete', 'guildIntegrationsUpdate', 'guildUnavailable', 'guildUpdate', 'presenceUpdate', 'voiceStateUpdate',      //guild
         'messageReactionAdd', 'messageReactionRemove', 'messageReactionRemoveAll', 'messageReactionRemoveEmoji',                                                                //messageReaction
         'message', 'messageDelete', 'messageDeleteBulk', 'messageUpdate',                                                                                                       //message
-        'userUpdate'                                                                                                                                                            //user
+        'userUpdate',                                                                                                                                                           //user
+        'chosenUser', 'chosenGuild'                                                                                                                        //chosen
     ], './commands', './events');
 
     try { var { token } = require('../../PinguBetaToken.json'); /*throw null*/ }

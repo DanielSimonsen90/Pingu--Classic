@@ -18,7 +18,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
 
         const channels = message.guild.channels.cache.sort((a, b) => a.position < b.position);
         const roles = message.guild.roles.cache.sort((a, b) => a.position < b.position);
-        const deadlyNinja = {
+        const previousTheme = {
             iconURL: message.guild.iconURL(),
             name: message.guild.name
         };
@@ -299,10 +299,10 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                 name: "Deadly Ninja"
             };
 
-            if (deadlyNinja.iconURL != defaultDeadlyNinja.iconURL) await message.guild.setIcon(defaultDeadlyNinja.iconURL, reason);
-            if (deadlyNinja.name != defaultDeadlyNinja.name) await message.guild.setName(defaultDeadlyNinja.name, reason);
+            if (previousTheme.iconURL != defaultDeadlyNinja.iconURL) await message.guild.setIcon(defaultDeadlyNinja.iconURL, reason);
+            if (previousTheme.name != defaultDeadlyNinja.name) await message.guild.setName(defaultDeadlyNinja.name, reason);
             if (message.guild.splashURL() != defaultDeadlyNinja.iconURL) await message.guild.setSplash(defaultDeadlyNinja.iconURL, reason);
         })();
 
-        return message.channel.send(`May **${deadlyNinja.name}** only live in our memories...`);
+        return message.channel.send(`May **${previousTheme.name}** only live in our memories...`);
 })

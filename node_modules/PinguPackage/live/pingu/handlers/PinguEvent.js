@@ -124,16 +124,13 @@ function GoThroughObjectArray(type, preArr, newArr) {
 }
 exports.GoThroughObjectArray = GoThroughObjectArray;
 function HandleEvent(caller, client, path, ...args) {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             var event = require(`../../../../..${path}`);
         }
         catch (err) {
-            console.log({
-                err,
-                caller,
-                path
-            });
+            console.log({ err, caller, path });
             return; /*await PinguLibrary.errorLog(client, `Unable to get event for ${caller}`, null, new Error(err));*/
         }
         if (!event || !event.execute && !event.setContent)
@@ -154,10 +151,7 @@ function HandleEvent(caller, client, path, ...args) {
                 }));
         }
         catch (err) {
-            if (!PinguLibrary.errorCache) {
-                let { errorCache } = require('../library/PinguLibrary');
-                PinguLibrary.errorCache = errorCache;
-            }
+            (_a = PinguLibrary.errorCache) !== null && _a !== void 0 ? _a : require('../library/PinguLibrary').errorCache;
             PinguLibrary.errorLog(client, err.message, JSON.stringify(args, null, 2), err, {
                 params: { caller, client, path, args: Object.assign({}, args) },
                 additional: { event }
@@ -247,9 +241,11 @@ function HandleEvent(caller, client, path, ...args) {
                 }
                 function CreateEmbed() {
                     return __awaiter(this, void 0, void 0, function* () {
-                        let user = client.users.cache.find(u => u.tag == emitAssociator);
-                        let guild = client.guilds.cache.find(g => g.name == emitAssociator);
-                        let executed = new Date(Date.now());
+                        let [user, guild, executed] = [
+                            client.users.cache.find(u => u.tag == emitAssociator),
+                            client.guilds.cache.find(g => g.name == emitAssociator),
+                            new Date(Date.now())
+                        ];
                         function getDoubleDigit(num) {
                             return num < 10 ? `0${num}` : `${num}`;
                         }
@@ -265,13 +261,12 @@ function HandleEvent(caller, client, path, ...args) {
                             yield event.setContent(...args);
                             if (!event.content)
                                 return null;
-                            defaultEmbed = CombineEmbeds();
-                            function CombineEmbeds() {
+                            defaultEmbed = (function CombineEmbeds() {
                                 for (var key in event.content)
                                     if (event.content[key])
                                         defaultEmbed[key] = event.content[key];
                                 return defaultEmbed;
-                            }
+                            })();
                         }
                         return !defaultEmbed.description && (defaultEmbed.fields && defaultEmbed.fields[0] || true) ? null : defaultEmbed;
                         function getColor() {

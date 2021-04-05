@@ -84,28 +84,26 @@ class PinguClient extends discord_js_1.Client {
     toPClient(pGuild) {
         return pGuild.clients.find(c => c && c._id == this.user.id);
     }
-    handleEvent(caller, ...args) {
-        if (this.subscribedEvents.includes(caller))
-            handlers_1.PinguEvent.HandleEvent(caller, this, this.events.get(caller).path, ...args);
-        return this;
-    }
-    getEventParams(client, caller, ...args) {
-        switch (caller) {
-            case 'ready':
-            case 'onready': return { caller: (caller == 'onready' ? 'ready' : caller), args: [client] };
-            case 'debug':
-            case 'ondebug': return { caller: (caller == 'ondebug' ? 'debug' : caller), args: [client] };
-            default: return { caller: caller, args: args };
-        }
+    emit(key, ...args) {
+        const chosenEvents = ['chosenUser', 'chosenGuild'];
+        if (chosenEvents.includes(key))
+            return PinguLibrary_1.AchievementCheckType(this, key.substring(6, key.length).toUpperCase(), args[0], 'EVENT', key, (function getConfig() {
+                switch (key) {
+                    case 'chosenUser': return args[1].achievementConfig;
+                    case 'chosenGuild': return args[1].settings.config.achievements;
+                    default: return null;
+                }
+            })(), key, args);
+        return true;
     }
     login(token) {
         const _super = Object.create(null, {
             login: { get: () => super.login }
         });
         return __awaiter(this, void 0, void 0, function* () {
-            let res = yield _super.login.call(this, token);
+            let result = yield _super.login.call(this, token);
             this.DefaultPrefix = this.isLive || !this.config.BetaPrefix ? this.config.Prefix : this.config.BetaPrefix;
-            return res;
+            return result;
         });
     }
     //Private methods
@@ -142,6 +140,20 @@ class PinguClient extends discord_js_1.Client {
             catch (err) {
                 PinguLibrary_1.DanhoDM(`"${file}" threw an exception:\n${err.message}\n${err.stack}\n`);
             }
+        }
+    }
+    handleEvent(caller, ...args) {
+        if (this.subscribedEvents.includes(caller))
+            handlers_1.PinguEvent.HandleEvent(caller, this, this.events.get(caller).path, ...args);
+        return this;
+    }
+    getEventParams(client, caller, ...args) {
+        switch (caller) {
+            case 'ready':
+            case 'onready': return { caller: (caller == 'onready' ? 'ready' : caller), args: [client] };
+            case 'debug':
+            case 'ondebug': return { caller: (caller == 'ondebug' ? 'debug' : caller), args: [client] };
+            default: return { caller: caller, args: args };
         }
     }
 }

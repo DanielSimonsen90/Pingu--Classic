@@ -13,6 +13,7 @@ exports.UserAchievement = void 0;
 const AchievementBase_1 = require("./AchievementBase");
 const PinguUser_1 = require("../../user/PinguUser");
 const helpers_1 = require("../../../helpers");
+const PinguLibrary_1 = require("../../library/PinguLibrary");
 class UserAchievement extends AchievementBase_1.AchievementBase {
     constructor(id, name, key, type, description) {
         super(id, name, description);
@@ -83,4 +84,6 @@ UserAchievement.Achievements = [
     new UserAchievement(21, "Can I have your autograph?", 'COMMAND', 'contact', "Use the `contact` command to get information about Pingu's Owner"),
     new UserAchievement(22, "You! With me.", 'COMMAND', 'invite', "Use the `invite` command to invite Pingu to your server"),
     new UserAchievement(23, "Marry me!", 'COMMAND', 'marry', "Use the `marry` command to marry someone"),
+    new UserAchievement(24, "I'm the chosen one!", 'EVENT', 'chosenUser', "Become the chosen user in Pingu Support")
+        .setCallback('chosenUser', ([user, pUser]) => __awaiter(void 0, void 0, void 0, function* () { return pUser.sharedServers.find(pg => pg._id == PinguLibrary_1.SavedServers.PinguSupport(user.client).id) != null; }))
 ];
