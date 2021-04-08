@@ -301,8 +301,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
             if (deadlyNinja.name != defaultDeadlyNinja.name) await message.guild.setName(defaultDeadlyNinja.name, reason);
             if (message.guild.splashURL() != defaultDeadlyNinja.iconURL) await message.guild.setSplash(defaultDeadlyNinja.iconURL, reason);
         })()
-    ])
-
+    ]);
 
     return message.channel.send(`May **${deadlyNinja.name}** only live in our memories...`);
 })
