@@ -37,7 +37,7 @@ module.exports = new PinguCommand('update', 'DevOnly', 'Reloads a script', {
         var permCheck = PinguLibrary.PermissionCheck(message, 'SEND_MESSAGES');
         if (permCheck != PinguLibrary.PermissionGranted) return message.author.send(`${permCheck}\nBut I have updated ${script}!`)
     }
-    message.channel.send(`\`${script}\` was updated!`);
+    return message.channel.send(`\`${script}\` was updated!`);
 });
 
 /**@returns {string} */

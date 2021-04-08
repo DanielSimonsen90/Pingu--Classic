@@ -32,7 +32,8 @@ function PermissionCheck(message, args) {
     return args[0].toLowerCase() != "log" && message.channel.type == 'dm' ? `I can't execute that command in DMs!` : PinguLibrary.PermissionGranted;
 }
 /**@param {Message} message 
- * @param {number} amount*/
+ * @param {number} amount
+ * @returns {Promise<Message>}*/
 async function ClearMessages(message, amount) {
     return message.channel.bulkDelete(amount).catch(err =>
         PinguLibrary.errorLog(message.client, `Failed to remove message`, message.content, err)
@@ -67,7 +68,7 @@ async function SpecificClear(message, args, SpecificUser) {
     let cacheSize = messageCache.length - 1;
 
 
-    message.delete().then(async () => {
+    return message.delete().then(async () => {
         while (messagesRemoved != messagesToRemove) {
             if (messageCache[cacheSize].author.id == SpecificUser.id) {
                 await messageCache[cacheSize].delete();

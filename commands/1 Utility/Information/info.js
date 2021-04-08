@@ -39,13 +39,15 @@ module.exports = new PinguCommand('info', 'Utility', 'All da information you nee
  * @param {'guild' | 'user' | 'client'} type
  * @param {PinguGuild | PinguUser | PClient} obj
  * @param {string} prop
- * @param {PClient} pGuildClient*/
+ * @param {PClient} pGuildClient
+ * @returns {MessageEmbed}*/
 async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
     let arr = [];
     let result = await (type == 'guild' ? SendPGuild(obj) :
         type == 'user' ? SendPUser(obj) : SendPClient(obj));
 
     result.forEach(i => i && message.channel.send(i));
+    return result[0];
 
     /**@param {PinguGuild} pg*/
     async function SendPGuild(pg) {

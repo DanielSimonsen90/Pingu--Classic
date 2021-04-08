@@ -34,7 +34,7 @@ module.exports = new PinguCommand('fact', 'Fun', 'Pingu facts woah', {
         Fact = Math.floor(Math.random() * (Facts.length - 1)),
         Title = Fact <= 8 ? "Penguin Facts" : Fact <= 16 ? "Club Penguin Facts" : "Pingu (TV) Facts";
 
-    message.channel.send(new MessageEmbed()
+    return message.channel.send(new MessageEmbed()
         .setTitle(Title)
         .setDescription(Facts[Fact])
         .setColor(message.channel.type != 'dm' ? pGuildClient.embedColor : client.DefaultEmbedColor)

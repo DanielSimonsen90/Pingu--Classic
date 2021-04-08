@@ -6,6 +6,6 @@ module.exports = new PinguEvent('chosenGuild',
         return module.exports.content = new MessageEmbed().setDescription(`PinguGuild, ${pGuild.name} (${pGuild._id}) as been selected for Server of the Day`);
     },
     async function execute(client, guild, pGuild) {
-        PinguLibrary.AchievementCheck(client, { guild }, 'EVENT', 'chosenGuild', [guild, pGuild]);
+        return PinguLibrary.AchievementCheck(client, { guild }, 'EVENT', 'chosenGuild', [guild, pGuild]);
     }
 )

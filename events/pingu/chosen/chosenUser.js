@@ -6,6 +6,6 @@ module.exports = new PinguEvent('chosenUser',
         return module.exports.content = new MessageEmbed().setDescription(`PinguUser, ${pUser.tag} (${pUser._id}) as been selected for User of the Day`);
     },
     async function execute(client, user, pUser) {
-        PinguLibrary.AchievementCheck(client, { user }, 'EVENT', 'chosenUser', [user, pUser]);
+        return PinguLibrary.AchievementCheck(client, { user }, 'EVENT', 'chosenUser', [user, pUser]);
     }
 )

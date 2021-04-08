@@ -11,8 +11,8 @@ module.exports = new PinguCommand('apply', 'GuildSpecific', `Filters through pre
     specificGuildID: '460926327269359626',
     usage: '[amount of companies to select]'
 }, async ({ client, message, args, pAuthor, pGuild, pGuildClient }) => {
-        if (message.author.id != PinguLibrary.Developers.get('Danho').id)
-            return message.channel.send(`You are not authorized to run this command!`);
+    if (message.author.id != PinguLibrary.Developers.get('Danho').id)
+        return message.channel.send(`You are not authorized to run this command!`);
 
     if (message.channel.name != 'applications-cmd') {
         //Find channel or make one and deny @everyone from viewing
@@ -44,7 +44,7 @@ module.exports = new PinguCommand('apply', 'GuildSpecific', `Filters through pre
 
     var transporter = nodemailer.createTransport(await Mail.getInfo());
 
-        let applicationTemplateChannel = await getChannel('application-template');
+    let applicationTemplateChannel = await getChannel('application-template');
     let templateMessages = applicationTemplateChannel && (await applicationTemplateChannel.messages.fetch({ limit: 2 })).array().reverse();
     if (!templateMessages.length) return message.channel.send(`No template message!`);
     let templateMessage = {
@@ -60,7 +60,7 @@ module.exports = new PinguCommand('apply', 'GuildSpecific', `Filters through pre
         responseMessage += `${company.name} | ${company.link}\n`
     }
 
-    applicationsChannel.send(responseMessage);
+    return applicationsChannel.send(responseMessage);
 
     /**@param {string} name
       @returns {Promise<TextChannel>}*/

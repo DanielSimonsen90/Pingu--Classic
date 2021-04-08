@@ -59,5 +59,6 @@ module.exports = new PinguCommand('updatepguilds', 'DevOnly', `Creates new Pingu
 
     if (message.content.includes('updatepguilds'))
         message.react('✅');
+    return message;
     //PinguLibrary.pGuildLog(message.client, module.exports.name, 'Going through servers complete!');
 });

@@ -4,122 +4,124 @@ const ytdl = require('ytdl-core'), YouTube = require('simple-youtube-api');
 const { youtube_api } = config;
 var youTube = new YouTube(youtube_api), commandName = "", ms = require('ms');
 
-module.exports = { ...new PinguCommand('music', 'Fun', 'Plays music', {
-    usage: `<play <link | search>> | volume [new volume] | move <posA> <posB> | stop | skip | nowplaying | queue | pause | resume>`,
-    guildOnly: true,
-    example: ["play https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
-    aliases: [
-        'join', 'summon',
-        'disconnect', 'dc',
-        'play', 'p',
-        'playskip', 'ps',
-        'remove', 'yeet',
-        'stop', 'st',
-        'skip', 'sk',
-        'nowplaying', 'np',
-        'volume', 'vol',
-        'queue', 'q',
-        'pause', 'stfu',
-        'resume', 'speak',
-        'move', 'mo',
-        'loop', 'repeat',
-        'restart', 'previous',
-        'shuffle'
-    ]
-}, async ({ message, args }) => {
-    const voiceChannel = message.member.voice.channel,
-        PermCheck = PermissionCheck(message, voiceChannel);
-    if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
+module.exports = {
+    ...new PinguCommand('music', 'Fun', 'Plays music', {
+        usage: `<play <link | search>> | volume [new volume] | move <posA> <posB> | stop | skip | nowplaying | queue | pause | resume>`,
+        guildOnly: true,
+        example: ["play https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
+        aliases: [
+            'join', 'summon',
+            'disconnect', 'dc',
+            'play', 'p',
+            'playskip', 'ps',
+            'remove', 'yeet',
+            'stop', 'st',
+            'skip', 'sk',
+            'nowplaying', 'np',
+            'volume', 'vol',
+            'queue', 'q',
+            'pause', 'stfu',
+            'resume', 'speak',
+            'move', 'mo',
+            'loop', 'repeat',
+            'restart', 'previous',
+            'shuffle'
+        ]
+    }, async ({ message, args }) => {
+        const voiceChannel = message.member.voice.channel,
+            PermCheck = PermissionCheck(message, voiceChannel);
+        if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
 
-    commandName = args.shift().toLowerCase();
-    var queue = Queue.get(message.guild.id);
+        commandName = args.shift().toLowerCase();
+        var queue = Queue.get(message.guild.id);
 
-    switch (commandName) {
-        case "join": case "summon": return HandleJoin(message, args.join(' '));
-        case "disconnect": case "dc": return HandleDisconnect(message, queue);
-        case "play": case "p": return HandlePlay(message, args, voiceChannel, queue);
-        case "playskip": case "ps": return queue ?
-            HandlePlaySkip(message, queue, args) :
-            HandlePlay(message, args, voiceChannel, queue);
+        switch (commandName) {
+            case "join": case "summon": return HandleJoin(message, args.join(' '));
+            case "disconnect": case "dc": return HandleDisconnect(message, queue);
+            case "play": case "p": return HandlePlay(message, args, voiceChannel, queue);
+            case "playskip": case "ps": return queue ?
+                HandlePlaySkip(message, queue, args) :
+                HandlePlay(message, args, voiceChannel, queue);
+        }
+
+        if (!queue) return message.channel.send('Nothing is playing!');
+        if (!queue.currentSong) queue.index = 0;
+
+        var command = module.exports.musicCommands.find(cmd => [cmd.name, cmd.alias].includes(commandName))
+        if (!command) return message.channel.send(`I didn't recognize that command!`);
+
+        if (["pause", "stfu", "resume", "speak"].includes(commandName))
+            return HandlePauseResume(message, queue, ["pause", "stfu"].includes(commandName));
+        else if (['vol', 'volume'].includes(commandName))
+            return HandleVolume(message, queue, args[0]);
+        else return command.cmdHandler(message, queue, args);
+    }), ...{
+        musicCommands: [
+            { name: "join", alias: "summon", cmdHandler: HandleJoin },
+            { name: "disconnect", alias: "dc", cmdHandler: HandleDisconnect },
+            { name: "play", alias: "p", cmdHandler: HandlePlay },
+            { name: "playskip", alias: "ps", cmdHandler: HandlePlaySkip },
+            { name: "remove", alias: "yeet", cmdHandler: HandleRemove },
+            { name: "stop", alias: "st", cmdHandler: HandleStop },
+            { name: "skip", alias: "sk", cmdHandler: HandleSkip },
+            { name: "nowplaying", alias: "np", cmdHandler: HandleNowPlaying },
+            { name: "volume", alias: "vol", cmdHandler: HandleVolume },
+            { name: "queue", alias: "q", cmdHandler: HandleQueue },
+            { name: "pause", alias: "stfu", cmdHandler: HandlePauseResume },
+            { name: "resume", alias: "speak", cmdHandler: HandlePauseResume },
+            { name: "move", alias: "mo", cmdHandler: HandleMove },
+            { name: "loop", alias: "repeat", cmdHandler: HandleLoop },
+            { name: "restart", alias: "previous", cmdHandler: HandleRestart },
+            { name: "shuffle", cmdHandler: HandleShuffle }
+        ],
+        /**@param {Message} message
+         * @param {Queue} queue
+         * @param {boolean} pauseRequest*/
+        async ReactControlPanel(message, queue, pauseRequest) {
+            await (async function ReactEmojis() {
+                await message.react('🔀')
+                await message.react('⏮️');
+                await message.react(pauseRequest ? '▶️' : '⏸️')
+                await message.react('⏹️');
+                await message.react('⏭️');
+                await message.react('🔁');
+                await message.react('🔂');
+                await message.react('🇶');
+                await message.react('🤔');
+            })();
+
+            /**@param {MessageReaction} reaction
+             * @param {User} user*/
+            const filter = (_, user) =>
+                message.channel.id == queue.logChannel.id && //Reaction message came from logChannel
+                message.guild.member(user).voice.channel.id == queue.voiceChannel.id && //Reactor is in queue's VC
+                !user.bot; //Not the penguin
+
+            try {
+                message.createReactionCollector(filter, { time: queue.currentSong.lengthMS })
+                    .on('collect', async (reaction, user) => {
+                        if (!user.bot) reaction.users.remove(user);
+
+                        let response = await (function getResponse() {
+                            switch (reaction.emoji.name) {
+                                case '🔀': return HandleShuffle(message, queue);
+                                case '⏮️': return HandleRestart(message, queue, ["song"]);
+                                case '⏸️': case '▶️': return HandlePauseResume(message, queue, reaction.emoji.name == '⏸️');
+                                case '⏹️': return HandleStop(message, queue);
+                                case '⏭️': return HandleSkip(message, queue);
+                                case '🔁': return HandleLoop(message, queue, ['queue']);
+                                case '🔂': return HandleLoop(message, queue, ['song']);
+                                case '🇶': HandleQueue(message, queue); return null;
+                                case '🤔': return HandleNowPlaying(message, queue);
+                                default: return null;
+                            }
+                        })();
+                        if (response) response.delete({ timeout: 5000 });
+                    })
+            } catch { /*Null checking cus I cant be bothered to deal with in if-statements*/ }
+        }
     }
-
-    if (!queue) return message.channel.send('Nothing is playing!');
-    if (!queue.currentSong) queue.index = 0;
-
-    var command = module.exports.musicCommands.find(cmd => [cmd.name, cmd.alias].includes(commandName))
-    if (!command) return message.channel.send(`I didn't recognize that command!`);
-
-    if (["pause", "stfu", "resume", "speak"].includes(commandName))
-        HandlePauseResume(message, queue, ["pause", "stfu"].includes(commandName));
-    else if (['vol', 'volume'].includes(commandName))
-        HandleVolume(message, queue, args[0]);
-    else command.cmdHandler(message, queue, args);
-}), ...{
-    musicCommands: [
-        { name: "join", alias: "summon", cmdHandler: HandleJoin },
-        { name: "disconnect", alias: "dc", cmdHandler: HandleDisconnect },
-        { name: "play", alias: "p", cmdHandler: HandlePlay },
-        { name: "playskip", alias: "ps", cmdHandler: HandlePlaySkip },
-        { name: "remove", alias: "yeet", cmdHandler: HandleRemove },
-        { name: "stop", alias: "st", cmdHandler: HandleStop },
-        { name: "skip", alias: "sk", cmdHandler: HandleSkip },
-        { name: "nowplaying", alias: "np", cmdHandler: HandleNowPlaying },
-        { name: "volume", alias: "vol", cmdHandler: HandleVolume },
-        { name: "queue", alias: "q", cmdHandler: HandleQueue },
-        { name: "pause", alias: "stfu", cmdHandler: HandlePauseResume },
-        { name: "resume", alias: "speak", cmdHandler: HandlePauseResume },
-        { name: "move", alias: "mo", cmdHandler: HandleMove },
-        { name: "loop", alias: "repeat", cmdHandler: HandleLoop },
-        { name: "restart", alias: "previous", cmdHandler: HandleRestart },
-        { name: "shuffle", cmdHandler: HandleShuffle }
-    ],
-    /**@param {Message} message
-     * @param {Queue} queue
-     * @param {boolean} pauseRequest*/
-    async ReactControlPanel(message, queue, pauseRequest) {
-        await (async function ReactEmojis() {
-            await message.react('🔀')
-            await message.react('⏮️');
-            await message.react(pauseRequest ? '▶️' : '⏸️')
-            await message.react('⏹️');
-            await message.react('⏭️');
-            await message.react('🔁');
-            await message.react('🔂');
-            await message.react('🇶');
-            await message.react('🤔');
-        })();
-
-        /**@param {MessageReaction} reaction
-         * @param {User} user*/
-        const filter = (_, user) =>
-            message.channel.id == queue.logChannel.id && //Reaction message came from logChannel
-            message.guild.member(user).voice.channel.id == queue.voiceChannel.id && //Reactor is in queue's VC
-            !user.bot; //Not the penguin
-
-        try {
-            message.createReactionCollector(filter, { time: queue.currentSong.lengthMS })
-                .on('collect', async (reaction, user) => {
-                    if (!user.bot) reaction.users.remove(user);
-
-                    let response = await (function getResponse() {
-                        switch (reaction.emoji.name) {
-                            case '🔀': return HandleShuffle(message, queue);
-                            case '⏮️': return HandleRestart(message, queue, ["song"]);
-                            case '⏸️': case '▶️': return HandlePauseResume(message, queue, reaction.emoji.name == '⏸️');
-                            case '⏹️': return HandleStop(message, queue);
-                            case '⏭️': return HandleSkip(message, queue);
-                            case '🔁': return HandleLoop(message, queue, ['queue']);
-                            case '🔂': return HandleLoop(message, queue, ['song']);
-                            case '🇶': HandleQueue(message, queue); return null;
-                            case '🤔': return HandleNowPlaying(message, queue);
-                            default: return null;
-                        }
-                    })();
-                    if (response) response.delete({ timeout: 5000 });
-                })
-        } catch { /*Null checking cus I cant be bothered to deal with in if-statements*/ }
-    }
-}};
+};
 
 /**@param {Message} message 
  * @param {VoiceChannel} voiceChannel*/
@@ -232,8 +234,7 @@ async function HandlePlay(message, args, voiceChannel, queue) {
         }
     }
 
-    ytdl.getInfo((video.url || queue.songs[0].link))
-        .catch(async err => {
+    const vInfo = await ytdl.getInfo((video.url || queue.songs[0].link)).catch(async err => {
             await PinguLibrary.errorLog(message.client, `Unable to get video info`, message.content, err, {
                 params: { message, args, voiceChannel, queue },
                 additional: { video },
@@ -241,41 +242,40 @@ async function HandlePlay(message, args, voiceChannel, queue) {
             await queue.AnnounceMessage(message, `I ran into an error trying to get the video information! I've contacted my developers.`)
             return null;
         })
-        .then(async vInfo => {
-            let song = new Song(message.author, vInfo.videoDetails);
-            if (!song) return message.channel.send(`I couldn't get that song!`);
-            else if (!song.link) song = new Song(message.author, vInfo.videoDetails);
+    if (!vInfo) return null;
 
-            if (!queue) {
-                queue = new Queue(message.channel, voiceChannel, [song]);
-                queue.connection = await voiceChannel.join();
-                Play(message, queue.songs[0], queue);
-            }
-            else if (!args[0]) {
-                queue.connection = await queue.voiceChannel.join();
-                try { var pauseResume = await HandlePauseResume(message, queue, false); }
-                catch (err) {
-                    if (err.message == `Cannot read property 'resume' of null`)
-                        return Play(message, queue.currentSong, queue);
-                    PinguLibrary.errorLog(message.client, `Unable to resume dispatcher`, message.content, err, {
-                        params: { message, args, voiceChannel, queue },
-                        additional: { song },
-                        trycatch: { pauseResume, pauseRequest: false }
-                    });
-                }
-            }
-            else {
-                if (!queue.playing) return HandlePauseResume(message, queue, queue.playing);
-                else {
-                    queue.add(song);
-                    message.channel.send(`**${song.title}** ${(song.author ? `from ${song.author}` : "")} was added to the queue.`);
-                }
+    let song = new Song(message.author, vInfo.videoDetails);
+    if (!song) return message.channel.send(`I couldn't get that song!`);
+    else if (!song.link) song = new Song(message.author, vInfo.videoDetails);
 
-                queue.Update(message, "HandlePlay",
-                    `${song.title} was added to **${message.guild.name}**'s queue`
-                );
-            }
-        });
+    if (!queue) {
+        queue = new Queue(message.channel, voiceChannel, [song]);
+        queue.connection = await voiceChannel.join();
+        return Play(message, queue.songs[0], queue);
+    }
+    else if (!args[0]) {
+        queue.connection = await queue.voiceChannel.join();
+        try { var pauseResume = await HandlePauseResume(message, queue, false); }
+        catch (err) {
+            if (err.message == `Cannot read property 'resume' of null`)
+                return Play(message, queue.currentSong, queue);
+            PinguLibrary.errorLog(message.client, `Unable to resume dispatcher`, message.content, err, {
+                params: { message, args, voiceChannel, queue },
+                additional: { song },
+                trycatch: { pauseResume, pauseRequest: false }
+            });
+        }
+        return pauseResume;
+    }
+    else {
+        var result = queue.playing ? HandlePauseResume(message, queue, queue.playing) : message.channel.send(`**${song.title}** ${(song.author ? `from ${song.author}` : "")} was added to the queue.`);
+        if (queue.playing) queue.add(song);
+
+        queue.Update(message, "HandlePlay",
+            `${song.title} was added to **${message.guild.name}**'s queue`
+        );
+        return await result;
+    }
 }
 /**@param {Message} message
  * @param {Queue} queue
@@ -348,11 +348,10 @@ async function HandleStop(message, queue) {
             });
     }
 
-    await ResetClient(message);
-
-    await queue.Update(message, "HandleStop",
-        `Reset **${message.guild.name}**'s queue`
-    );
+    await Promise.all([
+        ResetClient(message),
+        queue.Update(message, "HandleStop", `Reset **${message.guild.name}**'s queue`)
+    ]);
     return stopped;
 }
 /**Executes when author sends *music skip
@@ -392,13 +391,13 @@ async function HandleVolume(message, queue, newVolume) {
     const previousVolume = currentSong.volume;
     currentSong.volume = parseFloat(newVolume.replace(',', '.'));
 
-    queue.AnnounceMessage(message,
-        `Volumed changed from **${previousVolume}** to **${newVolume}**.`,
-        `Volumed changed from **${previousVolume}** to **${newVolume}** by ${message.member.displayName}`
-    );
-
     queue.Update(message, "HandleVolume",
         `Updated queue volume for **${message.guild.name}**.`
+    );
+
+    return queue.AnnounceMessage(message,
+        `Volumed changed from **${previousVolume}** to **${newVolume}**.`,
+        `Volumed changed from **${previousVolume}** to **${newVolume}** by ${message.member.displayName}`
     );
 }
 /**Executes when author sends *music queue
@@ -492,10 +491,7 @@ async function HandlePauseResume(message, queue, pauseRequest) {
  * @param {Queue} queue
  * @param {string[]} args*/
 async function HandleMove(message, queue, args) {
-    try {
-        var songIndexToMove = parseInt(args.shift());
-        var newSongPosition = parseInt(args.shift());
-    }
+    try { var [songIndexToMove, newSongPosition] = [parseInt(args.shift()), parseInt(args.shift())]; }
     catch (err) { return message.channel.send(`Positions must be numbers!`); }
 
     if (songIndexToMove < 1 || newSongPosition < 0) return message.channel.send(`I can't move something that's already playing!`);
@@ -503,15 +499,16 @@ async function HandleMove(message, queue, args) {
     else if (newSongPosition > queue.songs.length) newSongPosition = queue.songs.length;
 
     if (!message.content.includes('playskip'))
-        queue.AnnounceMessage(message,
+        var announce = queue.AnnounceMessage(message,
             `Moved **${queue.songs[newSongPosition].title}** from position **${songIndexToMove}** to **${newSongPosition}**.`,
             `**${message.author.tag}** moved **${queue.songs[songIndexToMove - 1].title}** from position **${songIndexToMove - 1}** to **${newSongPosition - 1}**.`
         );
 
     queue.move(songIndexToMove, newSongPosition);
-    return queue.Update(message, "HandleMove",
+    queue.Update(message, "HandleMove",
         `Updated **${message.guild.name}**'s music queue positions.`
     );
+    return announce;
 }
 /**@param {Message} message
  * @param {Queue} queue
@@ -636,12 +633,16 @@ async function Play(message, song, queue) {
             //If last message in logChannel was the "Now Playing" embed, edit that embed with the new one, else send embed
             if (lastMessage && lastMessage.embeds[0] && lastMessage.embeds[0].title.startsWith('Now playing:'))
                 module.exports.ReactControlPanel(await lastMessage.edit(embed), queue, !queue.playing)
-            else message.channel.send(embed).then(sent => module.exports.ReactControlPanel(sent, queue, false))
-
+            else {
+                var result = await message.channel.send(embed);
+                module.exports.ReactControlPanel(result, queue, false);
+            }
             //Update queue
             queue.Update(message, "play.on",
                 `Playing next song - **${message.guild.name}**'s queue was saved.`
             );
+
+            return result || lastMessage;
         })
         .on('error', err => {
             PinguLibrary.consoleLog(message.client, `Error: ${song.title}`);
@@ -650,7 +651,7 @@ async function Play(message, song, queue) {
                 params: { message, song, queue },
                 additional: { streamItem }
             });
-            queue.AnnounceMessage(message, `I had a voice connection error! I've notified my developers.`)
+            return queue.AnnounceMessage(message, `I had a voice connection error! I've notified my developers.`)
         })
         .on('finish', async () => {
             PinguLibrary.consoleLog(message.client, `Finish: ${song.title}`);
@@ -665,9 +666,10 @@ async function Play(message, song, queue) {
             if (queue.index == queue.songs.length && queue.loop) queue.index = 0;
 
             if (!["stop", "st"].includes(commandName))
-                Play(message, queue.currentSong, queue);
+                return Play(message, queue.currentSong, queue);
         })
-        .setVolumeLogarithmic(song.volume == -1 ? (queue.volume / 5) : (song.volume / 5))
+        .setVolumeLogarithmic(song.volume == -1 ? (queue.volume / 5) : (song.volume / 5));
+    return message;
 }
 /**@param {Message} message
  * @param {Queue} queue*/

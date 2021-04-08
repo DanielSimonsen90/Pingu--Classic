@@ -52,6 +52,7 @@ module.exports = new PinguCommand('updatepusers', 'DevOnly', `Creates new PinguU
 
     if (message.content.includes('updatepusers'))
         message.react('✅');
+    return message;
 });
 
 /**@param {Guild[]} BotGuilds

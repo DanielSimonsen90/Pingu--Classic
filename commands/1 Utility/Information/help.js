@@ -15,7 +15,6 @@ module.exports = new PinguCommand('help', 'Utility', 'List all of my commands or
         .setThumbnail(client.user.avatarURL());
     //#endregion
 
-    let members = message.guild.members.cache.filter(member => member.roles.cache.has('<roleID>'))
     switch (args.length) {
         case 0: return CategoryHelp(message, embed, prefix, getCommandsPath(), pAuthor); //If no argument was provided, send default help menu
         default: return CategoryOrSpecificHelp(message, args, embed, prefix, 'DevOnly', pAuthor); //If 1 argument is provided || if args[0] exists
@@ -103,7 +102,7 @@ function CategoryHelp(message, embed, prefix, path, pAuthor) {
                 params: { message, embed, prefix, path },
                 additional: { pathFolder, categories }
             });
-            message.reply(`It seems like I can't DM you! Do you have DMs disabled?`);
+            return message.reply(`It seems like I can't DM you! Do you have DMs disabled?`);
         });
 }
 /**@param {Message} message

@@ -1,5 +1,6 @@
 ﻿const { Collection } = require('discord.js');
 const { PinguCommand, PinguLibrary } = require('PinguPackage');
+const role = require('../../1 Utility/role');
 
 module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme in Deadly Ninja`, {
     permissions: ["MANAGE_CHANNELS", "MANAGE_ROLES", "MANAGE_GUILD"],
@@ -79,7 +80,8 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('652207743880527886', '🤫 Private Channels 🔐');
                     collection.set('640321758406115358', 'boosters💎');
                     collection.set('761174645457158154', 'brorzmandskabet-gang-gang🤬');
-                    collection.set('651048822117629952', 'h2-boiz🏫');
+                    collection.set('651048822117629952', 'h3-boiz🏫');
+                    collection.set('821263747901423636', 'i-code-good⌨');
                     collection.set('796029498578698300', 'kids-chat👶');
                     collection.set('641214258025070602', 'skp-bois💻');
                     collection.set('724569729225719888', 'tweekatv🕺🏽');
@@ -163,7 +165,6 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('816289454259830784', new Role("Birthday Child", "#cc2b1a"));
                     collection.set('822469954040234044', new Role("Pog Streamer", "#9247FF"));
                     collection.set('549611213374488578', new Role("—=—=— Managment Roles —=—=—", 0));
-                    collection.set('762403363727736844', new Role("Creator", '#b99bf3'));
                     collection.set('672100455127711774', new Role("Theme Winner", '#ff75fa'));
                     collection.set('699870814421516301', new Role("Big Boi", '#ff5e00'));
                     collection.set('497439032138006530', new Role("Slaves with Perms", 0));
@@ -176,23 +177,25 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                 (function setPersonal() {
                     collection.set('752520063679987732', new Role("—=—=— Personal Roles —=—=—", 0));
                     collection.set('719882559562973195', new Role("Giveaway Winner", '#d9a760'));
-                    collection.set('755766216701771776', new Role("Flyttemand m. speciale i IT", '#ffed00'));
-                    collection.set('778528112748396554', new Role("Mr. Nice Guy", '#000001'));
-                    collection.set('800995896048746506', new Role("OMNOM", '#b900ff'));
                     collection.set('765700083890257940', new Role("An Actual Demon", '#811919'));
-                    collection.set('761174118946701373', new Role("Brorzmandskabsleder", '#f3f3f3'));
                     collection.set('801837541945769985', new Role("Autism", '#e3a1ff'));
+                    collection.set('761174118946701373', new Role("Brorzmandskabsleder", '#f3f3f3'));
+                    collection.set('762403363727736844', new Role("Creator", '#b99bf3'));
                     collection.set('716613307624062977', new Role("Dad", '#4671b5'));
-                    collection.set('802955952361308211', new Role("The Best Little Sister", '#a2bcff'));
                     collection.set('737073804890734654', new Role("DiscordM", '#aefff4'));
+                    collection.set('827306534315884605', new Role("Discord Technician", '#9394fd'));
                     collection.set('818555826917736488', new Role("Documentary Boy", "8dacff"));
                     collection.set('756406381904396288', new Role("Elektrikker pleb", '#ff00d9'));
-                    collection.set('800476348995993650', new Role("Member #69", '#ff00de'));
+                    collection.set('755766216701771776', new Role("Flyttemand m. speciale i IT", '#ffed00'));
                     collection.set('773524857001476096', new Role("Granddad", '#ff2700'));
+                    collection.set('800476348995993650', new Role("Member #69", '#ff00de'));
+                    collection.set('778528112748396554', new Role("Mr. Nice Guy", '#000001'));
+                    collection.set('800995896048746506', new Role("OMNOM", '#b900ff'));
                     collection.set('754454781178806422', new Role("Pin this BITCh", 0));
                     collection.set('754454781178806422', new Role("Professional Fortnite Gaymer", '#71368A'));
                     collection.set('796001764260053002', new Role("Shtoje", '#F1C40F'));
                     collection.set('756562029271318530', new Role("Test Subject", '#F1C40F'));
+                    collection.set('802955952361308211', new Role("The Best Little Sister", '#a2bcff'));
                     collection.set('804324247287496755', new Role("The Grinder", '#ff00ed'));
                     collection.set('796692899970416640', new Role("Unrespectable Gamer", '#7359B6'));
                 })();
@@ -206,7 +209,6 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('772804441203933194', new Role("Content Creator", '#9147ff'));
                     collection.set('803247641035014175', new Role("Danhoe Family", '#ff5e00'));
                     collection.set('651046415161622528', new Role("Datatekniker m. Specialer", '#81553c'));
-                    collection.set('736608812307316868', new Role("Fuck-Off Boomer Gang", '#95A5A6'));
                     collection.set('796027540136656946', new Role("Kids", '#ffa7ef'));
                     collection.set('720895938163376128', new Role("Krævende Lillesøster", '#ff00ca'));
                     collection.set('641213873948590101', new Role("IT-Fattehoved", '#06b12c'));
@@ -225,8 +227,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('745350886208831498', new Role("Fall Guy Gang", '#e72e2e'));
                     collection.set('794951298062745620', new Role("Genshin Impact", '#AD1457'));
                     collection.set('476050602720231435', new Role("GTA", '#fc2727'));
-                    collection.set('711355295250513950', new Role("SoulSilver Bois", '#95A5A6'));
-                    collection.set('738470298709393468', new Role("HeartGolderz", '#e3b353'));
+                    collection.set('711355295250513950', new Role("PixelSpark Bois", '#95A5A6'));
                     collection.set('494753197076905995', new Role("Minequafters", '#59ec88'));
                     collection.set('405790775188783107', new Role("Overwatchers", '#ffb20e'));
                     collection.set('768906510012383242', new Role("Phasmophobia", '#f0f0f0'));
