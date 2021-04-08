@@ -7,33 +7,36 @@ module.exports = new PinguCommand('setpfp', 'DevOnly', 'Changes my profile picut
 }, async ({ client, message, args, pGuildClient }) => {
     if (!args[0]) args[0] = "preview";
     let PFP = args[0].toLowerCase() == "preview" ? args[1] : args[0];
+    PFP = (function getPFP() {
+        switch (PFP.toLowerCase()) {
+            case 'preview': return PFP;
+            case '1k': return '1k days celebration hype.png';
+            case 'afools': return 'April Fools.png';
+            case 'cool': return 'FeelsCoolMan.png';
+            case 'christmas': return 'Christmas.png';
+            case 'green': return 'Greeny_Boi.png';
+            case 'hollywood': return 'Hollywood Party.png';
+            case 'blogger': return 'The Blogger.png';
+            case 'sithlord': return 'The Sithlord.png';
+            case 'wiking': return 'Wiking.png';
+            case 'winter': return 'Winter.png';
+            default: return null;
+        }
+    })();
 
-    switch (PFP.toLowerCase()) {
-        case 'preview': break;
-        case '1k': PFP = '1k days celebration hype.png'; break;
-        case 'afools': PFP = 'April Fools.png'; break;
-        case 'cool': PFP = 'FeelsCoolMan.png'; break;
-        case 'christmas': PFP = 'Christmas.png'; break;
-        case 'green': PFP = 'Greeny_Boi.png'; break;
-        case 'hollywood': PFP = 'Hollywood Party.png'; break;
-        case 'blogger': PFP = 'The Blogger.png'; break;
-        case 'sithlord': PFP = 'The Sithlord.png'; break;
-        case 'wiking': PFP = 'Wiking.png'; break;
-        case 'winter': PFP = 'Winter.png'; break;
-        default: return message.channel.send(`I couldn't find that PFP in my folder!`);
-    }
+    if (!PFP) return message.channel.send(`I couldn't find that PFP in my folder!`);
 
     if (args[0].toLowerCase() == "preview")
         return HandlePreview(message, PFP);
 
     var newPFP = `./commands/4 DevOnly/pfps/${PFP}`;
 
-        client.user.setAvatar(newPFP).then(() => {
-            PinguLibrary.SavedServers.PinguSupport(client).setIcon(newPFP, `${message.author.username} called ${pGuildClient.prefix}setpfp in "${message.guild.name}", #${message.channel.name}.`);
-        PinguLibrary.consoleLog(client, `${message.author.username} set profile picture to "${PFP}".`);
+    await client.user.setAvatar(newPFP).catch(err => message.channel.send(`Error while changing picture\n${err}`));
 
-        return message.channel.send(`Successfully changed my profile picture!`);
-    }).catch(err => message.channel.send(`Error while changing picture\n${err}`));
+    PinguLibrary.SavedServers.PinguSupport(client).setIcon(newPFP, `${message.author.username} called ${pGuildClient.prefix}setpfp in "${message.guild.name}", #${message.channel.name}.`);
+    PinguLibrary.consoleLog(client, `${message.author.username} set profile picture to "${PFP}".`);
+
+    return message.channel.send(`Successfully changed my profile picture!`);
 });
 
 /**@param {Message} message 

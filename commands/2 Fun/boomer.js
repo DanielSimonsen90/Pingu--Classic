@@ -18,5 +18,5 @@ module.exports = new PinguCommand('boomer', 'Fun', 'OK Boomer', {
     }
 
     message.delete();
-    message.channel.send(`OK Boomer ${Mention}`);
+    return message.channel.send(`OK Boomer ${Mention}`);
 });

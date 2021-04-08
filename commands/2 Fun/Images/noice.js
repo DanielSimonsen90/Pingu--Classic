@@ -4,6 +4,8 @@ const { PinguCommand, PinguLibrary } = require('PinguPackage');
 module.exports = new PinguCommand('noice', 'Fun', 'Noice', {
     guildOnly: true
 }, async ({ message }) => {
+    message.channel.send("https://media0.giphy.com/media/yJFeycRK2DB4c/giphy.gif?cid=ecf05e47qt8qhkq6tc22hxfb01jluhsk9fc7fbca62mfrpqc&rid=giphy.gif");
+
     const voiceChannel = message.member.voice.channel;
     if (!voiceChannel) return;
 

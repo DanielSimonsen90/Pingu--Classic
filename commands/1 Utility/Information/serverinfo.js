@@ -29,7 +29,7 @@ module.exports = new PinguCommand('serverinfo', 'Utility', 'Sends server informa
         return SendFeatures(message, guild);
 
     message.channel.send(`Something happened.. I shouldn't've been here..`);
-    PinguLibrary.errorLog(message.client, `Ran line 34, which was not intended`, message.content, null, {
+    return PinguLibrary.errorLog(message.client, `Ran line 34, which was not intended`, message.content, null, {
         params: { message, args },
         additional: { bigboiinfo, emote }
     });

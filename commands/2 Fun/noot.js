@@ -8,5 +8,5 @@ module.exports = new PinguCommand('noot', 'Fun', 'Speak through my beak', {
         let hasManageMessages = PinguLibrary.PermissionCheck(message, 'MANAGE_MESSAGES') == PinguLibrary.PermissionGranted;
         if (hasManageMessages) message.delete();
     }
-    message.channel.send(args.join(' '));
+    return message.channel.send(args.join(' '));
 });

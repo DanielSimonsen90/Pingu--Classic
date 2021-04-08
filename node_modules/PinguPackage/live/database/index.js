@@ -9,8 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DBExecute = exports.PUser = exports.PRole = exports.PQueue = exports.PMarry = exports.PItem = exports.PGuildMember = exports.PGuild = exports.PClient = exports.PChannel = void 0;
+exports.DBExecute = exports.PUser = exports.PRole = exports.PQueue = exports.PMarry = exports.PItem = exports.PGuildMember = exports.PGuild = exports.PClient = exports.PChannel = exports.PAchievement = void 0;
 var json_1 = require("./json");
+Object.defineProperty(exports, "PAchievement", { enumerable: true, get: function () { return json_1.PAchievement; } });
 Object.defineProperty(exports, "PChannel", { enumerable: true, get: function () { return json_1.PChannel; } });
 Object.defineProperty(exports, "PClient", { enumerable: true, get: function () { return json_1.PClient; } });
 Object.defineProperty(exports, "PGuild", { enumerable: true, get: function () { return json_1.PGuild; } });

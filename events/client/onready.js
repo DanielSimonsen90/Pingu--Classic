@@ -84,11 +84,18 @@ module.exports = new PinguEvent('onready',
                                 PinguLibrary.SavedServers.PinguSupport(client).id,
                             ].includes(g.id) && g.name != undefined && g).filter(v => v);
                             let index = Math.floor(Math.random() * availableGuilds.length);
-                            return availableGuilds[index].name;
+
+                            let chosenGuild = availableGuilds[index];
+                            client.emit('chosenGuild', chosenGuild, await PinguGuild.GetPGuild(chosenGuild));
+                            return chosenGuild.name;
                         }
                         function getRandomUser() {
                             let availableUsers = client.users.cache.array().map(u => !u.bot && u).filter(v => v);
-                            return availableUsers[Math.floor(Math.random() * availableUsers.length)].tag;
+                            let index = Math.floor(Math.random() * availableUsers.length);
+
+                            let chosenUser = availableUsers[index];
+                            client.emit('chosenUser', chosenUser, await PinguUser.GetPUser(chosenUser));
+                            return chosenUser.tag;
                         }
                         function getMostKnownUser() {
                             let Users = new Collection(); //<User, number of Guilds>

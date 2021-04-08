@@ -8,6 +8,7 @@ import { errorLog } from "../library/PinguLibrary";
 import { PinguUser } from '../user/PinguUser';
 import { PinguGuild } from '../guild/PinguGuild';
 import { PinguClient } from "../client/PinguClient";
+import { PinguGuildMember } from '../guildMember/PinguGuildMember';
 
 export enum CommandCategories { 'Utility', 'Fun', 'Supporting', 'DevOnly', 'GuildSpecific' }
 type CommandCategoriesType = keyof typeof CommandCategories;
@@ -18,8 +19,11 @@ export interface PinguCommandParams {
     args?: string[],
     pAuthor?: PinguUser,
     pGuild?: PinguGuild,
-    pGuildClient?: PClient
+    pGuildClient?: PClient,
+    pGuildMember?: PinguGuildMember
 }
+
+type ExecuteReturns = void | Message | VoiceConnection;
 
 export class PinguCommand extends PinguHandler {
     constructor(name: string, category: CommandCategoriesType, description: string, data: {
@@ -30,7 +34,7 @@ export class PinguCommand extends PinguHandler {
         permissions: PermissionString[],
         aliases?: string[],
     }, 
-    execute: (params: PinguCommandParams) => Promise<void | Message | VoiceConnection>) 
+    execute: (params: PinguCommandParams) => Promise<ExecuteReturns>) 
     { 
         //Must need these
         super(name);
@@ -61,7 +65,7 @@ export class PinguCommand extends PinguHandler {
     public permissions: PermissionString[];
     public aliases: string[];
     
-    public async execute(params: PinguCommandParams): Promise<void | Message | VoiceConnection> {
+    public async execute(params: PinguCommandParams): Promise<ExecuteReturns> {
         return errorLog(params.message.client, `Execute for command **${this.name}**, was not defined!`);
     }
 }

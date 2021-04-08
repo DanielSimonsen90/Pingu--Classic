@@ -1,5 +1,5 @@
 ﻿const { Guild, MessageEmbed } = require("discord.js");
-const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error, PClient, CommandCategories, PinguEvent } = require("PinguPackage");
+const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error, PClient, CommandCategories, PinguEvent, PinguGuildMember } = require("PinguPackage");
 const { HandleTell, ExecuteTellReply } = require('../../commands/2 Fun/Pingu User/tell');
 const { CheckRoleChange } = require("../guild/role/roleUpdate");
 
@@ -160,14 +160,15 @@ module.exports = new PinguEvent('message',
 
             let commands = client.commands.array();
             command = commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName))
+            if (command) return command;
 
             //If command assignment failed, assign command
-            var i = 0;
-            while (!command && i < args.length) {
-                commandName = args[i].toLowerCase();
-                command = client.commands.get(commandName) || commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
-            }
+            commandName = args[0] && args[0].toLowerCase();
+            if (!commandName) return null;
 
+            command = client.commands.get(commandName) || commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+
+            //Music alias was used
             if (command.name == 'music') {
                 args.unshift(commandName);
                 commandName = command.name;
@@ -224,21 +225,48 @@ module.exports = new PinguEvent('message',
 
                 var pGuild = message.guild ? await PinguGuild.GetPGuild(message.guild) : null;
                 var pAuthor = await PinguUser.GetPUser(message.author);
-                var pGuildClient = message.guild && pGuild ? client.toPClient(pGuild) : null
-                var parameters = { client, message, args, pAuthor, pGuild, pGuildClient }
 
-                await command.execute(parameters);
+                
+
+                if (!pAuthor) {
+                    await PinguUser.WritePUser(client, message.author, module.exports.name,
+                        `Successfully added ${message.author.tag} to PinguUsers`,
+                        `Failed to add ${message.author.tag} to PinguUsers`
+                    );
+                    pAuthor = await PinguUser.GetPUser(message.author);
+                }
+
+                var pGuildMember = await PinguGuildMember.GetPGuildMember(message.member);
+                var pGuildClient = message.guild && pGuild ? client.toPClient(pGuild) : null
+                var parameters = { client, message, args, pGuild, pAuthor, pGuildMember, pGuildClient }
+
+                let achievementParams = { ...parameters, response: await command.execute(parameters) };
                 ConsoleLog += `**succeeded!**`;
+
+                const achieverClasses = {
+                    user: message.author,
+                    guildMember: message.member,
+                    guild: message.guild
+                };
+
+                await PinguLibrary.AchievementCheck(client, achieverClasses, 'COMMAND', command.name).catch(err => {
+                    PinguLibrary.errorLog(client, `Handling COMMAND achievement check`, message.content, err, {
+                        params: achievementParams,
+                        additional: { achieverClasses }
+                    })
+                })
             } catch (err) {
                 if (err.message == 'Missing Access' && message.guild.id == PinguLibrary.SavedServers.PinguEmotes(client).id && await FindPermission())
                     return; //Error occured, but cycled through permissions to find missing permission
 
                 ConsoleLog += `**failed!**\nError: ${err}`;
 
+                
+
                 PinguLibrary.errorLog(client, `Trying to execute "${command.name}"!`, message.content, err, {
                     params: { client, message },
                     additional: { args, ConsoleLog, commandName, command },
-                    trycatch: { pAuthor, pGuild, pGuildClient }
+                    trycatch: { pAuthor, pGuild, pGuildMember, pGuildClient }
                 });
             }
             console.log(" ");

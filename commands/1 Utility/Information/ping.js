@@ -10,5 +10,6 @@ module.exports = new PinguCommand('ping', 'Utility', 'Tells you how much I lag',
             `My latency: ${latency}ms\n` +
             `Discord API latency: ${client.ws.ping}ms`
         );
+        return sent;
     }
 );

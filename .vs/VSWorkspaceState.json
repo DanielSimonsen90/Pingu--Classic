@@ -3,12 +3,14 @@
     "",
     "\\commands",
     "\\commands\\1 Utility",
-    "\\commands\\1 Utility\\Decidable",
-    "\\commands\\1 Utility\\Information",
     "\\commands\\1 Utility\\Moderation",
     "\\commands\\1 Utility\\Server Setup",
-    "\\commands\\3 Supporting"
+    "\\commands\\2 Fun",
+    "\\commands\\2 Fun\\Images",
+    "\\commands\\2 Fun\\Pingu User",
+    "\\commands\\5 GuildSpecific",
+    "\\commands\\5 GuildSpecific\\Deadly Ninja"
   ],
-  "SelectedNode": "\\commands\\2 Fun",
+  "SelectedNode": "\\commands\\5 GuildSpecific\\Deadly Ninja\\resettheme.js",
   "PreviewInSolutionExplorer": false
 }

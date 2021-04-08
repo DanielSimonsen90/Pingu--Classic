@@ -48,9 +48,9 @@ module.exports = new PinguCommand('reactionroles', 'Utility', 'Gives/Removes rol
     await rrMessage.react(emote);
 
     return message.channel.send(new MessageEmbed()
-        .setTitle(`Reaction Role Created!`)
+        .setTitle(`ReactionRole Created!`)
         .setURL(rrMessage.url)
-        .setDescription(`Your reaction-role in ${channel} (${rrMessage.id}), giving ${role} for reacting with ${emote} is now ready!`)
+        .setDescription(`Your reactionrole in ${channel} (${rrMessage.id}), giving ${role} for reacting with ${emote} is now ready!`)
         .setColor(pGuildClient.embedColor)
     )
 })

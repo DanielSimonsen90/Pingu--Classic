@@ -79,8 +79,7 @@ module.exports = new PinguCommand('activity', 'Fun', 'You <activity> <person>!',
 
         //Return the whole thing LuL
         //React with F if the user uses *activity on themselves
-        if (Person == User) message.channel.send(embed).then(NewMessage => { NewMessage.react('🇫'); });
-        else message.channel.send(embed);
+        return Person == User ? message.channel.send(embed).then(NewMessage => { NewMessage.react('🇫'); }) : message.channel.send(embed);
     });
 });
 

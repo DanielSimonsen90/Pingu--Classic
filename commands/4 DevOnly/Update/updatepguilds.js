@@ -35,7 +35,8 @@ module.exports = new PinguCommand('updatepguilds', 'DevOnly', `Creates new Pingu
             else {
                 pGuild.settings.config.achievements = new GuildAchievementConfig({
                     guild: 'OWNER',
-                    members: 'DM'
+                    members: 'NONE'
+                    //members: 'DM'
                 }, pGuild._id);
                 pGuild.members = new Map();
                 BotGuilds[i].members.cache.array().forEach(gm => {
@@ -58,5 +59,6 @@ module.exports = new PinguCommand('updatepguilds', 'DevOnly', `Creates new Pingu
 
     if (message.content.includes('updatepguilds'))
         message.react('✅');
+    return message;
     //PinguLibrary.pGuildLog(message.client, module.exports.name, 'Going through servers complete!');
 });

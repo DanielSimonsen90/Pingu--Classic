@@ -1,12 +1,6 @@
 ﻿const Discord = require('discord.js');
-const fs = require('fs');
 
-try { main(); }
-catch (err) {
-    fs.writeFile('./errors/startUpError', JSON.stringify(err, null, 2));
-}
-
-async function main() {
+(async function main() {
     const { config, PinguClient } = require('PinguPackage');
     const client = new PinguClient(config, [
         'channelCreate', 'channelDelete', 'channelPinsUpdate', 'channelUpdate', 'typingStart', 'webhookUpdate',                                                                 //channel
@@ -18,10 +12,13 @@ async function main() {
         'guildBanAdd', 'guildBanRemove', 'guildCreate', 'guildDelete', 'guildIntegrationsUpdate', 'guildUnavailable', 'guildUpdate', 'presenceUpdate', 'voiceStateUpdate',      //guild
         'messageReactionAdd', 'messageReactionRemove', 'messageReactionRemoveAll', 'messageReactionRemoveEmoji',                                                                //messageReaction
         'message', 'messageDelete', 'messageDeleteBulk', 'messageUpdate',                                                                                                       //message
-        'userUpdate'                                                                                                                                                            //user
+        'userUpdate',                                                                                                                                                           //user
+        'chosenUser', 'chosenGuild'                                                                                                                        //chosen
     ], './commands', './events');
 
     try { var { token } = require('../../PinguBetaToken.json'); /*throw null*/ }
     catch { token = config.token; }
     finally { client.login(token); }
-}
+})().catch(err => {
+    require('fs').writeFile('./errors/startUpError.json', JSON.stringify(err, null, 2))
+});

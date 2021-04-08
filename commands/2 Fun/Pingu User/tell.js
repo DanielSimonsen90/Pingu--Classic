@@ -71,7 +71,7 @@ module.exports = {
 
             message.react('✅');
             PinguLibrary.tellLog(client, message.author, Mention, sentMessage);
-            message.channel.send(`**Established conversation with __${Mention.tag}__**`);
+            return message.channel.send(`**Established conversation with __${Mention.tag}__**`);
 
         }).catch(async err => {
             if (err.message == 'Cannot send messages to this user')
@@ -81,7 +81,7 @@ module.exports = {
                 params: { client, message, args, pAuthor, pGuildClient },
                 additional: { Mention, pMention },
             })
-            message.channel.send(`Attempted to message ${Mention.username} but couldn't.. I've contacted my developers.`);
+            return message.channel.send(`Attempted to message ${Mention.username} but couldn't.. I've contacted my developers.`);
         })
     }), ...{
         /**@param {Message} message*/
@@ -156,7 +156,7 @@ module.exports = {
 
             //Show author that reply has been sent
             message.react('✅');
-            message.channel.send(`**Sent message to __${replyPersonUser.tag}__**`);
+            return message.channel.send(`**Sent message to __${replyPersonUser.tag}__**`);
         },
         /**Returns Mention whether it's @Mentioned, username or nickname
         * @param {Message} message 
