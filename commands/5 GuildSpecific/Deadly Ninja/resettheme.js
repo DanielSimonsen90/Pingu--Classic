@@ -6,26 +6,27 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
     guildOnly: true,
     specificGuildID: '405763731079823380'
 }, async ({ client, message, args, pAuthor, pGuild, pGuildClient }) => {
-        if (!message.member.roles.cache.has('497439032138006530') || message.author.id == '361815289278627851')
-            return message.channel.send(`Only cool people have access to this command!`);
-        let adminCheck = PinguLibrary.PermissionCheck({
-            author: client.user,
-            channel: message.channel,
-            client,
-            content: message.content
-        }, 'ADMINISTRATOR');
-        if (adminCheck != PinguLibrary.PermissionGranted) return message.channel.send(`Gib me the **eye**`);
+    if (!message.member.roles.cache.has('497439032138006530') || message.author.id == '361815289278627851')
+        return message.channel.send(`Only cool people have access to this command!`);
+    let adminCheck = PinguLibrary.PermissionCheck({
+        author: client.user,
+        channel: message.channel,
+        client,
+        content: message.content
+    }, 'ADMINISTRATOR');
+    if (adminCheck != PinguLibrary.PermissionGranted) return message.channel.send(`Gib me the **eye**`);
 
-        const channels = message.guild.channels.cache.sort((a, b) => a.position < b.position);
-        const roles = message.guild.roles.cache.sort((a, b) => a.position < b.position);
-        const deadlyNinja = {
-            iconURL: message.guild.iconURL(),
-            name: message.guild.name
-        };
+    const channels = message.guild.channels.cache.sort((a, b) => a.position < b.position);
+    const roles = message.guild.roles.cache.sort((a, b) => a.position < b.position);
+    const deadlyNinja = {
+        iconURL: message.guild.iconURL(),
+        name: message.guild.name
+    };
 
-        const reason = `Theme reset requested by ${message.author.tag}`;
+    const reason = `Theme reset requested by ${message.author.tag}`;
 
-        await (async function setChannels() {
+    await Promise.all([
+        (async function setChannels() {
             const defaultChannles = (function setDefaultChannels() {
                 let collection = new Collection();
 
@@ -137,8 +138,8 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
 
                 await currentChannel.setName(name, reason);
             }
-        })();
-        await (async function setRoles() {
+        })(),
+        (async function setRoles() {
             const defaultRoles = (function setDefaultRoles() {
                 let collection = new Collection();
                 class Role {
@@ -280,8 +281,8 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                 if (currentRole.name != role.name) await currentRole.setName(role.name, reason);
                 if (typeof role.color == 'string' && currentRole.hexColor != role.color || currentRole.color != role.color) await currentRole.setColor(role.color, reason);
             }
-        })();
-        await (async function setDefaults() {
+        })(),
+        (async function setDefaults() {
             const defaultDeadlyNinja = {
                 iconURL: 'https://cdn.discordapp.com/attachments/773807780883726359/814779401350676480/Deadly_Ninja.JPG',
                 name: "Deadly Ninja"
@@ -290,7 +291,9 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
             if (deadlyNinja.iconURL != defaultDeadlyNinja.iconURL) await message.guild.setIcon(defaultDeadlyNinja.iconURL, reason);
             if (deadlyNinja.name != defaultDeadlyNinja.name) await message.guild.setName(defaultDeadlyNinja.name, reason);
             if (message.guild.splashURL() != defaultDeadlyNinja.iconURL) await message.guild.setSplash(defaultDeadlyNinja.iconURL, reason);
-        })();
+        })()
+    ])
 
-        return message.channel.send(`May **${deadlyNinja.name}** only live in our memories...`);
+
+    return message.channel.send(`May **${deadlyNinja.name}** only live in our memories...`);
 })
