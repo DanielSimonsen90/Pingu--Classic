@@ -44,7 +44,12 @@ module.exports = new PinguCommand('daily', 'Fun', `Daily streams just like as if
             daily.lastClaim = now;
             daily.nextClaim = new TimeLeftObject(now, new Date(new Date(Date.now()).setHours(now.getHours() + timeBetweenClaims)));
 
-            message.channel.send(new MessageEmbed()
+            setTimeout(async () => await PinguUser.UpdatePUser(client, { daily: pAuthor.daily }, pAuthor, "daily",
+                `Successfully updated **${message.author.tag}**'s daily streak.`,
+                `Failed updating **${message.author.tag}**'s daily streak`
+            ), 5000);
+
+            return message.channel.send(new MessageEmbed()
                 .setThumbnail(pAuthor.avatar)
                 .setTitle(`Daily claimed!`)
                 .setDescription(`Your daily has been claimed!\n**Streak: ${daily.streak}**`)
@@ -52,11 +57,6 @@ module.exports = new PinguCommand('daily', 'Fun', `Daily streams just like as if
                 .setFooter(`Next daily claimable at`)
                 .setTimestamp(daily.nextClaim.endsAt)
             );
-
-            setTimeout(async () => await PinguUser.UpdatePUser(client, { daily: pAuthor.daily }, pAuthor, "daily",
-                `Successfully updated **${message.author.tag}**'s daily streak.`,
-                `Failed updating **${message.author.tag}**'s daily streak`
-            ), 5000);
         }
     }
 );

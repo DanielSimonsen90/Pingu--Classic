@@ -14,8 +14,8 @@ module.exports = new PinguCommand('marry', 'Fun', 'Marries a user', {
     }
 
     else if (!message.mentions.users.first()) {
-        if (pAuthor.marry.partner) return message.channel.send(new Marry(pAuthor.marry.partner, pAuthor.marry.internalDate).marriedMessage);
-        return message.channel.send(pAuthor.marry.marriedMessage + "\n\nYou can marry others by typing `" + pGuildClient.prefix + "marry <@user>`");
+        if (pAuthor.marry.partner) return message.channel.send(new Marry(pAuthor.marry.partner, pAuthor.marry.internalDate).marriedMessage());
+        return message.channel.send(pAuthor.marry.marriedMessage() + "\n\nYou can marry others by typing `" + pGuildClient.prefix + "marry <@user>`");
     }
 
     else if (pAuthor.marry.partner) return message.channel.send(`You're already married, you unloyal filth!`);
