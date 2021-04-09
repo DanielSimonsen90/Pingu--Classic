@@ -4,17 +4,18 @@ const ms = require('ms');
 
 const CacheTypes = 'ReactionRole' || 'Giveaway' || 'Poll' || 'Suggestion' || 'Theme';
 
-module.exports = new PinguEvent('onready', 
+module.exports = new PinguEvent('onready',
     async function execute(client) {
         console.log('\n--== Client Info ==--');
         PinguLibrary.consoleLog(client, `Loaded ${client.commands.array().length} commands & ${client.events.array().length} events\n`);
 
-        await client.users.fetch(PinguClient.Clients.PinguID);
-        await PinguLibrary.CacheDevelopers(client);
+        await Promise.all([
+            client.users.fetch(PinguClient.Clients.PinguID),
+            PinguLibrary.CacheDevelopers(client),
+            PinguLibrary.DBExecute(client, () => PinguLibrary.consoleLog(client, `Connected to MongolDB!`)),
+            CacheFromDB(client)
+        ]);
 
-        CacheFromDB(client);
-
-        await PinguLibrary.DBExecute(client, () => PinguLibrary.consoleLog(client, `Connected to MongolDB!`));
         PinguLibrary.consoleLog(client, `I'm back online!\n`);
         console.log(`Logged in as ${client.user.username}`);
 
@@ -49,7 +50,7 @@ module.exports = new PinguEvent('onready',
                         switch (channel.id) {
                             case '799596588859129887': return getServersInfo(); //Servers
                             case '799597092107583528': return getUsersInfo(); //Users
-                            case '799597689792757771': return await getDailyLeader(); //Daily Leader
+                            case '799597689792757771': return getDailyLeader(); //Daily Leader
                             case '799598372217683978': return getRandomServer(); //Server of the Day
                             case '799598024971518002': return getRandomUser(); //User of the Day
                             case '799598765187137537': return getMostKnownUser(); //Most known User
@@ -77,7 +78,7 @@ module.exports = new PinguEvent('onready',
                                 });
                             }
                         }
-                        function getRandomServer() {
+                        async function getRandomServer() {
                             let availableGuilds = client.guilds.cache.array().map(g => ![
                                 PinguLibrary.SavedServers.DanhoMisc(client).id,
                                 PinguLibrary.SavedServers.PinguEmotes(client).id,
@@ -86,15 +87,18 @@ module.exports = new PinguEvent('onready',
                             let index = Math.floor(Math.random() * availableGuilds.length);
 
                             let chosenGuild = availableGuilds[index];
-                            client.emit('chosenGuild', chosenGuild, await PinguGuild.GetPGuild(chosenGuild));
+                            let pGuild = await PinguGuild.GetPGuild(chosenGuild);
+                            //client.emit('chosenGuild', ...[chosenGuild, pGuild]);
                             return chosenGuild.name;
                         }
-                        function getRandomUser() {
+                        async function getRandomUser() {
                             let availableUsers = client.users.cache.array().map(u => !u.bot && u).filter(v => v);
                             let index = Math.floor(Math.random() * availableUsers.length);
 
                             let chosenUser = availableUsers[index];
-                            client.emit('chosenUser', chosenUser, await PinguUser.GetPUser(chosenUser));
+                            let pUser = await PinguUser.GetPUser(chosenUser);
+
+                            //client.emit('chosenUser', ...[chosenUser, pUser]);
                             return chosenUser.tag;
                         }
                         function getMostKnownUser() {
