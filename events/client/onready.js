@@ -7,7 +7,7 @@ const CacheTypes = 'ReactionRole' || 'Giveaway' || 'Poll' || 'Suggestion' || 'Th
 module.exports = new PinguEvent('onready',
     async function execute(client) {
         console.log('\n--== Client Info ==--');
-        PinguLibrary.consoleLog(client, `Loaded ${client.commands.array().length} commands & ${client.events.array().length} events\n`);
+        PinguLibrary.consoleLog(client, `Loaded ${client.commands.size} commands & ${client.events.size} events\n`);
 
         await Promise.all([
             client.users.fetch(PinguClient.Clients.PinguID),
@@ -36,13 +36,13 @@ module.exports = new PinguEvent('onready',
                  * @returns {VoiceChannel}*/
                 let getChannel = (client, channelID) => PinguLibrary.SavedServers.PinguSupport(client).channels.cache.get(channelID);
                 let channels = [
-                    getChannel(client, '799596588859129887'), //Servers
-                    getChannel(client, '799597092107583528'), //Users
-                    getChannel(client, '799597689792757771'), //Daily Leader
-                    getChannel(client, '799598372217683978'), //Server of the Day
-                    getChannel(client, '799598024971518002'), //User of the Day
-                    getChannel(client, '799598765187137537')  //Most known member
-                ]
+                    '799596588859129887', //Servers
+                    '799597092107583528', //Users
+                    '799597689792757771', //Daily Leader
+                    '799598372217683978', //Server of the Day
+                    '799598024971518002', //User of the Day
+                    '799598765187137537'  //Most known member
+                ].map(id => getChannel(client, id));
                 /**@param {VoiceChannel} channel*/
                 let setName = async (channel) => {
                     /**@param {VoiceChannel} channel*/
@@ -67,8 +67,7 @@ module.exports = new PinguEvent('onready',
                             try {
                                 let pUser = (await PinguUser.GetPUsers()).sort((a, b) => {
                                     try { return b.daily.streak - a.daily.streak }
-                                    catch (err) { errorLog(client, `unable to get daily streak difference between ${a.tag} and ${b.tag}`, null, err); }
-
+                                    catch (err) { PinguLibrary.errorLog(client, `unable to get daily streak difference between ${a.tag} and ${b.tag}`, null, err); }
                                 })[0];
                                 return `${pUser.tag} #${pUser.daily.streak}`;
                             }
@@ -88,7 +87,7 @@ module.exports = new PinguEvent('onready',
 
                             let chosenGuild = availableGuilds[index];
                             let pGuild = await PinguGuild.GetPGuild(chosenGuild);
-                            //client.emit('chosenGuild', ...[chosenGuild, pGuild]);
+                            client.emit('chosenGuild', ...[chosenGuild, pGuild]);
                             return chosenGuild.name;
                         }
                         async function getRandomUser() {
@@ -98,7 +97,7 @@ module.exports = new PinguEvent('onready',
                             let chosenUser = availableUsers[index];
                             let pUser = await PinguUser.GetPUser(chosenUser);
 
-                            //client.emit('chosenUser', ...[chosenUser, pUser]);
+                            client.emit('chosenUser', ...[chosenUser, pUser]);
                             return chosenUser.tag;
                         }
                         function getMostKnownUser() {
