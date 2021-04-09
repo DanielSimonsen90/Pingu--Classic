@@ -28,10 +28,7 @@ module.exports = new PinguEvent('message',
             if (message.mentions.users.first()) result.push(`${message.mentions.users.size} users${(message.mentions.users.size > 1 ? 's' : '')}`);
             if (message.mentions.everyone) result.push(`\`@everyone\``);
 
-            if (result.length > 0) {
-                return `Mentioned ` + result.join(`, `);
-            }
-            return `No mentions`;
+            return result.length > 0 ? `Mentioned ` + result.join(`, `) : `No mentions`;
         }
     },
     async function execute(client, message) {
@@ -59,7 +56,7 @@ module.exports = new PinguEvent('message',
         //If interacted via @
         commandName = TestTagInteraction();
 
-        var startsWithPrefix = message.content.startsWith(prefix) && !message.author.bot || message.content && message.content.includes(client.user.id);
+        var startsWithPrefix = message.content.startsWith(prefix) && !message.author.bot || message.content && message.content.includes(client.id);
 
         //If I'm not interacted with don't do anything
         if (message.channel.type == 'dm' && (message.author.bot || (await PinguUser.GetPUser(message.author)).replyPerson) && (!startsWithPrefix || commandName && commandName.includes(prefix)))
@@ -217,7 +214,7 @@ module.exports = new PinguEvent('message',
             return returnValue.setValue(true);
         }
         async function ExecuteAndLogCommand() {
-            let ConsoleLog = `User **${message.author.username}** executed command **${commandName}**, from ${(!message.guild ? `DMs and ` : `"${message.guild}", #${message.channel.name}, and `)}`;
+            let ConsoleLog = `User **${message.author.username}** executed command **${commandName}**, from ${(!message.guild ? `DMs` : `"${message.guild}", #${message.channel.name},`)} and `;
 
             //Attempt execution of command
             try {
@@ -225,8 +222,6 @@ module.exports = new PinguEvent('message',
 
                 var pGuild = message.guild ? await PinguGuild.GetPGuild(message.guild) : null;
                 var pAuthor = await PinguUser.GetPUser(message.author);
-
-                
 
                 if (!pAuthor) {
                     await PinguUser.WritePUser(client, message.author, module.exports.name,
