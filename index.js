@@ -13,7 +13,7 @@
         'messageReactionAdd', 'messageReactionRemove', 'messageReactionRemoveAll', 'messageReactionRemoveEmoji',                                                                //messageReaction
         'message', 'messageDelete', 'messageDeleteBulk', 'messageUpdate',                                                                                                       //message
         'userUpdate',                                                                                                                                                           //user
-        'chosenUser', 'chosenGuild'                                                                                                                        //chosen
+        'chosenUser', 'chosenGuild'                                                                                                                                             //chosen
     ], './commands', './events');
 
     try { var { token } = require('../../PinguBetaToken.json'); throw null }
