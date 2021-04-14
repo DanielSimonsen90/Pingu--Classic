@@ -1,11 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\commands",
-    "\\commands\\5 GuildSpecific",
-    "\\events",
-    "\\events\\client"
+    "\\commands\\4 DevOnly",
+    "\\events\\message"
   ],
-  "SelectedNode": "\\index.js",
+  "SelectedNode": "\\events",
   "PreviewInSolutionExplorer": false
 }

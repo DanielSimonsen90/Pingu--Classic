@@ -256,8 +256,6 @@ module.exports = new PinguEvent('message',
 
                 ConsoleLog += `**failed!**\nError: ${err}`;
 
-                
-
                 PinguLibrary.errorLog(client, `Trying to execute "${command.name}"!`, message.content, err, {
                     params: { client, message },
                     additional: { args, ConsoleLog, commandName, command },
