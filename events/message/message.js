@@ -127,8 +127,6 @@ module.exports = new PinguEvent('message',
             }
             return true;
         }
-        /**@param {Guild} guild
-         * @returns {Promise<string>} */
         async function HandlePGuild() {
             //Get PinguGuild from MongolDB
             let pGuild = await PinguGuild.GetPGuild(guild);
@@ -343,21 +341,21 @@ module.exports = new PinguEvent('message',
                 return channel.send(`I'm missing the **${permissionInfo.permission}** permission to execute **${command.name}**!`);
             }
         }
-        async function AchievementCheck() {
+        /**@param {'CHAT' | 'CHANNEL'} key*/
+        async function AchievementCheck(key) {
             const { UserAchievement, GuildMemberAchievement, GuildAchievement } = require('PinguPackage');
             const Achievements = [
                 ...UserAchievement.Achievements,
                 ...GuildMemberAchievement.Achievements,
                 ...GuildAchievement.Achievements
-            ].filter(a => a.key == 'CHAT');
+            ].filter(a => a.key == key);
 
             if (!Achievements.length) return false;
 
-            const achievement = Achievements.find(a => content.includes(a.type) && a.callback([content, message]));
+            const achievement = Achievements.find(a => content.includes(a.type) && a.callback((key == 'CHAT' ? [content, message] : [channel])));
             if (!achievement) return false;
 
-            return PinguLibrary.AchievementCheck(client, { user: author, guildMember: member, guild }, 'CHAT', achievement.type, [content]);
-
+            return PinguLibrary.AchievementCheck(client, { user: author, guildMember: member, guild }, key, achievement.type, [content]);
         }
     }
 );
