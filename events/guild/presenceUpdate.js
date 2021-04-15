@@ -107,7 +107,7 @@ module.exports = { ...new PinguEvent('presenceUpdate',
             case 'offline': return '#727D8A';
             case 'invisible': return '#ffffff';
         }
-
+        
         let pGuild = await PinguGuild.GetPGuild(presence.guild);
         let client = PinguClient.ToPinguClient(presence.guild.client);
         return client.toPClient(pGuild).embedColor || client.DefaultEmbedColor;
