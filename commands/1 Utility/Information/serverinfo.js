@@ -50,6 +50,7 @@ async function SendCallerInfo(message, bigboiinfo) {
         channelAnnounce: PinguLibrary.getEmote(message.client, 'channelAnnounce', PinguLibrary.SavedServers.PinguEmotes(message.client)),
         channelRules: PinguLibrary.getEmote(message.client, 'channelRules', PinguLibrary.SavedServers.PinguEmotes(message.client)),
         channelStore: PinguLibrary.getEmote(message.client, 'channelStore', PinguLibrary.SavedServers.PinguEmotes(message.client)),
+        channelStage: PinguLibrary.getEmote(message.client, 'channelStage', PinguLibrary.SavedServers.PinguEmotes(message.client)),
         channelText: PinguLibrary.getEmote(message.client, 'channelText', PinguLibrary.SavedServers.PinguEmotes(message.client)),
         channelVoice: PinguLibrary.getEmote(message.client, 'channelVoice', PinguLibrary.SavedServers.PinguEmotes(message.client)),
         channelAFK: PinguLibrary.getEmote(message.client, 'channelAFK', PinguLibrary.SavedServers.PinguEmotes(message.client)),
@@ -192,6 +193,7 @@ async function SendCallerInfo(message, bigboiinfo) {
                 new EmbedField(`${savedEmotes.channelText} Text channels`, GetChannelCount('text'), true),
                 new EmbedField(`${savedEmotes.channelVoice} Voice channels`, GetChannelCount('voice'), true),
                 new EmbedField(`${savedEmotes.channelAnnounce} Announcement channels`, GetChannelCount('news'), true),
+                new EmbedField(`${savedEmotes.channelStage} Stage channels`, GetChannelCount('stage'), true),
                 new EmbedField(`${savedEmotes.channelStore} Store channels`, GetChannelCount('store'), true),
                 new EmbedField(`${savedEmotes.channelAFK} AFK Channel`, (guild.afkChannel ? guild.afkChannel : 'None'), true),
                 new EmbedField(`${savedEmotes.channelAFK} AFK Timeout`, (guild.afkTimeout / 60).toString() + " minutes", true)

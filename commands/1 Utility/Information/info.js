@@ -1,18 +1,27 @@
 const { Message, MessageEmbed, Collection } = require('discord.js');
-const { PinguCommand, PinguLibrary, PinguGuild, PinguUser, PClient, EmbedField, Queue, TimeLeftObject, Marry, UserAchievement, GuildMemberAchievement, GuildAchievement, PAchievement } = require('PinguPackage');
+const {
+    PinguCommand, PinguLibrary,
+    PinguGuild, PinguGuildMember, PinguUser, PClient, PGuild,
+    EmbedField, Queue, TimeLeftObject, Marry,
+    UserAchievement, GuildMemberAchievement, GuildAchievement, PAchievement
+} = require('PinguPackage');
 
 const availableTypes = ['server', 'guild', 'user', 'bot', 'client'];
 
 module.exports = new PinguCommand('info', 'Utility', 'All da information you need', {
     usage: '<type: server | user> <property: all | <property>>'
-}, async ({ message, args, pAuthor, pGuild, pGuildClient }) => {
+}, async ({ message, args, pAuthor, pGuild, pGuildMember, pGuildClient }) => {
     if (!args || !args[0]) args[0] = message.guild ? 'guild' : 'user';
 
-    let userType = args.shift();
-    let type = ['server', 'guild'].includes(userType) ? 'guild' :
-        ['client', 'bot'].includes(userType) ? 'client' : 'user';
+    let userType = args.shift().toLowerCase();
+    let type =
+        ['server', 'guild'].includes(userType) ? 'guild' :
+            ['client', 'bot'].includes(userType) ? 'client' :
+                ['guildmember', 'member'].includes(userType) ? 'member' : 'user';
 
-    let obj = type == 'guild' ? pGuild : type == 'user' ? pAuthor : pGuildClient;
+    let obj = type == 'guild' ? pGuild :
+        type == 'user' ? pAuthor :
+            type == 'member' ? pGuildMember : pGuildClient;
 
     if (!args[0]) args[0] = 'all';
     if (!obj[args[0]] && args[0] != 'all')
@@ -35,7 +44,7 @@ module.exports = new PinguCommand('info', 'Utility', 'All da information you nee
 //(credit to Spag for figuring that out)
 
 /**@param {Message} message
- * @param {'server' | 'guild' | 'user' | 'bot' | 'client'} userType
+ * @param {'server' | 'guild' | 'user' | 'bot' | 'client' | 'guildmember' | 'member'} userType
  * @param {'guild' | 'user' | 'client'} type
  * @param {PinguGuild | PinguUser | PClient} obj
  * @param {string} prop
@@ -44,7 +53,8 @@ module.exports = new PinguCommand('info', 'Utility', 'All da information you nee
 async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
     let arr = [];
     let result = await (type == 'guild' ? SendPGuild(obj) :
-        type == 'user' ? SendPUser(obj) : SendPClient(obj));
+        type == 'user' ? SendPUser(obj) :
+            type == 'member' ? SendPGuildMember(obj) : SendPClient(obj));
 
     result.forEach(i => i && message.channel.send(i));
     return result[0];
@@ -65,14 +75,14 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
             ...Object.keys(pg.settings.config).filter(v => v != 'decidables'),
             // [ giveawayConfig, pollConfig, suggestionConfig, themeConfig ]
             ...Object.keys(pg.settings.config.decidables)
-        ]  
+        ]
 
         // [ achievements, giveawayConfig, musicQueue, pollConfig, reactionRoles, suggestionConfig, themeConfig ]
         pgSettings.sort();
 
         // [ achievements, musicQueue, giveawayConfig, pollConfig, suggestionConfig, themeConfig, reactionRoles ]
         pgSettings.sort((a, b) =>
-                a.endsWith('Roles') ? 3 : b.endsWith('Roles') ? -3 :
+            a.endsWith('Roles') ? 3 : b.endsWith('Roles') ? -3 :
                 a.endsWith('Config') ? 2 : b.endsWith('Config') ? -2 : 0
         )
         //  [ name, guildOwner, clients, achievements, musicQueue, giveawayConfig, pollConfig, suggestionConfig, themeConfig, reactionRoles ]
@@ -181,22 +191,53 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
                             new EmbedField(`Welcome Channel`, pg.settings.welcomeChannel ? `<#${pg.settings.welcomeChannel._id}>` : 'None', true)
                         ])
                     case 'clients': return new MessageEmbed().setDescription(pg.clients.map(pc => pc ? getClientInfo(pc) : null).join('\n'));
-                    case 'reactionRoles': return pg.settings.reactionRoles[0] ? new MessageEmbed().setDescription(
-                        pg.settings.reactionRoles
-                            .map(rr => rr.pRole ? (() => {
-                                let titles = ['Reaction Name', 'Role', 'Message ID', 'Channel'].map(v => `**${v}**`);
-                                let values = [rr.emoteName, `<@&${rr.pRole._id}>`, "`" + rr.messageID + "`", `<#${rr.channel._id}>`];
-                                return titles.map((v, i) => `${v}: ${values[i]}`).join('\n') + '\n';
-                            })() : null)
-                            .filter(v => v)
-                    ) : new MessageEmbed().setDescription(`No Reaction Roles saved.`);
-                    case 'achievements': return configAchievements.enabled ?
-                        new MessageEmbed().setDescription(getAchievements(configAchievements.achievements, 'GUILD')) :
-                        new MessageEmbed().setDescription(`Pingu Achievements are not enabled in this server.`);
+                    case 'reactionRoles': return new MessageEmbed().setDescription(
+                        pg.settings.reactionRoles[0] ?
+                            pg.settings.reactionRoles
+                                .map(rr => rr.pRole ? (() => {
+                                    let titles = ['Reaction Name', 'Role', 'Message ID', 'Channel'].map(v => `**${v}**`);
+                                    let values = [rr.emoteName, `<@&${rr.pRole._id}>`, "`" + rr.messageID + "`", `<#${rr.channel._id}>`];
+                                    return titles.map((v, i) => `${v}: ${values[i]}`).join('\n') + '\n';
+                                })() : null)
+                                .filter(v => v)
+                            : "No Reaction Roles saved."
+                    );
+                    case 'achievements': return new MessageEmbed().setDescription(
+                        configAchievements.enabled ?
+                            getAchievements(configAchievements.achievements, 'GUILD') :
+                            `Pingu Achievements are not enabled in this server.`
+                    );
                     default: return null;
                 }
             }
 
+        }
+        return arr;
+    }
+    /**@param {PinguGuildMember} pgm*/
+    async function SendPGuildMember(pgm) {
+        //guild as PGuild, achievementConfig
+        let pgmProps = Object.keys(pgm)
+            .sort()
+            .filter(v => !['_id', 'name'].includes(v))
+
+        for (var item of pgmProps) {
+            if (prop != item && prop != 'all') continue;
+
+            let embed = await GetEmbed();
+            if (embed) arr.push(MergeEmbeds(item, embed));
+
+            async function GetEmbed() {
+                switch (item) {
+                    case 'guild': return new MessageEmbed().setDescription(await getMemberSince(pgm.guild) || 'Unavailable to calcualte');
+                    case 'achievementsConfig': return new MessageEmbed().setDescription(
+                        pgm.achievementsConfig.enabled ?
+                            getAchievements(pgm.achievementsConfig.achievements, 'GUILDMEMBER') :
+                            "Pingu Achievements are disabled."
+                    );
+                    default: return null;
+                }
+            }
         }
         return arr;
     }
@@ -215,26 +256,7 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
             async function GetEmbed() {
                 var partner = pu.marry.partner ? await message.client.users.fetch(pu.marry.partner._id) : null;
                 var dailyStreakValid = !(pu.daily.lastClaim && pu.daily.lastClaim.setHours(pu.daily.lastClaim.getHours() + 32) < Date.now());
-                let sharedServerInfo = await (async () => {
-                    let serverInfo = [];
-
-                    for (var pg of pu.sharedServers) {
-                        let guildInfo = [`**${pg.name}**`];
-                        if (!message.client.guilds.cache.has(pg._id)) continue;
-                        let guild = await message.client.guilds.fetch(pg._id);
-                        if (!guild) continue;
-
-                        let authorJoined = (await guild.members.fetch(message.author)).joinedTimestamp;
-                        let clientJoined = guild.me.joinedTimestamp;
-
-                        var knownSince = new TimeLeftObject(new Date(authorJoined < clientJoined ? clientJoined : authorJoined), new Date(Date.now()));
-                        guildInfo.push(`Both been members for ${knownSince.toString()}.`);
-
-                        serverInfo.push(guildInfo.join('\n') + '\n');
-                    }
-
-                    return serverInfo.join('\n');
-                })();
+                let sharedServerInfo = (await Promise.all(pu.sharedServers.map(pg => getMemberSince(pg)))).filter(v => v).join('\n');
 
                 switch (item) {
                     case 'marry': return new MessageEmbed()
@@ -246,6 +268,11 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
                         .setFooter(`Viewing information for: ${userType} | Daily claimable at`);
                     case 'sharedServers': return new MessageEmbed().setDescription(sharedServerInfo)
                     case 'playlists': return null //Not implemented
+                    case 'achievementConfig': return new MessageEmbed().setDescription(
+                        pu.achievementConfig.enabled ?
+                            getAchievements(pu.achievementConfig.achievements, 'USER') :
+                            `Pingu Achievements are disabled.`
+                    );
                 }
             }
         }
@@ -301,7 +328,21 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
         let values = [`<@${_id}>`, displayName, prefix, embedColor].map((v, i) => i != 0 ? "`" + v + "`" : v);
         return titles.map((v, i) => `${v}: ${values[i]}`).join('\n') + "\n";
     }
+    /**@param {PGuild} pGuild*/
+    async function getMemberSince(pGuild) {
+        if (!message.client.guilds.cache.has(pGuild._id)) return null;
+        let guild = await message.client.guilds.fetch(pGuild._id);
+        if (!guild) return null;
 
+        let guildInfo = [`**${guild.name}**`];
+        let authorJoined = (await guild.members.fetch(message.author)).joinedTimestamp;
+        let clientJoined = guild.me.joinedTimestamp;
+
+        var knownSince = new TimeLeftObject(new Date(authorJoined < clientJoined ? clientJoined : authorJoined), new Date(Date.now()));
+        guildInfo.push(`Both been members for ${knownSince.toString()}.`);
+
+        return guildInfo.join('\n') + '\n';
+    }
     /**@param {PAchievement[]} pAchievements
      * @param {'USER' | 'GUILDMEMBER' | 'GUILD'} achievementType*/
     function getAchievements(pAchievements, achievementType) {
@@ -333,6 +374,8 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
 
                 result += `[${achievement._id}]: ${achievement.name} ${achievedAtString}\n`;
             });
+
+            if (!achievements.length) result += `No ${unlocked ? "Unlocked" : "Locked"} achievements.\n`;
 
             return result + "\n";
         }

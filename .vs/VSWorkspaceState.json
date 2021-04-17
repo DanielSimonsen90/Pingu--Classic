@@ -1,9 +1,13 @@
 {
   "ExpandedNodes": [
     "",
-    "\\commands\\4 DevOnly",
-    "\\events\\message"
+    "\\commands",
+    "\\commands\\1 Utility",
+    "\\commands\\1 Utility\\Information",
+    "\\events",
+    "\\events\\guild",
+    "\\events\\guild\\guildMember"
   ],
-  "SelectedNode": "\\events",
+  "SelectedNode": "\\events\\guild\\guildMember\\guildMemberAdd.js",
   "PreviewInSolutionExplorer": false
 }

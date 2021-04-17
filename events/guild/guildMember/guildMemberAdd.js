@@ -50,8 +50,8 @@ module.exports = {
 
                 if (welcomeChannel) {
                     PinguGuild.UpdatePGuild(client, { settings: pGuild.settings }, pGuild, module.exports.name,
-                        `Successfully added welcome channel to **${guild.name}**'s pGuild.`,
-                        `Error adding welcome channel to **${guild.name}**'s pGuild`
+                        `Successfully added welcome channel to **${guild.name}**'s Pingu Guild.`,
+                        `Error adding welcome channel to **${guild.name}**'s Pingu Guild`
                     );
                 }
             }

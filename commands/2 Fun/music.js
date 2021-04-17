@@ -154,7 +154,10 @@ async function HandleDisconnect(message, queue) {
     else if (message.member.voice.channel != message.guild.me.voice.channel) return message.channel.send(`You're not in my voice channel, so you can't disconnect me!`);
 
     message.guild.me.voice.connection.disconnect();
-    await queue.AnnounceMessage(message, `Disconnected!`, `**${message.member.displayName}** disconnected me!`);
+
+    const senderMsg = `Disconnected!`;
+    if (!queue) return message.channel.send(senderMsg);
+    await queue.AnnounceMessage(message, senderMsg, `**${message.member.displayName}** disconnected me!`);
 
     if (!Queue.get(message.guild.id)) return;
 

@@ -14,35 +14,35 @@ module.exports = new PinguCommand('whois', 'Utility', 'Gets the info of specifie
     }
 
     //Variables
-    var GuildMember = message.guild.members.cache.array().find(gm => [gm.user.username, gm.displayName, gm.user.id].includes(args[0])) ||
+    var member = message.guild.members.cache.array().find(gm => [gm.user.username, gm.displayName, gm.user.id].includes(args[0])) ||
         message.mentions.members.first(), //No arguments provided || No member found
-        user = GuildMember ? GuildMember.user : !isNaN(parseInt(args[0])) ? await message.client.users.fetch(args[0]) : message.mentions.users.first() || message.author;
+        user = member ? member.user : !isNaN(parseInt(args[0])) ? await message.client.users.fetch(args[0]) : message.mentions.users.first() || message.author;
 
     //Promise becomes a user
-    return args[0] != null && user != (GuildMember && GuildMember.user || true) ?
+    return args[0] != null && user != (member && member.user || true) ?
         await SendNonGuildMessage(message, user) :
-        await HandleGuildMember(message, GuildMember);
+        await HandleGuildMember(message, member || message.member);
 });
 
 /**@param {Message} message 
- * @param {GuildMember} GuildMember*/
-async function HandleGuildMember(message, GuildMember) {
-    let sharedWithClient = await PinguLibrary.getSharedServers(message.client, GuildMember.user);
+ * @param {GuildMember} member*/
+async function HandleGuildMember(message, member) {
+    let sharedWithClient = await PinguLibrary.getSharedServers(message.client, member.user);
     let sharedWithAuthor = sharedWithClient
         .filter(guild => guild.members.cache.has(message.author.id))
         .map(g => g.name)
         .join(', ');
 
-    return await SendGuildMessage(message, GuildMember, sharedWithAuthor);
+    return await SendGuildMessage(message, member, sharedWithAuthor);
 }
 /**@param {Message} message 
  * @param {GuildMember} gm 
  * @param {string[]} SharedServers*/
-async function SendGuildMessage(message, gm, SharedServers) {
+async function SendGuildMessage(message, gm, SharedServers, pGuildClient) {
     return await message.channel.send(new MessageEmbed()
         .setTitle(`"${gm.displayName}" (${gm.user.username})`)
         .setThumbnail(gm.user.avatarURL())
-        .setColor(GetColor(null, gm.user.presence))
+        .setColor(await GetColor(null, gm.user.presence))
         .addFields([
             new EmbedField(`ID`, gm.id, true),
             new EmbedField(`Created at`, gm.user.createdAt, true),
@@ -57,7 +57,7 @@ async function SendNonGuildMessage(message, user) {
     return await message.channel.send(new MessageEmbed()
         .setTitle(user.tag)
         .setThumbnail(user.avatarURL())
-        .setColor(await GetColor(null, user.presence))
+        .setColor()
         .addFields([
             new EmbedField(`ID`, user.id, true),
             new EmbedField(`Created at`, user.createdAt, true),

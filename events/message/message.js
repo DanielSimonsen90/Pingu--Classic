@@ -167,21 +167,21 @@ module.exports = new PinguEvent('message',
 
             let commands = client.commands.array();
             command = commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName))
-            if (command) return command;
+            if (command) {
+                //Music alias was used
+                if (command.name == 'music') {
+                    args.unshift(commandName);
+                    commandName = command.name;
+                }
+
+                return command;
+            }
 
             //If command assignment failed, assign command
             commandName = args[0] && args[0].toLowerCase();
             if (!commandName) return null;
 
-            command = client.commands.get(commandName) || commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
-
-            //Music alias was used
-            if (command.name == 'music') {
-                args.unshift(commandName);
-                commandName = command.name;
-            }
-
-            return command;
+            return command = client.commands.get(commandName) || commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
         }
         function DecodeCommand() {
             let returnValue = {
@@ -230,20 +230,16 @@ module.exports = new PinguEvent('message',
             try {
                 if (commandName == "tell") await HandleTell(message, args);
 
-                var pGuild = guild ? await PinguGuild.GetPGuild(guild) : null;
-                var pAuthor = await PinguUser.GetPUser(author);
+                var [pGuild, pGuildMember, pAuthor] = await Promise.all([
+                    guild ? PinguGuild.GetPGuild(guild) : null,
+                    PinguGuildMember.GetPGuildMember(member),
+                    PinguUser.GetPUser(author)
+                ]);
+                pAuthor ?? await PinguUser.WritePUser(client, author, module.exports.name,
+                    `Successfully added ${author.tag} to PinguUsers`,
+                    `Failed to add ${author.tag} to PinguUsers`
+                );
 
-                
-
-                if (!pAuthor) {
-                    await PinguUser.WritePUser(client, author, module.exports.name,
-                        `Successfully added ${author.tag} to PinguUsers`,
-                        `Failed to add ${author.tag} to PinguUsers`
-                    );
-                    pAuthor = await PinguUser.GetPUser(author);
-                }
-
-                var pGuildMember = await PinguGuildMember.GetPGuildMember(member);
                 var pGuildClient = guild && pGuild ? client.toPClient(pGuild) : null
                 var parameters = { client, message, args, pGuild, pAuthor, pGuildMember, pGuildClient }
 
@@ -252,7 +248,7 @@ module.exports = new PinguEvent('message',
 
                 const achieverClasses = { user: author, guildMember: member, guild };
 
-                await PinguLibrary.AchievementCheck(client, achieverClasses, 'COMMAND', command.name).catch(err => {
+                PinguLibrary.AchievementCheck(client, achieverClasses, 'COMMAND', command.name).catch(err => {
                     PinguLibrary.errorLog(client, `Handling COMMAND achievement check`, content, err, {
                         params: achievementParams,
                         additional: { achieverClasses }
