@@ -30,7 +30,7 @@ async function HandleGuildMember(message, member) {
     let sharedWithClient = await PinguLibrary.getSharedServers(message.client, member.user);
     let sharedWithAuthor = sharedWithClient
         .filter(guild => guild.members.cache.has(message.author.id))
-        .map(g => g.name)
+        .map(g => `${g.name}\n`)
         .join(', ');
 
     return await SendGuildMessage(message, member, sharedWithAuthor);

@@ -231,8 +231,8 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
                 switch (item) {
                     case 'guild': return new MessageEmbed().setDescription(await getMemberSince(pgm.guild) || 'Unavailable to calcualte');
                     case 'achievementsConfig': return new MessageEmbed().setDescription(
-                        pgm.achievementsConfig.enabled ?
-                            getAchievements(pgm.achievementsConfig.achievements, 'GUILDMEMBER') :
+                        pgm.achievementConfig.enabled ?
+                            getAchievements(pgm.achievementConfig.achievements, 'GUILDMEMBER') :
                             "Pingu Achievements are disabled."
                     );
                     default: return null;
