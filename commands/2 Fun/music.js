@@ -660,6 +660,7 @@ async function Play(message, song, queue) {
             PinguLibrary.consoleLog(message.client, `Finish: ${song.title}`);
             song.stop();
             queue = Queue.get(message.guild.id);
+            if (!queue) return;
 
             (await message.channel.messages.fetch({ after: message.id }))
                 .filter(m => m.embeds[0] && m.embeds[0].title && m.embeds[0].title.startsWith('Now playing:'))

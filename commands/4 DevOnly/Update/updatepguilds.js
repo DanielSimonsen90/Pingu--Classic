@@ -35,15 +35,15 @@ module.exports = new PinguCommand('updatepguilds', 'DevOnly', `Creates new Pingu
             else {
                 pGuild.settings.config.achievements = new GuildAchievementConfig({
                     guild: 'OWNER',
-                    members: 'NONE'
-                    //members: 'DM'
+                    members: 'DM'
                 }, pGuild._id);
                 pGuild.members = new Map();
                 BotGuilds[i].members.cache.array().forEach(gm => {
+                    if (gm.user.bot) return;
                     let pgm = new PinguGuildMember(gm, pGuild.settings.config.achievements.notificationTypes.members);
                     pGuild.members.set(pgm._id, pgm);
                 })
-                await PinguGuild.UpdatePGuild(client, { members: pGuild.members, settings: pGuild.settings }, pGuild, this.name,
+                await PinguGuild.UpdatePGuild(client, { members: pGuild.members, settings: pGuild.settings }, pGuild, module.exports.name,
                     `Added members & settings to ${pGuild.name}`,
                     `Failed to add members & settings to ${pGuild.name}`
                 )

@@ -26,13 +26,13 @@ class GuildAchievementConfig extends AchievementConfigBase_1.AchievementConfigBa
         return __awaiter(this, void 0, void 0, function* () {
             const color = PinguClient_1.ToPinguClient(client).DefaultEmbedColor;
             switch (config.notificationTypes.guild) {
-                case 'CHANNEL': return _super._notify.call(this, client, achievement, (percentage => new discord_js_1.MessageEmbed()
+                case 'CHANNEL': return _super._notify.call(this, client, achievement, percentage => new discord_js_1.MessageEmbed()
                     .setTitle(`🏆 Achievement Unlocked! 🏆\n${achievement.name}`)
                     .setDescription(achievement.description)
                     .setFooter(`${achiever.name} is one of the ${percentage.value}% of servers, that have achieved this!`)
                     .setTimestamp(Date.now())
                     .setThumbnail(achiever.iconURL())
-                    .setColor(color)), config.channel);
+                    .setColor(color), config.channel, config.notificationTypes.guild);
                 case 'OWNER':
                     let { owner } = achiever;
                     return _super._notify.call(this, client, achievement, (percentage) => new discord_js_1.MessageEmbed()
@@ -41,7 +41,7 @@ class GuildAchievementConfig extends AchievementConfigBase_1.AchievementConfigBa
                         .setFooter(`${achiever.name} is one of the ${percentage.value}% of servers, that have achieved this!`)
                         .setTimestamp(Date.now())
                         .setThumbnail(achiever.iconURL())
-                        .setColor(color), { _id: (yield owner.createDM()).id });
+                        .setColor(color), { _id: (yield owner.createDM()).id }, config.notificationTypes.members);
                 default: throw { message: `GuildNotificationType **${config.notificationTypes.guild}** was not recognized!` };
             }
         });

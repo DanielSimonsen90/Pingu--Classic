@@ -4,10 +4,14 @@
     "\\commands",
     "\\commands\\1 Utility",
     "\\commands\\1 Utility\\Information",
-    "\\events",
+    "\\commands\\2 Fun",
+    "\\commands\\4 DevOnly",
+    "\\commands\\4 DevOnly\\Update",
+    "\\errors",
     "\\events\\guild",
-    "\\events\\guild\\guildMember"
+    "\\events\\guild\\guildMember",
+    "\\Snippets"
   ],
-  "SelectedNode": "\\events\\guild\\guildMember\\guildMemberAdd.js",
+  "SelectedNode": "\\commands\\1 Utility\\Information\\achievement.js",
   "PreviewInSolutionExplorer": false
 }

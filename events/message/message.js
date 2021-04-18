@@ -1,5 +1,5 @@
 ﻿const { Guild, MessageEmbed } = require("discord.js");
-const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error, PClient, CommandCategories, PinguEvent, PinguGuildMember } = require("PinguPackage");
+const { PinguGuild, PinguLibrary, PinguUser, DiscordPermissions, Error, PClient, CommandCategories, PinguEvent, PinguGuildMember, PinguClient } = require("PinguPackage");
 const { HandleTell, ExecuteTellReply } = require('../../commands/2 Fun/Pingu User/tell');
 const { CheckRoleChange } = require("../guild/role/roleUpdate");
 
@@ -215,7 +215,10 @@ module.exports = new PinguEvent('message',
             //If DevOnly
             if (command.category == CommandCategories.DevOnly && !PinguLibrary.isPinguDev(author))
                 return returnValue.setMessage(`Who do you think you are exactly?`);
+            //else if (command.name == 'test' && client.isLive)
+            //    return returnValue.setMessage(`${client.DefaultPrefix}test should only be used on <@${PinguClient.Clients.PinguID}>.`);
 
+            //Permission check for required permissions
             if (channel.type != 'dm' && command.permissions) {
                 let permCheck = PinguLibrary.PermissionCheck(message, ...(command.permissions.includes('SEND_MESSAGES') ? command.permissions : [...command.permissions, 'SEND_MESSAGES']));
                 if (permCheck != PinguLibrary.PermissionGranted)

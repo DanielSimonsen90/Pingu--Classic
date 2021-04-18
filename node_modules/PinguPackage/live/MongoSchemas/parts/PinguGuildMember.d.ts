@@ -3,7 +3,7 @@ export declare const PinguGuildMember: {
         _id: StringConstructor;
         name: StringConstructor;
     };
-    achievementsConfig: {
+    achievementConfig: {
         notificationType: StringConstructor;
         achievements: {
             _id: StringConstructor;

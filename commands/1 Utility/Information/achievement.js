@@ -7,10 +7,12 @@ const {
 
 const achievementCommands = ["missing", "achieved", "info"];
 const achievementTypes = ["user", "member", "guild"];
-const toUsage = (arr) => arr.join('| ').substring(2);
+/**@param {string[]} arr*/
+const toUsage = (arr) => arr.join(' | ');
 
 module.exports = new PinguCommand('achievement', 'Utility', `All the information about achievements`, {
     usage: `<${toUsage(achievementCommands)}> <${toUsage(achievementTypes)}> [achievement id] [@User]`,
+    examples: ["missing", "missing user 2", "missing member 5 @Danho", "info guild", "achieved guild 756383096646926376"]
 }, async ({ client, message, args, pAuthor, pGuildMember, pGuild, pGuildClient }) => {
     const { granted, command, type, id, achievementID } = PermissionCheck(message, args);
     if (granted != PinguLibrary.PermissionGranted) return message.channel.send(granted);
@@ -21,14 +23,15 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
         case 'guild': return GuildType();
     }
 
-    function UserType() {
+    async function UserType() {
         const user = id ? client.users.cache.get(id) : message.author;
         const pUser = id ? await PinguUser.GetPUser(user) : pAuthor;
-        const pUserAchievementIDs = pUser.achievementConfig.achievements.map(a => a._id);
+        const pUserAchievement = pUser.achievementConfig.achievements;
+        const pUserAchievementIDs = pUserAchievement.map(a => a._id);
 
         switch (command) {
             case 'missing':
-                let missing = pUser.achievementConfig.achievements.find(a => a._id == achievementID) == null;
+                let missing = pUserAchievement.find(a => a._id == achievementID) == null;
                 return message.channel.send(
                     achievementID ?
                         `${(missing ? "Yes, " : "No, ")}` +
@@ -36,10 +39,11 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
                         `${(missing ? "" : "not ")}` +
                         `missing the **${UserAchievement.Achievements.find(a => a._id == achievementID).name}** achievement.`
                         :
+                        `${(id ? `${user.username} is ` : `You are`)} missing the following:\n` +
                         FormatAchievements(UserAchievement.Achievements.filter(a => !pUserAchievementIDs.includes(a._id)))
                 );
             case 'achieved':
-                let achieved = pUser.achievementConfig.achievements.find(a => a._id == achievementID) != null;
+                let achieved = pUserAchievement.find(a => a._id == achievementID) != null;
                 return message.channel.send(
                     achievementID ?
                         `${(achieved ? "Yes, " : "No, ")}` +
@@ -47,7 +51,8 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
                         `${(achieved ? "" : "not ")}` +
                         `achieved the **${UserAchievement.Achievements.find(a => a._id == achievementID).name}** achievement.`
                         :
-                        FormatAchievements(UserAchievement.Achievements.filter(a => !pUserAchievementIDs.includes(a._id)))
+                        `${(id ? `${user.username} has ` : `You have`)} achieved the following:\n` +
+                        FormatAchievements(UserAchievement.Achievements.filter(a => pUserAchievementIDs.includes(a._id)))
                 );
             case 'info':
                 let achievement = UserAchievement.Achievements.find(a => a._id == achievementID);
@@ -74,10 +79,13 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
                 );
         }
     }
-    function MemberType() {
+    async function MemberType() {
         const member = id ? message.guild.member(client.users.cache.get(id)) : message.member;
+        if (!member) return message.channel.send(`<@${id}> is not a member of this guild!`);
+
         const pMember = id ? await PinguGuildMember.GetPGuildMember(member) : pGuildMember;
-        const pMemberAchievementIDs = pMember.achievementConfig.achievements.map(a => a._id);
+        const pMemberAchievement = pMember.achievementConfig.achievements;
+        const pMemberAchievementIDs = pMemberAchievement.map(a => a._id);
 
         switch (command) {
             case 'missing':
@@ -89,10 +97,10 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
                         `${(missing ? "" : "not ")}` +
                         `missing the **${GuildMemberAchievement.Achievements.find(a => a._id == achievementID).name}** achievement.`
                         :
-                        FormatAchievements(GuildMemberAchievement.Achievements.filter(a => !pMemberAchievementIDs.includes(a._id)))
-                );
+                        `${(id ? `${member.user.username} is ` : `You are`)} missing the following:\n` +
+                        FormatAchievements(GuildMemberAchievement.Achievements.filter(a => !pMemberAchievementIDs.includes(a._id))));
             case 'achieved':
-                let achieved = pMember.achievementConfig.achievements.find(a => a._id == achievementID) != null;
+                let achieved = pMemberAchievement.find(a => a._id == achievementID) != null;
                 return message.channel.send(
                     achievementID ?
                         `${(achieved ? "Yes, " : "No, ")}` +
@@ -100,7 +108,8 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
                         `${(achieved ? "" : "not ")}` +
                         `achieved the **${GuildMemberAchievement.Achievements.find(a => a._id == achievementID).name}** achievement.`
                         :
-                        FormatAchievements(GuildMemberAchievement.Achievements.filter(a => !pMemberAchievementIDs.includes(a._id)))
+                        `${(id ? `${member.user.username} has ` : `You have`)} achieved the following:\n` +
+                        FormatAchievements(GuildMemberAchievement.Achievements.filter(a => pMemberAchievementIDs.includes(a._id)))
                 );
             case 'info':
                 let achievement = GuildMemberAchievement.Achievements.find(a => a._id == achievementID);
@@ -127,7 +136,7 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
                 );
         }
     }
-    function GuildType() {
+    async function GuildType() {
         const guild = id ? client.guilds.cache.get(id) : message.guild;
         if (!guild) return message.channel.send("I'm not a part of that guild!");
 
@@ -144,8 +153,8 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
                         `${guild.name} is ${(missing ? "" : "not ")}` +
                         `missing the **${GuildAchievement.Achievements.find(a => a._id == achievementID).name}** achievement.`
                         :
-                        FormatAchievements(GuildAchievement.Achievements.filter(a => !pGuildAchievementIDs.includes(a._id)))
-                );
+                        `${guild.name} is missing the following:\n` +
+                        FormatAchievements(GuildAchievement.Achievements.filter(a => !pGuildAchievementIDs.includes(a._id)))                );
             case 'achieved':
                 let achieved = pgAchievements.find(a => a._id == achievementID) != null;
                 return message.channel.send(
@@ -154,7 +163,8 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
                         `${guild.name} has ${(achieved ? "" : "not ")}` +
                         `achieved the **${GuildAchievement.Achievements.find(a => a._id == achievementID).name}** achievement.`
                         :
-                        FormatAchievements(GuildAchievement.Achievements.filter(a => !pGuildAchievementIDs.includes(a._id)))
+                        `${guild.name} has achieved the following:\n` +
+                        FormatAchievements(GuildAchievement.Achievements.filter(a => pGuildAchievementIDs.includes(a._id)))
                 );
             case 'info':
                 let achievement = GuildAchievement.Achievements.find(a => a._id == achievementID);
@@ -201,7 +211,7 @@ function PermissionCheck(message, args) {
 
     //Arguments length are met & command & type are both valid arguments
     const { command, type, achievementID } = result;
-    if (!command || !type || !achievementID ||
+    if (!command || !type ||
         !achievementCommands.includes(command) || !achievementTypes.includes(type)) {
         result.granted = `You didn't provide me with the achievement ${!command ? "command" : "type"}! Use the following:\n` +
             (!command ? achievementCommands : achievementTypes)
@@ -220,8 +230,14 @@ function PermissionCheck(message, args) {
                 default: return null;
             }
         })();
+
         if (isNaN(achievementID) || parseInt(achievementID) <= 0 || parseInt(achievementID) >= achievements.length)
-            result.granted = `The achievement id provided is not a valid id! Pick a number between 1 - ${achievements.length - 1}`;
+            if (!message.client.guilds.cache.has(achievementID) && !message.client.users.cache.has(achievementID))
+                result.granted = `The achievement id provided is not a valid id! Pick a number between 1 - ${achievements.length - 1}`;
+            else {
+                result.id = achievementID;
+                result.achievementID = null;
+            }
     }
 
     return result;
@@ -230,5 +246,5 @@ function PermissionCheck(message, args) {
 function FormatAchievements(achievements) {
     return achievements
         .map(a => `[${a._id}]: ${a.name}`)
-        .join('\n');
+        .join('\n') || "None found!";
 }
