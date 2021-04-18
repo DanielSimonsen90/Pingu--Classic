@@ -3,15 +3,14 @@
     "",
     "\\commands",
     "\\commands\\1 Utility",
+    "\\commands\\1 Utility\\Decidable",
     "\\commands\\1 Utility\\Information",
-    "\\commands\\2 Fun",
-    "\\commands\\4 DevOnly",
-    "\\commands\\4 DevOnly\\Update",
-    "\\errors",
+    "\\events",
+    "\\events\\client",
     "\\events\\guild",
     "\\events\\guild\\guildMember",
-    "\\Snippets"
+    "\\events\\message"
   ],
-  "SelectedNode": "\\commands\\1 Utility\\Information\\achievement.js",
+  "SelectedNode": "\\events\\message\\message.js",
   "PreviewInSolutionExplorer": false
 }
