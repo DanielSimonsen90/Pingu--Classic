@@ -37,7 +37,7 @@ module.exports = new PinguCommand('updatepusers', 'DevOnly', `Creates new PinguU
                     `Failed creating PinguUser for **${Users[i].tag}**`
                 );
             else {
-                await PinguUserSchema.updateMany({}, { $set: { achievementConfig: new UserAchievementConfig('DM') } }).exec();
+                await PinguUserSchema.updateMany({}, { $set: { achievementConfig: new UserAchievementConfig('NONE') } }).exec();
             }
         } catch (err) {
             PinguLibrary.errorLog(message.client, `Adding to PinguUsers failed`, message.content, err, {

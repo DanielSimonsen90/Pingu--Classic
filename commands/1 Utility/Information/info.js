@@ -33,7 +33,7 @@ module.exports = new PinguCommand('info', 'Utility', 'All da information you nee
         })());
     let prop = args.shift();
 
-    return await GetInfo(message, userType, type, obj, prop, pGuildClient);
+    return GetInfo(message, userType, type, obj, prop, pGuildClient);
 });
 
 
