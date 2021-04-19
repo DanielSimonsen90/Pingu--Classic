@@ -29,7 +29,7 @@ module.exports = new PinguCommand('test', 'DevOnly', `Test command for Danho`, {
                     `Thank you for understanding, and have an amazing day ${(PinguLibrary.getEmote(client, "hypers", PinguLibrary.SavedServers.PinguSupport(client)))}`
                 );
                 await sent.react('🗑️');
-                sent.createReactionCollector((reaction, user) => !user.bot, { time: ms('24h') }).on('collect', (reaction, user) => {
+                sent.createReactionCollector((reaction, user) => !user.bot, { time: ms('24h') }).on('collect', async (reaction, user) => {
                     await PinguUser.DeletePUser(client, user, module.exports.name,
                         `Successfully deleted ${user.tag} from my database, after reacting to the notice message in DMs.`,
                         `Failed to delete ${user.tag} from my database, after reacting to the notice message in DMs.`

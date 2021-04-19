@@ -235,13 +235,13 @@ module.exports = new PinguEvent('message',
 
                 var [pGuild, pGuildMember, pAuthor] = await Promise.all([
                     guild ? PinguGuild.GetPGuild(guild) : null,
-                    PinguGuildMember.GetPGuildMember(member),
+                    member ? PinguGuildMember.GetPGuildMember(member) : null,
                     PinguUser.GetPUser(author)
                 ]);
-                pAuthor ?? await PinguUser.WritePUser(client, author, module.exports.name,
+                pAuthor = !pAuthor ? await PinguUser.WritePUser(client, author, module.exports.name,
                     `Successfully added ${author.tag} to PinguUsers`,
                     `Failed to add ${author.tag} to PinguUsers`
-                );
+                ) : pAuthor;
 
                 var pGuildClient = guild && pGuild ? client.toPClient(pGuild) : null
                 var parameters = { client, message, args, pGuild, pAuthor, pGuildMember, pGuildClient }

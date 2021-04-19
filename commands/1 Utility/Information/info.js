@@ -1,6 +1,6 @@
 const { Message, MessageEmbed, Collection } = require('discord.js');
 const {
-    PinguCommand, PinguLibrary,
+    PinguCommand, PinguLibrary, PinguClient,
     PinguGuild, PinguGuildMember, PinguUser, PClient, PGuild,
     EmbedField, Queue, TimeLeftObject, Marry,
     UserAchievement, GuildMemberAchievement, GuildAchievement, PAchievement
@@ -11,8 +11,6 @@ const availableTypes = ['server', 'guild', 'user', 'bot', 'client'];
 module.exports = new PinguCommand('info', 'Utility', 'All da information you need', {
     usage: '<type: server | user> <property: all | <property>>'
 }, async ({ message, args, pAuthor, pGuild, pGuildMember, pGuildClient }) => {
-    if (!args || !args[0]) args[0] = message.guild ? 'guild' : 'user';
-
     let userType = args.shift().toLowerCase();
     let type =
         ['server', 'guild'].includes(userType) ? 'guild' :
@@ -315,7 +313,7 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
 
         let defaultEmbed = new MessageEmbed()
             .setTitle(title)
-            .setColor(pGuildClient.embedColor)
+            .setColor(pGuildClient ? pGuildClient.embedColor : PinguClient.ToPinguClient(message.client).DefaultEmbedColor)
             .setFooter(`Viewing information for: ${userType}`);
 
         Object.keys(embed).forEach(k => embed[k] ? defaultEmbed[k] = embed[k] : defaultEmbed[k]);
