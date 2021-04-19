@@ -16,7 +16,7 @@ module.exports = new PinguEvent('guildBanAdd',
             banSince: banAudit.createdAt,
         }
 
-        let pGuild = await PinguGuild.GetPGuild(guild);
+        let pGuild = await PinguGuild.Get(guild);
         let client = PinguClient.ToPinguClient(guild.client);
         let pGuildClient = client.toPClient(pGuild);
 

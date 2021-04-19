@@ -236,13 +236,14 @@ function SendEmotes(message, serverGuild) {
 function SendFeatures(message, serverGuild) {
     let FeatureList = serverGuild.features.map(feature => `${feature}\n`);
 
-    return FeatureList ?
-        message.channel.send(`There are no features in ${serverGuild.name}!`) :
-        message.channel.send(`**${serverGuild.name}'s Features**` + '```' + FeatureList + '```')
+    return message.channel.send(FeatureList ?
+        `There are no features in ${serverGuild.name}!` :
+        `**${serverGuild.name}'s Features**` + '```' + FeatureList + '```'
+    );
 }
 //#endregion
 
 /**@param {Guild} guild*/
 async function GetPGuildColor(guild) {
-    return PinguClient.ToPinguClient(guild.client).toPClient(await PinguGuild.GetPGuild(guild)).embedColor;
+    return PinguClient.ToPinguClient(guild.client).toPClient(await PinguGuild.Get(guild)).embedColor;
 }

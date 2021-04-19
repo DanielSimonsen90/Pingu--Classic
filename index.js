@@ -9,7 +9,9 @@
         'guildMemberAdd', 'guildMemberAvailable', 'guildMemberRemove', 'guildMemberUpdate',                                                                                     //guildMember
         'inviteCreate', 'inviteDelete',                                                                                                                                         //invite
         'roleCreate', 'roleDelete', 'roleUpdate',                                                                                                                               //role
-        'guildBanAdd', 'guildBanRemove', 'guildCreate', 'guildDelete', 'guildIntegrationsUpdate', 'guildUnavailable', 'guildUpdate', 'presenceUpdate', 'voiceStateUpdate',      //guild
+        'guildBanAdd', 'guildBanRemove',                                                                                                                                        //guild bans
+        'guildCreate', 'guildUpdate', 'guildDelete',                                                                                                                            //guild Crud
+        'guildIntegrationsUpdate', 'guildUnavailable', 'presenceUpdate', 'voiceStateUpdate', 'guildMemberSpeaking',                                                             //guild
         'messageReactionAdd', 'messageReactionRemove', 'messageReactionRemoveAll', 'messageReactionRemoveEmoji',                                                                //messageReaction
         'message', 'messageDelete', 'messageDeleteBulk', 'messageUpdate',                                                                                                       //message
         'userUpdate',                                                                                                                                                           //user

@@ -15,7 +15,7 @@ module.exports = new PinguEvent('guildUpdate',
                 'USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_1',
                 'USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_2',
                 'USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_3'
-            ].includes(m.type) && m.createdTimestamp > now.getTime());
+            ].includes(m.type) && m.createdTimestamp < now.getTime());
             if (lastBoostMessage) var lastBooster = lastBoostMessage.author.tag;
 
             if (!preGuild.region) return null;
@@ -174,16 +174,18 @@ module.exports = new PinguEvent('guildUpdate',
         }
     },
     async function execute(client, preGuild, guild) {
-        let pGuild = await PinguGuild.GetPGuild(guild);
-        let updated = {};
+        let pGuild = await PinguGuild.Get(guild);
+        let updated = [];
 
-        if (preGuild.name != guild.name) updated.name = guild.name;
-
+        if (preGuild.name != guild.name) {
+            pGuild.name = guild.name;
+            updated.push('name');
+        }
         let welcomePChannel = pGuild.settings.welcomeChannel;
         let welcomeChannel = welcomePChannel && guild.channels.cache.find(c => c.id == welcomePChannel._id)
         if (welcomeChannel && welcomeChannel.name != welcomePChannel.name) {
-            updated.settings = pGuild.settings;
-            updated.settings.welcomeChannel = new PChannel(welcomeChannel);
+            pGuild.settings.welcomeChannel = new PChannel(welcomeChannel);
+            updated.push('settings');
         }
         if (pGuild.settings.reactionRoles.length) {
             let rrPChannels = pGuild.settings.reactionRoles.map(rr => rr.channel._id);
@@ -196,18 +198,20 @@ module.exports = new PinguEvent('guildUpdate',
             });
 
             if (pGuild.settings.reactionRoles.find((rr, i) =>
-                rr.channel.name != newReactionRoles[i].channel.name))
-                updated.reactionRoles = newReactionRoles;
+                rr.channel.name != newReactionRoles[i].channel.name)) {
+                pGuild.reactionRoles = newReactionRoles;
+                updated.push('reactionRoles');
+            }
         }
 
-        if (guild.ownerID != pGuild.guildOwner._id) updated.guildOwner = new PGuildMember(guild.owner);
+        if (guild.ownerID != pGuild.guildOwner._id) {
+            pGuild.guildOwner = new PGuildMember(guild.owner);
+            updated.push('guildOwner');
+        }
 
         //Event didn't update something that should be saved to MongolDB
-        if (!Object.keys(updated)[0]) return;
+        if (!updated[0]) return;
 
-        await PinguGuild.UpdatePGuild(client, updated, pGuild, module.exports.name,
-            `Successfully updated **${guild.name}**'s ${(preGuild.name != guild.name ? `(${preGuild.name}) ` : "")}Pingu Guild.`,
-            `Unable to update **${guild.name}**'s ${(preGuild.name != guild.name ? `(${preGuild.name})` : "")} Pingu Guild.`
-        );
+        await PinguGuild.Update(client, updated, pGuild, module.exports.name, updated.join(', '));
     }
 );

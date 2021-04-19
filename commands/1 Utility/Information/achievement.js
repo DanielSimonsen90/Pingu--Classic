@@ -25,7 +25,7 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
 
     async function UserType() {
         const user = id ? client.users.cache.get(id) : message.author;
-        const pUser = id ? await PinguUser.GetPUser(user) : pAuthor;
+        const pUser = id ? await PinguUser.Get(user) : pAuthor;
         const pUserAchievement = pUser.achievementConfig.achievements;
         const pUserAchievementIDs = pUserAchievement.map(a => a._id);
 
@@ -83,7 +83,7 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
         const member = id ? message.guild.member(client.users.cache.get(id)) : message.member;
         if (!member) return message.channel.send(`<@${id}> is not a member of this guild!`);
 
-        const pMember = id ? await PinguGuildMember.GetPGuildMember(member) : pGuildMember;
+        const pMember = id ? await PinguGuildMember.Get(member) : pGuildMember;
         const pMemberAchievement = pMember.achievementConfig.achievements;
         const pMemberAchievementIDs = pMemberAchievement.map(a => a._id);
 
@@ -140,7 +140,7 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
         const guild = id ? client.guilds.cache.get(id) : message.guild;
         if (!guild) return message.channel.send("I'm not a part of that guild!");
 
-        const pg = id ? await PinguGuild.GetPGuild(guild) : pGuild;
+        const pg = id ? await PinguGuild.Get(guild) : pGuild;
         const pgAchievements = pg.settings.config.achievements.achievements;
         const pGuildAchievementIDs = pgAchievements.map(a => a._id);
 

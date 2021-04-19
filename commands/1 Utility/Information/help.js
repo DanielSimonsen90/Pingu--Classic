@@ -149,7 +149,7 @@ function getMainCategories() {
 }
 /**@param {string} item*/
 function Uppercased(item) {
-    return item.substring(0, 1).toUpperCase() + item.substring(1, item.length).toLowerCase();
+    return item.substring(0, 1).toUpperCase() + item.substring(1).toLowerCase();
 }
 
 

@@ -1,5 +1,5 @@
 ﻿const { TextChannel, MessageEmbed, Client, Guild } = require("discord.js");
-const { PinguEvent, PinguGuild, PChannel, PinguUser, PinguClient } = require("PinguPackage");
+const { PinguEvent, PinguGuild, PChannel, PinguUser, PinguClient, PinguGuildMember } = require("PinguPackage");
 
 module.exports = {
     ...new PinguEvent('guildMemberAdd',
@@ -9,7 +9,7 @@ module.exports = {
         async function execute(client, member) {
             if (!client.isLive && member.guild.members.cache.has(PinguClient.Clients.PinguID)) return;
 
-            let pGuild = await PinguGuild.GetPGuild(member.guild);
+            let pGuild = await PinguGuild.Get(member.guild);
             let pGuildClient = client.toPClient(pGuild);
 
             let welcomeChannel = module.exports.getWelcomeChannel(client, member.guild);
@@ -23,20 +23,25 @@ module.exports = {
                     .setThumbnail(member.guild.iconURL())
                 );
 
-            (async function AddToPinguUsers() {
-                if (!member.user.bot && !await PinguUser.GetPUser(member.user))
-                    PinguUser.WritePUser(client, member.user, module.exports.name,
-                        `Added **${member.user.tag}** to PinguUsers`,
-                        `Failed to add **${member.user.tag}** to PinguUsers!`
-                    );
-            })();
+            if (member.user.bot) return;
+            await Promise.all([
+                (async function AddToPinguUsers() {
+                    if (!await PinguUser.Get(member.user))
+                        PinguUser.Write(client, member.user, module.exports.name, `**${member.user.username}** joined **${member.guild.name}**.`);
+                })(),
+                (async function AddToPinguGuildMembers() {
+                    const pGuildMember = await PinguGuildMember.Write(member, true);
+                    pGuild.members.set(member.id, pGuildMember);
+                    return PinguGuild.Update(client, ['members'], pGuild, module.exports.name, `New member was added to **${pGuild.name}**'s PinguGuild.`);
+                })()
+            ])
         }
     ), ...{
         /**@param {Client} client
          * @param {Guild} guild
          * @returns {Promise<TextChannel>} */
         async getWelcomeChannel(client, guild) {
-            let pGuild = await PinguGuild.GetPGuild(guild);
+            let pGuild = await PinguGuild.Get(guild);
             let welcomePChannel = pGuild.settings.welcomeChannel;
             let welcomeChannel = guild.channels.cache.find(c => c.id == (welcomePChannel && welcomePChannel._id));
 
@@ -48,12 +53,7 @@ module.exports = {
 
                 pGuild.settings.welcomeChannel = new PChannel(welcomeChannel);
 
-                if (welcomeChannel) {
-                    PinguGuild.UpdatePGuild(client, { settings: pGuild.settings }, pGuild, module.exports.name,
-                        `Successfully added welcome channel to **${guild.name}**'s Pingu Guild.`,
-                        `Error adding welcome channel to **${guild.name}**'s Pingu Guild`
-                    );
-                }
+                if (welcomeChannel) PinguGuild.Update(client, ['settings'], pGuild, module.exports.name, `Added welcome channel to **${guild.name}**'s Pingu Guild.`);
             }
             return welcomeChannel;
         }

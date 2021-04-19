@@ -31,6 +31,7 @@ export declare class PinguCommand extends PinguHandler {
         examples?: string[];
         permissions: PermissionString[];
         aliases?: string[];
+        mustBeBeta?: false;
     }, execute: (params: PinguCommandParams) => Promise<ExecuteReturns>);
     description: string;
     usage: string;
@@ -40,6 +41,7 @@ export declare class PinguCommand extends PinguHandler {
     examples: string[];
     permissions: PermissionString[];
     aliases: string[];
+    mustBeBeta: boolean;
     execute(params: PinguCommandParams): Promise<ExecuteReturns>;
 }
 export {};
