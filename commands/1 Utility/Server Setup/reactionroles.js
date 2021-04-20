@@ -136,10 +136,7 @@ async function SetReactionRoles(pGuild, rrMessage, emote, role) {
 
     reactionRoles.push(new ReactionRole(rrMessage, emote && emote.name || emote, role));
 
-    await PinguGuild.UpdatePGuild(rrMessage.client, { settings: pGuild.settings }, pGuild, `ReactionRoles: SetReactionRoles`,
-        `Successfully saved **${rrMessage.guild.name}**'s ReactionRole using ${(emote.name || emote)} giving ${role.name}.`,
-        `Failed saving **${rrMessage.guild.name}**'s ReactionRole!`
-    );
+    await PinguGuild.Update(rrMessage.client, ['settings'], pGuild, `ReactionRoles: SetReactionRoles`, `Added ReactionRole to **${rrMessage.guild.name}**'s PinguGuild using ${(emote.name || emote)} giving ${role.name}.`);
 
     return PinguLibrary.PermissionGranted;
 }
@@ -152,7 +149,7 @@ async function SetReactionRoles(pGuild, rrMessage, emote, role) {
 async function Delete(message, channel, rrMessage, emote, args) {
     let removeFromUsers = args[0] && args.shift().toLowerCase() == `true`;
 
-    let pGuild = await PinguGuild.GetPGuild(rrMessage.guild);
+    let pGuild = await PinguGuild.Get(rrMessage.guild);
     let { reactionRoles } = pGuild.settings;
     let rr = reactionRoles.find(rr => rr.channel._id == channel.id && rr.messageID == rrMessage.id && (rr.emoteName == emote.name || rr.emoteName == emote));
     if (!rr) return message.channel.send(`I wasn't able to find that reactionrole in your pGuild!`);
@@ -180,10 +177,6 @@ async function Delete(message, channel, rrMessage, emote, args) {
             await reaction.remove();
     }
 
-    await PinguGuild.UpdatePGuild(message.client, { settings: pGuild.settings }, pGuild, `reactionroles: Delete()`,
-        `Successfully deleted **${rrMessage.guild.name}**'s ${rr.emoteName} ReactionRole`,
-        `Failed deleting **${rrMessage.guild.name}**'s ${rr.emoteName} ReactionRole`
-    );
-
+    await PinguGuild.Update(message.client, ['settings'], pGuild, `reactionroles: Delete()`, `Deleted **${rrMessage.guild.name}**'s ${rr.emoteName} ReactionRole`);
     return message.channel.send(`Reaction role for ${emote} was removed.`);
 }

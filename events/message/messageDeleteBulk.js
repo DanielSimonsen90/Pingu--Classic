@@ -6,7 +6,7 @@ module.exports = new PinguEvent('messageDeleteBulk',
         return module.exports.content = new MessageEmbed().setDescription(`Deleted ${messages.size} messages from ${messages.first().channel}`);
     },
     async function execute(client, messages) {
-        let pGuild = await PinguGuild.GetPGuild(messages.first().guild);
+        let pGuild = await PinguGuild.Get(messages.first().guild);
         let { reactionRoles } = pGuild.settings;
         let messageIDs = messages.map(m => m.id);
 

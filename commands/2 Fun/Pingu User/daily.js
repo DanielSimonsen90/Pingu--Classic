@@ -21,10 +21,7 @@ module.exports = new PinguCommand('daily', 'Fun', `Daily streams just like as if
 
         nextClaim = new TimeLeftObject(now, endsAt);
 
-        PinguUser.UpdatePUser(client, { daily }, pAuthor, "daily",
-            `Successfully updated **${message.author.tag}**'s daily endsAt.`,
-            `Failed updating **${message.author.tag}**'s daily endsAt`
-        );
+        PinguUser.Update(client, ['daily'], pAuthor, module.exports.name, `**${message.author.tag}**'s daily endsAt.`);
 
         let hourDiff = (now.getDate() > lastClaimDate.getDate() ? 24 : 0) - now.getHours() - lastClaimDate.getHours();
         const format = {
@@ -44,9 +41,8 @@ module.exports = new PinguCommand('daily', 'Fun', `Daily streams just like as if
             daily.lastClaim = now;
             daily.nextClaim = new TimeLeftObject(now, new Date(new Date(Date.now()).setHours(now.getHours() + timeBetweenClaims)));
 
-            setTimeout(async () => await PinguUser.UpdatePUser(client, { daily: pAuthor.daily }, pAuthor, "daily",
-                `Successfully updated **${message.author.tag}**'s daily streak.`,
-                `Failed updating **${message.author.tag}**'s daily streak`
+            setTimeout(async () => await PinguUser.Update(client, ['daily'], pAuthor, "daily",
+                `Updated **${message.author.tag}**'s daily streak to ${daily.streak}.`
             ), 5000);
 
             return message.channel.send(new MessageEmbed()

@@ -5,12 +5,12 @@ module.exports = new PinguCommand('marry', 'Fun', 'Marries a user', {
     usage: '[divorce] <@user>',
     guildOnly: true,
     examples: ["@Danho2105", "divorce"]
-}, async ({ message, args, pAuthor, pGuildClient }) => {
+}, async ({ client, message, args, pAuthor, pGuildClient }) => {
     if (!pAuthor) return message.channel.send(`I can't find your PinguUser in my database!`);
 
     else if (args[0] && args[0].toLowerCase() == `divorce`) {
         if (pAuthor.marry.partner) return HandleDivorce(message, pAuthor);
-        else return message.channel.send(`Divorce who? ${PinguLibrary.getEmote(message.client, 'kekw', PinguLibrary.SavedServers.DeadlyNinja(message.client))}`);
+        else return message.channel.send(`Divorce who? ${PinguLibrary.getEmote(message.client, 'kekw', PinguLibrary.SavedServers.DeadlyNinja(client))}`);
     }
 
     else if (!message.mentions.users.first()) {
@@ -21,7 +21,7 @@ module.exports = new PinguCommand('marry', 'Fun', 'Marries a user', {
     else if (pAuthor.marry.partner) return message.channel.send(`You're already married, you unloyal filth!`);
 
     let partner = message.mentions.users.first();
-    let pPartner = await PinguUser.GetPUser(partner);
+    let pPartner = await PinguUser.Get(partner);
 
     if (pPartner.marry.partner) return message.channel.send(`I'm sorry, ${message.author}, ${partner} is already married!`);
 
@@ -39,16 +39,15 @@ module.exports = new PinguCommand('marry', 'Fun', 'Marries a user', {
     pAuthor.marry = authorMarry;
     pPartner.marry = partnerMarry;
 
-    message.channel.send(new MessageEmbed()
+    await UpdatePUsers(message, pAuthor, pPartner);
+    return message.channel.send(new MessageEmbed()
         .setTitle(`${message.author.username} & ${partner.username} are now married!`)
         .setDescription(`Everyone give them gifts now and wish for them to have a *lovely* honeymoon 😏`)
-        .attachFiles([new MessageAttachment(PinguLibrary.getImage(this.name, 'nowMarried'), 'nowMarried.png')])
+        .attachFiles([new MessageAttachment(PinguLibrary.getImage(module.exports.name, 'nowMarried'), 'nowMarried.png')])
         .setThumbnail('attachment://nowMarried.png')
         .setTimestamp(Date.now())
         .setColor(pGuildClient.embedColor)
-    )
-
-    return UpdatePUsers(message, pAuthor, pPartner);
+    );
 });
 
 /**@param {Message} message
@@ -57,37 +56,32 @@ async function HandleDivorce(message, pAuthor) {
     message.channel.send(`Are you sure you want to divorce <@${pAuthor.marry.partner._id}>? ` + "`Yes` or `No`");
     let response = (await message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1 })).first().content.toLowerCase();
 
-    if (response == 'yes') {
-        let partner = message.client.users.cache.find(u => u.id == pAuthor.marry.partner._id);
-        let pPartner = await PinguUser.GetPUser(partner);
+    if (response != 'yes')
+        return message.channel.send(`Alright then.`);
 
-        let authorMarry = new Marry(pAuthor.marry.partner, pAuthor.marry.internalDate);
-        let partnerMarry = new Marry(pPartner.marry.partner, pPartner.marry.internalDate);
+    let partner = message.client.users.cache.find(u => u.id == pAuthor.marry.partner._id);
+    let pPartner = await PinguUser.Get(partner);
 
-        authorMarry.divorce();
-        partnerMarry.divorce();
+    let authorMarry = new Marry(pAuthor.marry.partner, pAuthor.marry.internalDate);
+    let partnerMarry = new Marry(pPartner.marry.partner, pPartner.marry.internalDate);
 
-        pAuthor.marry = authorMarry;
-        pPartner.marry = partnerMarry;
+    authorMarry.divorce();
+    partnerMarry.divorce();
 
-        UpdatePUsers(message, pAuthor, pPartner);
+    pAuthor.marry = authorMarry;
+    pPartner.marry = partnerMarry;
 
-        return message.channel.send(`Congratulations. You're now a free being! ${PinguLibrary.getEmote(message.client, 'hypers', PinguLibrary.SavedServers.PinguSupport(message.client))}`);
-    }
-    else return message.channel.send(`Alright then.`);
+    UpdatePUsers(message, pAuthor, pPartner);
+
+    return message.channel.send(`Congratulations. You're now a free being! ${PinguLibrary.getEmote(message.client, 'hypers', PinguLibrary.SavedServers.PinguSupport(message.client))}`);
 }
 
 /**@param {Message} message
  * @param {PinguUser} pAuthor
  * @param {PinguUser} pPartner*/
 async function UpdatePUsers(message, pAuthor, pPartner) {
-    PinguUser.UpdatePUser(message.client, { marry: pAuthor.marry }, pAuthor, module.exports.name,
-        `Successfully updated **${pAuthor.tag}**'s marry property`,
-        `Failed updating **${pAuthor.tag}**'s marry property!`
-    );
-
-    PinguUser.UpdatePUser(message.client, { marry: pPartner.marry }, pPartner, module.exports.name,
-        `Successfully updated **${pPartner.tag}**'s marry property`,
-        `Failed updating **${pPartner.tag}**'s marry property!`
-    );
+    return Promise.all([
+        PinguUser.Update(message.client, ['marry'], pAuthor, module.exports.name, `**${pAuthor.tag}**'s marry property was modified`),
+        PinguUser.Update(message.client, ['marry'], pPartner, module.exports.name, `**${pPartner.tag}**'s marry property was modified`)
+    ]);
 }

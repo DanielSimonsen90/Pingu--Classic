@@ -23,14 +23,14 @@ export class GuildAchievementConfig extends AchievementConfigBase {
     public static async notify(client: Client, achiever: Guild, achievement: GuildAchievement<GuildAchievementTypeKey, GuildAchievementType[GuildAchievementTypeKey]>, config: GuildAchievementConfig) {
         const color = ToPinguClient(client).DefaultEmbedColor;
         switch (config.notificationTypes.guild) {
-            case 'CHANNEL': return super._notify(client, achievement, (percentage => new MessageEmbed()
+            case 'CHANNEL': return super._notify(client, achievement, percentage => new MessageEmbed()
                 .setTitle(`🏆 Achievement Unlocked! 🏆\n${achievement.name}`)
                 .setDescription(achievement.description)
                 .setFooter(`${achiever.name} is one of the ${percentage.value}% of servers, that have achieved this!`)
                 .setTimestamp(Date.now())
                 .setThumbnail(achiever.iconURL())
                 .setColor(color)
-            ), config.channel);
+            , config.channel, config.notificationTypes.guild as AchievementBaseNotificationType);
             case 'OWNER':
                 let { owner } = achiever;
                 return super._notify(client, achievement, (percentage) => new MessageEmbed()
@@ -40,7 +40,7 @@ export class GuildAchievementConfig extends AchievementConfigBase {
                     .setTimestamp(Date.now())
                     .setThumbnail(achiever.iconURL())
                     .setColor(color)
-                    , {_id: (await owner.createDM()).id });
+            , {_id: (await owner.createDM()).id }, config.notificationTypes.members as AchievementBaseNotificationType);
             default: throw { message: `GuildNotificationType **${config.notificationTypes.guild}** was not recognized!`};
         }
     }

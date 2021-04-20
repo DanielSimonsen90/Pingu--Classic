@@ -65,7 +65,7 @@ module.exports = new PinguEvent('onready',
                         }
                         async function getDailyLeader() {
                             try {
-                                let pUser = (await PinguUser.GetPUsers()).sort((a, b) => {
+                                let pUser = (await PinguUser.GetUsers()).sort((a, b) => {
                                     try { return b.daily.streak - a.daily.streak }
                                     catch (err) { PinguLibrary.errorLog(client, `unable to get daily streak difference between ${a.tag} and ${b.tag}`, null, err); }
                                 })[0];
@@ -73,7 +73,7 @@ module.exports = new PinguEvent('onready',
                             }
                             catch (err) {
                                 PinguLibrary.errorLog(client, `Unable to get Daily Leader`, null, err, {
-                                    PinguUsers: await PinguUser.GetPUsers()
+                                    PinguUsers: await PinguUser.GetUsers()
                                 });
                             }
                         }
@@ -86,7 +86,7 @@ module.exports = new PinguEvent('onready',
                             let index = Math.floor(Math.random() * availableGuilds.length);
 
                             let chosenGuild = availableGuilds[index];
-                            let pGuild = await PinguGuild.GetPGuild(chosenGuild);
+                            let pGuild = await PinguGuild.Get(chosenGuild);
                             //client.emit('chosenGuild', ...[chosenGuild, pGuild]);
                             return chosenGuild.name;
                         }
@@ -95,7 +95,7 @@ module.exports = new PinguEvent('onready',
                             let index = Math.floor(Math.random() * availableUsers.length);
 
                             let chosenUser = availableUsers[index];
-                            let pUser = await PinguUser.GetPUser(chosenUser);
+                            let pUser = await PinguUser.Get(chosenUser);
 
                             //client.emit('chosenUser', ...[chosenUser, pUser]);
                             return chosenUser.tag;
@@ -133,7 +133,7 @@ module.exports = new PinguEvent('onready',
 
         async function CacheFromDB() {
             for (var guild of client.guilds.cache) {
-                let pGuild = await PinguGuild.GetPGuild(guild);
+                let pGuild = await PinguGuild.Get(guild);
                 if (!pGuild) return;
 
                 let { reactionRoles } = pGuild.settings;

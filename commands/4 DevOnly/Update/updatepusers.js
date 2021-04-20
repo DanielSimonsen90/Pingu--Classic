@@ -30,14 +30,11 @@ module.exports = new PinguCommand('updatepusers', 'DevOnly', `Creates new PinguU
         if (arg && arg != "show" && (![pUser.tag.toLowerCase(), pUser._id, `<@${pUser._id}>`, `<@!${pUser._id}>`].includes(arg))) continue;
 
         try {
-            var awaitedPUser = await PinguUser.GetPUser(Users[i]);
+            var awaitedPUser = await PinguUser.Get(Users[i]);
             if (!awaitedPUser)
-                await PinguUser.WritePUser(message.client, Users[i], module.exports.name,
-                    `Successfully created PinguUser for **${Users[i].tag}**`,
-                    `Failed creating PinguUser for **${Users[i].tag}**`
-                );
+                await PinguUser.Write(message.client, Users[i], module.exports.name, `Manually created **${Users[i].tag}** in updatepusers.`);
             else {
-                await PinguUserSchema.updateMany({}, { $set: { achievementConfig: new UserAchievementConfig('DM') } }).exec();
+                //await PinguUserSchema.updateMany({}, { $set: { achievementConfig: new UserAchievementConfig('NONE') } }).exec();
             }
         } catch (err) {
             PinguLibrary.errorLog(message.client, `Adding to PinguUsers failed`, message.content, err, {

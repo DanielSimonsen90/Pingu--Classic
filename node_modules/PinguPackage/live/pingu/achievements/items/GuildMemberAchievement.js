@@ -33,9 +33,11 @@ class GuildMemberAchievement extends AchievementBase_1.AchievementBase {
     }
     getPercentage(guild) {
         return __awaiter(this, void 0, void 0, function* () {
-            let pGuildMembers = (yield PinguGuild_1.GetPGuild(guild)).members.array();
-            let whole = pGuildMembers.length;
-            let part = pGuildMembers.filter(pGuildMember => pGuildMember.achievementsConfig.achievements.find(a => a._id == this._id)).length;
+            let pGuildMembersMap = ((yield PinguGuild_1.GetPGuild(guild)).members);
+            let whole = pGuildMembersMap.size;
+            let pGuildMembers = [];
+            pGuildMembersMap.forEach(v => pGuildMembers.push(v));
+            let part = pGuildMembers.filter(pGuildMember => pGuildMember.achievementConfig.achievements.find(a => a._id == this._id)).length;
             return new helpers_1.Percentage(whole, part);
         });
     }
@@ -95,7 +97,7 @@ GuildMemberAchievement.Achievements = [
     })),
     new GuildMemberAchievement(16, "Text-To-Image", 'CHANNEL', "Emotes", GuildAchievement_1.useChannel('Emotes', "create an emote")),
     new GuildMemberAchievement(17, "I have spoken", 'EVENT', 'guildMemberSpeaking', "Say something in a voice channel"),
-    new GuildMemberAchievement(18, "Twitch might as well partner me now", 'VOICE', 'Streaming', "Live stream in a voice channel"),
+    new GuildMemberAchievement(18, "Twitch might as well partner me now", 'VOICE', 'Streaming', "Livestream in a voice channel"),
     new GuildMemberAchievement(19, "Subscribe to my OnlyFans!", 'VOICE', 'Video', "Turn on your camera in a voice channel"),
     new GuildMemberAchievement(20, "Noice", 'VOICE', 'Noice', "Use the `noice` command in a voice channel"),
     new GuildMemberAchievement(21, "I don't ever want to see you again.", 'MODERATION', 'Ban', "Ban someone from the server"),

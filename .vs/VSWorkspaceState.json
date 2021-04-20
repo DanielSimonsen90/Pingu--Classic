@@ -1,7 +1,16 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\commands",
+    "\\commands\\1 Utility",
+    "\\commands\\1 Utility\\Decidable",
+    "\\commands\\1 Utility\\Information",
+    "\\events",
+    "\\events\\client",
+    "\\events\\guild",
+    "\\events\\guild\\guildMember",
+    "\\events\\message"
   ],
-  "SelectedNode": "\\index.js",
+  "SelectedNode": "\\events\\message\\message.js",
   "PreviewInSolutionExplorer": false
 }

@@ -25,14 +25,14 @@ module.exports = new PinguCommand('role', 'Utility', 'Gives a role to author or 
             case 'unset': case 'removepermission': return RemovePermission(message, args, role);
             case 'check': case 'has': return CheckPermission(message, args, (role || person));
             default: return PinguLibrary.errorLog(message.client, `Ran default case in *role`, message.content, null, {
-                params: { client, message, args },
+                params: { message, args },
                 additional: { command, person, role }
             }); 
         }
     }
     catch (err) {
         PinguLibrary.errorLog(message.client, `${client.DefaultPrefix}role command error`, message.content, err, {
-            params: { client, message, args },
+            params: { message, args },
             additional: { command, person, role }
         }).then(() =>
             message.channel.send("I encountered an error when checking! I've contacted my developers."));

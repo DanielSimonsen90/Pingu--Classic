@@ -18,6 +18,8 @@ const PinguClient_1 = require("../../client/PinguClient");
 function GetReactionRole(client, reaction, user) {
     return __awaiter(this, void 0, void 0, function* () {
         let guild = reaction.message.guild;
+        if (!guild)
+            return;
         let pGuild = yield PinguGuild_1.GetPGuild(guild);
         var rr = pGuild.settings.reactionRoles.find(rr => rr.messageID == reaction.message.id &&
             (rr.emoteName == reaction.emoji.name) &&
@@ -43,9 +45,9 @@ function GetReactionRole(client, reaction, user) {
 exports.GetReactionRole = GetReactionRole;
 function OnReactionAdd(reaction, user) {
     return __awaiter(this, void 0, void 0, function* () {
-        const client = user.client;
+        const { client } = user;
         try {
-            var role = yield ReactionRole.GetReactionRole(client, reaction, user);
+            var role = yield GetReactionRole(client, reaction, user);
             if (!role)
                 return;
             var member = reaction.message.guild.member(user);
@@ -103,7 +105,7 @@ function OnReactionRemoveAll(message, client) {
             pGuild.settings.reactionRoles.splice(i, 1);
             PinguLibrary_1.consoleLog(message.client, `Removed ${rr.emoteName} => ${rr.pRole.name}`);
         }
-        return PinguGuild_1.UpdatePGuild(message.client, { settings: pGuild.settings }, pGuild, module.exports.name, `Successfully removed **${message.guild.name}**'s reactionroles for ${message.id}`, `Failed to remove **${message.guild.name}**'s reactionroles for ${message.id}`);
+        return PinguGuild_1.UpdatePGuild(message.client, ['settings'], pGuild, module.exports.name, `Removed **${message.guild.name}**'s reactionroles for ${message.id}`);
     });
 }
 exports.OnReactionRemoveAll = OnReactionRemoveAll;
@@ -129,7 +131,8 @@ function RemoveReactionRole(rr, reactionRoles, pGuild, client) {
     return __awaiter(this, void 0, void 0, function* () {
         let index = reactionRoles.indexOf(rr);
         reactionRoles[index] = null;
-        return PinguGuild_1.UpdatePGuild(client, { settings: pGuild.settings }, pGuild, module.exports.name, `Successfully removed ${rr.emoteName} from **${pGuild.name}**'s Pingu Guild.`, `Failed to remove ${rr.emoteName} from **${pGuild.name}**'s Pingu Guild.`);
+        PinguGuild_1.UpdatePGuild(client, ['settings'], pGuild, module.exports.name, `Removed ${rr.emoteName} from **${pGuild.name}**'s Pingu Guild.`);
+        return;
     });
 }
 exports.RemoveReactionRole = RemoveReactionRole;
@@ -139,7 +142,7 @@ function OnMessageDelete(message) {
         let { guild } = message;
         if (!guild)
             return;
-        let pGuild = yield PinguGuild_1.PinguGuild.GetPGuild(guild);
+        let pGuild = yield PinguGuild_1.PinguGuild.Get(guild);
         if (!pGuild)
             return;
         let pGuildClient = client.toPClient(pGuild);

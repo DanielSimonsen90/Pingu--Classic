@@ -1,5 +1,6 @@
 ﻿const { Message, User, MessageEmbed } = require("discord.js");
 const { PinguCommand, PinguLibrary, PinguUser, PUser, PinguGuild, PinguClient } = require("PinguPackage");
+const { pushd } = require("shelljs");
 
 module.exports = {
     ...new PinguCommand('tell', 'Fun', 'Messages a user from Pingu 👀', {
@@ -14,13 +15,13 @@ module.exports = {
         while (UserMention.includes('_')) UserMention = UserMention.replace('_', ' ');
 
         const Mention = UserMention == 'info' ? 'info' : module.exports.GetMention(message, UserMention);
-            if (!Mention) return PinguLibrary.errorLog(client, `Mention returned null`, message.content, null, {
-                params: { client, message, args, pAuthor, pGuildClient },
-                additional: { UserMention, Mention },
-            });
+        if (!Mention) return PinguLibrary.errorLog(client, `Mention returned null`, message.content, null, {
+            params: { message, args, pAuthor, pGuildClient },
+            additional: { UserMention, Mention },
+        });
 
         if (Mention == 'info') {
-            let AuthorAsReplyPerson = (await PinguUser.GetPUsers()).filter(pUser => pUser.replyPerson && pUser.replyPerson._id == message.author.id && pUser);
+            let AuthorAsReplyPerson = (await PinguUser.GetUsers()).filter(pUser => pUser.replyPerson && pUser.replyPerson._id == message.author.id && pUser);
 
             let tellInfoEmbed = new MessageEmbed()
                 .setTitle('Tell Info')
@@ -45,25 +46,16 @@ module.exports = {
 
         pAuthor.replyPerson = new PUser(Mention);
 
-        let messages = {
-            /** @param {User} self @param {PinguUser} partner*/
-            success: (self, partner) => `Successfully updated **${self.tag}**'s replyPerson to **${partner.replyPerson.name}**.`,
-            /** @param {User} self @param {PinguUser} partner*/
-            error: (self, partner) => `Failed updating **${self.tag}**'s replyPerson to **${partner.replyPerson.name}**!`
-        };
+        /** @param {User} self @param {PinguUser} partner*/
+        let log = (self, partner) => `**${self.tag}**'s replyPerson is now **${partner.replyPerson.name}**.`;
 
-        await PinguUser.UpdatePUser(client, { replyPerson: pAuthor.replyPerson }, pAuthor, 'tell',
-            messages.success(message.author, pAuthor),
-            messages.error(message.author, pAuthor)
-        );
-
-        let pMention = await PinguUser.GetPUser(Mention);
+        let pMention = await PinguUser.Get(Mention);
         pMention.replyPerson = new PUser(message.author);
 
-        await PinguUser.UpdatePUser(client, { replyPerson: pMention.replyPerson }, pMention, "tell",
-            messages.success(Mention, pMention),
-            messages.error(Mention, pMention)
-        );
+        await Promise.all([
+            { user: message.author, replyPerson: pMention },
+            { user: Mention, replyPerson: pAuthor }
+        ].map(({ user, replyPerson }) => PinguUser.Update(client, ['replyPerson'], pAuthor, module.exports.name, log(user, replyPerson))))
 
         Mention.createDM().then(async tellChannel => {
             const sendMessage = args.join(' ');
@@ -78,7 +70,7 @@ module.exports = {
                 return message.channel.send(`Unable to send message to ${Mention.username}, as they have \`Allow direct messages from server members\` disabled!`);
 
             await PinguLibrary.errorLog(client, `${message.author} attempted to ${client.DefaultPrefix}tell ${Mention}`, message.content, err, {
-                params: { client, message, args, pAuthor, pGuildClient },
+                params: { message, args, pAuthor, pGuildClient },
                 additional: { Mention, pMention },
             })
             return message.channel.send(`Attempted to message ${Mention.username} but couldn't.. I've contacted my developers.`);
@@ -89,7 +81,7 @@ module.exports = {
             //Pingu sent message in PM
             if (message.author.bot) return;
 
-            let pAuthor = await PinguUser.GetPUser(message.author);
+            let pAuthor = await PinguUser.Get(message.author);
 
             //Get author's replyPerson
             let authorReplyPerson = pAuthor.replyPerson;
@@ -99,16 +91,13 @@ module.exports = {
             let replyPersonUser = await message.client.users.fetch(authorReplyPerson._id)
 
             //Find replyPerson as PinguUser
-            let replyPersonPinguUser = await PinguUser.GetPUser(replyPersonUser);
+            let replyPersonPinguUser = await PinguUser.Get(replyPersonUser);
 
             //If replyPerson's replyPerson isn't author anymore, re-bind them again (replyPerson is talking to multiple people through Pingu)
             if (replyPersonPinguUser.replyPerson._id != message.author.id) {
                 replyPersonPinguUser.replyPerson = new PUser(message.author);
 
-                PinguUser.UpdatePUser(message.client, { replyPerson: replyPersonPinguUser.replyPerson }, replyPersonPinguUser, "tell: ExecuteTellReply",
-                    `Successfully re-binded **${replyPersonUser.tag}**'s replyPerson to **${message.author.tag}**`,
-                    `Failed re-binding **${replyPersonUser.tag}**'s replyPerson to **${message.author.tag}**!`
-                );
+                PinguUser.Update(message.client, ['replyPerson'], replyPersonPinguUser, "tell: ExecuteTellReply", `Re-binded **${replyPersonUser.tag}**'s replyPerson to **${message.author.tag}**`);
             }
 
             //Log conversation
@@ -123,6 +112,7 @@ module.exports = {
             });
 
             //Error happened while sending reply
+            /**@param {{message: string}} err*/
             var cantMessage = async err => {
                 if (err.message == 'Cannot send messages to this user')
                     return message.channel.send(`Unable to send message to ${Mention.username}, as they have \`Allow direct messages from server members\` disabled!`);
@@ -174,27 +164,40 @@ module.exports = {
         /**@param {Message} message
          * @param {string[]} args*/
         async HandleTell(message, args) {
+            const { author, client } = message;
+            const pAuthor = PinguUser.Get(author);
+
             if (args[0] == 'unset') {
-                let replyUser = getReplyUser(message);
-                let pGuild = await PinguGuild.GetPGuild(PinguLibrary.SavedServers.PinguSupport(message.client));
-                let pGuildClient = PinguClient.ToPinguClient(message.client).toPClient(pGuild);
+                let [replyPUser, replyUser] = await Promise.all([
+                    PinguUser.Get(pAuthor.replyPerson._id),
+                    client.users.fetch(pAuthor.replyPerson._id)
+                ]);
+
+                pAuthor.replyPerson = replyPUser.replyPerson = null;
+
+                let pGuild = await PinguGuild.Get(PinguLibrary.SavedServers.PinguSupport(client));
+                let pGuildClient = PinguClient.ToPinguClient(client).toPClient(pGuild);
 
                 PinguLibrary.tellLog(message.client, message.author, replyUser, new MessageEmbed()
-                    .setTitle(`Link between **${message.author.username}** & **${replyUser.username}** was unset.`)
+                    .setTitle(`Link between **${message.author.username}** & **${replyUser.tag}** was unset.`)
                     .setColor(pGuildClient.embedColor)
                     .setDescription(`**${message.author}** unset the link.`)
                     .setThumbnail(message.author.avatarURL())
-                    .setTimestamp(new Date(Date.now()))
+                    .setTimestamp(Date.now())
                 );
 
-                message.author.send(`Your link to **${replyUser.username}** was unset.`);
+                await Promise.all([
+                    PinguUser.Update(client, ['replyPerson'], pAuthor, module.exports.name, `${pUser.tag} unset the link to ${replyPUser.tag}`),
+                    PinguUser.Update(client, ['replyPerson'], replyPUser, module.exports.name, `${replyPUser.tag} unset the link to ${pUser.tag}`)
+                ]);
+
+                author.send(`Your link to **${replyUser.username}** was unset.`);
                 return;
             }
             else if (args[0] == "info") return;
             let Mention = args[0];
             while (Mention.includes('_')) Mention = Mention.replace('_', ' ');
 
-            let pAuthor = PinguUser.GetPUser(message.author);
             pAuthor.replyPerson = new PUser(module.exports.GetMention(message, Mention));
         },
     }

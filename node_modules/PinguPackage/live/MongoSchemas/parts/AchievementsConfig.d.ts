@@ -12,10 +12,11 @@ export declare const AchievementsConfig: {
 };
 export declare const GuildAchievementsConfig: {
     guildID: StringConstructor;
-    notificationType: {
+    notificationTypes: {
         guild: StringConstructor;
         members: StringConstructor;
     };
+    notificationType: StringConstructor;
     achievements: {
         _id: StringConstructor;
         achievedAt: DateConstructor;

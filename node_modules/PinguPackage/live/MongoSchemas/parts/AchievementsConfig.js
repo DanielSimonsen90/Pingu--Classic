@@ -9,7 +9,7 @@ exports.AchievementsConfig = {
     enabled: Boolean,
     channel: PItem_1.PItem
 };
-exports.GuildAchievementsConfig = Object.assign(Object.assign({}, exports.AchievementsConfig), { guildID: String, notificationType: {
+exports.GuildAchievementsConfig = Object.assign(Object.assign({}, exports.AchievementsConfig), { guildID: String, notificationTypes: {
         guild: String,
         members: String
     } });
