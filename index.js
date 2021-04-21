@@ -9,14 +9,16 @@
         'guildMemberAdd', 'guildMemberAvailable', 'guildMemberRemove', 'guildMemberUpdate',                                                                                     //guildMember
         'inviteCreate', 'inviteDelete',                                                                                                                                         //invite
         'roleCreate', 'roleDelete', 'roleUpdate',                                                                                                                               //role
-        'guildBanAdd', 'guildBanRemove', 'guildCreate', 'guildDelete', 'guildIntegrationsUpdate', 'guildUnavailable', 'guildUpdate', 'presenceUpdate', 'voiceStateUpdate',      //guild
+        'guildBanAdd', 'guildBanRemove',                                                                                                                                        //guild bans
+        'guildCreate', 'guildUpdate', 'guildDelete',                                                                                                                            //guild Crud
+        'guildIntegrationsUpdate', 'guildUnavailable', 'presenceUpdate', 'voiceStateUpdate', 'guildMemberSpeaking',                                                             //guild
         'messageReactionAdd', 'messageReactionRemove', 'messageReactionRemoveAll', 'messageReactionRemoveEmoji',                                                                //messageReaction
         'message', 'messageDelete', 'messageDeleteBulk', 'messageUpdate',                                                                                                       //message
         'userUpdate',                                                                                                                                                           //user
         'chosenUser', 'chosenGuild'                                                                                                                                             //chosen
     ], './commands', './events');
 
-    try { var { token } = require('../../PinguBetaToken.json'); throw null }
+    try { var { token } = require('../../PinguBetaToken.json'); /*throw null*/ }
     catch { token = config.token; }
     finally { client.login(token); }
 })().catch(err => {

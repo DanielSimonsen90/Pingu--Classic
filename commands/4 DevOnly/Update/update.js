@@ -28,7 +28,7 @@ module.exports = new PinguCommand('update', 'DevOnly', 'Reloads a script', {
         }
     } catch (error) {
         PinguLibrary.errorLog(message.client, `Error creating updated version of ${script}`, message.content, error, {
-            params: { client, message, args },
+            params: { message, args },
             command, event, script, path: getPath(),
         });
         return message.channel.send(`There was an error while updating \`${script}\`!\n\n\`${error.message}\``);

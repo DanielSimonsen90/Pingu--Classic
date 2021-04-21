@@ -16,10 +16,7 @@ module.exports = new PinguCommand('prefix', 'Utility', 'Set my prefix for the se
     pGuildClient.prefix = args[0];
 
     //Update db
-    await PinguGuild.UpdatePGuild(message.client, { clients: pGuild.clients }, pGuild, this.name,
-        `Prefix has been changed to \`${args[0]}\`!`,
-        `I encountered and error while changing my prefix in ${message.guild.name}:\n\n`
-    )
+    await PinguGuild.Update(message.client, ['clients'], pGuild, module.exports.name, `Prefix for **${message.guild.name}** has been changed to \`${args[0]}\`!`)
 
     return message.channel.send(`Changed my prefix from \`${prePrefix}\` to \`${args[0]}\``);
 });

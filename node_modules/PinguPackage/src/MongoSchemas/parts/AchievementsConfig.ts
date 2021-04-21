@@ -9,7 +9,7 @@ export const AchievementsConfig = {
 }
 export const GuildAchievementsConfig = { ...AchievementsConfig,
     guildID: String,
-    notificationType: {
+    notificationTypes: {
         guild: String,
         members: String
     }

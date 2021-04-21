@@ -8,11 +8,6 @@ module.exports = new PinguCommand('theme', 'GuildSpecific', `Themes for Danho's 
     examples: giveaway.examples,
     permissions: giveaway.permissions
 }, async ({ message, args, pGuild, pGuildClient }) => {
-    let deadlyNinja = PinguLibrary.SavedServers.DeadlyNinja(message.client);
-
-    if (!message.guild.id == deadlyNinja.id)
-        return message.channel.send(`This command is only for ${deadlyNinja.name}!`);
-
     return HandleDecidables({
         message, args, pGuild, pGuildClient,
         decidablesType: 'Theme',

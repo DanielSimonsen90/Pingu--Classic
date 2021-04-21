@@ -24,18 +24,10 @@ module.exports = new PinguEvent('guildMemberRemove',
 
         (async function UpdateSharedServers() {
             if (member.user.bot) return;
-            let pUser = await PinguUser.GetPUser(member.user);
+            let pUser = await PinguUser.Get(member.user);
             pUser.sharedServers = pUser.sharedServers.filter(guild => guild._id != member.guild.id);
 
-            return !pUser.sharedServers.length ?
-                await PinguUser.DeletePUser(client, member.user, module.exports.name,
-                    `Successfully removed **${pUser.tag}** from MongolDB.`,
-                    `Failed to remove **${pUser.tag}** from MongolDB`
-                ) :
-                await PinguUser.UpdatePUser(client, { sharedServers: pUser.sharedServers }, pUser, module.exports.name,
-                    `Successfully removed **${member.guild.name}** from **${pUser.tag}**'s SharedServers.`,
-                    `Failed to remove **${member.guild.name}** from **${pUser.tag}**'s SharedServers.`,
-                );
+            await PinguUser.Update(client, ['sharedServers'], pUser, module.exports.name, `Removed **${member.guild.name}** from **${pUser.tag}**'s SharedServers, after leaving the guild.`);
         })();
     }
 );

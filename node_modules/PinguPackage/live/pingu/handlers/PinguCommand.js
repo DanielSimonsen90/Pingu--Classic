@@ -25,6 +25,7 @@ class PinguCommand extends PinguHandler_1.PinguHandler {
         //Must need these
         super(name);
         this.guildOnly = false;
+        this.mustBeBeta = false;
         this.description = description;
         this.category = category;
         if (execute)
@@ -33,12 +34,13 @@ class PinguCommand extends PinguHandler_1.PinguHandler {
             const { permissions } = data;
             this.permissions = permissions && permissions.length ? [...permissions, 'SEND_MESSAGES'] : ['SEND_MESSAGES'];
             //Optional
-            const { usage, guildOnly, specificGuildID, examples, aliases } = data;
+            const { usage, guildOnly, specificGuildID, examples, aliases, mustBeBeta } = data;
             this.usage = usage || "";
-            this.guildOnly = false;
+            this.guildOnly = guildOnly || false;
             this.specificGuildID = specificGuildID;
             this.examples = examples && examples.length ? examples : [""];
             this.aliases = aliases && aliases.length ? aliases : undefined;
+            this.mustBeBeta = mustBeBeta || false;
         }
     }
     execute(params) {
