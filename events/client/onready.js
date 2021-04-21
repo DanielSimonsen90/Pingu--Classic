@@ -190,7 +190,7 @@ module.exports = new PinguEvent('onready',
             for (var [id, guild] of client.guilds.cache) {
                 const { name } = guild;
 
-                const pGuild = await PinguGuild.Get(id);
+                const pGuild = await PinguGuild.Get(guild);
                 if (pGuild.name != name) {
                     pGuild.name = name;
                     await PinguGuild.Update(client, ['name'], pGuild, module.exports.name, "Name was not up to date.");
@@ -199,7 +199,7 @@ module.exports = new PinguEvent('onready',
                 /**@returns {PinguGuildMember[]} */
                 function PinguGuildMembersArray() {
                     const result = [];
-                    pGuild.members.forEach(member => members.push(member));
+                    pGuild.members.forEach(member => result.push(member));
                     return result;
                 }
 
