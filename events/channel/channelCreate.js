@@ -7,7 +7,7 @@ module.exports = new PinguEvent('channelCreate',
 
         /**@param {GuildChannel} channel*/
         function AsGuildChannel(channel) {
-            return new MessageEmbed().setDescription(`Created ${channel.type}-channel **${channel}** (${channel.id})`);
+            return new MessageEmbed().setDescription(`Created ${channel.type}-channel **#${channel}** (${channel.id})`);
         }
         /**@param {DMChannel} channel*/
         function AsDMChannel(channel) {
