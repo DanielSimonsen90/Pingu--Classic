@@ -12,8 +12,8 @@ module.exports = new PinguEvent('onready',
             PinguLibrary.CacheDevelopers(client),
             PinguLibrary.DBExecute(client, () => PinguLibrary.consoleLog(client, `Connected to MongolDB!`)),
             CacheFromDB(client),
-            UpdateGuilds()
         ]);
+        //UpdateGuilds()
 
         PinguLibrary.consoleLog(client, `I'm back online!\n`);
         console.log(`Logged in as ${client.user.username}`);
@@ -211,7 +211,7 @@ module.exports = new PinguEvent('onready',
                         member.name = name;
                         pGuild.members.set(member._id, member);
                     }
-                    await PinguGuild.Update(client, ['members'], pGuild, module.exports.name, "members.guild.name was not up to date.");
+                    PinguGuild.Update(client, ['members'], pGuild, module.exports.name, "members.guild.name was not up to date.");
                 }
 
                 //Filter out the users that share the current guild and the name is incorrect
@@ -223,7 +223,7 @@ module.exports = new PinguEvent('onready',
                     const pg = sharedServers.find(pg => pg._id == id);
                     const indexOfPG = sharedServers.indexOf(pg);
                     pUser.sharedServers[indexOfPG] = new PGuild(guild);
-                    await PinguUser.Update(client, ['sharedServers'], pUser, module.exports.name, `Name of **${name}** was not updated`);
+                    PinguUser.Update(client, ['sharedServers'], pUser, module.exports.name, `Name of **${name}** was not updated`);
                 }
             }
         }
