@@ -33,7 +33,7 @@ module.exports = new PinguCommand('setpfp', 'DevOnly', 'Changes my profile picut
 
     await client.user.setAvatar(newPFP).catch(err => message.channel.send(`Error while changing picture\n${err}`));
 
-    PinguLibrary.SavedServers.PinguSupport(client).setIcon(newPFP, `${message.author.username} called ${pGuildClient.prefix}setpfp in "${message.guild.name}", #${message.channel.name}.`);
+    PinguLibrary.SavedServers.get('Pingu Support').setIcon(newPFP, `${message.author.username} called ${pGuildClient.prefix}setpfp in "${message.guild.name}", #${message.channel.name}.`);
     PinguLibrary.consoleLog(client, `${message.author.username} set profile picture to "${PFP}".`);
 
     return message.channel.send(`Successfully changed my profile picture!`);

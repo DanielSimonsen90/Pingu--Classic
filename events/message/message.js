@@ -226,7 +226,7 @@ module.exports = new PinguEvent('message',
 
                 var [pGuild, pGuildMember, pAuthor] = await Promise.all([
                     guild ? PinguGuild.Get(guild) : null,
-                    member ? PinguGuildMember.Get(member) : null,
+                    member ? PinguGuildMember.Get(member, module.exports.name) : null,
                     PinguUser.Get(author)
                 ]);
                 pAuthor = !pAuthor ? await PinguUser.Write(client, author, module.exports.name, `${message.author} did not have a PinguUser entry`) : pAuthor;
@@ -246,8 +246,9 @@ module.exports = new PinguEvent('message',
                     })
                 })
             } catch (err) {
-                if (err.message == 'Missing Access' && guild.id == PinguLibrary.SavedServers.PinguEmotes(client).id && await FindPermission())
+                if (err.message == 'Missing Access' && guild.id == PinguLibrary.SavedServers.get('Pingu Emotes').id && await FindPermission())
                     return; //Error occured, but cycled through permissions to find missing permission
+                else if (err.message == 'Missing Access') return message.channel.send(`I'm missing a permission to execute ${commandName}!`);
 
                 ConsoleLog += `**failed!**\nError: ${err}`;
 

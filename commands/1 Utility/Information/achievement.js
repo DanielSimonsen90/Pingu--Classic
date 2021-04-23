@@ -83,7 +83,7 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
         const member = id ? message.guild.member(client.users.cache.get(id)) : message.member;
         if (!member) return message.channel.send(`<@${id}> is not a member of this guild!`);
 
-        const pMember = id ? await PinguGuildMember.Get(member) : pGuildMember;
+        const pMember = id ? await PinguGuildMember.Get(member, module.exports.name) : pGuildMember;
         const pMemberAchievement = pMember.achievementConfig.achievements;
         const pMemberAchievementIDs = pMemberAchievement.map(a => a._id);
 

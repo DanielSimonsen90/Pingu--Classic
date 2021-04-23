@@ -10,7 +10,7 @@ module.exports = new PinguCommand('suggestion', 'Utility', 'Suggest something', 
     return await HandleDecidables({
         message, args, pGuild, pGuildClient,
         decidablesType: 'Suggestion',
-        reactionEmojis: [PinguLibrary.SavedServers.DanhoMisc(client).emojis.cache.find(e => e.name == 'Checkmark'), '❌'],
+        reactionEmojis: [PinguLibrary.SavedServers.get('Danho Misc').emojis.cache.find(e => e.name == 'Checkmark'), '❌'],
         listEmojis: ['⬅️', '🗑️', '➡️', '🛑'],
         config: pGuild.settings.config.decidables.suggestionConfig
     })

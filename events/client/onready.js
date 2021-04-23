@@ -9,6 +9,7 @@ module.exports = new PinguEvent('onready',
         console.log('\n--== Client Info ==--');
         PinguLibrary.consoleLog(client, `Loaded ${client.commands.size} commands & ${client.events.size} events\n`);
 
+        PinguLibrary.CacheSavedServers(client);
         await Promise.all([
             client.users.fetch(PinguClient.Clients.PinguID),
             PinguLibrary.CacheDevelopers(client),
@@ -83,9 +84,9 @@ module.exports = new PinguEvent('onready',
                         }
                         async function getRandomServer() {
                             let availableGuilds = client.guilds.cache.array().map(g => ![
-                                PinguLibrary.SavedServers.DanhoMisc(client).id,
-                                PinguLibrary.SavedServers.PinguEmotes(client).id,
-                                PinguLibrary.SavedServers.PinguSupport(client).id,
+                                PinguLibrary.SavedServers.get('Danho Misc').id,
+                                PinguLibrary.SavedServers.get('Pingu Emotes').id,
+                                PinguLibrary.SavedServers.get('Pingu Support').id,
                             ].includes(g.id) && g.name != undefined && g).filter(v => v);
                             let index = Math.floor(Math.random() * availableGuilds.length);
 

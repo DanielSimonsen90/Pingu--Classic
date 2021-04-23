@@ -175,7 +175,7 @@ module.exports = {
 
                 pAuthor.replyPerson = replyPUser.replyPerson = null;
 
-                let pGuild = await PinguGuild.Get(PinguLibrary.SavedServers.PinguSupport(client));
+                let pGuild = await PinguGuild.Get(PinguLibrary.SavedServers.get('Pingu Support'));
                 let pGuildClient = PinguClient.ToPinguClient(client).toPClient(pGuild);
 
                 PinguLibrary.tellLog(message.client, message.author, replyUser, new MessageEmbed()
