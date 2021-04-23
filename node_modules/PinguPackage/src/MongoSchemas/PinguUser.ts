@@ -11,7 +11,8 @@ const PinguUserSchema = mongoose.model('PinguUser', new mongoose.Schema({
     daily: Daily,
     avatar: String,
     playlists: [Playlist],
-    achievementConfig: AchievementsConfig
+    achievementConfig: AchievementsConfig,
+    joinedAt: Date
 })) as mongoose.Model<mongoose.Document<PinguUser>>
  
 export {PinguUserSchema};

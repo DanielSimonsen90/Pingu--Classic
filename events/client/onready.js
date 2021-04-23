@@ -4,15 +4,17 @@ const ms = require('ms');
 
 module.exports = new PinguEvent('onready', null,
     async function execute(client) {
-        PinguLibrary.CacheSavedServers(client);
+        const { SetBadges, CacheSavedServers, CacheDevelopers, consoleLog, DBExecute, raspberryLog, errorLog, latencyCheck } = PinguLibrary
+        CacheSavedServers(client);
+        SetBadges();
 
         console.log('\n--== Client Info ==--');
-        PinguLibrary.consoleLog(client, `Loaded ${client.commands.size} commands & ${client.events.size} events\n`);
+        consoleLog(client, `Loaded ${client.commands.size} commands & ${client.events.size} events\n`);
 
         let [connMessage] = await Promise.all([
-            PinguLibrary.DBExecute(client, () => PinguLibrary.consoleLog(client, `Connected to MongolDB!`)),
+            DBExecute(client, () => consoleLog(client, `Connected to MongolDB!`)),
             client.users.fetch(PinguClient.Clients.PinguID),
-            PinguLibrary.CacheDevelopers(client),
+            CacheDevelopers(client),
         ]);
 
         if (connMessage) {
@@ -20,11 +22,11 @@ module.exports = new PinguEvent('onready', null,
             //UpdateGuilds()
         }
 
-        PinguLibrary.consoleLog(client, `I'm back online!\n`);
+        consoleLog(client, `I'm back online!\n`);
         console.log(`Logged in as ${client.user.username}`);
 
         client.setActivity();
-        PinguLibrary.raspberryLog(client);
+        raspberryLog(client);
 
         console.log(`--== | == - == | ==--\n`);
 
@@ -32,8 +34,8 @@ module.exports = new PinguEvent('onready', null,
         setInterval(() => client.setActivity(), ms('24h'));
         setInterval(() => {
             //Log latency every minute
-            PinguLibrary.latencyCheck(client, Date.now())
-                .catch(err => PinguLibrary.errorLog(client, `LatencyCheck error`, content, err, { params: message }));
+            latencyCheck(client, Date.now())
+                .catch(err => errorLog(client, `LatencyCheck error`, content, err, { params: message }));
         }, ms('1m'));
 
         if (client.config.updateStats && client.isLive) {

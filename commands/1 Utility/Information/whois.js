@@ -20,8 +20,8 @@ module.exports = new PinguCommand('whois', 'Utility', 'Gets the info of specifie
 
     //Promise becomes a user
     return args[0] != null && user != (member && member.user || true) ?
-        await SendNonGuildMessage(message, user) :
-        await HandleGuildMember(message, member || message.member);
+        SendNonGuildMessage(message, user) :
+        HandleGuildMember(message, member || message.member);
 });
 
 /**@param {Message} message 
@@ -44,11 +44,13 @@ async function SendGuildMessage(message, gm, SharedServers, pGuildClient) {
         .setThumbnail(gm.user.avatarURL())
         .setColor(await GetColor(null, gm.user.presence))
         .addFields([
-            new EmbedField(`ID`, gm.id, true),
             new EmbedField(`Created at`, gm.user.createdAt, true),
             new EmbedField(`Joined at`, gm.joinedAt, true),
-            new EmbedField(`Shared Servers`, SharedServers)
+            PinguLibrary.BlankEmbedField(true),
+            new EmbedField(`Shared Servers`, SharedServers),
+            new EmbedField(`Badges`, PinguLibrary.getBadges(message.author))
         ])
+        .setFooter(`ID: ${gm.id}`)
     );
 }
 /**@param {Message} message 
