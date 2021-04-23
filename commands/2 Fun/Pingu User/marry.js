@@ -10,7 +10,7 @@ module.exports = new PinguCommand('marry', 'Fun', 'Marries a user', {
 
     else if (args[0] && args[0].toLowerCase() == `divorce`) {
         if (pAuthor.marry.partner) return HandleDivorce(message, pAuthor);
-        else return message.channel.send(`Divorce who? ${PinguLibrary.getEmote(message.client, 'kekw', PinguLibrary.SavedServers.get('Deadly Ninja'))}`);
+        else return message.channel.send(`Divorce who? ${PinguLibrary.getEmote(client, 'kekw', PinguLibrary.SavedServers.get('Deadly Ninja'))}`);
     }
 
     else if (!message.mentions.users.first()) {
@@ -22,6 +22,8 @@ module.exports = new PinguCommand('marry', 'Fun', 'Marries a user', {
 
     let partner = message.mentions.users.first();
     let pPartner = await PinguUser.Get(partner);
+
+    if (!pPartner) return message.channel.send(`${partner} is not a Pingu User - if they want to marry you, you should ask them to run the command!`);
 
     if (pPartner.marry.partner) return message.channel.send(`I'm sorry, ${message.author}, ${partner} is already married!`);
 

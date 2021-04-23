@@ -231,9 +231,9 @@ function PermissionCheck(message, args) {
             }
         })();
 
-        if (isNaN(achievementID) || parseInt(achievementID) <= 0 || parseInt(achievementID) >= achievements.length)
+        if (isNaN(achievementID) || parseInt(achievementID) <= 0 || parseInt(achievementID) > achievements.length)
             if (!message.client.guilds.cache.has(achievementID) && !message.client.users.cache.has(achievementID))
-                result.granted = `The achievement id provided is not a valid id! Pick a number between 1 - ${achievements.length - 1}`;
+                result.granted = `The achievement id provided is not a valid id! Pick a number between 1 - ${achievements.length}`;
             else {
                 result.id = achievementID;
                 result.achievementID = null;

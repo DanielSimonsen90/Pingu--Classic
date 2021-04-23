@@ -7,8 +7,8 @@ class PinguGuildConfig {
     constructor(guild) {
         this.decidables = new DecidablesConfig_1.DecidablesConfig(guild);
         this.achievements = new GuildAchievementConfig_1.GuildAchievementConfig({
-            guild: 'OWNER',
-            members: 'DM'
+            guild: 'NONE',
+            members: 'NONE'
         }, guild.id);
     }
 }

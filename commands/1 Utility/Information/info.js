@@ -266,7 +266,7 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
                     case 'playlists': return null //Not implemented
                     case 'achievementConfig': return new MessageEmbed().setDescription(
                         pu.achievementConfig.enabled ?
-                            getAchievements(pu.achievementConfig.achievements, 'USER') :
+                            getAchievements(pu.achievementConfig.achievements || [], 'USER') :
                             `Pingu Achievements are disabled.`
                     );
                 }

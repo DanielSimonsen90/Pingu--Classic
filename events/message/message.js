@@ -229,7 +229,7 @@ module.exports = new PinguEvent('message',
                     member ? PinguGuildMember.Get(member, module.exports.name) : null,
                     PinguUser.Get(author)
                 ]);
-                pAuthor = !pAuthor ? await PinguUser.Write(client, author, module.exports.name, `${message.author} did not have a PinguUser entry`) : pAuthor;
+                pAuthor = !pAuthor ? await PinguUser.Write(client, author, module.exports.name, `${message.author.tag} did not have a PinguUser entry`) : pAuthor;
 
                 var pGuildClient = guild && pGuild ? client.toPClient(pGuild) : null
                 var parameters = { client, message, args, pGuild, pAuthor, pGuildMember, pGuildClient }
@@ -239,7 +239,7 @@ module.exports = new PinguEvent('message',
 
                 const achieverClasses = { user: author, guildMember: member, guild };
 
-                PinguLibrary.AchievementCheck(client, achieverClasses, 'COMMAND', command.name).catch(err => {
+                PinguLibrary.AchievementCheck(client, achieverClasses, 'COMMAND', command.name, [achievementParams]).catch(err => {
                     PinguLibrary.errorLog(client, `Handling COMMAND achievement check`, content, err, {
                         params: achievementParams,
                         additional: { achieverClasses }

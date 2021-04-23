@@ -2,20 +2,23 @@ const { Collection, GuildChannel, TextChannel, Guild, VoiceChannel } = require("
 const { PinguLibrary, PinguGuild, PinguEvent, PinguClient, PinguUser, PinguGuildMember, PGuild } = require("PinguPackage");
 const ms = require('ms');
 
-module.exports = new PinguEvent('onready',
+module.exports = new PinguEvent('onready', null,
     async function execute(client) {
         PinguLibrary.CacheSavedServers(client);
 
         console.log('\n--== Client Info ==--');
         PinguLibrary.consoleLog(client, `Loaded ${client.commands.size} commands & ${client.events.size} events\n`);
 
-        await Promise.all([
+        let [connMessage] = await Promise.all([
+            PinguLibrary.DBExecute(client, () => PinguLibrary.consoleLog(client, `Connected to MongolDB!`)),
             client.users.fetch(PinguClient.Clients.PinguID),
             PinguLibrary.CacheDevelopers(client),
-            PinguLibrary.DBExecute(client, () => PinguLibrary.consoleLog(client, `Connected to MongolDB!`)),
-            CacheFromDB(client),
         ]);
-        //UpdateGuilds()
+
+        if (connMessage) {
+            CacheFromDB(client)
+            //UpdateGuilds()
+        }
 
         PinguLibrary.consoleLog(client, `I'm back online!\n`);
         console.log(`Logged in as ${client.user.username}`);
@@ -121,7 +124,9 @@ module.exports = new PinguEvent('onready',
                             });
 
                             let sorted = Users.sort((a, b) => b - a);
-                            let strings = sorted.filter((v, u) => sorted.first() == v).map((v, u) => `${u.tag} | #${v}`);
+                            let mostKnownUsers = sorted.filter((v, u) => sorted.first() == v);
+                            mostKnownUsers.forEach(user => client.emit('mostKnownUser', user))
+                            let strings = mostKnownUsers.map((v, u) => `${u.tag} | #${v}`);
                             return strings[Math.floor(Math.random() * strings.length)];
                         }
                     };
