@@ -7,8 +7,8 @@ module.exports = new PinguCommand('help', 'Utility', 'List all of my commands or
     examples: ["", "giveaway", "Fun"]
 }, async ({ client, message, args, pAuthor, pGuildClient }) => {
     //#region Create variables
-        let color = pGuildClient && pGuildClient.embedColor || client.DefaultEmbedColor;
-        let prefix = pGuildClient && pGuildClient.prefix || client.DefaultPrefix;
+    let color = pGuildClient && pGuildClient.embedColor || client.DefaultEmbedColor;
+    let prefix = pGuildClient && pGuildClient.prefix || client.DefaultPrefix;
 
     let embed = new MessageEmbed()
         .setColor(color)
@@ -28,14 +28,14 @@ module.exports = new PinguCommand('help', 'Utility', 'List all of my commands or
  * @param {import('PinguPackage').CommandCategories devOnlyType
  * @param {PinguUser} pAuthor*/
 function CategoryOrSpecificHelp(message, args, embed, prefix, devOnlyType, pAuthor) {
-    args[0] = args[0].toLowerCase();
+    let search = args.join(' ').toLowerCase();
     let client = PinguClient.ToPinguClient(message.client);
 
     /**@param {SubCategory[]} arr
      * @returns {SubCategory}*/
     let getCategory = (arr) => {
         if (!arr) return null;
-        let result = arr.find(c => c.name.toLowerCase().includes(args[0]));
+        let result = arr.find(c => c.name.toLowerCase() == search);
 
         if (!result)
             for (var subCategory of arr) {
@@ -52,15 +52,10 @@ function CategoryOrSpecificHelp(message, args, embed, prefix, devOnlyType, pAuth
         let command = client.commands.find(cmd => [...cmd.aliases || [], cmd.name].includes(args[0]));
         if (command) {
             args[0] = command.name.toLowerCase();
-            return CommandHelp(message, args, embed, prefix);
+            return CommandHelp(message, args, embed, prefix, pAuthor);
         }
         return message.channel.send(`I couldn't find what you were looking for!`);
     }
-
-    //If "DevOnly" was used
-    if (args[0] == devOnlyType && !PinguLibrary.isPinguDev(message.author))
-        //If not, user cannot perform this help
-        return message.channel.send(`Sorry ${message.author}, but you're not cool enough to use that!`);
 
     return CategoryHelp(message, embed, prefix, category.path, pAuthor);
 }
@@ -72,27 +67,47 @@ function CategoryOrSpecificHelp(message, args, embed, prefix, devOnlyType, pAuth
 function CategoryHelp(message, embed, prefix, path, pAuthor) {
     let pathFolder = new Category(path); //Path folder
     let categories = pathFolder.subCategories.length && pathFolder.subCategories.map(category => new Category(category.path)) || [pathFolder] //Get path's sub categories to category classes
-        .filter(cat => !cat.scripts.map(cmd => cmd.category).includes('DevOnly') || PinguLibrary.isPinguDev(message.author)) //If a category has a DevOnly command && author isn't PinguDev, don't include it
-        .filter(cat => !cat.scripts.map(cmd => cmd.category).includes('GuildSpecific') || cat.scripts.filter(cmd => pAuthor.sharedServers.map(pg => pg._id).includes(cmd.specificGuildID))) //If a category has a GuildSpecific command && author isn't in that guild, don't include it
 
     if (!isNaN(parseInt(pathFolder.name[0])))
         pathFolder.name = pathFolder.name.split(' ')[1];
 
+    /**@param {PinguCommand} cmd*/
+    function viewFilter(cmd) {
+        return !(cmd.category == 'DevOnly' && !PinguLibrary.isPinguDev(message.author) ||
+            cmd.category == 'GuildSpecific' && !pAuthor.sharedServers.map(pg => pg._id).includes(cmd.specificGuildID))
+    }
 
-    embed.setTitle('Pingu Help Menu! - ' + Uppercased(pathFolder.name))
-        .setDescription(`**Use these arguments to get more help!**\n\n` + categories.map(category =>
-            `**__${category.name}__**\n` +
+    let description = categories.map(category => {
+        //Don't include sub category, if it only consists of DevOnly & GuildSpecific categories && author isn't authorized to view them
+        //This applies to category.subCategories & category.scripts
+        category.subCategories = category.subCategories
+            .map(sub => new Category(sub.path))
+            .filter(sub => sub.scripts.filter(viewFilter).length)
+            .map(cat => new SubCategory(cat.name, cat.path));
+
+        category.scripts = category.scripts.filter(viewFilter);
+
+        let hasSubCategories = category.subCategories && category.subCategories.length;
+        let hasScripts = category.scripts && category.scripts.length;
+
+        return hasSubCategories || hasScripts ? `**__${category.name}__**\n` +
 
             //Category has sub categories
-            `${(category.subCategories && category.subCategories.length ? `**Subcategories**\n` + "```\n" +
+            `${(hasSubCategories ? `**Subcategories**\n` + "```\n" +
                 (category.subCategories.map(sub => `${prefix}help ${sub.name}`).join('\n') + '\n```') :
                 "")}` +
 
             //Category has commands
-            `${(category.scripts && category.scripts.length ? `**Commands**\n` + "```\n" +
+            `${(hasScripts ? `**Commands**\n` + "```\n" +
                 (category.scripts.map(cmd => `${prefix}help ${cmd.name}`).join('\n') + '\n```\n') :
                 "")}`
-        ).join('\n'))
+            : "";
+    }).join('\n');
+    //Folder was found but author isn't authorized to see what's inside the folder
+    if (!description) return message.channel.send("I couldn't find what you were looking for!");
+
+    embed.setTitle('Pingu Help Menu! - ' + Uppercased(pathFolder.name))
+        .setDescription(`**Use these arguments to get more help!**\n\n${description}`)
         .setFooter(`Developed by Simonsen Techs`);
 
     //Return embed
@@ -108,13 +123,16 @@ function CategoryHelp(message, embed, prefix, path, pAuthor) {
 /**@param {Message} message
  * @param {string[]} args
  * @param {MessageEmbed} embed
- * @param {string} prefix*/
-function CommandHelp(message, args, embed, prefix) {
+ * @param {string} prefix
+ * @param {PinguUser} pAuthor*/
+function CommandHelp(message, args, embed, prefix, pAuthor) {
     let client = PinguClient.ToPinguClient(message.client);
 
     //Create variables to find the specific command message.author is looking for
     const command = client.commands.get(args[0].toLowerCase());
     if (!command) return message.channel.send(`Command not recognized!`);
+    else if (command.category == 'DevOnly' && !PinguLibrary.isPinguDev(message.author)) return message.channel.send("This is a developer command. No dev, no help.");
+    else if (command.category == 'GuildSpecific' && !pAuthor.sharedServers.map(pg => pg._id).includes(command.specificGuildID)) return message.channel.send("You're not in the required guild to see that command!");
 
     //Update embed
     embed.setTitle(prefix + command.name)
@@ -164,6 +182,7 @@ class SubCategory {
 class Category {
     /**@param {string} path*/
     constructor(path) {
+        this.path = path;
         let splitPath = path.split('/');
         this.name = splitPath[splitPath.length - 1];
 

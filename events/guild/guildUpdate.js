@@ -1,5 +1,5 @@
 const { MessageEmbed } = require("discord.js");
-const { PinguGuild, PinguEvent, PChannel, PGuildMember } = require("PinguPackage");
+const { PinguGuild, PinguEvent, PChannel, PGuildMember, PGuild, PinguUser } = require("PinguPackage");
 
 module.exports = new PinguEvent('guildUpdate',
     async function setContent(preGuild, guild) {
@@ -180,6 +180,18 @@ module.exports = new PinguEvent('guildUpdate',
         if (preGuild.name != guild.name) {
             pGuild.name = guild.name;
             updated.push('name');
+
+            (async function UpdateSharedServers() {
+                const pUsers = await PinguUser.GetUsers();
+                const pUsersWithPGuild = pUsers.filter(pu => pu.sharedServers.filter(pg => pg.find(g => g._id == guild.id)));
+                pUsersWithPGuild.forEach(pUser => {
+                    let { sharedServers } = pUser;
+                    let pg = sharedServers.find(pg => pg._id == guild.id);
+                    let indexOfPG = sharedServers.indexOf(pg);
+                    pUser.sharedServers[indexOfPG] = new PGuild(guild);
+                    PinguUser.Update(client, ['sharedServers'], pUser, module.exports.name, "SharedServers updated with new Guild name");
+                });
+            })();
         }
         let welcomePChannel = pGuild.settings.welcomeChannel;
         let welcomeChannel = welcomePChannel && guild.channels.cache.find(c => c.id == welcomePChannel._id)

@@ -154,7 +154,7 @@ module.exports = new PinguEvent('message',
             return pGuildClient.prefix || client.DefaultPrefix
         }
         function TestTagInteraction() {
-            return commandName = commandName.indexOf(client.id) ? args.shift() : commandName;
+            return commandName.includes(client.id) ? args.shift() : commandName;
         }
         function AssignCommand() {
             let command = client.commands.get(commandName);

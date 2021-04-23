@@ -4,12 +4,13 @@
     "\\commands",
 <<<<<<< Updated upstream
     "\\commands\\1 Utility",
-    "\\commands\\1 Utility\\Decidable",
     "\\commands\\1 Utility\\Information",
+    "\\commands\\2 Fun",
+    "\\commands\\5 GuildSpecific",
+    "\\commands\\5 GuildSpecific\\Deadly Ninja",
+    "\\commands\\5 GuildSpecific\\Deadly Ninja\\Theme",
     "\\events",
     "\\events\\client",
-    "\\events\\guild",
-    "\\events\\guild\\guildMember",
     "\\events\\message"
 =======
     "\\commands\\2 Fun",
@@ -18,6 +19,6 @@
     "\\events\\client"
 >>>>>>> Stashed changes
   ],
-  "SelectedNode": "\\events\\message\\message.js",
+  "SelectedNode": "\\commands\\1 Utility\\Information\\help.js",
   "PreviewInSolutionExplorer": false
 }

@@ -1,8 +1,6 @@
 const { Collection, GuildChannel, TextChannel, Guild, VoiceChannel } = require("discord.js");
-const { PinguLibrary, PinguGuild, PinguEvent, PinguClient, PinguUser } = require("PinguPackage");
+const { PinguLibrary, PinguGuild, PinguEvent, PinguClient, PinguUser, PinguGuildMember, PGuild } = require("PinguPackage");
 const ms = require('ms');
-
-const CacheTypes = 'ReactionRole' || 'Giveaway' || 'Poll' || 'Suggestion' || 'Theme';
 
 module.exports = new PinguEvent('onready',
     async function execute(client) {
@@ -13,8 +11,9 @@ module.exports = new PinguEvent('onready',
             client.users.fetch(PinguClient.Clients.PinguID),
             PinguLibrary.CacheDevelopers(client),
             PinguLibrary.DBExecute(client, () => PinguLibrary.consoleLog(client, `Connected to MongolDB!`)),
-            CacheFromDB(client)
+            CacheFromDB(client),
         ]);
+        //UpdateGuilds()
 
         PinguLibrary.consoleLog(client, `I'm back online!\n`);
         console.log(`Logged in as ${client.user.username}`);
@@ -183,6 +182,49 @@ module.exports = new PinguEvent('onready',
             function OnError(type, id, channel, guild, errMsg) {
                 if (errMsg == 'Missing Access') return;
                 return PinguLibrary.consoleLog(client, `Unable to cache ${type} "${id}" from #${channel.name}, ${guild.name} -- ${errMsg}`)
+            }
+        }
+        async function UpdateGuilds() {
+            const pUsers = await PinguUser.GetUsers();
+
+            for (var [id, guild] of client.guilds.cache) {
+                const { name } = guild;
+
+                const pGuild = await PinguGuild.Get(guild);
+                if (pGuild.name != name) {
+                    pGuild.name = name;
+                    await PinguGuild.Update(client, ['name'], pGuild, module.exports.name, "Name was not up to date.");
+                }
+
+                /**@returns {PinguGuildMember[]} */
+                function PinguGuildMembersArray() {
+                    const result = [];
+                    pGuild.members.forEach(member => result.push(member));
+                    return result;
+                }
+
+                const members = PinguGuildMembersArray();
+
+                const filteredMembers = members.filter(pgm => pgm.guild.name != name);
+                if (filteredMembers.length) {
+                    for (var member of filteredMembers) {
+                        member.name = name;
+                        pGuild.members.set(member._id, member);
+                    }
+                    PinguGuild.Update(client, ['members'], pGuild, module.exports.name, "members.guild.name was not up to date.");
+                }
+
+                //Filter out the users that share the current guild and the name is incorrect
+                const pUsersInGuild = pUsers.filter(pUser => pUser.sharedServers.filter(pg => pg._id == id && pg.name != name));
+                if (!pUsersInGuild.length) continue;
+
+                for (var pUser of pUsersInGuild) {
+                    const { sharedServers } = pUser;
+                    const pg = sharedServers.find(pg => pg._id == id);
+                    const indexOfPG = sharedServers.indexOf(pg);
+                    pUser.sharedServers[indexOfPG] = new PGuild(guild);
+                    PinguUser.Update(client, ['sharedServers'], pUser, module.exports.name, `Name of **${name}** was not updated`);
+                }
             }
         }
     }
