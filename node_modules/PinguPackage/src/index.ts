@@ -6,27 +6,18 @@ export { HandleDecidables } from './decidable/HandleDecidables';
 
 export { EmbedField, Error, TimeLeftObject, DiscordPermissions, Percentage } from './helpers';
 
-export { PinguGuildSchema } from './MongoSchemas/PinguGuild';
-export { PinguUserSchema } from './MongoSchemas/PinguUser';
-
-export { UserAchievementConfig, GuildAchievementConfig, GuildMemberAchievementConfig } from './pingu/achievements/config';
-export { UserAchievement, GuildAchievement, GuildMemberAchievement } from './pingu/achievements/items';
-
-export { PinguUser } from './pingu/user/PinguUser';
-export { Daily, Marry } from './pingu/user/items';
-
-export { PinguGuildMember } from './pingu/guildMember/PinguGuildMember'
-
-export { PinguGuild } from './pingu/guild/PinguGuild';
-export { Queue, Song, ReactionRole } from './pingu/guild/items';
+export { PinguGuildSchema, PinguUserSchema } from './MongoSchemas';
 
 export { 
+    UserAchievementConfig, GuildAchievementConfig, GuildMemberAchievementConfig ,
+    UserAchievement, GuildAchievement, GuildMemberAchievement,
+    PinguUser, Daily, Marry,
+    PinguGuildMember,
+    PinguGuild, Queue, Song, ReactionRole,
     PinguCommand, CommandCategories, PinguCommandParams, 
-    PinguEvent, PinguEventParams, PinguClientEvents
-} from './pingu/handlers';
-
-export { PinguLibrary } from './pingu/library/PinguLibrary';
-export { PinguClient } from './pingu/client/PinguClient';
+    PinguEvent, PinguEventParams, PinguClientEvents,
+    PinguClient, PinguBadge, PinguLibrary
+} from './pingu';
 
 import { Config } from './helpers/Config'
 import * as configFile from '../config.json';
