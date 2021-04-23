@@ -10,7 +10,7 @@ module.exports = new PinguCommand('spinthewheel', 'Utility', 'Get a random item 
     const ranItem = Math.round(Math.random() * Math.floor(options.length - 1));
 
     var result = options[ranItem];
-    PinguLibrary.consoleLog(message.client, `Result: ${result}`);
+    PinguLibrary.consoleLog(message.client, `Spun [${args.join(', ')}]\nResult: ${result}`);
 
     return message.channel.send(result);
 });

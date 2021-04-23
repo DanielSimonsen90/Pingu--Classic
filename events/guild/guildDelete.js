@@ -6,30 +6,23 @@ module.exports = new PinguEvent('guildDelete',
         return module.exports.content = new MessageEmbed().setDescription(`**${guild.name}** was deleted.`);
     },
     async function execute(client, guild) {
-        let pGuild = await PinguGuild.GetPGuild(guild);
-        if (pGuild.clients.find(c => c && c._id != client.user.id)) /*Other Pingu client is in guild*/ return;
+        let pGuild = await PinguGuild.Get(guild);
+        if (pGuild.clients.find(c => c && c._id != client.id)) /*Other Pingu client is in guild*/ return;
 
         //Remove guild from MongolDB
-        await PinguGuild.DeletePGuild(client, guild, module.exports.name,
-            `Successfully left **${guild.name}**, owned by ${guild.owner}`,
-            `Something went wrong when leaving ${guild.name} (${guild.id})!`
-        );
+        await PinguGuild.Delete(client, guild, module.exports.name, `Left **${guild.name}**, owned by ${guild.owner}`);
 
         let guildUsers = guild.members.cache.array().map(gm => !gm.user.bot && gm.user);
         let clientGuilds = client.guilds.cache.array();
 
         //For each user in guild that isn't a bot
         for (var user of guildUsers) {
-            let pUser = await PinguUser.GetPUser(user);
+            let pUser = await PinguUser.Get(user);
             if (!pUser) continue;
 
             //Amount of guilds that client & user share
             let clientGuildsShared = clientGuilds.map(g => g.members.cache.has(user.id)).length;
-            if (clientGuildsShared == 1)
-                PinguUser.DeletePUser(client, user, module.exports.name,
-                    `Successfully removed **${user.tag}** from MongolDB`,
-                    `Failed to remove **${user.tag}** from MongolDB`,
-                );
+            if (clientGuildsShared == 1) PinguUser.Delete(client, user, module.exports.name, `Removed **${user.tag}** from PinguUsers, as no servers are shared anymore`);
         }
     }
 );

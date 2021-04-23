@@ -44,13 +44,9 @@ module.exports = new PinguCommand('embed', 'Utility', 'Creates an embed', {
     //#region Baisc functions
     async function PermissionsCheck() {
         if (messageID == 'create') {
+            const { author, client, content } = message;
             let channel = getChannel(message, args);
-            let permCheck = PinguLibrary.PermissionCheck({
-                author: message.author,
-                channel: channel,
-                client: message.client,
-                content: message.content
-            }, 'VIEW_CHANNEL', 'SEND_MESSAGES', 'EMBED_LINKS');
+            let permCheck = PinguLibrary.PermissionCheck({ author, channel, client, content }, 'VIEW_CHANNEL', 'SEND_MESSAGES', 'EMBED_LINKS');
             return permCheck;
         }
         let getEmbedResult = await getEmbed();
@@ -102,12 +98,12 @@ module.exports = new PinguCommand('embed', 'Utility', 'Creates an embed', {
             let embedMessage = message.channel.messages.cache.find(msg => msg.author == message.client.user && msg.embeds[0])
             result.setValue(embedMessage.embeds[0]);
             if (!result.embed) {
+                const { client, content } = message;
 
                 let permCheck = PinguLibrary.PermissionCheck({
-                    author: message.client.user,
+                    author: client.user,
                     channel: embedMessage.channel,
-                    client: message.client,
-                    content: message.content
+                    client, content
                 }, 'READ_MESSAGE_HISTORY');
                 if (permCheck != PinguLibrary.PermissionGranted) return result.setReturnMessage(permCheck);
                 return result.setReturnMessage(`Unable to find an embed in ${embedMessage.channel}! Try giving me a message id`);
@@ -237,13 +233,9 @@ module.exports = new PinguCommand('embed', 'Utility', 'Creates an embed', {
     }
     async function sendEmbed() {
         let channel = getChannel(message, args);
+        const { client, content, author } = message;
 
-        let permCheck = PinguLibrary.PermissionCheck({
-            author: message.author,
-            channel,
-            client: message.client,
-            content: message.content
-        }, 'VIEW_CHANNEL', 'SEND_MESSAGES');
+        let permCheck = PinguLibrary.PermissionCheck({ author, channel, client, content }, 'VIEW_CHANNEL', 'SEND_MESSAGES');
         if (permCheck != PinguLibrary.PermissionGranted) return message.channel.send(permCheck);
 
         let sent = await channel.send(embed);

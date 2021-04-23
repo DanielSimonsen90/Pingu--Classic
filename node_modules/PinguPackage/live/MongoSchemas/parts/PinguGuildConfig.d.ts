@@ -126,10 +126,11 @@ export declare const PinguGuildConfig: {
     };
     achievements: {
         guildID: StringConstructor;
-        notificationType: {
+        notificationTypes: {
             guild: StringConstructor;
             members: StringConstructor;
         };
+        notificationType: StringConstructor;
         achievements: {
             _id: StringConstructor;
             achievedAt: DateConstructor;

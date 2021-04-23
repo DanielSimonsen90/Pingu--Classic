@@ -5,7 +5,8 @@ module.exports = new PinguCommand('publish', 'Utility', 'Publishes message in an
     usage: '[#channel], <message id>',
     guildOnly: true,
     examples: ["#announcements 788551586178793493", "788054169352536074"]
-}, async ({ message, args }) => {
+}, async ({ client, message, args }) => {
+        const { author, content } = message;
     if (!args) return message.channel.send(`I need a message ID, so I can publish your message!`);
 
     let channel = getChannel();
@@ -16,12 +17,7 @@ module.exports = new PinguCommand('publish', 'Utility', 'Publishes message in an
     let unannounced = await channel.messages.fetch(messageID);
     if (!unannounced) return message.channel.send(`I couldn't fetch a message using **${messageID}** from ${channel}!`);
 
-    let permCheck = PinguLibrary.PermissionCheck({
-        author: message.author,
-        channel,
-        client: message.client,
-        content: message.content
-    }, 'VIEW_CHANNEL', 'SEND_MESSAGES', 'MANAGE_MESSAGES');
+    let permCheck = PinguLibrary.PermissionCheck({ author, channel, client, content }, 'VIEW_CHANNEL', 'SEND_MESSAGES', 'MANAGE_MESSAGES');
     if (permCheck != PinguLibrary.PermissionGranted) return message.channel.send(permCheck);
 
     await unannounced.crosspost();

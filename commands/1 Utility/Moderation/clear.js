@@ -63,8 +63,8 @@ async function ClearAll(message, channel) {
  * @param {User} SpecificUser*/
 async function SpecificClear(message, args, SpecificUser) {
     let messagesRemoved = 0,
-        messageCache = (await message.channel.messages.fetch()).array(),
         messagesToRemove = parseInt(args[0]);
+    let messageCache = (await message.channel.messages.fetch({ limit: messagesToRemove + 1 })).array();
     let cacheSize = messageCache.length - 1;
 
 

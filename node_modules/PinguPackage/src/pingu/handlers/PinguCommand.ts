@@ -33,6 +33,7 @@ export class PinguCommand extends PinguHandler {
         examples?: string[],
         permissions: PermissionString[],
         aliases?: string[],
+        mustBeBeta?: false,
     }, 
     execute: (params: PinguCommandParams) => Promise<ExecuteReturns>) 
     { 
@@ -47,12 +48,13 @@ export class PinguCommand extends PinguHandler {
             this.permissions = permissions && permissions.length ? [...permissions, 'SEND_MESSAGES'] as PermissionString[] : ['SEND_MESSAGES'] as PermissionString[];
             
             //Optional
-            const { usage, guildOnly, specificGuildID, examples, aliases } = data;
+            const { usage, guildOnly, specificGuildID, examples, aliases, mustBeBeta } = data;
             this.usage = usage || "";
-            this.guildOnly = false;
+            this.guildOnly = guildOnly || false;
             this.specificGuildID = specificGuildID;
             this.examples = examples && examples.length ? examples : [""];
             this.aliases = aliases && aliases.length ? aliases : undefined;
+            this.mustBeBeta = mustBeBeta || false;
         }
     }
     
@@ -64,6 +66,7 @@ export class PinguCommand extends PinguHandler {
     public examples: string[];
     public permissions: PermissionString[];
     public aliases: string[];
+    public mustBeBeta = false;
     
     public async execute(params: PinguCommandParams): Promise<ExecuteReturns> {
         return errorLog(params.message.client, `Execute for command **${this.name}**, was not defined!`);

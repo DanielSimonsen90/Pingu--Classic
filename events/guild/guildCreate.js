@@ -3,25 +3,19 @@ const { PinguGuild, PinguLibrary, PinguUser, PinguEvent } = require("PinguPackag
 module.exports = new PinguEvent('guildCreate', null,
     async function execute(client, guild) {
         //Add to MongolDB
-        PinguGuild.WritePGuild(client, guild, module.exports.name,
-            `Successfully joined "**${guild.name}**", owned by ${guild.owner}`,
-            `Something went wrong when joining "**${guild.name}**" (${guild.id})!`
-        );
+        PinguGuild.Write(client, guild, module.exports.name, `${client.user.username} joined "**${guild.name}**", owned by ${guild.owner}`);
 
-        guild.members.cache.forEach(async member => {
-            if (!await PinguUser.GetPUser(member.user)) {
-                PinguUser.WritePUser(client, member.user, module.exports.name,
-                    `Added **${member.user.tag}** to MongoDB`,
-                    `Failed to add **${member.user.tag}** to MongoDB`
-                );
-            }
-        })
+        await Promise.all(guild.members.cache.map(async member => {
+            if (!await PinguUser.Get(member.user))
+                return PinguUser.Write(client, member.user, module.exports.name, `${client.user.name} joined ${guild.name}`);
+            return null;
+        }));
 
         if (!guild.owner) return;
 
         //Thank guild owner for adding Pingu
         let OwnerDM = await guild.owner.user.createDM();
-        if (!OwnerDM) return PinguLibrary.errorLog(client, `Unable to create DM to ${guild.owner}!`, null, null, { params: { client, guild } });
+        if (!OwnerDM) return PinguLibrary.errorLog(client, `Unable to create DM to ${guild.owner}!`, null, null, { params: { guild } });
 
         OwnerDM.send(
             `Hi, ${guild.owner.user}!\n` +
@@ -30,7 +24,7 @@ module.exports = new PinguEvent('guildCreate', null,
             `Thank you for adding me!\n` +
             `Use \`*help\`, if you don't know how I work!`
         )
-            .catch(err => PinguLibrary.errorLog(client, `Failed to send ${guild.owner} a DM`, null, err, { params: { client, guild }, additional: { OwnerDM } }))
+            .catch(err => PinguLibrary.errorLog(client, `Failed to send ${guild.owner} a DM`, null, err, { params: { guild }, additional: { OwnerDM } }))
             .then(PinguLibrary.consoleLog(guild.client, `Sent ${guild.owner.user.tag} my "thank you" message.`));
 
     }

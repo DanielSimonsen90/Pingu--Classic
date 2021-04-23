@@ -20,12 +20,19 @@ module.exports = new PinguEvent('userUpdate',
         }
     },
     async function execute(client, preUser, user) {
-        let updated = await PinguUser.IsUpdated(preUser, user);
-        if (!Object.keys(updated)[0]) 
+        let updated = await PinguUser.GetUpdatedProperty(preUser, user);
+        if (!Object.keys(updated)[0]) return;
 
-        return await PinguUser.UpdatePUser(client, updated, await PinguUser.GetPUser(user), module.exports.name,
-            `Successfully updated **${user.tag}** PinguUser.`,
-            `Failed to update **${user.tag}** PinguUser.`,
-        );
+        const pUser = await PinguUser.Get(user);
+
+        updated.forEach(update => {
+            switch (update) {
+                case 'avatar': pUser.avatar = user.avatarURL(); break;
+                case 'tag': pUser.tag = user.tag; break;
+                default: break;
+            }
+        })
+
+        return await PinguUser.Update(client, updated, pUser, module.exports.name, updated.join(', '));
     }
 );

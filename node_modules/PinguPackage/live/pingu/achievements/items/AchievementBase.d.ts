@@ -16,7 +16,7 @@ export interface PinguCommandParamsResponse extends PinguCommandParams {
     response: Message;
 }
 export interface AchievementCallbackParams {
-    CHAT: [[string]];
+    CHAT: [[string, Message]];
     EVENT: PinguClientEvents;
     COMMAND: [[PinguCommandParamsResponse]];
     VOICE: [[VoiceState]];

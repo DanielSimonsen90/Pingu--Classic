@@ -48,7 +48,7 @@ module.exports = {
         },
         async function execute(client, preRole, role) {
             let guild = role.guild;
-            let pGuild = await PinguGuild.GetPGuild(guild);
+            let pGuild = await PinguGuild.Get(guild);
             module.exports.CheckRoleChange(guild, pGuild, module.exports.name);
         },
     ), ...{
@@ -76,10 +76,7 @@ module.exports = {
             PinguLibrary.consoleLog(guild.client, `[**${guild.name}**]: Embedcolor for **${client.user.username}** updated from ${pGuildClient.embedColor} to ${guildRoleColor}`);
 
             //Update Pingu Guild
-            PinguGuild.UpdatePGuild(client, { clients: pGuild.clients }, pGuild, scriptName,
-                `Successfully updated role color from **${guild.name}**`,
-                `I encountered and error while updating my role color in **${guild.name}**`
-            );
+            PinguGuild.Update(client, ['clients'], pGuild, scriptName, `Role color from **${guild.name}**`);
         }
     }
 };

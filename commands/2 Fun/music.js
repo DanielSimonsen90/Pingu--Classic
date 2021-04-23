@@ -126,15 +126,10 @@ module.exports = {
 /**@param {Message} message 
  * @param {VoiceChannel} voiceChannel*/
 function PermissionCheck(message, voiceChannel) {
-    if (!voiceChannel)
-        return `Please join a **voice channel** ${message.author}!`;
+    const { author, client, content } = message;
+    if (!voiceChannel) return `Please join a **voice channel** ${author}!`;
 
-    return PinguLibrary.PermissionCheck({
-        author: message.author,
-        channel: voiceChannel,
-        client: message.client,
-        content: message.content
-    }, 'VIEW_CHANNEL', 'SPEAK')
+    return PinguLibrary.PermissionCheck({ author, channel: voiceChannel, client, content }, 'VIEW_CHANNEL', 'SPEAK');
 }
 
 //#region Command Handling
@@ -150,11 +145,16 @@ async function HandleJoin(message, channelData) {
 /**@param {Message} message 
  * @param {Queue} queue*/
 async function HandleDisconnect(message, queue) {
-    if (!message.guild.me.voice.connection) return message.channel.send(`I'm not in a voice chat!`);
-    else if (message.member.voice.channel != message.guild.me.voice.channel) return message.channel.send(`You're not in my voice channel, so you can't disconnect me!`);
+    const { connection, channel } = message.guild.me.voice;
 
-    message.guild.me.voice.connection.disconnect();
-    await queue.AnnounceMessage(message, `Disconnected!`, `**${message.member.displayName}** disconnected me!`);
+    if (!connection) return message.channel.send(`I'm not in a voice chat!`);
+    else if (message.member.voice.channel != channel) return message.channel.send(`You're not in my voice channel, so you can't disconnect me!`);
+
+    connection.disconnect();
+
+    const senderMsg = `Disconnected!`;
+    if (!queue) return message.channel.send(senderMsg);
+    await queue.AnnounceMessage(message, senderMsg, `**${message.member.displayName}** disconnected me!`);
 
     if (!Queue.get(message.guild.id)) return;
 
@@ -404,7 +404,7 @@ async function HandleVolume(message, queue, newVolume) {
  * @param {Message} message
  * @param {Queue} queue*/
 async function HandleQueue(message, queue) {
-    let pGuild = await PinguGuild.GetPGuild(message.guild);
+    let pGuild = await PinguGuild.Get(message.guild);
     let pGuildClient = PinguClient.ToPinguClient(message.client).toPClient(pGuild);
 
     const embed = new MessageEmbed()
@@ -568,7 +568,7 @@ async function HandleShuffle(message, queue) {
  * @param {Song} song 
  * @param {Queue} queue*/
 async function Play(message, song, queue) {
-    var pGuild = await PinguGuild.GetPGuild(message.guild);
+    var pGuild = await PinguGuild.Get(message.guild);
     var pGuildClient = PinguClient.ToPinguClient(message.client).toPClient(pGuild);
     Queue.set(message.guild.id, queue);
 
@@ -657,6 +657,7 @@ async function Play(message, song, queue) {
             PinguLibrary.consoleLog(message.client, `Finish: ${song.title}`);
             song.stop();
             queue = Queue.get(message.guild.id);
+            if (!queue) return;
 
             (await message.channel.messages.fetch({ after: message.id }))
                 .filter(m => m.embeds[0] && m.embeds[0].title && m.embeds[0].title.startsWith('Now playing:'))
@@ -674,7 +675,7 @@ async function Play(message, song, queue) {
 /**@param {Message} message
  * @param {Queue} queue*/
 async function ResetClient(message) {
-    let pGuild = await PinguGuild.GetPGuild(message.guild);
+    let pGuild = await PinguGuild.Get(message.guild);
     let client = PinguClient.ToPinguClient(message.client);
     let pGuildClient = client.toPClient(pGuild);
 

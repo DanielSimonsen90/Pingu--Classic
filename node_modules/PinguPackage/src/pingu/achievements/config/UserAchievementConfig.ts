@@ -12,14 +12,14 @@ export class UserAchievementConfig extends AchievementConfigBase {
 
     public notificationType: UserAchievementNotificationType;
 
-    public static async notify<Key extends keyof UserAchievementType>(client: Client, achiever: User, achievement: UserAchievement<Key, UserAchievementType[Key]>) {
-        return super._notify(client, achievement, (percentage => new MessageEmbed()
+    public static async notify<Key extends keyof UserAchievementType>(client: Client, achiever: User, achievement: UserAchievement<Key, UserAchievementType[Key]>, config: UserAchievementConfig) {
+        return super._notify(client, achievement, percentage => new MessageEmbed()
             .setTitle(`🏆 Achievement Unlocked! 🏆\n${achievement.name}`)
             .setDescription(achievement.description)
             .setFooter(`${percentage.value}% of all Pingu users have achieved this!`)
             .setTimestamp(Date.now())
             .setThumbnail(achiever.avatarURL())
             .setColor(ToPinguClient(client).DefaultEmbedColor)
-        ), {_id: (await achiever.createDM()).id});
+        , {_id: (await achiever.createDM()).id}, config.notificationType as AchievementBaseNotificationType);
     }
 }
