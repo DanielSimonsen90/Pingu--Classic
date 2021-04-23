@@ -86,7 +86,7 @@ module.exports = new PinguEvent('onready',
 
                             let chosenGuild = availableGuilds[index];
                             let pGuild = await PinguGuild.Get(chosenGuild);
-                            //client.emit('chosenGuild', ...[chosenGuild, pGuild]);
+                            client.emit('chosenGuild', ...[chosenGuild, pGuild]);
                             return chosenGuild.name;
                         }
                         async function getRandomUser() {
@@ -96,7 +96,7 @@ module.exports = new PinguEvent('onready',
                             let chosenUser = availableUsers[index];
                             let pUser = await PinguUser.Get(chosenUser);
 
-                            //client.emit('chosenUser', ...[chosenUser, pUser]);
+                            client.emit('chosenUser', ...[chosenUser, pUser]);
                             return chosenUser.tag;
                         }
                         function getMostKnownUser() {
