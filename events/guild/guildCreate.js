@@ -1,15 +1,16 @@
-const { PinguGuild, PinguLibrary, PinguUser, PinguEvent } = require("PinguPackage");
+const { MessageEmbed, Guild } = require("discord.js");
+const { PinguGuild, PinguLibrary, PinguClient, PinguEvent } = require("PinguPackage");
+/**@param {PinguClient} client
+ * @param {Guild} guild*/
+const joinString = (client, guild) => `${client.user.username} joined "**${guild.name}**", owned by ${guild.owner}`
 
-module.exports = new PinguEvent('guildCreate', null,
+module.exports = new PinguEvent('guildCreate', 
+    async function setContent(guild) {
+        return module.exports.content = new MessageEmbed().setDescription(joinString(guild.client, guild));
+    },
     async function execute(client, guild) {
         //Add to MongolDB
-        PinguGuild.Write(client, guild, module.exports.name, `${client.user.username} joined "**${guild.name}**", owned by ${guild.owner}`);
-
-        await Promise.all(guild.members.cache.map(async member => {
-            if (!await PinguUser.Get(member.user))
-                return PinguUser.Write(client, member.user, module.exports.name, `${client.user.name} joined ${guild.name}`);
-            return null;
-        }));
+        PinguGuild.Write(client, guild, module.exports.name, joinString(client, guild));
 
         if (!guild.owner) return;
 
@@ -26,6 +27,5 @@ module.exports = new PinguEvent('guildCreate', null,
         )
             .catch(err => PinguLibrary.errorLog(client, `Failed to send ${guild.owner} a DM`, null, err, { params: { guild }, additional: { OwnerDM } }))
             .then(PinguLibrary.consoleLog(guild.client, `Sent ${guild.owner.user.tag} my "thank you" message.`));
-
     }
 );

@@ -26,15 +26,19 @@ module.exports = new PinguEvent('onready',
 
         client.setActivity();
         setInterval(() => client.setActivity(), ms('24h'));
+        setInterval(() => {
+            //Log latency every minute
+            PinguLibrary.latencyCheck(client, Date.now())
+                .catch(err => PinguLibrary.errorLog(client, `LatencyCheck error`, content, err, { params: message }));
+        }, ms('1m'));
 
         if (client.config.updateStats && client.isLive) {
             UpdateStats();
             setInterval(() => UpdateStats, ms('24h'));
             function UpdateStats() {
-                /**@param {PinguClient} client
-                 * @param {string} channelID
+                /**@param {string} channelID
                  * @returns {VoiceChannel}*/
-                let getChannel = (client, channelID) => PinguLibrary.SavedServers.PinguSupport(client).channels.cache.get(channelID);
+                let getChannel = (channelID) => PinguLibrary.SavedServers.get('Pingu Support').channels.cache.get(channelID);
                 let channels = [
                     '799596588859129887', //Servers
                     '799597092107583528', //Users
@@ -42,7 +46,7 @@ module.exports = new PinguEvent('onready',
                     '799598372217683978', //Server of the Day
                     '799598024971518002', //User of the Day
                     '799598765187137537'  //Most known member
-                ].map(id => getChannel(client, id));
+                ].map(id => getChannel(id));
                 /**@param {VoiceChannel} channel*/
                 let setName = async (channel) => {
                     /**@param {VoiceChannel} channel*/
@@ -87,7 +91,7 @@ module.exports = new PinguEvent('onready',
 
                             let chosenGuild = availableGuilds[index];
                             let pGuild = await PinguGuild.Get(chosenGuild);
-                            //client.emit('chosenGuild', ...[chosenGuild, pGuild]);
+                            client.emit('chosenGuild', ...[chosenGuild, pGuild]);
                             return chosenGuild.name;
                         }
                         async function getRandomUser() {
@@ -97,7 +101,7 @@ module.exports = new PinguEvent('onready',
                             let chosenUser = availableUsers[index];
                             let pUser = await PinguUser.Get(chosenUser);
 
-                            //client.emit('chosenUser', ...[chosenUser, pUser]);
+                            client.emit('chosenUser', ...[chosenUser, pUser]);
                             return chosenUser.tag;
                         }
                         function getMostKnownUser() {

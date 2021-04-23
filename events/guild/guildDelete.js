@@ -1,16 +1,18 @@
-const { MessageEmbed } = require("discord.js");
-const { PinguGuild, PinguEvent, PinguUser } = require("PinguPackage");
-
+const { MessageEmbed, Guild } = require("discord.js");
+const { PinguGuild, PinguEvent, PinguUser, PinguClient } = require("PinguPackage");
+/**@param {PinguClient} client
+ * @param {Guild} guild*/
+const leftString = (client, guild) => `Left **${guild.name}**, owned by ${guild.owner}`;
 module.exports = new PinguEvent('guildDelete',
     async function setContent(guild) {
-        return module.exports.content = new MessageEmbed().setDescription(`**${guild.name}** was deleted.`);
+        return module.exports.content = new MessageEmbed().setDescription(leftString(guild.client, guild));
     },
     async function execute(client, guild) {
         let pGuild = await PinguGuild.Get(guild);
         if (pGuild.clients.find(c => c && c._id != client.id)) /*Other Pingu client is in guild*/ return;
 
         //Remove guild from MongolDB
-        await PinguGuild.Delete(client, guild, module.exports.name, `Left **${guild.name}**, owned by ${guild.owner}`);
+        await PinguGuild.Delete(client, guild, module.exports.name, leftString(client, guild));
 
         let guildUsers = guild.members.cache.array().map(gm => !gm.user.bot && gm.user);
         let clientGuilds = client.guilds.cache.array();

@@ -45,10 +45,6 @@ module.exports = new PinguEvent('message',
     async function execute(client, message) {
         const { content, channel, guild, author, member } = message;
 
-        //Log latency
-        PinguLibrary.latencyCheck(message)
-            .catch(err => PinguLibrary.errorLog(client, `LatencyCheck error`, content, err, { params: message }));
-
         //User sent a message in #emotes, and is expecitng an emote to be made
         if (await fromEmotesChannel()) return;
 

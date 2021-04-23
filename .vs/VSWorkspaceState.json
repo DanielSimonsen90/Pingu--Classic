@@ -1,15 +1,10 @@
 {
   "ExpandedNodes": [
     "",
-    "\\commands",
-    "\\commands\\1 Utility",
-    "\\commands\\1 Utility\\Information",
-    "\\commands\\4 DevOnly",
-    "\\commands\\4 DevOnly\\Update",
     "\\events",
-    "\\events\\channel",
-    "\\events\\client"
+    "\\events\\client",
+    "\\events\\message"
   ],
-  "SelectedNode": "\\commands\\1 Utility\\Information\\info.js",
+  "SelectedNode": "\\events\\client\\onready.js",
   "PreviewInSolutionExplorer": false
 }

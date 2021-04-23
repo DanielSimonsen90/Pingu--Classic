@@ -22,19 +22,6 @@ module.exports = {
                     .setAuthor(member.displayName, member.user.avatarURL())
                     .setThumbnail(member.guild.iconURL())
                 );
-
-            if (member.user.bot) return;
-            await Promise.all([
-                (async function AddToPinguUsers() {
-                    if (!await PinguUser.Get(member.user))
-                        PinguUser.Write(client, member.user, module.exports.name, `**${member.user.username}** joined **${member.guild.name}**.`);
-                })(),
-                (async function AddToPinguGuildMembers() {
-                    const pGuildMember = await PinguGuildMember.Write(member, true);
-                    pGuild.members.set(member.id, pGuildMember);
-                    return PinguGuild.Update(client, ['members'], pGuild, module.exports.name, `New member was added to **${pGuild.name}**'s PinguGuild.`);
-                })()
-            ])
         }
     ), ...{
         /**@param {Client} client
