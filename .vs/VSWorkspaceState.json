@@ -2,22 +2,14 @@
   "ExpandedNodes": [
     "",
     "\\commands",
-<<<<<<< Updated upstream
     "\\commands\\1 Utility",
-    "\\commands\\1 Utility\\Decidable",
     "\\commands\\1 Utility\\Information",
+    "\\commands\\4 DevOnly",
+    "\\commands\\4 DevOnly\\Update",
     "\\events",
-    "\\events\\client",
-    "\\events\\guild",
-    "\\events\\guild\\guildMember",
-    "\\events\\message"
-=======
-    "\\commands\\2 Fun",
-    "\\commands\\2 Fun\\Images",
-    "\\events",
+    "\\events\\channel",
     "\\events\\client"
->>>>>>> Stashed changes
   ],
-  "SelectedNode": "\\events\\message\\message.js",
+  "SelectedNode": "\\commands\\1 Utility\\Information\\info.js",
   "PreviewInSolutionExplorer": false
 }

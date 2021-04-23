@@ -7,7 +7,7 @@ const {
 } = require('PinguPackage');
 
 module.exports = new PinguCommand('info', 'Utility', 'All da information you need', {
-    usage: '<type: server | user> <property: all | <property>>'
+    usage: '<server | member | user> <property: all | <property>>'
 }, async ({ message, args, pAuthor, pGuild, pGuildMember, pGuildClient }) => {
     let userType = args.shift().toLowerCase();
     let type =
