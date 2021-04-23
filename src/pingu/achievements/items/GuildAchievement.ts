@@ -23,7 +23,7 @@ export function useChannel(channel: Channels, extraInfo: string) {
 
 import { IGuildAchievement } from "./IAchievementBase";
 import { Percentage } from "../../../helpers";
-import { GetPGuilds } from "../../guild/PinguGuild";
+import { GetPinguGuilds } from "../../guild/PinguGuild";
 
 export class GuildAchievement
 <Key extends keyof GuildAchievementType,
@@ -51,7 +51,7 @@ extends AchievementBase implements IGuildAchievement<Key, Type, GuildAchievement
     }
 
     public async getPercentage() {
-        let pGuilds = await GetPGuilds();
+        let pGuilds = await GetPinguGuilds();
         let whole = pGuilds.length;
         let part = pGuilds.filter(pGuild => pGuild.settings.config.achievements.achievements.find(a => a._id == this._id)).length;
         return new Percentage(whole, part);
@@ -72,7 +72,7 @@ extends AchievementBase implements IGuildAchievement<Key, Type, GuildAchievement
             .setCallback('0', async ([params]) => params.response?.embeds[0]?.title?.includes('New Suggestion!')),
         new GuildAchievement(6, "Poof!", 'COMMAND', 'clear', GuildAchievement.useCommand('clear', 'clear one or more messages')),
         new GuildAchievement(7, "Pretty message!", 'COMMAND', 'embed', GuildAchievement.useCommand('embed', "make a custom embed")),
-        new GuildAchievement(8, "Let's give yo uanew look...", 'COMMAND', 'prefix', "Change the prefix of Pingu"),
+        new GuildAchievement(8, "Let's give you a new look...", 'COMMAND', 'prefix', "Change the prefix of Pingu"),
         new GuildAchievement(9, 'Out to the followers!', 'COMMAND', 'publish', GuildAchievement.useCommand('publish', "publish a message in an announcement channel")),
         new GuildAchievement(10, "You decide your view of the server!", 'COMMAND', 'reactionroles', 'Set up ReactionRoles on the server')
             .setCallback('0', async ([params]) => params.response?.embeds[0]?.title?.includes('ReactionRole Created!')),
@@ -85,6 +85,6 @@ extends AchievementBase implements IGuildAchievement<Key, Type, GuildAchievement
         new GuildAchievement(17, "Discord? More like another streaming service", 'VOICE', 'Streaming', "Have a member live stream in a channel"),
         new GuildAchievement(18, "Ewww you guys use Zoom?", 'VOICE', 'Video', "Have a member enable their camera in a voice channel"),
         new GuildAchievement(19, "The Government of China", 'MODERATION', 'Logs', "Setup a logs channel to moderate the server's events"),
-        new GuildAchievement(20, "We are the chosen ones!", 'EVENT', 'chosenGuild', 'Become the chosen server in Pingu Support')
+        new GuildAchievement(20, "We are the chosen ones!", 'EVENT', 'chosenGuild', 'Become the chosen server in Pingu Support'),
     ]
 }

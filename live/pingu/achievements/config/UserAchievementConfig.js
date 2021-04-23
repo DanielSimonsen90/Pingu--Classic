@@ -18,18 +18,18 @@ class UserAchievementConfig extends AchievementConfigBase_1.AchievementConfigBas
         super();
         this.notificationType = notificationType;
     }
-    static notify(client, achiever, achievement) {
+    static notify(client, achiever, achievement, config) {
         const _super = Object.create(null, {
             _notify: { get: () => super._notify }
         });
         return __awaiter(this, void 0, void 0, function* () {
-            return _super._notify.call(this, client, achievement, (percentage => new discord_js_1.MessageEmbed()
+            return _super._notify.call(this, client, achievement, percentage => new discord_js_1.MessageEmbed()
                 .setTitle(`🏆 Achievement Unlocked! 🏆\n${achievement.name}`)
                 .setDescription(achievement.description)
                 .setFooter(`${percentage.value}% of all Pingu users have achieved this!`)
                 .setTimestamp(Date.now())
                 .setThumbnail(achiever.avatarURL())
-                .setColor(PinguClient_1.ToPinguClient(client).DefaultEmbedColor)), { _id: (yield achiever.createDM()).id });
+                .setColor(PinguClient_1.ToPinguClient(client).DefaultEmbedColor), { _id: (yield achiever.createDM()).id }, config.notificationType);
         });
     }
 }

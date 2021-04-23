@@ -100,24 +100,35 @@ export function Permissions(): {
 
 //#region Servers
 export const PinguSupportInvite = `https://discord.gg/gbxRV4Ekvh`;
-export const SavedServers = {
-    DanhoMisc(client: Client) {
-        return getServer(client, '460926327269359626');
-    },
-    PinguSupport(client: Client) {
-        return getServer(client, '756383096646926376');
-    },
-    PinguEmotes(client: Client) {
-        return getServer(client, '791312245555855401');
-    },
-    DeadlyNinja(client: Client) {
-        return getServer(client, '405763731079823380');
+
+export type SavedServerNames = 'Danho Misc' | 'Pingu Support' | 'Pingu Emotes' | 'Deadly Ninja';
+export const SavedServers = new Collection<SavedServerNames, Guild>();
+class SavedServer {
+    constructor(name: SavedServerNames, id: Snowflake) {
+        this.name = name;
+        this.id = id;
     }
+
+    public name: SavedServerNames;
+    public id: Snowflake;
+}
+const savedServers = [
+    new SavedServer('Danho Misc', '460926327269359626'),
+    new SavedServer('Pingu Support', '756383096646926376'),
+    new SavedServer('Pingu Emotes', '791312245555855401'),
+    new SavedServer('Deadly Ninja', '405763731079823380')
+];
+export function CacheSavedServers(client: Client) {
+    for (const server of savedServers) {
+        let guild = getServer(client, server.id);
+        SavedServers.set(server.name, guild);
+    }
+    return SavedServers;
 }
 export function getServer(client: Client, id: string) {
     return client.guilds.cache.find(g => g.id == id);
 }
-export async function getSharedServers(client: Client, user: User) {
+export async function getSharedServers(client: Client, user: User): Promise<Guild[]> {
     let servers = new Array<Guild>();
     for (var guild of client.guilds.cache.array()) {
         if (await guild.members.fetch(user))
@@ -138,23 +149,23 @@ class Developer {
     public name: DeveloperNames;
     public id: Snowflake;
 }
-const developers = [
-    new Developer('Danho', '245572699894710272'),
-    new Developer('SynthySytro', '405331883157880846'),
-    new Developer('Slothman', '290131910091603968'),
-    new Developer('DefilerOfCats', '803903863706484756')
-];
+const developers = new Collection<DeveloperNames, Snowflake>()
+    .set('Danho', '245572699894710272')
+    .set('SynthySytro', '405331883157880846')
+    .set('Slothman', '290131910091603968')
+    .set('DefilerOfCats', '803903863706484756');
 
 export const Developers = new Collection<DeveloperNames, User>();
 export async function CacheDevelopers(client: Client): Promise<Collection<DeveloperNames, User>> {
-    for (const developer of developers) {
-        let user = await client.users.fetch(developer.id);
-        Developers.set(developer.name, user);
-    }
+    const users = await Promise.all(developers.map(id => client.users.fetch(id)))
+    users.forEach(user => {
+        let dev = developers.findKey(id => id == user.id);
+        Developers.set(dev, user);
+    })
     return Developers;
 }
 export function isPinguDev(user: User): boolean {
-    return Developers.get(developers.find(dev => dev.id == user.id).name) != null;
+    return Developers.get(developers.findKey(id => id == user.id)) != null;
 }
 //#endregion
 
@@ -162,12 +173,12 @@ export function isPinguDev(user: User): boolean {
 export function getTextChannel(client: Client, guildID: string, channelName: string) {
     var guild = client.guilds.cache.find(guild => guild.id == guildID);
     if (!guild) {
-        console.error(`Unable to get guild from ${guildID}`);
+        DanhoDM(`Unable to get guild from ${guildID}`);
         return null;
     }
     var channel = guild.channels.cache.find(channel => channel.name == channelName);
     if (!channel) {
-        console.error(`Unable to get channel from ${channelName}`);
+        DanhoDM(`Unable to get channel from ${channelName}`);
         return null;
     }
     return channel as TextChannel;
@@ -200,14 +211,24 @@ interface ErrorLogParams {
 type errorLogParams = ErrorLogParams
 export async function errorLog(client: Client, message: string, messageContent?: string, err?: Error, params: errorLogParams = {}) {
     //Get #error-log
-    var errorlogChannel = getTextChannel(client, SavedServers.PinguSupport(client).id, 'error-log-⚠');
+    var errorlogChannel = getTextChannel(client, SavedServers.get('Pingu Support').id, 'error-log-⚠');
     if (!errorlogChannel) return DanhoDM(`Unable to find #error-log-⚠️ in Pingu Support, ${PinguSupportInvite}`);
     
-    let errorDir = './errors';
-    let errorID = fs.readdirSync(errorDir).filter(file => file.endsWith('.json')).length;
+    let errorPath = './errors'; 
+    console.log(fs.readdirSync(errorPath.substring(0, errorPath.length - 6)));
+    try {
+        var errorDir = fs.readdirSync(errorPath);
+        console.log("[Try] Current Directory name: " + __dirname);
+    }
+    catch {
+        console.log("[Catch] Current Directory name: " + __dirname);
+        errorPath = '../../../../../../errors';
+        errorDir = fs.readdirSync(errorPath)
+    }
+    let errorID = fs.readdirSync(errorPath).filter(file => file.endsWith('.json')).length;
     
     //Write or append to errorfile
-    let errorFilePath = `${errorDir}/${errorID}.json`;
+    let errorFilePath = `${errorPath}/${errorID}.json`;
     fs.writeFile(errorFilePath, JSON.stringify({ err, params }, null, 2), () => consoleLog(client, `Created error file for error #${errorID}.`));
 
     //Send and react
@@ -249,7 +270,7 @@ export async function errorLog(client: Client, message: string, messageContent?:
         console.error(content.includes('`') ? content.replace('`', ' ') : content);
 
         let sent = await errorlogChannel.send(content);
-        await sent.react(SavedServers.DanhoMisc(client).emojis.cache.find(e => e.name == 'Checkmark')); //Mark as solved
+        await sent.react(SavedServers.get('Danho Misc').emojis.cache.find(e => e.name == 'Checkmark')); //Mark as solved
         await sent.react('📄'); //Get error file
         
         //Create reaction handler
@@ -270,8 +291,8 @@ export async function errorLog(client: Client, message: string, messageContent?:
     }
 }
 export async function pGuildLog(client: Client, script: string, message: string, err?: Error) {
-    var pinguGuildLog = PinguLibrary.getTextChannel(client, PinguLibrary.SavedServers.PinguSupport(client).id, "pingu-guild-log-🏡");
-    if (!pinguGuildLog) return PinguLibrary.DanhoDM(`Couldn't get #pingu-guild-log-🏡 in Pingu Support, ${PinguLibrary.PinguSupportInvite}`)
+    var pinguGuildLog = getTextChannel(client, SavedServers.get('Pingu Support').id, "pingu-guild-log-🏡");
+    if (!pinguGuildLog) return DanhoDM(`Couldn't get #pingu-guild-log-🏡 in Pingu Support, ${PinguSupportInvite}`)
 
     if (err) {
         var errorLink = (await errorLog(client, `PinguGuild Error: "${message}"`, null, err) as Message).url;
@@ -280,8 +301,8 @@ export async function pGuildLog(client: Client, script: string, message: string,
     return pinguGuildLog.send(`[**Success**] [**${script}**]: ${message}`);
 }
 export async function pUserLog(client: Client, script: string, message: string, err?: Error) {
-    var pinguUserLog = PinguLibrary.getTextChannel(client, PinguLibrary.SavedServers.PinguSupport(client).id, "pingu-user-log-🧍");
-    if (!pinguUserLog) return PinguLibrary.DanhoDM(`Couldn't get #pingu-user-log-🧍 in Pingu Support, ${PinguLibrary.PinguSupportInvite}`)
+    var pinguUserLog = getTextChannel(client, SavedServers.get('Pingu Support').id, "pingu-user-log-🧍");
+    if (!pinguUserLog) return DanhoDM(`Couldn't get #pingu-user-log-🧍 in Pingu Support, ${PinguSupportInvite}`)
 
     if (err) {
         var errorLink = (await errorLog(client, `PinguUser Error (**${script}**): "${message}"`, null, err) as Message).url;
@@ -293,8 +314,8 @@ export async function consoleLog(client: Client, message: string) {
     let timeFormat = `[${new Date(Date.now()).toLocaleTimeString()}]`;
     console.log(`${timeFormat} ${message}`);
 
-    let consoleLogChannel = PinguLibrary.getTextChannel(client, PinguLibrary.SavedServers.PinguSupport(client).id, "console-log-📝");
-    if (!consoleLogChannel) return PinguLibrary.DanhoDM(`Unable to find #console-log-📝 in Pingu Support, ${PinguLibrary.PinguSupportInvite}`);
+    let consoleLogChannel = getTextChannel(client, SavedServers.get('Pingu Support').id, "console-log-📝");
+    if (!consoleLogChannel) return DanhoDM(`Unable to find #console-log-📝 in Pingu Support, ${PinguLibrary.PinguSupportInvite}`);
 
     consoleLogChannel.send(message);
 }
@@ -304,7 +325,7 @@ import { ToPinguClient } from '../client/PinguClient';
 export async function eventLog(client: Client, content: MessageEmbed) {
     if (!ToPinguClient(client).isLive) return;
 
-    let eventLogChannel = getTextChannel(client, SavedServers.PinguSupport(client).id, "event-log-📹");
+    let eventLogChannel = getTextChannel(client, SavedServers.get('Pingu Support').id, "event-log-📹");
     if (!eventLogChannel) return DanhoDM(`Couldn't get #event-log-📹 channel in Pingu Support, ${PinguLibrary.PinguSupportInvite}`)
 
     let lastCache = LoggedCache[0];
@@ -317,7 +338,7 @@ export async function eventLog(client: Client, content: MessageEmbed) {
     return await eventLogChannel.send(content);
 }
 export async function achievementLog(client: Client, achievementEmbed: MessageEmbed) {
-    const achievementChannel = getTextChannel(client, SavedServers.PinguSupport(client).id, 'achievement-log-🏆');
+    const achievementChannel = getTextChannel(client, SavedServers.get('Pingu Support').id, 'achievement-log-🏆');
     if (!achievementChannel) return DanhoDM(`Couldn't get #achievement-log-🏆 channel in Pingu Support, ${PinguSupportInvite}`);
 
     return achievementChannel.send(achievementEmbed);
@@ -325,7 +346,7 @@ export async function achievementLog(client: Client, achievementEmbed: MessageEm
 export async function tellLog(client: Client, sender: User, reciever: User, message: Message | MessageEmbed) {
     if (!ToPinguClient(client).isLive) return;
 
-    var tellLogChannel = getTextChannel(client, SavedServers.PinguSupport(client).id, 'tell-log-💬');
+    var tellLogChannel = getTextChannel(client, SavedServers.get('Pingu Support').id, 'tell-log-💬');
     if (!tellLogChannel) return DanhoDM(`Couldn't get #tell-log-💬 channel in Pingu Support, ${PinguLibrary.PinguSupportInvite}`)
 
     if ((message as object).constructor.name == "Message") {
@@ -368,21 +389,19 @@ export async function tellLog(client: Client, sender: User, reciever: User, mess
         tellLogChannel.send(message as MessageEmbed)
     }
 }
-export async function latencyCheck(message: Message) {
+export async function latencyCheck(client: Client, timestamp: number) {
     //Get latency
-    let pingChannel = getTextChannel(message.client, SavedServers.PinguSupport(message.client).id, "ping-log-🏓");
+    let pingChannel = getTextChannel(client, SavedServers.get('Pingu Support').id, "ping-log-🏓");
     if (!pingChannel) return DanhoDM(`Couldn't get #ping-log-🏓 channel in Pingu Support, ${PinguSupportInvite}`)
-
-    if (message.channel == pingChannel || message.author.bot) return null;
 
     let pingChannelSent = await pingChannel.send(`Calculating ping`);
 
-    let latency = pingChannelSent.createdTimestamp - message.createdTimestamp;
+    let latency = pingChannelSent.createdTimestamp - timestamp;
     pingChannelSent.edit(latency + 'ms');
 
     //Get outages channel
-    let outages = getTextChannel(message.client, SavedServers.PinguSupport(message.client).id, "outages-😵");
-    if (!outages) return errorLog(message.client, `Unable to find #outages-😵 channel from LatencyCheck!`);
+    let outages = getTextChannel(client, SavedServers.get('Pingu Support').id, "outages-😵");
+    if (!outages) return errorLog(client, `Unable to find #outages-😵 channel from LatencyCheck!`);
 
     //Set up to find last Pingu message
     let outagesMessages = outages.messages.cache.array();
@@ -390,7 +409,7 @@ export async function latencyCheck(message: Message) {
 
     //Find Pingu message
     for (var i = outageMessagesCount - 1; i >= 0; i--) {
-        if (outagesMessages[i].author != message.client.user) continue;
+        if (outagesMessages[i].author != client.user) continue;
         var lastPinguMessage = outagesMessages[i];
     }
 
@@ -406,12 +425,12 @@ export async function latencyCheck(message: Message) {
             return lastPinguMessage.edit(`I have a latency delay on ${latency}!`);
     }
 
-    if (latency > 1000) PinguLibrary.outages(message.client, `I have a latency delay on ${latency}!`);
+    if (latency > 1000) PinguLibrary.outages(client, `I have a latency delay on ${latency}!`);
 }
 export async function raspberryLog(client: Client) {
     if (!ToPinguClient(client).isLive) return;
 
-    let raspberryLogChannel = getTextChannel(client, SavedServers.PinguSupport(client).id, 'raspberry-log-🍇');
+    let raspberryLogChannel = getTextChannel(client, SavedServers.get('Pingu Support').id, 'raspberry-log-🍇');
     if (!raspberryLogChannel) return DanhoDM(`Couldn't get #raspberry-log-🍇 channel in Pingu Support, ${PinguSupportInvite}`)
 
     return raspberryLogChannel.send(`Pulled version ${ToPinguClient(client).config.version} from Github`);
@@ -473,7 +492,7 @@ export async function AchievementCheckType
         config: AchieverConfigs[AchieverType],
         callbackKey: CallbackKey,
         callback: AchievementCallbackParams[AchieverType][CallbackKey][keyof AchievementCallbackParams[AchieverType][CallbackKey]]
-    ) {
+    ): Promise<Message> {
     const filter = (arr: AchievementType[]) =>  arr.filter(i => i.key == key && i.type == (keyType as any));
 
     let allAchievements = filter((function getAllAchievements() {
@@ -486,66 +505,83 @@ export async function AchievementCheckType
     })());
     if (!allAchievements) return null;
 
-    let pAchievements = (await (async function getAllPAchievements() {
+    let pAchievements = ((await (async function getAllPAchievements() {
         switch (achieverType) {
             case 'USER': return (await GetPUser(achiever as User)).achievementConfig.achievements;
-            case 'GUILDMEMBER': return (await GetPGuildMember(achiever as GuildMember)).achievementsConfig.achievements;
+            case 'GUILDMEMBER': return (await GetPGuildMember(achiever as GuildMember, 'PinguLibrary.AchievementCheckType()')).achievementConfig.achievements;
             case 'GUILD': return (await GetPGuild(achiever as Guild)).settings.config.achievements.achievements;
             default: return null;
         }
-    })()).map(pa => pa._id);
+    })()) || []).map(pa => pa._id);
 
     //Find an achievement matching Key & Type, that achiever doesn't have, and the achievement's callback returns true
-    let achievement = await (async function Find() {
+    let achievements = await (async function Find() {
+        const result: AchievementType[] = [];
         for (const a of allAchievements)
             if (!pAchievements.includes(a._id) && await a.callback(callback as never))
-                return a;
-        return null;
+                result.push(a);
+        return result;
     })();
 
-    if (!achievement) return null;
+    if (!achievements.length) return null;
 
-    let pAchievement = new PAchievement({
-        _id: achievement._id,
-        achievedAt: new Date(Date.now())
-    });
+    return (await Promise.all(achievements.map(async achievement => {
+        let pAchievement = new PAchievement({
+            _id: achievement._id,
+            achievedAt: new Date(Date.now())
+        });
+        
+        await (async function UpdateDB() {
+            const scriptName = 'PinguLibrary.AchievementCheckType()'
+            switch (achieverType) {
+                case 'USER':
+                    let pUser = await GetPUser(achiever as User);
+                    pUser.achievementConfig.achievements.push(pAchievement);
+                    return UpdatePUser(client, ['achievementConfig'], pUser, scriptName, 
+                        `Added ${achieverType.toLowerCase()} achievement, #${pAchievement._id} "${achievement.name}" to **${(achiever as User).tag}**'s PinguUser achievements collection`
+                );
+                case 'GUILDMEMBER':
+                    let pGuildMember = await GetPGuildMember(achiever as GuildMember, scriptName);
+                    pGuildMember.achievementConfig.achievements.push(pAchievement);
+                    return UpdatePGuildMember(achiever as GuildMember, pGuildMember, scriptName, 
+                        `Added ${achieverType.toLowerCase()} achievement, #${pAchievement._id} "${achievement.name}" to **${(achiever as GuildMember).user.tag}**'s PinguGuildMember achievements collection`
+                    );
+                case 'GUILD':
+                    let pGuild = await GetPGuild(achiever as Guild);
+                    pGuild.settings.config.achievements.achievements.push(pAchievement);
+                    return UpdatePGuild(client, ['settings'], pGuild, scriptName,
+                        `Added ${achieverType.toLowerCase()} achievement, #${pAchievement._id} "${achievement.name}" to **${(achiever as Guild).name}**'s PinguGuild achievements collection`
+                    );
+                default: return null;
+            }
+        })();
 
-    await (async function UpdateDB() {
-        const scriptName = 'PinguLibrary.AchievementCheckType()'
-        switch (achieverType) {
-            case 'USER':
-                let pUser = await GetPUser(achiever as User);
-                pUser.achievementConfig.achievements.push(pAchievement);
-                return UpdatePUser(client, { achievementConfig: pUser.achievementConfig }, pUser, scriptName, 
-                    `Added ${achieverType.toLowerCase()} achievement, #${pAchievement._id} "${achievement.name}" to **${(achiever as User).tag}**'s PinguUser achievements collection`,
-                    `Failed to add ${achieverType.toLowerCase()} achievement, #${pAchievement._id} "${achievement.name}" to **${(achiever as User).tag}**'s PinguUser achievements collection`
-                );
-            case 'GUILDMEMBER':
-                let pGuildMember = await GetPGuildMember(achiever as GuildMember);
-                pGuildMember.achievementsConfig.achievements.push(pAchievement);
-                return UpdatePGuildMember(achiever as GuildMember, pGuildMember, scriptName, 
-                    `Added ${achieverType.toLowerCase()} achievement, #${pAchievement._id} "${achievement.name}" to **${(achiever as GuildMember).user.tag}**'s PinguGuildMember achievements collection`,
-                    `Failed to add ${achieverType.toLowerCase()} achievement, #${pAchievement._id} "${achievement.name}" to **${(achiever as GuildMember).user.tag}**'s PinguGuildMember achievements collection`
-                );
-            case 'GUILD':
-                let pGuild = await GetPGuild(achiever as Guild);
-                pGuild.settings.config.achievements.achievements.push(pAchievement);
-                return UpdatePGuild(client, { settings: pGuild.settings }, pGuild, scriptName,
-                    `Added ${achieverType.toLowerCase()} achievement, #${pAchievement._id} "${achievement.name}" to **${(achiever as Guild).name}**'s PinguGuild achievements collection`,
-                    `Failed to add ${achieverType.toLowerCase()} achievement, #${pAchievement._id} "${achievement.name}" to **${(achiever as Guild).name}**'s PinguGuild achievements collection`
-                );
-            default: return null;
-        }
-    })();
+        const notificationType = (config as UserAchievementConfig).notificationType || (config as GuildAchievementConfig).notificationTypes.guild;
 
-    return (function notify() {
-        switch (achieverType) {
-            case 'USER': return UserAchievementConfig.notify(client, achiever as User, achievement as UserAchievement<UserAchievementTypeKey, UserAchievementType[UserAchievementTypeKey]>);
-            case 'GUILDMEMBER': return GuildMemberAchievementConfig.notify(client, achiever as GuildMember, achievement as GuildMemberAchievement<GuildMemberAchievementTypeKey, GuildMemberAchievementType[GuildMemberAchievementTypeKey]>, config as GuildMemberAchievementConfig);
-            case 'GUILD': return GuildAchievementConfig.notify(client, achiever as Guild, achievement as GuildAchievement<GuildMemberAchievementTypeKey, GuildMemberAchievementType[GuildMemberAchievementTypeKey]>, config as GuildAchievementConfig);
-            default: return null;
-        }
-    })();
+        return (function notify() {
+            switch (achieverType) {
+                case 'USER': return UserAchievementConfig.notify(
+                    client, 
+                    achiever as User, 
+                    achievement as unknown as UserAchievement<UserAchievementTypeKey, UserAchievementType[UserAchievementTypeKey]>,
+                    config as UserAchievementConfig
+                );
+                case 'GUILDMEMBER': return GuildMemberAchievementConfig.notify(
+                    client, 
+                    achiever as GuildMember, 
+                    achievement as unknown as GuildMemberAchievement<GuildMemberAchievementTypeKey, GuildMemberAchievementType[GuildMemberAchievementTypeKey]>, 
+                    config as GuildMemberAchievementConfig
+                );
+                case 'GUILD': return GuildAchievementConfig.notify(
+                    client, 
+                    achiever as Guild, 
+                    achievement as unknown as GuildAchievement<GuildMemberAchievementTypeKey, GuildMemberAchievementType[GuildMemberAchievementTypeKey]>, 
+                    config as GuildAchievementConfig
+                );
+                default: return null;
+            }
+        })();
+    })))[0];
 }
 interface AchievementCheckData {
     user: User,
@@ -557,19 +593,25 @@ export async function AchievementCheck
 <AchievementType extends GuildMemberAchievementType | GuildAchievementType | AchievementBaseType,
 Key extends keyof AchievementType, Type extends AchievementType[Key],>
 (client: Client, data: AchievementCheckData, key: Key, type: Type, callback: any[]) {
-    let pUser = await GetPUser(data.user);
-    let givenAchievement = await AchievementCheckType(
-        client, 
-        'USER', 
-        data.user, 
-        key as keyof UserAchievementType, 
-        type as unknown as string, pUser.achievementConfig, 
-        key as keyof UserAchievementType, 
-        callback as never
-    );
+    if (data.user && !data.user.bot) {
+        let pUser = await GetPUser(data.user);
+        if (!pUser) return false;
+
+        var givenAchievement = await AchievementCheckType(
+            client, 
+            'USER', 
+            data.user, 
+            key as keyof UserAchievementType, 
+            type as unknown as string, pUser.achievementConfig, 
+            key as keyof UserAchievementType, 
+            callback as never
+        );
+    }
 
     if (data.guild) {
         let pGuild = await GetPGuild(data.guild);
+        if (!pGuild) return false;
+
         givenAchievement = await AchievementCheckType(
             client, 
             'GUILD', 
@@ -581,15 +623,17 @@ Key extends keyof AchievementType, Type extends AchievementType[Key],>
             callback as never
         );
     }
-    if (data.guildMember) {
-        let pGuildMember = await GetPGuildMember(data.guildMember);
+    if (data.guildMember && !data.guildMember.user.bot) {
+        let pGuildMember = await GetPGuildMember(data.guildMember, 'PinguLibrary.AchievementCheck()');
+        if (!pGuildMember) return false;
+
         givenAchievement = await AchievementCheckType(
             client, 
             'GUILDMEMBER', 
             data.guildMember, 
             key as keyof GuildMemberAchievementType, 
             type as unknown as string, 
-            pGuildMember.achievementsConfig, 
+            pGuildMember.achievementConfig, 
             key as keyof GuildMemberAchievementType, 
             callback as never
         );
@@ -685,6 +729,7 @@ export class PinguLibrary {
     //#region Servers
     public static PinguSupportInvite = PinguSupportInvite;
     public static readonly SavedServers = SavedServers
+    public static CacheSavedServers(client: Client) { return CacheSavedServers(client); }
     public static async getSharedServers(client: Client, user: User) { return getSharedServers(client, user); }
     //#endregion
 
@@ -708,7 +753,7 @@ export class PinguLibrary {
     public static async consoleLog(client: Client, message: string) { return consoleLog(client, message); }
     public static async eventLog(client: Client, content: MessageEmbed) { return eventLog(client, content); }
     public static async tellLog(client: Client, sender: User, reciever: User, message: Message | MessageEmbed) { return tellLog(client, sender, reciever, message); }
-    public static async latencyCheck(message: Message) { return latencyCheck(message); }
+    public static async latencyCheck(client: Client, timestamp: number) { return latencyCheck(client, timestamp); }
     public static async raspberryLog(client: Client) { return raspberryLog(client); }
     //#endregion
 
@@ -724,7 +769,7 @@ export class PinguLibrary {
     //#region Statics
     public static getEmote(client: Client, name: string, emoteGuild: Guild) { return getEmote(client, name, emoteGuild); }
     public static getImage(script: string, imageName: string) { return getImage(script, imageName); }
-    public static async DBExecute(client: Client, callback: (mongoose: typeof import('mongoose')) => void) { return DBExecute(client, callback); }
+    public static async DBExecute<T>(client: Client, callback: (mongoose: typeof import('mongoose')) => Promise<T>) { return DBExecute(client, callback); }
     public static BlankEmbedField(inline = false) { return BlankEmbedField(inline); }
     public static async RequestImage(message: Message, pGuildClient: PClient, caller: 'gif' | 'meme', types: string[], searchTerm?: (type: string) => string)
     { return RequestImage(message, pGuildClient, caller, types, searchTerm); }

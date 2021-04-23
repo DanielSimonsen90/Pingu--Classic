@@ -7,7 +7,7 @@ export class DecidablesConfig {
         this.giveawayConfig = new GiveawayConfig();
         this.pollConfig = new PollConfig();
         this.suggestionConfig = new SuggestionConfig();
-        this.themeConfig = guild.id == SavedServers.DeadlyNinja(guild.client).id ? new ThemeConfig() : undefined;
+        this.themeConfig = guild.id == SavedServers.get('Deadly Ninja').id ? new ThemeConfig() : undefined;
     }
 
     public giveawayConfig: GiveawayConfig;

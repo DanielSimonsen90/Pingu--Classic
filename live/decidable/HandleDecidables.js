@@ -18,7 +18,8 @@ const PinguLibrary = {
     errorLog: PinguLibrary_1.errorLog, consoleLog: PinguLibrary_1.consoleLog,
     PermissionGranted: PinguLibrary_1.PermissionGranted, PermissionCheck: PinguLibrary_1.PermissionCheck,
     SavedServers: PinguLibrary_1.SavedServers,
-    BlankEmbedField: PinguLibrary_1.BlankEmbedField, getEmote: PinguLibrary_1.getEmote
+    BlankEmbedField: PinguLibrary_1.BlankEmbedField, getEmote: PinguLibrary_1.getEmote,
+    AchievementCheck: PinguLibrary_1.AchievementCheck
 };
 const PinguGuild_1 = require("../pingu/guild/PinguGuild");
 const config_1 = require("../decidable/config"); //Decidable configs
@@ -176,7 +177,7 @@ function PermissionCheckDecidable(params) {
                     !staffRole && staffPRole != undefined || staffPRole != undefined && staffRole || //Staff role (doesn't) exist(s)
                     winnerPRole && winnerRole && winnerRole.name != winnerPRole.name || //Winner role's name changed
                     staffPRole && staffPRole && staffRole.name != staffPRole.name) //Staff role's name changed
-                    yield UpdatePGuild(message.client, pGuild, decidablesType, `Updated ${decidablesType.toLowerCase()} role${decidablesType == DecidablesEnum.Giveaway ? 's' : ''}`, `I encountered and error while updating ${decidablesType.toLowerCase()} role${decidablesType == DecidablesEnum.Giveaway ? 's' : ''}`);
+                    yield UpdatePGuild(message.client, pGuild, decidablesType, `${decidablesType.toLowerCase()} role${decidablesType == DecidablesEnum.Giveaway ? 's' : ''}`);
                 function CheckRole(pRole) {
                     if (!pRole)
                         return undefined;
@@ -378,8 +379,13 @@ function FirstTimeExecuted(params) {
                         });
                         break;
                 }
-                yield UpdatePGuild(message.client, pGuild, decidablesType, `Successfully saved **${pGuild.name}**'s ${decidablesType}Config`, `Failed to save **${pGuild.name}**'s ${decidablesType}Config`);
+                yield UpdatePGuild(message.client, pGuild, decidablesType, `**${pGuild.name}**'s ${decidablesType}Config after setting it up`);
                 collector.stop('Setup done');
+                PinguLibrary.AchievementCheck(message.client, {
+                    user: message.author,
+                    guild: message.guild,
+                    guildMember: message.member
+                }, 'CHANNEL', decidablesType, [message.channel]);
                 return decidablesType == DecidablesEnum.Giveaway ? decidablesConfig.giveawayConfig :
                     decidablesType == DecidablesEnum.Poll ? decidablesConfig.pollConfig :
                         decidablesType == DecidablesEnum.Suggestion ? decidablesConfig.suggestionConfig :
@@ -549,7 +555,7 @@ function ListDecidables(params, decidables) {
                     .setTitle(s.value)
                     .setDescription(`ID: ${s._id}`)
                     .addFields([
-                    new helpers_1.EmbedField(`Verdict`, `${(s.approved == 'Approved' ? GetCheckMark(message.client) : s.approved == 'Denied' ? '❌' : '🤷')}` + s.approved, true),
+                    new helpers_1.EmbedField(`Verdict`, `${(s.approved == 'Approved' ? GetCheckMark() : s.approved == 'Denied' ? '❌' : '🤷')}` + s.approved, true),
                     new helpers_1.EmbedField(`Suggested By`, `<@${s.author._id}>`, true),
                     s.approved != 'Undecided' ? new helpers_1.EmbedField(`Decided By`, `<@${s.decidedBy._id}>`, true) : PinguLibrary.BlankEmbedField(true)
                 ]);
@@ -626,7 +632,7 @@ function AfterTimeOut(sent, value, amountOfWinners, embed, decidable, interval, 
                 let WinnerArrStringed = winners.join(' & ');
                 //Announce Winner
                 var WinnerMessage = yield sent.channel.send(`The winner of "**${value}**" is no other than ${WinnerArrStringed}! Congratulations!`);
-                WinnerMessage.react(PinguLibrary.getEmote(sent.client, 'hypers', PinguLibrary.SavedServers.PinguSupport(sent.client)));
+                WinnerMessage.react(PinguLibrary.getEmote(sent.client, 'hypers', PinguLibrary.SavedServers.get('Pingu Support')));
                 RemovePreviousWinners(sent.guild.members.cache.filter(Member => Member.roles.cache.has(winnerRole._id)).array());
                 let gCreatorMessage = '';
                 for (var i = 0; i < winners.length; i++) {
@@ -692,7 +698,7 @@ function RemoveDecidables(message, pGuild, type, decidables) {
                 type == DecidablesEnum.Suggestion ? decidablesConfig.suggestionConfig.suggestions.splice(decidablesConfig.suggestionConfig.suggestions.indexOf(d), 1) :
                     decidablesConfig.themeConfig.themes.splice(decidablesConfig.themeConfig.themes.indexOf(d), 1));
         PinguLibrary.consoleLog(message.client, `The ${type}, ${decidables[0].value} (${decidables[0]._id}) was removed.`);
-        yield UpdatePGuild(message.client, pGuild, type, `Removed ${decidables.length} ${type}s from **${message.guild.name}**'s ${type} list.`, `Removing ${decidables[0]._id} (${decidables[0].value}) from **${message.guild.name}**'s ${type} list`);
+        yield UpdatePGuild(message.client, pGuild, type, `Removing ${decidables.length} ${type}s from **${message.guild.name}**'s ${type} list.`);
         switch (type) {
             case DecidablesEnum.Giveaway: return decidablesConfig.giveawayConfig.giveaways;
             case DecidablesEnum.Poll: return decidablesConfig.pollConfig.polls;
@@ -730,12 +736,12 @@ function Decide(params, approved, suggestion, decidedBy) {
         }
     });
 }
-function GetCheckMark(client) {
-    return PinguLibrary.SavedServers.DanhoMisc(client).emojis.cache.find(e => e.name == 'Checkmark');
+function GetCheckMark() {
+    return PinguLibrary.SavedServers.get('Danho Misc').emojis.cache.find(e => e.name == 'Checkmark');
 }
-function UpdatePGuild(client, pGuild, decidableType, succMsg, errMsg) {
+function UpdatePGuild(client, pGuild, decidableType, reason) {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield PinguGuild_1.PinguGuild.UpdatePGuild(client, { settings: pGuild.settings }, pGuild, `HandleDecidables: ${decidableType}`, succMsg, errMsg);
+        return PinguGuild_1.PinguGuild.Update(client, ['settings'], pGuild, `HandleDecidables: ${decidableType}`, reason);
     });
 }
 function SaveVerdictToPGuilds(params, decidable) {
@@ -748,7 +754,7 @@ function SaveVerdictToPGuilds(params, decidable) {
                     decidablesConfig.themeConfig.themes);
         const thisDecidableMan = arr.find(d => d._id == decidable._id);
         arr[arr.indexOf(thisDecidableMan)] = decidable;
-        yield UpdatePGuild(message.client, pGuild, decidablesType, `Successfully saved the verdict for "${decidable.value}" to ${message.guild.name} PinguGuild.`, `I encountered an error, while saving the verdict for "${decidable.value}"`);
+        yield UpdatePGuild(message.client, pGuild, decidablesType, `Saved the verdict for "${decidable.value}" to ${message.guild.name} PinguGuild.`);
         switch (decidablesType) {
             case DecidablesEnum.Giveaway: return decidablesConfig.giveawayConfig.giveaways;
             case DecidablesEnum.Poll: return decidablesConfig.pollConfig.polls;
@@ -767,6 +773,6 @@ function AddDecidableToPGuilds(params, decidable) {
             case DecidablesEnum.Suggestion: decidablesConfig.suggestionConfig.suggestions.push(decidable);
             case DecidablesEnum.Theme: decidablesConfig.themeConfig.themes.push(decidable);
         }
-        return yield UpdatePGuild(message.client, pGuild, decidablesType, `Added new ${decidablesType.toLowerCase()} to **${message.guild.name}**'s PinguGuild.`, `Saving ${decidablesType.toLowerCase()} in ${message.guild.name} failed!`);
+        return yield UpdatePGuild(message.client, pGuild, decidablesType, `New ${decidablesType.toLowerCase()} was added  to **${message.guild.name}**'s PinguGuild.`);
     });
 }

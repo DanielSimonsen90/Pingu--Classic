@@ -17,6 +17,7 @@ const PinguLibrary_1 = require("../library/PinguLibrary");
 const PinguLibrary = { errorLog: PinguLibrary_1.errorLog, eventLog: PinguLibrary_1.eventLog, errorCache: PinguLibrary_1.errorCache, SavedServers: PinguLibrary_1.SavedServers };
 const PinguGuild_1 = require("../guild/PinguGuild");
 const helpers_1 = require("../../helpers");
+const PinguUser_1 = require("../user/PinguUser");
 //#region Statics
 exports.Colors = {
     Create: `#18f151`,
@@ -124,53 +125,115 @@ function GoThroughObjectArray(type, preArr, newArr) {
 }
 exports.GoThroughObjectArray = GoThroughObjectArray;
 function HandleEvent(caller, client, path, ...args) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             var event = require(`../../../../..${path}`);
         }
         catch (err) {
             console.log({ err, caller, path });
-            return; /*await PinguLibrary.errorLog(client, `Unable to get event for ${caller}`, null, new Error(err));*/
+            return PinguLibrary.errorLog(client, `Unable to get event for ${caller}`, null, new helpers_1.Error(err));
         }
         if (!event || !event.execute && !event.setContent)
-            return;
-        //PinguLibrary.consoleLog(client, `Emitting ${eventName}`);
+            return; //Event not found or doesn't have any callbacks assigned
+        function execute() {
+            return __awaiter(this, void 0, void 0, function* () {
+                try {
+                    return event.execute(PinguClient_1.ToPinguClient(client), ...args);
+                }
+                catch (err) {
+                    PinguLibrary.errorLog(client, `${event.name}.execute`, null, new helpers_1.Error(err), {
+                        params: { caller, path, args: Object.assign({}, args) },
+                        additional: { event, args }
+                    });
+                }
+            });
+        }
+        function setContent() {
+            return __awaiter(this, void 0, void 0, function* () {
+                try {
+                    return SendToLog();
+                }
+                catch (err) {
+                    PinguLibrary.errorLog(client, `${event.name}.setContent`, null, new helpers_1.Error(err), {
+                        params: { caller, path, args: Object.assign({}, args) },
+                        additional: { event, args }
+                    });
+                }
+            });
+        }
         try {
-            if (event.execute != null)
-                yield event.execute(PinguClient_1.ToPinguClient(client), ...args)
-                    .catch(err => PinguLibrary.errorLog(client, `${event.name}.execute`, null, new helpers_1.Error(err), {
-                    params: { caller, client, path, args: Object.assign({}, args) },
-                    additional: { event }
-                }));
-            if (event.setContent != null)
-                yield SendToLog()
-                    .catch(err => PinguLibrary.errorLog(client, `${event.name}.setContent`, null, new helpers_1.Error(err), {
-                    params: { caller, client, path, args: Object.assign({}, args) },
-                    additional: { event }
-                }));
+            if (event.execute && event.setContent)
+                yield Promise.all([execute(), setContent()]);
+            else if (event.execute)
+                yield execute();
+            else if (event.setContent)
+                yield setContent();
         }
         catch (err) {
-            (_a = PinguLibrary.errorCache) !== null && _a !== void 0 ? _a : require('../library/PinguLibrary').errorCache;
+            if (!PinguLibrary.errorCache) {
+                const { errorCache } = require('../library/PinguLibrary');
+                PinguLibrary.errorCache = errorCache;
+            }
             PinguLibrary.errorLog(client, err.message, JSON.stringify(args, null, 2), err, {
-                params: { caller, client, path, args: Object.assign({}, args) },
+                params: { caller, path, args: Object.assign({}, args) },
                 additional: { event }
             });
         }
+        const achievementOptions = (parameters = {}, type) => {
+            switch (type) {
+                case 'User': return [
+                    parameters.author, parameters.user, parameters.inviter, FindClass("User"),
+                    parameters.users && parameters.users.first && parameters.users.first(),
+                    parameters.last && parameters.last()
+                ].filter(v => v)[0];
+                case 'GuildMember': return [parameters.member, FindClass("GuildMember")].filter(v => v)[0];
+                case 'Guild': return [parameters.guild, FindClass("Guild")].filter(v => v)[0];
+            }
+        };
+        function getAchiever(type) {
+            let result = null;
+            for (const arg of args) {
+                if (result)
+                    return result;
+                else
+                    result = achievementOptions(arg, type);
+            }
+        }
+        var [user, guild, guildMember] = [
+            getAchiever('User'),
+            getAchiever('Guild'),
+            getAchiever('GuildMember')
+        ];
+        user = !user && guildMember ? guildMember.user : null;
+        PinguLibrary_1.AchievementCheck(client, { user, guild, guildMember }, 'EVENT', caller, args);
         function SendToLog() {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j;
             return __awaiter(this, void 0, void 0, function* () {
-                var parameters = Object.assign({}, ...args);
-                let emitAssociator = ((_a = parameters.author) === null || _a === void 0 ? void 0 : _a.tag) ||
-                    parameters.tag ||
-                    ((_b = parameters.user) === null || _b === void 0 ? void 0 : _b.tag) ||
-                    ((_c = parameters.member) === null || _c === void 0 ? void 0 : _c.user.tag) ||
-                    ((_e = (_d = parameters.users) === null || _d === void 0 ? void 0 : _d.cache.last()) === null || _e === void 0 ? void 0 : _e.tag) ||
-                    ((_g = (_f = parameters.last) === null || _f === void 0 ? void 0 : _f.call(parameters)) === null || _g === void 0 ? void 0 : _g.author.tag) ||
-                    ((_h = parameters.inviter) === null || _h === void 0 ? void 0 : _h.tag) ||
-                    parameters.name ||
-                    ((_j = parameters.guild) === null || _j === void 0 ? void 0 : _j.name) ||
-                    "Unknown";
+                const emitAssociatorOptions = (parameter = {}) => {
+                    const options = [
+                        parameter.author && parameter.author.tag,
+                        parameter.tag,
+                        parameter.user && parameter.user.tag,
+                        parameter.member && parameter.member.user.tag,
+                        parameter.users && parameter.users.cache.last() && parameter.users.cache.last().tag,
+                        parameter.last && parameter.last() && parameter.last().author.tag,
+                        parameter.inviter && parameter.inviter.tag,
+                        parameter.name,
+                        parameter.guild && parameter.guild.name
+                    ];
+                    return options.filter(v => v)[0];
+                };
+                let emitAssociator = "";
+                for (const arg of args) {
+                    if (emitAssociator)
+                        break;
+                    else
+                        emitAssociator = emitAssociatorOptions(arg);
+                }
+                if (!emitAssociator)
+                    emitAssociator = "Unknown";
+                //Don't log if emitter isn't a PinguUser
+                let isPinguUser = emitAssociator.match(/#\d{4}$/g) && (yield PinguUser_1.PinguUser.Get(client.users.cache.find(u => u.tag == emitAssociator))) != null;
+                // if (!isPinguUser) return null;
                 let specialEvents = [
                     'channelCreate', 'channelUpdate', 'channelDelete', 'channelPinsUpdate',
                     'webhookUpdate',
@@ -183,40 +246,40 @@ function HandleEvent(caller, client, path, ...args) {
                 if (specialEvents.includes(event.name))
                     emitAssociator = yield GetFromAuditLog();
                 if (emitAssociator == 'Unknown')
-                    PinguLibrary.errorLog(client, `Event parameter for ${event.name} was not recognized!`);
-                if (parameters.message && ['event-log-📹', 'ping-log-🏓', 'console-log-📝'].includes(parameters.message.channel.name))
+                    throw { message: `Event parameter for ${event.name} was not recognized!` };
+                if (caller == 'message' && ['event-log-📹', 'ping-log-🏓', 'console-log-📝'].includes(args[0].channel.name))
                     return;
                 let embed = yield CreateEmbed();
                 if (!PinguLibrary.eventLog) {
-                    const { eventLog } = require("../library/PinguLibrary");
+                    const { eventLog } = require('../library/PinguLibrary');
                     PinguLibrary.eventLog = eventLog;
                 }
                 if (embed)
-                    return yield PinguLibrary.eventLog(client, embed);
+                    return PinguLibrary.eventLog(client, embed);
                 function GetFromAuditLog() {
                     return __awaiter(this, void 0, void 0, function* () {
                         const noAuditLog = PinguEvent.noAuditLog;
                         switch (event.name) {
-                            case 'channelCreate': return !parameters.guild ? parameters.recipient.tag : yield GetInfo(parameters.guild, 'CHANNEL_CREATE');
-                            case 'channelUpdate': return !parameters.guild ? parameters.recipient.tag : yield GetInfo(parameters.guild, 'CHANNEL_UPDATE');
-                            case 'channelDelete': return !parameters.guild ? parameters.recipient.tag : yield GetInfo(parameters.guild, 'CHANNEL_DELETE');
-                            case 'channelPinsUpdate': return !parameters.guild ? parameters.recipient.tag :
-                                ((yield GetInfo(parameters.guild, 'MESSAGE_PIN')) || (yield GetInfo(parameters.guild, 'MESSAGE_UNPIN')));
-                            case 'webhookCreate': return yield GetInfo(parameters.guild, 'WEBHOOK_CREATE');
-                            case 'webhookUpdate': return yield GetInfo(parameters.guild, 'WEBHOOK_UPDATE');
-                            case 'webhookDelete': return yield GetInfo(parameters.guild, 'WEBHOOK_DELETE');
-                            case 'emojiCreate': return yield GetInfo(parameters.guild, 'EMOJI_CREATE');
-                            case 'emojiUpdate': return yield GetInfo(parameters.guild, 'EMOJI_UPDATE');
-                            case 'emojiDelete': return yield GetInfo(parameters.guild, 'EMOJI_DELETE');
-                            case 'guildBanAdd': return yield GetInfo(parameters, 'MEMBER_BAN_ADD');
-                            case 'guildMemberUpdate': return yield GetInfo(parameters.guild, 'MEMBER_UPDATE');
-                            case 'guildBanRemove': return yield GetInfo(parameters, 'MEMBER_BAN_REMOVE');
-                            case 'guildUpdate': return yield GetInfo(parameters, 'GUILD_UPDATE');
-                            case 'guildIntegrationsUpdate': return yield GetInfo(parameters, 'INTEGRATION_UPDATE');
-                            case 'messageBulkDelete': return yield GetInfo(parameters.last().guild, 'MESSAGE_BULK_DELETE');
-                            case 'roleCreate': return yield GetInfo(parameters.guild, 'ROLE_CREATE');
-                            case 'roleUpdate': return yield GetInfo(parameters.guild, 'ROLE_UPDATE');
-                            case 'roleDelete': return yield GetInfo(parameters.guild, 'ROLE_DELETE');
+                            case 'channelCreate': return !args[0].guild ? args[0].recipient.tag : yield GetInfo(args[0].guild, 'CHANNEL_CREATE');
+                            case 'channelUpdate': return !args[0].guild ? args[0].recipient.tag : yield GetInfo(args[0].guild, 'CHANNEL_UPDATE');
+                            case 'channelDelete': return !args[0].guild ? args[0].recipient.tag : yield GetInfo(args[0].guild, 'CHANNEL_DELETE');
+                            case 'channelPinsUpdate': return !args[0].guild ? args[0].recipient.tag :
+                                ((yield GetInfo(args[0].guild, 'MESSAGE_PIN')) || (yield GetInfo(args[0].guild, 'MESSAGE_UNPIN')));
+                            case 'webhookCreate': return yield GetInfo(args[0].guild, 'WEBHOOK_CREATE');
+                            case 'webhookUpdate': return yield GetInfo(args[0].guild, 'WEBHOOK_UPDATE');
+                            case 'webhookDelete': return yield GetInfo(args[0].guild, 'WEBHOOK_DELETE');
+                            case 'emojiCreate': return yield GetInfo(args[0].guild, 'EMOJI_CREATE');
+                            case 'emojiUpdate': return yield GetInfo(args[0].guild, 'EMOJI_UPDATE');
+                            case 'emojiDelete': return yield GetInfo(args[0].guild, 'EMOJI_DELETE');
+                            case 'guildBanAdd': return yield GetInfo(args[0], 'MEMBER_BAN_ADD');
+                            case 'guildMemberUpdate': return yield GetInfo(args[0].guild, 'MEMBER_UPDATE');
+                            case 'guildBanRemove': return yield GetInfo(args[0], 'MEMBER_BAN_REMOVE');
+                            case 'guildUpdate': return yield GetInfo(args[0], 'GUILD_UPDATE');
+                            case 'guildIntegrationsUpdate': return yield GetInfo(args[0], 'INTEGRATION_UPDATE');
+                            case 'messageBulkDelete': return yield GetInfo(args[0].last().guild, 'MESSAGE_BULK_DELETE');
+                            case 'roleCreate': return yield GetInfo(args[0].guild, 'ROLE_CREATE');
+                            case 'roleUpdate': return yield GetInfo(args[0].guild, 'ROLE_UPDATE');
+                            case 'roleDelete': return yield GetInfo(args[0].guild, 'ROLE_DELETE');
                             default:
                                 PinguLibrary.errorLog(client, `"${event.name}" was not recognized as an event name when searching from audit log`);
                                 return "Unknown";
@@ -232,7 +295,8 @@ function HandleEvent(caller, client, path, ...args) {
                         }
                         function getAuditLogs(guild, type) {
                             return __awaiter(this, void 0, void 0, function* () {
-                                if (!guild.me.hasPermission('VIEW_AUDIT_LOG'))
+                                const me = guild.me || guild.member(guild.client.user);
+                                if (!me.hasPermission('VIEW_AUDIT_LOG'))
                                     return noAuditLog;
                                 return (yield guild.fetchAuditLogs({ type })).entries.filter(e => new Date(Date.now()).getSeconds() - e.createdAt.getSeconds() <= 1);
                             });
@@ -246,9 +310,7 @@ function HandleEvent(caller, client, path, ...args) {
                             client.guilds.cache.find(g => g.name == emitAssociator),
                             new Date(Date.now())
                         ];
-                        function getDoubleDigit(num) {
-                            return num < 10 ? `0${num}` : `${num}`;
-                        }
+                        const getDoubleDigit = (num) => num < 10 ? `0${num}` : `${num}`;
                         let defaultEmbed = new discord_js_1.MessageEmbed()
                             .setTitle(event.name)
                             .setAuthor(emitAssociator, (!emitAssociator || emitAssociator == "Unknown" ? null :
@@ -278,7 +340,7 @@ function HandleEvent(caller, client, path, ...args) {
                                 else if (event.name.includes('Update'))
                                     return PinguEvent.Colors.Update;
                                 try {
-                                    return (yield PinguGuild_1.PinguGuild.GetPGuild(PinguLibrary.SavedServers.PinguSupport(client))).clients.find(c => c._id == client.user.id).embedColor;
+                                    return (yield PinguGuild_1.PinguGuild.Get(PinguLibrary.SavedServers.get('Pingu Support'))).clients.find(c => c._id == client.user.id).embedColor;
                                 }
                                 catch (_a) {
                                     return PinguClient_1.ToPinguClient(client).DefaultEmbedColor;
@@ -288,6 +350,10 @@ function HandleEvent(caller, client, path, ...args) {
                     });
                 }
             });
+        }
+        function FindClass(type) {
+            const objectsOfClass = args.filter(a => a && a.constructor && a.constructor.name == type);
+            return objectsOfClass ? objectsOfClass[objectsOfClass.length - 1] : null;
         }
     });
 }
@@ -320,7 +386,7 @@ class PinguEvent extends PinguHandler_1.PinguHandler {
         return __awaiter(this, void 0, void 0, function* () { return null; });
     }
     execute(client, ...args) {
-        return __awaiter(this, void 0, void 0, function* () { });
+        return __awaiter(this, void 0, void 0, function* () { return null; });
     }
 }
 exports.PinguEvent = PinguEvent;

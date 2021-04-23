@@ -7,6 +7,7 @@ interface ChosenOnes {
 export interface PinguClientEvents extends ClientEvents, ChosenOnes {
     onready: [PinguClient];
     ondebug: [PinguClient];
+    mostKnownUser: [User];
 }
 import { PinguHandler } from './PinguHandler';
 import { PinguGuild } from '../guild/PinguGuild';
@@ -54,7 +55,7 @@ export declare function SetDescriptionValuesLink(type: string, oldValue: any, ne
  * @param callback pre/new.find(i => callback(i, preItem/newItem))*/
 export declare function GoThroughArrays<T>(type: string, preArr: T[], newArr: T[], callback: (item: T, loopItem: T) => T): string;
 export declare function GoThroughObjectArray<T>(type: string, preArr: T[], newArr: T[]): string;
-export declare function HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: Client, path: string, ...args: PinguClientEvents[EventType]): Promise<void>;
+export declare function HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: Client, path: string, ...args: PinguClientEvents[EventType]): Promise<Message>;
 export declare class PinguEvent<eventType extends keyof PinguClientEvents> extends PinguHandler {
     static Colors: {
         Create: string;
@@ -71,12 +72,12 @@ export declare class PinguEvent<eventType extends keyof PinguClientEvents> exten
     static SetDescriptionValuesLink(type: string, oldValue: any, newValue: any): string;
     static GoThroughArrays<T>(type: string, preArr: T[], newArr: T[], callback: (item: T, loopItem: T) => T): string;
     static GoThroughObjectArray<T>(type: string, preArr: T[], newArr: T[]): string;
-    static HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: Client, path: string, ...args: PinguClientEvents[EventType]): Promise<void>;
-    constructor(name: eventType, setContent?: (...args: PinguClientEvents[eventType]) => Promise<MessageEmbed>, execute?: (client: PinguClient, ...args: PinguClientEvents[eventType]) => Promise<void | Message>);
+    static HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: Client, path: string, ...args: PinguClientEvents[EventType]): Promise<Message>;
+    constructor(name: eventType, setContent?: (...args: PinguClientEvents[eventType]) => Promise<MessageEmbed>, execute?: (client: PinguClient, ...args: PinguClientEvents[eventType]) => Promise<Message>);
     name: eventType;
     path: string;
     content: MessageEmbed;
     setContent(...args: PinguClientEvents[eventType]): Promise<MessageEmbed>;
-    execute(client: PinguClient, ...args: PinguClientEvents[eventType]): Promise<void | Message>;
+    execute(client: PinguClient, ...args: PinguClientEvents[eventType]): Promise<Message>;
 }
 export {};

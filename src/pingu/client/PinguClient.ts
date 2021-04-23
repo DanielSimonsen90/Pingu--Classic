@@ -1,16 +1,17 @@
-import { ActivityOptions, ActivityType, Client, ClientEvents, ClientOptions, Collection } from "discord.js";
+import { ActivityOptions, ActivityType, Client, ClientEvents, ClientOptions, Collection, User } from "discord.js";
 import * as fs from 'fs';
 
 export const Clients = {
     PinguID: '562176550674366464',
     BetaID: '778288722055659520'
 }
-export function ToPinguClient(client: Client) {
+export function ToPinguClient(client: Client): PinguClient {
     return client as PinguClient;
 }
 
-import { errorLog, DanhoDM, Developers, AchievementCheckType } from '../library/PinguLibrary';
+import { errorLog, DanhoDM, Developers, AchievementCheckType, AchievementCheck, consoleLog } from '../library/PinguLibrary';
 import { PinguGuild } from '../guild/PinguGuild';
+import { GetPUser } from "../user/PinguUser";
 
 import { PinguCommand, PinguEvent, PinguClientEvents } from '../handlers';
 
@@ -29,7 +30,7 @@ export class PinguClient extends Client {
             v == 'ready' ? 'onready' : 
             v == 'debug' ? 'ondebug' : 
             v
-        ) as [keyof PinguClientEvents];
+        ).sort() as [keyof PinguClientEvents];
 
         if (commandsPath) this.HandlePath(commandsPath, 'command');
         if (evensPath) this.HandlePath(evensPath, 'event');
@@ -94,29 +95,37 @@ export class PinguClient extends Client {
         return pGuild.clients.find(c => c && c._id == this.user.id);
     }
 
-    public emit<K extends keyof PinguClientEvents>(key: K, ...args: PinguClientEvents[K]) {
+    public emit<PCE extends keyof PinguClientEvents, CE extends keyof ClientEvents>(key: PCE, ...args: PinguClientEvents[PCE]) {
+        consoleLog(this, `Emitting event: ${key}`);
         const chosenEvents = ['chosenUser', 'chosenGuild'];
 
         if (chosenEvents.includes(key)) return AchievementCheckType(
             this, 
-            key.substring(6, key.length).toUpperCase() as any, 
+            key.substring(6).toUpperCase() as any, //cut away "chosen"
             args[0], 
             'EVENT', 
-            key, (function getConfig(){
+            key, 
+            (function getConfig(){
                 switch (key) {
                     case 'chosenUser': return (args[1] as any).achievementConfig;
                     case 'chosenGuild': return (args[1] as PinguGuild).settings.config.achievements;
                     default: return null;
                 }
             })(), 
-            key, 
+            'EVENT',
             args
-        )
+        ) != null;
+        else if (key == 'mostKnownUser') return AchievementCheck(
+            this, { user: args[0] }, 'EVENT', 'mostKnownUser', args
+        ) != null;
 
-        return true;
+        return super.emit(
+            key as unknown as CE, 
+            ...args as unknown as ClientEvents[CE]
+        );
     }
 
-    async login(token?: string){
+    public async login(token?: string){
         let result = await super.login(token);        
         this.DefaultPrefix = this.isLive || !this.config.BetaPrefix ? this.config.Prefix : this.config.BetaPrefix;
         return result;

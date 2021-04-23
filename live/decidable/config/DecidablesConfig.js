@@ -8,7 +8,7 @@ class DecidablesConfig {
         this.giveawayConfig = new _1.GiveawayConfig();
         this.pollConfig = new _1.PollConfig();
         this.suggestionConfig = new _1.SuggestionConfig();
-        this.themeConfig = guild.id == PinguLibrary_1.SavedServers.DeadlyNinja(guild.client).id ? new _1.ThemeConfig() : undefined;
+        this.themeConfig = guild.id == PinguLibrary_1.SavedServers.get('Deadly Ninja').id ? new _1.ThemeConfig() : undefined;
     }
 }
 exports.DecidablesConfig = DecidablesConfig;

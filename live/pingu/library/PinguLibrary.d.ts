@@ -15,12 +15,9 @@ export declare function Permissions(): {
     all: BitPermission[];
 };
 export declare const PinguSupportInvite = "https://discord.gg/gbxRV4Ekvh";
-export declare const SavedServers: {
-    DanhoMisc(client: Client): Guild;
-    PinguSupport(client: Client): Guild;
-    PinguEmotes(client: Client): Guild;
-    DeadlyNinja(client: Client): Guild;
-};
+export declare type SavedServerNames = 'Danho Misc' | 'Pingu Support' | 'Pingu Emotes' | 'Deadly Ninja';
+export declare const SavedServers: Collection<SavedServerNames, Guild>;
+export declare function CacheSavedServers(client: Client): Collection<SavedServerNames, Guild>;
 export declare function getServer(client: Client, id: string): Guild;
 export declare function getSharedServers(client: Client, user: User): Promise<Guild[]>;
 declare type DeveloperNames = 'Danho' | 'SynthySytro' | 'Slothman' | 'DefilerOfCats';
@@ -45,7 +42,7 @@ export declare function consoleLog(client: Client, message: string): Promise<Mes
 export declare function eventLog(client: Client, content: MessageEmbed): Promise<Message>;
 export declare function achievementLog(client: Client, achievementEmbed: MessageEmbed): Promise<Message>;
 export declare function tellLog(client: Client, sender: User, reciever: User, message: Message | MessageEmbed): Promise<Message>;
-export declare function latencyCheck(message: Message): Promise<Message>;
+export declare function latencyCheck(client: Client, timestamp: number): Promise<Message>;
 export declare function raspberryLog(client: Client): Promise<Message>;
 import { AchieverTypes, AchievementBaseType } from "../achievements/items/AchievementBase";
 import { UserAchievement, UserAchievementType, UserAchievementTypeKey, UserAchievementCallbackParams } from "../achievements/items/UserAchievement";
@@ -79,7 +76,7 @@ interface AchievementCallbackParams {
     GUILDMEMBER: GuildMemberAchievementCallbackParams;
     GUILD: GuildAchievementCallbackParams;
 }
-export declare function AchievementCheckType<AchieverType extends AchieverTypes, AchievementType extends Achievements[AchieverType], Key extends keyof AchievementTypes[AchieverType], Type extends AchievementTypes[AchieverType][Key], CallbackKey extends keyof AchievementCallbackParams[AchieverType]>(client: Client, achieverType: AchieverType, achiever: Achievers[AchieverType], key: Key, keyType: Type, config: AchieverConfigs[AchieverType], callbackKey: CallbackKey, callback: AchievementCallbackParams[AchieverType][CallbackKey][keyof AchievementCallbackParams[AchieverType][CallbackKey]]): any;
+export declare function AchievementCheckType<AchieverType extends AchieverTypes, AchievementType extends Achievements[AchieverType], Key extends keyof AchievementTypes[AchieverType], Type extends AchievementTypes[AchieverType][Key], CallbackKey extends keyof AchievementCallbackParams[AchieverType]>(client: Client, achieverType: AchieverType, achiever: Achievers[AchieverType], key: Key, keyType: Type, config: AchieverConfigs[AchieverType], callbackKey: CallbackKey, callback: AchievementCallbackParams[AchieverType][CallbackKey][keyof AchievementCallbackParams[AchieverType][CallbackKey]]): Promise<Message>;
 interface AchievementCheckData {
     user: User;
     guildMember?: GuildMember;
@@ -102,12 +99,8 @@ export declare class PinguLibrary {
         all: BitPermission[];
     };
     static PinguSupportInvite: string;
-    static readonly SavedServers: {
-        DanhoMisc(client: Client): Guild;
-        PinguSupport(client: Client): Guild;
-        PinguEmotes(client: Client): Guild;
-        DeadlyNinja(client: Client): Guild;
-    };
+    static readonly SavedServers: Collection<SavedServerNames, Guild>;
+    static CacheSavedServers(client: Client): Collection<SavedServerNames, Guild>;
     static getSharedServers(client: Client, user: User): Promise<Guild[]>;
     static readonly Developers: Collection<DeveloperNames, User>;
     static CacheDevelopers(client: Client): Promise<Collection<DeveloperNames, User>>;
@@ -122,12 +115,12 @@ export declare class PinguLibrary {
     static consoleLog(client: Client, message: string): Promise<Message>;
     static eventLog(client: Client, content: MessageEmbed): Promise<Message>;
     static tellLog(client: Client, sender: User, reciever: User, message: Message | MessageEmbed): Promise<Message>;
-    static latencyCheck(message: Message): Promise<Message>;
+    static latencyCheck(client: Client, timestamp: number): Promise<Message>;
     static raspberryLog(client: Client): Promise<Message>;
     static AchievementCheck<AchievementType extends GuildMemberAchievementType | GuildAchievementType | AchievementBaseType, Key extends keyof AchievementType, Type extends AchievementType[Key]>(client: Client, data: AchievementCheckData, key: Key, type: Type, callbackParams: any[]): Promise<boolean>;
     static getEmote(client: Client, name: string, emoteGuild: Guild): import("discord.js").GuildEmoji | "😵";
     static getImage(script: string, imageName: string): string;
-    static DBExecute(client: Client, callback: (mongoose: typeof import('mongoose')) => void): Promise<void>;
+    static DBExecute<T>(client: Client, callback: (mongoose: typeof import('mongoose')) => Promise<T>): Promise<T>;
     static BlankEmbedField(inline?: boolean): import("PinguPackage/src/helpers/EmbedField").EmbedField;
     static RequestImage(message: Message, pGuildClient: PClient, caller: 'gif' | 'meme', types: string[], searchTerm?: (type: string) => string): Promise<Message>;
 }

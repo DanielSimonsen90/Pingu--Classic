@@ -6,6 +6,7 @@ import {
     MessageEmbed, GuildChannel, 
     DMChannel, GuildAuditLogsAction, 
     ClientEvents, GuildAuditLogsEntry,
+    ColorResolvable
 } from 'discord.js'
 
 import { PinguClient, ToPinguClient } from '../client/PinguClient'
@@ -17,16 +18,16 @@ interface ChosenOnes {
 export interface PinguClientEvents extends ClientEvents, ChosenOnes {
     onready: [PinguClient],
     ondebug: [PinguClient],
+    mostKnownUser: [User]
 }
 
 import { PinguHandler } from './PinguHandler'
 
-import { errorLog, eventLog, errorCache, SavedServers } from "../library/PinguLibrary";
+import { errorLog, eventLog, errorCache, SavedServers, AchievementCheck } from "../library/PinguLibrary";
 const PinguLibrary = { errorLog, eventLog, errorCache, SavedServers }
 
 import { PinguGuild } from '../guild/PinguGuild';
 import { Error } from '../../helpers';
-import { PinguGuildMember } from '../guildMember/PinguGuildMember';
 import { PinguUser } from '../user/PinguUser';
 
 export interface PinguEventParams {
@@ -162,46 +163,100 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
     try { var event = require(`../../../../..${path}`) as PinguEvent<EventType>; }
     catch (err) {
         console.log({ err, caller, path });
-        return /*await PinguLibrary.errorLog(client, `Unable to get event for ${caller}`, null, new Error(err));*/
+        return PinguLibrary.errorLog(client, `Unable to get event for ${caller}`, null, new Error(err));
     }
     
-    if (!event || !event.execute && !event.setContent) return;
+    if (!event || !event.execute && !event.setContent) return; //Event not found or doesn't have any callbacks assigned
 
-    //PinguLibrary.consoleLog(client, `Emitting ${eventName}`);
+    async function execute() {
+        try { return event.execute(ToPinguClient(client), ...args); } 
+        catch (err) { PinguLibrary.errorLog(client, `${event.name}.execute`, null, new Error(err), {
+                params: { caller, path, args: {...args} },
+                additional: { event, args }
+            }); 
+        }
+    }
+    async function setContent() {
+        try { return SendToLog(); } 
+        catch (err) {
+            PinguLibrary.errorLog(client, `${event.name}.setContent`, null, new Error(err), {
+                params: { caller, path, args: {...args} },
+                additional: { event, args }
+            });
+        }
+    }
+
     try {
-        if (event.execute != null) await event.execute(ToPinguClient(client), ...args)
-            .catch(err => PinguLibrary.errorLog(client, `${event.name}.execute`, null, new Error(err), {
-                params: { caller, client, path, args: {...args} },
-                additional: { event }
-            }));
-        if (event.setContent != null) await SendToLog()
-            .catch(err => PinguLibrary.errorLog(client, `${event.name}.setContent`, null, new Error(err), {
-                params: { caller, client, path, args: {...args} },
-                additional: { event }
-            }));
+        if (event.execute && event.setContent) await Promise.all([execute(), setContent()]);
+        else if (event.execute) await execute();
+        else if (event.setContent) await setContent();
     }
     catch (err) {
-        PinguLibrary.errorCache ?? require('../library/PinguLibrary').errorCache
+        if (!PinguLibrary.errorCache) {
+            const { errorCache } = require('../library/PinguLibrary');
+            PinguLibrary.errorCache = errorCache;
+        }
+
         PinguLibrary.errorLog(client, err.message, JSON.stringify(args, null, 2), err, {
-            params: { caller, client, path, args: {...args} },
+            params: { caller, path, args: {...args} },
             additional: { event }
         });
     }
 
-    async function SendToLog() {
-        var parameters = Object.assign({}, ...args);
+    const achievementOptions = (parameters: any = {}, type: 'User' | 'GuildMember' | 'Guild') => {
+        switch (type) {
+            case 'User': return [
+                    parameters.author, parameters.user, parameters.inviter, FindClass("User"), 
+                    parameters.users && parameters.users.first && parameters.users.first(),
+                    parameters.last && parameters.last()
+                ].filter(v => v)[0];
+            case 'GuildMember': return [parameters.member, FindClass("GuildMember")].filter(v => v)[0];
+            case 'Guild': return [parameters.guild, FindClass("Guild")].filter(v => v)[0];
+        }
+    }
 
-        let emitAssociator: string = 
-            parameters.author?.tag ||
-            parameters.tag || 
-            parameters.user?.tag || 
-            parameters.member?.user.tag || 
-            parameters.users?.cache.last()?.tag || 
-            parameters.last?.()?.author.tag || 
-            parameters.inviter?.tag || 
-            parameters.name || 
-            parameters.guild?.name || 
-            "Unknown";
+    function getAchiever(type: 'User' | 'GuildMember' | 'Guild') {
+        let result = null;
+        for (const arg of args) {
+            if (result) return result;
+            else result = achievementOptions(arg, type);
+        }
+    }
+
+    var [user, guild, guildMember] = [
+        getAchiever('User') as User,
+        getAchiever('Guild') as Guild,
+        getAchiever('GuildMember') as GuildMember
+    ];
+
+    user = !user && guildMember ? guildMember.user : null;
+    AchievementCheck(client, { user, guild, guildMember }, 'EVENT', caller, args);
+
+    async function SendToLog() {
+        const emitAssociatorOptions = (parameter: any = {}) => {
+            const options = [
+                parameter.author && parameter.author.tag,
+                parameter.tag,
+                parameter.user && parameter.user.tag,
+                parameter.member && parameter.member.user.tag,
+                parameter.users && parameter.users.cache.last() && parameter.users.cache.last().tag,
+                parameter.last && parameter.last() && parameter.last().author.tag,
+                parameter.inviter && parameter.inviter.tag,
+                parameter.name,
+                parameter.guild && parameter.guild.name
+            ];
+            return options.filter(v => v)[0];
+        }
+        let emitAssociator = "";
+        for (const arg of args) {
+            if (emitAssociator) break;
+            else emitAssociator = emitAssociatorOptions(arg);
+        }
+        if (!emitAssociator) emitAssociator = "Unknown";
+
+        //Don't log if emitter isn't a PinguUser
+        let isPinguUser = emitAssociator.match(/#\d{4}$/g) && await PinguUser.Get(client.users.cache.find(u => u.tag == emitAssociator)) != null;
+        // if (!isPinguUser) return null;
 
         let specialEvents = [
             'channelCreate', 'channelUpdate', 'channelDelete', 'channelPinsUpdate',
@@ -214,47 +269,47 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
         ] as EventType[];
         if (specialEvents.includes(event.name)) emitAssociator = await GetFromAuditLog();
 
-        if (emitAssociator == 'Unknown') PinguLibrary.errorLog(client, `Event parameter for ${event.name} was not recognized!`);
-        if (parameters.message && ['event-log-📹', 'ping-log-🏓', 'console-log-📝'].includes((parameters.message.channel as GuildChannel).name)) return;
+        if (emitAssociator == 'Unknown') throw { message: `Event parameter for ${event.name} was not recognized!` };
+        if (caller == 'message' && ['event-log-📹', 'ping-log-🏓', 'console-log-📝'].includes((args[0].channel as GuildChannel).name)) return;
         let embed = await CreateEmbed();
 
         if (!PinguLibrary.eventLog) {
-            const { eventLog } = require("../library/PinguLibrary");
+            const { eventLog } = require('../library/PinguLibrary');
             PinguLibrary.eventLog = eventLog;
         }
 
-        if (embed) return await PinguLibrary.eventLog(client, embed);
+        if (embed) return PinguLibrary.eventLog(client, embed);
 
         async function GetFromAuditLog() {
             const noAuditLog = PinguEvent.noAuditLog;
 
             switch (event.name) {
-                case 'channelCreate': return !parameters.guild ? parameters.recipient.tag : await GetInfo(parameters.guild, 'CHANNEL_CREATE');
-                case 'channelUpdate': return !parameters.guild ? parameters.recipient.tag : await GetInfo(parameters.guild, 'CHANNEL_UPDATE');
-                case 'channelDelete': return !parameters.guild ? parameters.recipient.tag : await GetInfo(parameters.guild, 'CHANNEL_DELETE');
-                case 'channelPinsUpdate': return !parameters.guild ? parameters.recipient.tag :
-                    (await GetInfo(parameters.guild, 'MESSAGE_PIN') || await GetInfo(parameters.guild, 'MESSAGE_UNPIN'));
+                case 'channelCreate': return !args[0].guild ? args[0].recipient.tag : await GetInfo(args[0].guild, 'CHANNEL_CREATE');
+                case 'channelUpdate': return !args[0].guild ? args[0].recipient.tag : await GetInfo(args[0].guild, 'CHANNEL_UPDATE');
+                case 'channelDelete': return !args[0].guild ? args[0].recipient.tag : await GetInfo(args[0].guild, 'CHANNEL_DELETE');
+                case 'channelPinsUpdate': return !args[0].guild ? args[0].recipient.tag :
+                    (await GetInfo(args[0].guild, 'MESSAGE_PIN') || await GetInfo(args[0].guild, 'MESSAGE_UNPIN'));
 
-                case 'webhookCreate': return await GetInfo(parameters.guild, 'WEBHOOK_CREATE');
-                case 'webhookUpdate': return await GetInfo(parameters.guild, 'WEBHOOK_UPDATE');
-                case 'webhookDelete': return await GetInfo(parameters.guild, 'WEBHOOK_DELETE');
+                case 'webhookCreate': return await GetInfo(args[0].guild, 'WEBHOOK_CREATE');
+                case 'webhookUpdate': return await GetInfo(args[0].guild, 'WEBHOOK_UPDATE');
+                case 'webhookDelete': return await GetInfo(args[0].guild, 'WEBHOOK_DELETE');
 
-                case 'emojiCreate': return await GetInfo(parameters.guild, 'EMOJI_CREATE');
-                case 'emojiUpdate': return await GetInfo(parameters.guild, 'EMOJI_UPDATE');
-                case 'emojiDelete': return await GetInfo(parameters.guild, 'EMOJI_DELETE');
+                case 'emojiCreate': return await GetInfo(args[0].guild, 'EMOJI_CREATE');
+                case 'emojiUpdate': return await GetInfo(args[0].guild, 'EMOJI_UPDATE');
+                case 'emojiDelete': return await GetInfo(args[0].guild, 'EMOJI_DELETE');
 
-                case 'guildBanAdd': return await GetInfo(parameters, 'MEMBER_BAN_ADD');
-                case 'guildMemberUpdate': return await GetInfo(parameters.guild, 'MEMBER_UPDATE');
-                case 'guildBanRemove': return await GetInfo(parameters, 'MEMBER_BAN_REMOVE');
+                case 'guildBanAdd': return await GetInfo(args[0], 'MEMBER_BAN_ADD');
+                case 'guildMemberUpdate': return await GetInfo(args[0].guild, 'MEMBER_UPDATE');
+                case 'guildBanRemove': return await GetInfo(args[0], 'MEMBER_BAN_REMOVE');
 
-                case 'guildUpdate': return await GetInfo(parameters, 'GUILD_UPDATE');
-                case 'guildIntegrationsUpdate': return await GetInfo(parameters, 'INTEGRATION_UPDATE');
+                case 'guildUpdate': return await GetInfo(args[0], 'GUILD_UPDATE');
+                case 'guildIntegrationsUpdate': return await GetInfo(args[0], 'INTEGRATION_UPDATE');
 
-                case 'messageBulkDelete': return await GetInfo(parameters.last().guild, 'MESSAGE_BULK_DELETE');
+                case 'messageBulkDelete': return await GetInfo(args[0].last().guild, 'MESSAGE_BULK_DELETE');
 
-                case 'roleCreate': return await GetInfo(parameters.guild, 'ROLE_CREATE');
-                case 'roleUpdate': return await GetInfo(parameters.guild, 'ROLE_UPDATE');
-                case 'roleDelete': return await GetInfo(parameters.guild, 'ROLE_DELETE');
+                case 'roleCreate': return await GetInfo(args[0].guild, 'ROLE_CREATE');
+                case 'roleUpdate': return await GetInfo(args[0].guild, 'ROLE_UPDATE');
+                case 'roleDelete': return await GetInfo(args[0].guild, 'ROLE_DELETE');
                 default: PinguLibrary.errorLog(client, `"${event.name}" was not recognized as an event name when searching from audit log`); return "Unknown";
             }
 
@@ -266,7 +321,8 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
                 return auditLogs.last() && auditLogs.last().executor.tag || PinguEvent.noAuditLog;
             }
             async function getAuditLogs(guild: Guild, type: import('discord.js').GuildAuditLogsAction) {
-                if (!guild.me.hasPermission('VIEW_AUDIT_LOG'))
+                const me = guild.me || guild.member(guild.client.user);
+                if (!me.hasPermission('VIEW_AUDIT_LOG'))
                     return noAuditLog;
 
                 return (await guild.fetchAuditLogs({ type })).entries.filter(e => new Date(Date.now()).getSeconds() - e.createdAt.getSeconds() <= 1);
@@ -279,9 +335,7 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
                 new Date(Date.now())
             ];
 
-            function getDoubleDigit(num: number) {
-                return num < 10 ? `0${num}` : `${num}`;
-            }
+            const getDoubleDigit = (num: number) => num < 10 ? `0${num}` : `${num}`;
             let defaultEmbed = new MessageEmbed()
                 .setTitle(event.name)
                 .setAuthor(emitAssociator, (!emitAssociator || emitAssociator == "Unknown" ? null :
@@ -304,14 +358,20 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
 
             return !defaultEmbed.description && (defaultEmbed.fields && defaultEmbed.fields[0] || true) ? null : defaultEmbed;
 
-            async function getColor() {
+            async function getColor(): Promise<ColorResolvable> {
                 if (event.name.includes('Create') || event.name.includes('Add')) return PinguEvent.Colors.Create;
                 else if (event.name.includes('Delete') || event.name.includes('Remove')) return PinguEvent.Colors.Delete;
                 else if (event.name.includes('Update')) return PinguEvent.Colors.Update;
-                try { return (await PinguGuild.GetPGuild(PinguLibrary.SavedServers.PinguSupport(client))).clients.find(c => c._id == client.user.id).embedColor; }
+                try { return (await PinguGuild.Get(PinguLibrary.SavedServers.get('Pingu Support'))).clients.find(c => c._id == client.user.id).embedColor; }
                 catch { return ToPinguClient(client).DefaultEmbedColor; }
             }
         }
+    }
+
+    function FindClass<ClassType>(type: string) {
+        const objectsOfClass = args.filter(a => a && (a as object).constructor && (a as object).constructor.name == type);
+        return objectsOfClass ? objectsOfClass[objectsOfClass.length - 1] as ClassType : null;
+
     }
 }
 //#endregion
@@ -342,7 +402,7 @@ export class PinguEvent<eventType extends keyof PinguClientEvents> extends Pingu
     constructor(
         name: eventType, 
         setContent?: (...args: PinguClientEvents[eventType]) => Promise<MessageEmbed>, 
-        execute?: (client: PinguClient, ...args: PinguClientEvents[eventType]) => Promise<void | Message>
+        execute?: (client: PinguClient, ...args: PinguClientEvents[eventType]) => Promise<Message>
     ){
         super(name);
         if (setContent) this.setContent = setContent;
@@ -354,5 +414,5 @@ export class PinguEvent<eventType extends keyof PinguClientEvents> extends Pingu
     public content: MessageEmbed;
 
     public async setContent(...args: PinguClientEvents[eventType]): Promise<MessageEmbed> { return null; }
-    public async execute(client: PinguClient, ...args: PinguClientEvents[eventType]): Promise<void | Message> {}
+    public async execute(client: PinguClient, ...args: PinguClientEvents[eventType]): Promise<Message> { return null; }
 }

@@ -1,46 +1,43 @@
 import { Collection, Guild, GuildMember, Snowflake } from "discord.js";
 import { PGuildMember, PGuild } from "../../database/json";
 
-import { cache as PinguGuildCache, GetPGuild, UpdatePGuild } from "../guild/PinguGuild";
-import { cache as PinguUserCache } from "../user/PinguUser";
+import { GetPGuild, UpdatePGuild } from "../guild/PinguGuild";
 
-import { pGuildLog } from "../library/PinguLibrary";
+import { pGuildLog, AchievementCheckType } from "../library/PinguLibrary";
 import { GuildMemberAchievementConfig, GuildMemberAchievementNotificationType } from "../achievements/config/GuildMemberAchievementConfig";
 
-export async function WritePGuildMember(member: GuildMember, log: boolean) {
-    let pGuild = await GetPGuild(member.guild);
+export async function WritePGuildMember(member: GuildMember, scriptName: string) {
+    if (member.user.bot) return null;
+    const { client, guild, id } = member;
+    
+    let pGuild = await GetPGuild(guild);
     let pGuildMember = new PinguGuildMember(member, pGuild.settings.config.achievements.notificationTypes.members);
-    pGuild.members.set(member.id, pGuildMember);
+    pGuild.members.set(id, pGuildMember);
+    await UpdatePGuild(client, ['members'], pGuild, scriptName, `${member.user.tag} was added to ${pGuild.name}'s PinguGuild.members.`)
 
-    if (log) pGuildLog(member.client, "guildMemberAdd", `**${member.displayName}** was successfully added to **${pGuild.name}**'s PinguGuild's members.`)
+    //Add join achievement
+    await AchievementCheckType(client, 'GUILDMEMBER', member, 'EVENT', 'guildMemberAdd', pGuildMember.achievementConfig, 'EVENT', [member]);
+
     return pGuildMember;
 }
-export async function GetPGuildMember(member: GuildMember) {
+export async function GetPGuildMember(member: GuildMember, scriptName: string) {
+    if (!member) return null;
     let pGuild = await GetPGuild(member.guild);
-    let pgm = pGuild.members.get(member.id);
-
-    if (pgm) return pgm;
-
-    pgm = new PinguGuildMember(member, pGuild.settings.config.achievements.notificationTypes.members);
-    pGuild.members.set(pgm._id, pgm);
-    await UpdatePGuild(member.client, { members: pGuild.members }, pGuild, 'GetPGuildMember()',
-        `Added **${pgm.name}** as a member of **${pGuild.name}**.`,
-        `Failed to add **${pgm.name}** as a member of **${pGuild.name}**.`
-    );
-    return pgm;
+    let pgm = pGuild.members.get(member.id); //Returns Mongoose.Document<PinguGuildMember>
+    return pgm ? (pgm as any).toObject() as PinguGuildMember : WritePGuildMember(member, scriptName)
 }
-export async function UpdatePGuildMember(member: GuildMember, pGuildMember: PinguGuildMember, scriptName: string, succMsg: string, errMsg: string) {
+export async function UpdatePGuildMember(member: GuildMember, pGuildMember: PinguGuildMember, scriptName: string, reason: string) {
     let pGuild = await GetPGuild(member.guild);
     pGuild.members.set(pGuildMember._id, pGuildMember);
-    return UpdatePGuild(member.client, { members: pGuild.members }, pGuild, scriptName, succMsg, errMsg);
+
+    UpdatePGuild(member.client, ['members'], pGuild, scriptName, reason);
+    return pGuildMember;
 }
 export async function DeletePGuildMember(member: GuildMember) {
     let pGuild = await GetPGuild(member.guild);
     pGuild.members.delete(member.id);
-    return UpdatePGuild(member.client, { members: pGuild.members }, pGuild, 'guildMemberRemove',
-        `Successfully updated **${pGuild.name}**'s members, after **${member.user.tag}** left the guild.`,
-        `Failed to remove **${member.user.tag}** from **${pGuild.name}**'s PinguGuild's members!`
-    );
+    UpdatePGuild(member.client, ['members'], pGuild, 'guildMemberRemove', `**${pGuild.name}**'s members, after **${member.user.tag}** left the guild.`);
+    return;
 }
 export async function GetPGuildMembers(guild: Guild) {
     let pGuild = await GetPGuild(guild);
@@ -49,29 +46,40 @@ export async function GetPGuildMembers(guild: Guild) {
 
 export class PinguGuildMember extends PGuildMember {
     //#region Statics
-    public static async WritePGuildMember(member: GuildMember, log: boolean) { return WritePGuildMember(member, log); }
-    public static async GetPGuildMember(member: GuildMember) { return GetPGuildMember(member); }
-    public static async UpdatePGuildMember(member: GuildMember, pGuildMember: PinguGuildMember, scriptName: string, succmsg: string, errMsg: string) 
-    { return UpdatePGuildMember(member, pGuildMember, scriptName, succmsg, errMsg); }
-    public static async DeletePGuildMember(member: GuildMember) { return DeletePGuildMember(member); }
-    public static async GetPGuildMembers(guild: Guild) { return GetPGuildMembers(guild); }
+    /**Writes and adds Member as PinguGuildMember to database and returns the new object
+     * @param member Member to add as PinguGuildMember
+     * @param log Whether to log it in #pGuildLog or not
+     * @returns The new PinguGuildMember*/
+    public static async Write(member: GuildMember, scriptName: string) { return WritePGuildMember(member, scriptName); }
+    /**Get the PinguGuildMember from provided member
+     * @param member Member to get as PinguGuildMember
+     * @param scriptName Script that called the method
+     * @returns The provided member as PinguGuildMember*/
+    public static async Get(member: GuildMember, scriptName: string) { return GetPGuildMember(member, scriptName); }
+    /**Updates provided PinguGuildMember to the database
+     * @param member Member to update
+     * @param pGuildMember PinguGuildMember update
+     * @param scriptName Script that called the method
+     * @param reason Reason for updating the PinguGuildMember
+     * @returns The updated PinguGuildMember*/
+    public static async Update(member: GuildMember, pGuildMember: PinguGuildMember, scriptName: string, reason: string)  { return UpdatePGuildMember(member, pGuildMember, scriptName, reason); }
+    /**Deletes provided member from their guild's PinguGuild's members map
+     * @param member Member to delete
+     * @returns what should it return?*/
+    public static async Delete(member: GuildMember) { return DeletePGuildMember(member); }
+    /**Get all PinguGuildMembers from specified guild
+     * @param guild Guild to get all PinguGuildMembers from
+     * @returns All PinguGuildMembers from specified guild*/
+    public static async GetGuildMembers(guild: Guild) { return GetPGuildMembers(guild); }
     //#endregion
 
     constructor(member: GuildMember, achievementNotificationType: GuildMemberAchievementNotificationType) {
         super(member);
         this.guild = new PGuild(member.guild);
-        this.achievementsConfig = new GuildMemberAchievementConfig(achievementNotificationType);
+        this.achievementConfig = new GuildMemberAchievementConfig(achievementNotificationType);
     }
 
     public guild: PGuild;
-    public achievementsConfig: GuildMemberAchievementConfig
+    public achievementConfig: GuildMemberAchievementConfig
     //public warnings: ??
-
-    public pGuild() {
-        return PinguGuildCache.get(this.guild._id);
-    }
-    public pUser() {
-        return PinguUserCache.get(this._id);
-    }
-
 }

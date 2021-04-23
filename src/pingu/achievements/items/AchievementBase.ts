@@ -23,7 +23,7 @@ export interface PinguCommandParamsResponse extends PinguCommandParams {
 }
 
 export interface AchievementCallbackParams {
-    CHAT: [[string]],
+    CHAT: [[string, Message]],
     EVENT: PinguClientEvents,
     COMMAND: [[PinguCommandParamsResponse]]
     VOICE: [[VoiceState]]
@@ -39,7 +39,6 @@ export abstract class AchievementBase extends PItem {
     }
 
     public description: string;
-
     
     public abstract getPercentage(guild?: Guild): Promise<Percentage>;
     protected static useCommand(command: Commands, extraInfo: string) {

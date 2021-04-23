@@ -32,7 +32,7 @@ class PinguClient extends discord_js_1.Client {
         this.config = new Config_1.Config(config);
         this.subscribedEvents = subscribedEvents.map(v => v == 'ready' ? 'onready' :
             v == 'debug' ? 'ondebug' :
-                v);
+                v).sort();
         if (commandsPath)
             this.HandlePath(commandsPath, 'command');
         if (evensPath)
@@ -85,16 +85,20 @@ class PinguClient extends discord_js_1.Client {
         return pGuild.clients.find(c => c && c._id == this.user.id);
     }
     emit(key, ...args) {
+        PinguLibrary_1.consoleLog(this, `Emitting event: ${key}`);
         const chosenEvents = ['chosenUser', 'chosenGuild'];
         if (chosenEvents.includes(key))
-            return PinguLibrary_1.AchievementCheckType(this, key.substring(6, key.length).toUpperCase(), args[0], 'EVENT', key, (function getConfig() {
+            return PinguLibrary_1.AchievementCheckType(this, key.substring(6).toUpperCase(), //cut away "chosen"
+            args[0], 'EVENT', key, (function getConfig() {
                 switch (key) {
                     case 'chosenUser': return args[1].achievementConfig;
                     case 'chosenGuild': return args[1].settings.config.achievements;
                     default: return null;
                 }
-            })(), key, args);
-        return true;
+            })(), 'EVENT', args) != null;
+        else if (key == 'mostKnownUser')
+            return PinguLibrary_1.AchievementCheck(this, { user: args[0] }, 'EVENT', 'mostKnownUser', args) != null;
+        return super.emit(key, ...args);
     }
     login(token) {
         const _super = Object.create(null, {
