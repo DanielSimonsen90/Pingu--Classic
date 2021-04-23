@@ -20,6 +20,8 @@ module.exports = new PinguCommand('test', 'DevOnly', `Test command for Danho`, {
             let noPlaylists = !pUser.playlists.length
             let noMarry = pUser.marry.partner == undefined && pUser.marry.internalDate == null;
 
+            console.log(user.tag, { noConfig, noDaily, noPlaylists, noMarry });
+
             return noConfig && noDaily && noPlaylists && noMarry;
         })();
 
