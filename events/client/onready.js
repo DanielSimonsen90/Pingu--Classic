@@ -4,10 +4,11 @@ const ms = require('ms');
 
 module.exports = new PinguEvent('onready',
     async function execute(client) {
+        PinguLibrary.CacheSavedServers(client);
+
         console.log('\n--== Client Info ==--');
         PinguLibrary.consoleLog(client, `Loaded ${client.commands.size} commands & ${client.events.size} events\n`);
 
-        PinguLibrary.CacheSavedServers(client);
         await Promise.all([
             client.users.fetch(PinguClient.Clients.PinguID),
             PinguLibrary.CacheDevelopers(client),
