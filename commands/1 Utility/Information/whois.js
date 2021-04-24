@@ -3,23 +3,22 @@ const { GetColor } = require('../../../events/guild/presenceUpdate');
 const { PinguCommand, PinguLibrary, EmbedField } = require('PinguPackage');
 
 module.exports = new PinguCommand('whois', 'Utility', 'Gets the info of specified user', {
-    usage: '<ID> | <@Mention>',
-    guildOnly: true,
-    example: ['245572699894710272', '@Danho#2105']
+    usage: '<ID> | <@Mention> | <username>',
+    example: ['245572699894710272', '@Danho#2105', 'John Smith']
 }, async ({ message, args }) => {
     //Permission check
     if (args[0] != null) {
-        if (args[0].includes('_')) args[0] = args[0].replace('_', ' ', );
+        if (args[0].includes('_')) args[0] = args[0].replace('_', ' ',);
         if (args[0].includes('!')) args[0] = args[0].replace('!', '');
     }
 
+    let search = args.join(' ');
     //Variables
-    var member = message.guild.members.cache.array().find(gm => [gm.user.username, gm.displayName, gm.user.id].includes(args[0])) ||
-        message.mentions.members.first(), //No arguments provided || No member found
-        user = member ? member.user : !isNaN(parseInt(args[0])) ? await message.client.users.fetch(args[0]) : message.mentions.users.first() || message.author;
+    var member = message.guild?.members.cache.array().find(gm => [gm.user.username, gm.displayName, gm.user.id].includes(search)) || message.mentions.members?.first(), //No arguments provided || No member found
+        user = member ? member.user : message.client.users.cache.array().find(u => [u.username, u.id].includes(search)) || message.author;
 
     //Promise becomes a user
-    return args[0] != null && user != (member && member.user || true) ?
+    return search != null && user != (member && member.user || true) && (isNaN(user) || message.client.users.cache.get(user?.id) != null || true) ?
         SendNonGuildMessage(message, user) :
         HandleGuildMember(message, member || message.member);
 });
@@ -38,17 +37,20 @@ async function HandleGuildMember(message, member) {
 /**@param {Message} message 
  * @param {GuildMember} gm 
  * @param {string[]} SharedServers*/
-async function SendGuildMessage(message, gm, SharedServers, pGuildClient) {
+async function SendGuildMessage(message, gm, SharedServers) {
+    let badges = await PinguLibrary.getBadges(gm.user);
+
     return await message.channel.send(new MessageEmbed()
-        .setTitle(`"${gm.displayName}" (${gm.user.username})`)
+        .setTitle(`${gm.displayName} ${(gm.displayName != gm.user.username ? `(${gm.user.username})` : ``)}`)
         .setThumbnail(gm.user.avatarURL())
         .setColor(await GetColor(null, gm.user.presence))
         .addFields([
             new EmbedField(`Created at`, gm.user.createdAt, true),
             new EmbedField(`Joined at`, gm.joinedAt, true),
-            PinguLibrary.BlankEmbedField(true),
-            new EmbedField(`Shared Servers`, SharedServers),
-            new EmbedField(`Badges`, PinguLibrary.getBadges(message.author))
+            EmbedField.Blank(true),
+            new EmbedField(`Shared Servers`, SharedServers, true),
+            badges && badges.array().length ? new EmbedField(`Badges`, badges.map(badge => badge.emoji).join(' '), true) : EmbedField.Blank(true),
+            EmbedField.Blank(true)
         ])
         .setFooter(`ID: ${gm.id}`)
     );
@@ -56,14 +58,21 @@ async function SendGuildMessage(message, gm, SharedServers, pGuildClient) {
 /**@param {Message} message 
  * @param {User} user*/
 async function SendNonGuildMessage(message, user) {
+    if (!user.id && !isNaN(user))
+        user = message.client.users.cache.get(user);
+
+    let badges = await PinguLibrary.getBadges(user);
     return await message.channel.send(new MessageEmbed()
         .setTitle(user.tag)
         .setThumbnail(user.avatarURL())
-        .setColor()
+        .setColor(await GetColor(null, user.presence))
         .addFields([
-            new EmbedField(`ID`, user.id, true),
             new EmbedField(`Created at`, user.createdAt, true),
-            PinguLibrary.BlankEmbedField(true)
+            EmbedField.Blank(true),
+            EmbedField.Blank(true),
+            badges && badges.array().length ? new EmbedField(`Badges`, badges.map(badge => badge.emoji).join(' '), true) : EmbedField.Blank(true),
+            EmbedField.Blank(true),
         ])
+        .setFooter(`ID: ${user.id}`)
     );
 }

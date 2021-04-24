@@ -1,7 +1,7 @@
 ﻿const { PinguCommand, PinguUser, PinguUserSchema } = require('PinguPackage');
 
 module.exports = new PinguCommand('updatepusers', 'DevOnly', `Updates all PinguUsers`, {
-
+    mustBeBeta: true
 }, async ({ client, message, args, pAuthor, pGuild, pGuildClient }) => {
     const PinguUsers = await PinguUser.GetUsers();
 

@@ -10,7 +10,7 @@ module.exports = new PinguEvent('messageReactionAdd',
             .addFields([
                 new EmbedField('User', user.tag, true),
                 new EmbedField('Reaction', reaction.emoji, true),
-                PinguLibrary.BlankEmbedField(true),
+                EmbedField.Blank(true),
                 new EmbedField(`Message ID`, reaction.message.id, true),
                 new EmbedField(`Channel`, reaction.message.channel, true),
                 new EmbedField(`Channel ID`, reaction.message.channel.id, true)

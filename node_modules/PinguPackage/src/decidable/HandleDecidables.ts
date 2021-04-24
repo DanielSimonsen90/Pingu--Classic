@@ -5,12 +5,12 @@ import { Message, MessageEmbed, TextChannel, MessageReaction, User, Client } fro
 import { PClient, PGuildMember, PRole, PChannel } from '../database/json'; //PItems
 import { DiscordPermissions, TimeLeftObject, EmbedField } from '../helpers'; //Pingu Helpers
 
-import { errorLog, consoleLog, PermissionGranted, PermissionCheck, SavedServers, BlankEmbedField, getEmote, AchievementCheck } from "../pingu/library/PinguLibrary";
+import { errorLog, consoleLog, PermissionGranted, PermissionCheck, SavedServers, getEmote, AchievementCheck } from "../pingu/library/PinguLibrary";
 const PinguLibrary = { 
     errorLog, consoleLog,
     PermissionGranted, PermissionCheck,
     SavedServers,
-    BlankEmbedField, getEmote,
+    getEmote,
     AchievementCheck
 }
 
@@ -576,7 +576,7 @@ async function ListDecidables(params: DecidablesParams, decidables: Decidable[])
                 .addFields([
                     new EmbedField(`Verdict`, `${(s.approved == 'Approved' ? GetCheckMark() : s.approved == 'Denied' ? '❌' : '🤷')}` + s.approved, true),
                     new EmbedField(`Suggested By`, `<@${s.author._id}>`, true),
-                    s.approved != 'Undecided' ? new EmbedField(`Decided By`, `<@${s.decidedBy._id}>`, true) : PinguLibrary.BlankEmbedField(true)
+                    s.approved != 'Undecided' ? new EmbedField(`Decided By`, `<@${s.decidedBy._id}>`, true) : EmbedField.Blank(true)
                 ]);
         }
     }

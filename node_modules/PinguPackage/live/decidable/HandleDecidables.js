@@ -18,7 +18,7 @@ const PinguLibrary = {
     errorLog: PinguLibrary_1.errorLog, consoleLog: PinguLibrary_1.consoleLog,
     PermissionGranted: PinguLibrary_1.PermissionGranted, PermissionCheck: PinguLibrary_1.PermissionCheck,
     SavedServers: PinguLibrary_1.SavedServers,
-    BlankEmbedField: PinguLibrary_1.BlankEmbedField, getEmote: PinguLibrary_1.getEmote,
+    getEmote: PinguLibrary_1.getEmote,
     AchievementCheck: PinguLibrary_1.AchievementCheck
 };
 const PinguGuild_1 = require("../pingu/guild/PinguGuild");
@@ -557,7 +557,7 @@ function ListDecidables(params, decidables) {
                     .addFields([
                     new helpers_1.EmbedField(`Verdict`, `${(s.approved == 'Approved' ? GetCheckMark() : s.approved == 'Denied' ? '❌' : '🤷')}` + s.approved, true),
                     new helpers_1.EmbedField(`Suggested By`, `<@${s.author._id}>`, true),
-                    s.approved != 'Undecided' ? new helpers_1.EmbedField(`Decided By`, `<@${s.decidedBy._id}>`, true) : PinguLibrary.BlankEmbedField(true)
+                    s.approved != 'Undecided' ? new helpers_1.EmbedField(`Decided By`, `<@${s.decidedBy._id}>`, true) : helpers_1.EmbedField.Blank(true)
                 ]);
             }
         }

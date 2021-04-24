@@ -1,7 +1,7 @@
 ﻿const { PinguCommand, PinguLibrary, PinguGuild, PinguGuildSchema } = require('PinguPackage');
 
 module.exports = new PinguCommand('updatepguilds', 'DevOnly', `Updates all PinguGuilds`, {
-
+    mustBeBeta: true
 }, async ({ client, message, args, pAuthor, pGuild, pGuildClient }) => {
     const PinguGuilds = await PinguGuild.GetGuilds();
 
