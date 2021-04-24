@@ -25,10 +25,10 @@ module.exports = new PinguCommand('apply', 'GuildSpecific', `Filters through pre
     let messages = (await applicationsChannel.messages.fetch({ limit: 3 })).array();
     let companyInfo = messages.map(m => messageToCompanies(m));
 
-    let companies = (await Company.getCompanies()).filter(c => {
+    let companies = (await getCompanies()).filter(c => {
         let preCompanies = [];
-        companyInfo.forEach(companies => preCompanies.concat(...companies));
-        return preCompanies.map(pc => c.name != pc.name);
+        companyInfo.forEach(companies => preCompanies = preCompanies.concat(...companies));
+        return !preCompanies.find(pc => c.name == pc.name);
     });
 
     let companiesToBother = (function getCompaniesToBother() {
@@ -56,7 +56,9 @@ module.exports = new PinguCommand('apply', 'GuildSpecific', `Filters through pre
     var responseMessage = `**${getMonthString(new Date(Date.now()).getMonth())} ${new Date(Date.now()).getFullYear()}**\n`;
     for (var company of companiesToBother) {
         if (company.link.includes('@'))
-            await transporter.sendMail(await Mail.send(company, templateMessage)).catch(err => applicationsChannel.send(err))
+            await transporter.sendMail(await Mail.send(company, templateMessage)).catch(err => {
+                return applicationsChannel.send(err)
+            });
         responseMessage += `${company.name} | ${company.link}\n`
     }
 
@@ -95,29 +97,29 @@ module.exports = new PinguCommand('apply', 'GuildSpecific', `Filters through pre
             return new Company(name, email, message.createdAt.getMonth());
         }).filter(v => v);
     }
+    /**@returns {Promise<Company[]>} */
+    async function getCompanies() {
+        let companiesChannel = await getChannel(testingMode ? 'companies-test' : 'companies');
+        if (!companiesChannel) return null;
 
-    class Company {
-        /**@param {string} name
-         * @param {string} link*/
-        constructor(name, link) {
-            this.name = name;
-            this.link = link;
+        let messages = await companiesChannel.messages.fetch();
+        let allCompanies = [];
+        let companyCollection = messages.map(m => messageToCompanies(m));
+        for (var companies of companyCollection) {
+            allCompanies = allCompanies.concat(...companies);
         }
-
-        /**@returns {Promise<Company[]>} */
-        static async getCompanies() {
-            let companiesChannel = await getChannel(testingMode ? 'companies-test' : 'companies');
-            if (!companiesChannel) return null;
-
-            let messages = await companiesChannel.messages.fetch();
-            let allCompanies = [];
-            let companyCollection = messages.map(m => messageToCompanies(m));
-            companyCollection.forEach(companies => allCompanies.concat(...companies));
-            return allCompanies;
-        }
+        return allCompanies;
     }
 })
 
+class Company {
+    /**@param {string} name
+     * @param {string} link*/
+    constructor(name, link) {
+        this.name = name;
+        this.link = link;
+    }
+}
 class Mail {
     static async getInfo() {
         const accessToken = await googleClient.getAccessToken();
@@ -159,3 +161,12 @@ function getMonthString(month) {
         "December"
     ][month];
 }
+
+/*
+ * https://developers.google.com/oauthplayground/
+ * OAuth 2.0 Configuration => Use your own OAuth credentials => Client ID & Secret from config.json
+ * Select & authorize APIs: Gmail API v1 => https://mail.google.com/ => Authorize APIs
+ * Login using danielsimonsen90@gmail.com & authorize the app
+ * Click Exchange authorization code for tokens
+ * Replace config.mail.refreshToken for the provided token
+ */
