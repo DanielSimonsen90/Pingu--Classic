@@ -85,7 +85,6 @@ class PinguClient extends discord_js_1.Client {
         return pGuild.clients.find(c => c && c._id == this.user.id);
     }
     emit(key, ...args) {
-        PinguLibrary_1.consoleLog(this, `Emitting event: ${key}`);
         const chosenEvents = ['chosenUser', 'chosenGuild'];
         if (chosenEvents.includes(key))
             return PinguLibrary_1.AchievementCheckType(this, key.substring(6).toUpperCase(), //cut away "chosen"
