@@ -174,7 +174,7 @@ async function SendCallerInfo(message, bigboiinfo) {
         EmbedArray[1].addFields([
             new EmbedField(`${savedEmotes.partner} Partnered Discord`, guild.partnered, true),
             new EmbedField(`${savedEmotes.verified} Verified Discord`, guild.verified, true),
-            !guild.widgetEnabled ? PinguLibrary.BlankEmbedField(true) : null
+            !guild.widgetEnabled ? EmbedField.Blank(true) : null
         ].filter(v => v))
 
         //#endregion

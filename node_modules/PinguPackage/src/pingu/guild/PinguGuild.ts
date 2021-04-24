@@ -139,9 +139,11 @@ export class PinguGuild extends PItem {
 
         this.settings = new PinguGuildSettings(guild);
         this.members = new Map<Snowflake, PinguGuildMember>();
+        this.joinedAt = new Date(Date.now());
     }
     public guildOwner: PGuildMember
     public clients: PClient[]
     public members: Map<Snowflake, PinguGuildMember>;
     public settings: PinguGuildSettings;
+    public joinedAt: Date;
 }

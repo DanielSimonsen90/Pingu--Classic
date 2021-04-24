@@ -116,7 +116,7 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
                                     .filter(gm => gm.roles.cache.has(configDecidables.giveawayConfig.hostRole._id)).size,
                                     true)
                                 : null,
-                            configDecidables.giveawayConfig.hostRole ? PinguLibrary.BlankEmbedField(true) : null,
+                            configDecidables.giveawayConfig.hostRole ? EmbedField.Blank(true) : null,
                             new EmbedField('Giveaway Winner Role',
                                 configDecidables.giveawayConfig.winnerRole ?
                                     `<@&${configDecidables.giveawayConfig.winnerRole._id}>` :
@@ -129,7 +129,7 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
                                         gm.roles.cache.has(configDecidables.giveawayConfig.winnerRole._id)
                                     ).size, true)
                                 : null,
-                            configDecidables.giveawayConfig.winnerRole ? PinguLibrary.BlankEmbedField(true) : null,
+                            configDecidables.giveawayConfig.winnerRole ? EmbedField.Blank(true) : null,
                             new EmbedField(`Giveaways Hosted`, configDecidables.giveawayConfig.giveaways.length, true),
                             new EmbedField(`The Lucky One (Most frequent winner)`, configDecidables.giveawayConfig.giveaways
                                 .filter(g => g) //Get new array so original .giveaways don't get modified
@@ -138,17 +138,17 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
                                     return acc;
                                 }, new Collection()).first() || 'No giveaways hosted', true
                             ),
-                            PinguLibrary.BlankEmbedField(true),
+                            EmbedField.Blank(true),
                             new EmbedField('Giveaway Channel', configDecidables.giveawayConfig.channel ? `<#${configDecidables.giveawayConfig.channel._id}>` : 'None', true),
                             new EmbedField('Allow Same Winner?', configDecidables.giveawayConfig.allowSameWinner ? 'Yes' : 'No', true),
-                            PinguLibrary.BlankEmbedField(true)
+                            EmbedField.Blank(true),
                         ].filter(v => v)) :
                         new MessageEmbed().setDescription('Giveaway Config is not yet configured');
                     case 'pollConfig': return !configDecidables.pollConfig.firstTimeExecuted ?
                         new MessageEmbed().addFields([
                             new EmbedField('Poll Host Role', configDecidables.pollConfig.pollRole ? `<@&${configDecidables.pollConfig.pollRole._id}>` : 'None', true),
                             configDecidables.pollConfig.pollRole ? new EmbedField('Poll Hosters', message.guild.members.cache.filter(gm => gm.roles.cache.has(configDecidables.pollConfig.pollRole._id)).size, true) : null,
-                            configDecidables.pollConfig.pollRole ? PinguLibrary.BlankEmbedField(true) : null,
+                            configDecidables.pollConfig.pollRole ? EmbedField.Blank(true) : null,
                             new EmbedField('Polls Hosted', configDecidables.pollConfig.polls.length, true),
                             new EmbedField('Typical Poll Response', configDecidables.pollConfig.polls
                                 .filter(p => p) //Get new array, so .polls won't get modified
@@ -165,7 +165,7 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
                         new MessageEmbed().addFields([
                             new EmbedField('Suggestion Manager Role', configDecidables.suggestionConfig.managerRole ? `<@&${configDecidables.suggestionConfig.managerRole._id}>` : `None`, true),
                             configDecidables.suggestionConfig.managerRole ? new EmbedField(`Suggestion Managers`, message.guild.members.cache.filter(gm => gm.roles.cache.has(configDecidables.suggestionConfig.managerRole._id)).size, true) : null,
-                            configDecidables.suggestionConfig.managerRole ? PinguLibrary.BlankEmbedField(true) : null,
+                            configDecidables.suggestionConfig.managerRole ? EmbedField.Blank(true) : null,
                             new EmbedField(`Suggestions suggested(?)`, configDecidables.suggestionConfig.suggestions.length, true),
                             new EmbedField(`Typical Suggestion Response`, configDecidables.suggestionConfig.suggestions
                                 .filter(s => s)

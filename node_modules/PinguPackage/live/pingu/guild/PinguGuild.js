@@ -127,6 +127,7 @@ class PinguGuild extends json_1.PItem {
         this.clients[clientIndex] = new json_1.PClient(guild.client, guild);
         this.settings = new PinguGuildSettings_1.PinguGuildSettings(guild);
         this.members = new Map();
+        this.joinedAt = new Date(Date.now());
     }
     //#region Statics
     /**Creates and saves Guild as a PinguGuild and returns the new PinguGuild object

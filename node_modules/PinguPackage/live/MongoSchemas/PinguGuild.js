@@ -8,10 +8,8 @@ const PinguGuildSchema = mongoose.model('PinguGuild', new mongoose.Schema({
     name: String,
     guildOwner: parts_1.PItem,
     clients: [parts_1.PClient],
-    members: {
-        type: Map,
-        of: parts_1.PinguGuildMember
-    },
+    members: { type: Map, of: parts_1.PinguGuildMember },
     settings: parts_1.PinguGuildSettings,
+    joinedAt: Date
 }));
 exports.PinguGuildSchema = PinguGuildSchema;

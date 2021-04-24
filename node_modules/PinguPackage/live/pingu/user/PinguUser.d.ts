@@ -55,5 +55,6 @@ export declare class PinguUser {
     avatar: string;
     playlists: PQueue[];
     achievementConfig: UserAchievementConfig;
+    joinedAt: Date;
 }
 export {};

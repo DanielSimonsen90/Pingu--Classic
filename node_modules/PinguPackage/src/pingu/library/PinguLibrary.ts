@@ -129,12 +129,9 @@ export function getServer(client: Client, id: string) {
     return client.guilds.cache.find(g => g.id == id);
 }
 export async function getSharedServers(client: Client, user: User): Promise<Guild[]> {
-    let servers = new Array<Guild>();
-    for (var guild of client.guilds.cache.array()) {
-        if (await guild.members.fetch(user))
-            servers.push(guild);
-    }
-    return servers;
+    return client.guilds.cache.array()
+        .map(g => g.members.cache.has(user.id) && g) //return false if user isn't in guild else return guild
+        .filter(v => v) //filter away the negative values
 }
 //#endregion
 
@@ -642,8 +639,11 @@ Key extends keyof AchievementType, Type extends AchievementType[Key],>
 }
 //#endregion
 
+//#region Badges
+import { SetBadges, Badges, getBadges } from "../badge/PinguBadge";
+//#endregion
+
 //#region Statics
-import { BlankEmbedField } from "../../helpers"; export { BlankEmbedField }
 import { DBExecute } from "../../database"; export { DBExecute }
 export function getImage(script: string, imageName: string) {
     return `./embedImages/${script}/${imageName}.png`;
@@ -766,11 +766,16 @@ export class PinguLibrary {
     }
     //#endregion
 
+    //#region Badges
+    public static Badges = Badges;
+    public static SetBadges() { return SetBadges(); }
+    public static getBadges(user: User) { return getBadges(user); }
+    //#endregion
+
     //#region Statics
     public static getEmote(client: Client, name: string, emoteGuild: Guild) { return getEmote(client, name, emoteGuild); }
     public static getImage(script: string, imageName: string) { return getImage(script, imageName); }
     public static async DBExecute<T>(client: Client, callback: (mongoose: typeof import('mongoose')) => Promise<T>) { return DBExecute(client, callback); }
-    public static BlankEmbedField(inline = false) { return BlankEmbedField(inline); }
     public static async RequestImage(message: Message, pGuildClient: PClient, caller: 'gif' | 'meme', types: string[], searchTerm?: (type: string) => string)
     { return RequestImage(message, pGuildClient, caller, types, searchTerm); }
     //#endregion
