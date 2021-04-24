@@ -96,7 +96,6 @@ export class PinguClient extends Client {
     }
 
     public emit<PCE extends keyof PinguClientEvents, CE extends keyof ClientEvents>(key: PCE, ...args: PinguClientEvents[PCE]) {
-        consoleLog(this, `Emitting event: ${key}`);
         const chosenEvents = ['chosenUser', 'chosenGuild'];
 
         if (chosenEvents.includes(key)) return AchievementCheckType(
