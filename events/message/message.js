@@ -90,7 +90,7 @@ module.exports = new PinguEvent('message',
         AchievementCheck();
 
         async function fromEmotesChannel() {
-            if (!guild || author.bot || !channel.name.includes('emote') || !channel.name.includes('emoji')) return false;
+            if (!guild || author.bot || (!channel.name.includes('emote') && !channel.name.includes('emoji'))) return false;
 
             let permCheck = PinguLibrary.PermissionCheck(message, 'MANAGE_EMOJIS', 'SEND_MESSAGES')
             if (permCheck != PinguLibrary.PermissionGranted) {
