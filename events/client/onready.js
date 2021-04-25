@@ -18,7 +18,7 @@ module.exports = new PinguEvent('onready', null,
         ]);
 
         if (connMessage) {
-            CacheFromDB(client)
+            CacheDecidablesFromDB(client)
             //UpdateGuilds()
         }
 
@@ -143,7 +143,7 @@ module.exports = new PinguEvent('onready', null,
             }
         }
 
-        async function CacheFromDB() {
+        async function CacheDecidablesFromDB() {
             for (var guild of client.guilds.cache) {
                 let pGuild = await PinguGuild.Get(guild);
                 if (!pGuild) return;

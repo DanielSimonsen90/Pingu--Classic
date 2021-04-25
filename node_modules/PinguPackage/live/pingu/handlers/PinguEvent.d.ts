@@ -75,7 +75,6 @@ export declare class PinguEvent<eventType extends keyof PinguClientEvents> exten
     static HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: Client, path: string, ...args: PinguClientEvents[EventType]): Promise<Message>;
     constructor(name: eventType, setContent?: (...args: PinguClientEvents[eventType]) => Promise<MessageEmbed>, execute?: (client: PinguClient, ...args: PinguClientEvents[eventType]) => Promise<Message>);
     name: eventType;
-    path: string;
     content: MessageEmbed;
     setContent(...args: PinguClientEvents[eventType]): Promise<MessageEmbed>;
     execute(client: PinguClient, ...args: PinguClientEvents[eventType]): Promise<Message>;

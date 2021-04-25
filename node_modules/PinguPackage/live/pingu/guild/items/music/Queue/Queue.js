@@ -26,15 +26,9 @@ class Queue {
         this.loop = false;
         this.index = 0;
     }
-    static get(guildID) {
-        return statics_1.get(guildID);
-    }
-    static set(guildID, queue) {
-        return statics_1.set(guildID, queue);
-    }
-    get currentSong() {
-        return this.songs[this.index];
-    }
+    static get(guildID) { return statics_1.get(guildID); }
+    static set(guildID, queue) { return statics_1.set(guildID, queue); }
+    get currentSong() { return this.songs[this.index]; }
     /** Adds song to the start of the queue
      * @param song song to add*/
     addFirst(song) {
