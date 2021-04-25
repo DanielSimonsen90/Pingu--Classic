@@ -7,11 +7,9 @@ const PinguGuildSchema = mongoose.model('PinguGuild', new mongoose.Schema({
     name: String,
     guildOwner: PItem,
     clients: [PClient],
-    members: {
-        type: Map,
-        of: PinguGuildMember
-    },
+    members: { type: Map, of: PinguGuildMember },
     settings: PinguGuildSettings,
+    joinedAt: Date
 })) as mongoose.Model<mongoose.Document<PinguGuild>>
 
 export { PinguGuildSchema };

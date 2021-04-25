@@ -232,8 +232,14 @@ function HandleEvent(caller, client, path, ...args) {
                 if (!emitAssociator)
                     emitAssociator = "Unknown";
                 //Don't log if emitter isn't a PinguUser
-                let isPinguUser = emitAssociator.match(/#\d{4}$/g) && (yield PinguUser_1.PinguUser.Get(client.users.cache.find(u => u.tag == emitAssociator))) != null;
-                // if (!isPinguUser) return null;
+                if (emitAssociator.match(/#\d{4}$/g)) {
+                    var isPinguUser = false;
+                    let user = client.users.cache.find(u => u.tag == emitAssociator);
+                    if (user) {
+                        isPinguUser = !user.bot && (yield PinguUser_1.PinguUser.Get(user)) != null;
+                    }
+                    // if (!isPinguUser) return null;
+                }
                 let specialEvents = [
                     'channelCreate', 'channelUpdate', 'channelDelete', 'channelPinsUpdate',
                     'webhookUpdate',
@@ -247,7 +253,7 @@ function HandleEvent(caller, client, path, ...args) {
                     emitAssociator = yield GetFromAuditLog();
                 if (emitAssociator == 'Unknown')
                     throw { message: `Event parameter for ${event.name} was not recognized!` };
-                if (caller == 'message' && ['event-log-📹', 'ping-log-🏓', 'console-log-📝'].includes(args[0].channel.name))
+                if (caller.startsWith('message') && !caller.startsWith('messageReaction') && ['event-log-📹', 'ping-log-🏓', 'console-log-📝'].includes(args[0].channel && args[0].channel.name))
                     return;
                 let embed = yield CreateEmbed();
                 if (!PinguLibrary.eventLog) {

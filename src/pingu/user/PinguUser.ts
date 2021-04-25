@@ -152,6 +152,7 @@ export class PinguUser {
         this.avatar = user.avatarURL();
         this.playlists = new Array<PQueue>();
         this.achievementConfig = new UserAchievementConfig('NONE');
+        this.joinedAt = new Date(Date.now());
     }
     public _id: string
     public tag: string
@@ -162,4 +163,5 @@ export class PinguUser {
     public avatar: string
     public playlists: PQueue[]
     public achievementConfig: UserAchievementConfig
+    public joinedAt: Date
 }

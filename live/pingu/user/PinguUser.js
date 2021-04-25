@@ -139,6 +139,7 @@ class PinguUser {
         this.avatar = user.avatarURL();
         this.playlists = new Array();
         this.achievementConfig = new UserAchievementConfig_1.UserAchievementConfig('NONE');
+        this.joinedAt = new Date(Date.now());
     }
     //#region Statics
     /**Creates and adds a new PinguUser from provided User and returns the new PinguUser object

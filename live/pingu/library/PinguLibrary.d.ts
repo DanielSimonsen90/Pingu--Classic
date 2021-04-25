@@ -83,8 +83,6 @@ interface AchievementCheckData {
     guild?: Guild;
 }
 export declare function AchievementCheck<AchievementType extends GuildMemberAchievementType | GuildAchievementType | AchievementBaseType, Key extends keyof AchievementType, Type extends AchievementType[Key]>(client: Client, data: AchievementCheckData, key: Key, type: Type, callback: any[]): Promise<boolean>;
-import { BlankEmbedField } from "../../helpers";
-export { BlankEmbedField };
 import { DBExecute } from "../../database";
 export { DBExecute };
 export declare function getImage(script: string, imageName: string): string;
@@ -118,9 +116,11 @@ export declare class PinguLibrary {
     static latencyCheck(client: Client, timestamp: number): Promise<Message>;
     static raspberryLog(client: Client): Promise<Message>;
     static AchievementCheck<AchievementType extends GuildMemberAchievementType | GuildAchievementType | AchievementBaseType, Key extends keyof AchievementType, Type extends AchievementType[Key]>(client: Client, data: AchievementCheckData, key: Key, type: Type, callbackParams: any[]): Promise<boolean>;
+    static Badges: Collection<("Pingu Developer" | "Discord Bot Developer") | ("Pingu Staff Member" | "Pingu Support Team" | "Pingu Moderator Team" | "Pingu Administrators") | ("Early Supporter" | "Patreon Supporter") | ("Partnered Developer" | "Partnered Server Owner"), import("../badge/PinguBadge").PinguBadge>;
+    static SetBadges(): Collection<("Pingu Developer" | "Discord Bot Developer") | ("Pingu Staff Member" | "Pingu Support Team" | "Pingu Moderator Team" | "Pingu Administrators") | ("Early Supporter" | "Patreon Supporter") | ("Partnered Developer" | "Partnered Server Owner"), import("../badge/PinguBadge").PinguBadge>;
+    static getBadges(user: User): Promise<Collection<("Pingu Developer" | "Discord Bot Developer") | ("Pingu Staff Member" | "Pingu Support Team" | "Pingu Moderator Team" | "Pingu Administrators") | ("Early Supporter" | "Patreon Supporter") | ("Partnered Developer" | "Partnered Server Owner"), import("../badge/PinguBadge").PinguBadge>>;
     static getEmote(client: Client, name: string, emoteGuild: Guild): import("discord.js").GuildEmoji | "😵";
     static getImage(script: string, imageName: string): string;
     static DBExecute<T>(client: Client, callback: (mongoose: typeof import('mongoose')) => Promise<T>): Promise<T>;
-    static BlankEmbedField(inline?: boolean): import("PinguPackage/src/helpers/EmbedField").EmbedField;
     static RequestImage(message: Message, pGuildClient: PClient, caller: 'gif' | 'meme', types: string[], searchTerm?: (type: string) => string): Promise<Message>;
 }

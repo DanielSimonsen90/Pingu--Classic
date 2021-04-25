@@ -44,5 +44,6 @@ export declare class PinguGuild extends PItem {
     clients: PClient[];
     members: Map<Snowflake, PinguGuildMember>;
     settings: PinguGuildSettings;
+    joinedAt: Date;
 }
 export {};
