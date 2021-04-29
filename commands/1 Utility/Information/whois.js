@@ -21,7 +21,7 @@ module.exports = new PinguCommand('whois', 'Utility', 'Gets the info of specifie
         member = message.member;
 
     //Promise becomes a user
-    return search != null && user != (member && member.user || true) && (isNaN(user) || message.client.users.cache.get(user?.id) != null || true) ?
+    return search != null && user != (member && member.user || true) && (isNaN(user) || message.client.users.cache.get(user && user.id) != null || true) ?
         SendNonGuildMessage(message, user) :
         HandleGuildMember(message, member || message.member);
 });
