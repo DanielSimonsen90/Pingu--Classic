@@ -223,7 +223,8 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('745350886208831498', new Role("Fall Guy Gang", '#e72e2e'));
                     collection.set('794951298062745620', new Role("Genshin Impact", '#AD1457'));
                     collection.set('476050602720231435', new Role("GTA", '#fc2727'));
-                    collection.set('711355295250513950', new Role("SoulSilver Bois", '#95A5A6'));
+                    collection.set('835124529621368843', new Role('League of Legends', '#ecdb3e'));
+                    collection.set('711355295250513950', new Role("PixelSpark Bois", '#95A5A6'));
                     collection.set('738470298709393468', new Role("HeartGolderz", '#e3b353'));
                     collection.set('494753197076905995', new Role("Minequafters", '#59ec88'));
                     collection.set('405790775188783107', new Role("Overwatchers", '#ffb20e'));

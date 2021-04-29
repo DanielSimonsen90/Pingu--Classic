@@ -75,7 +75,7 @@ module.exports = new PinguEvent('voiceStateUpdate',
                 }, 'VOICE', type, [state]);
 
                 return new MessageEmbed()
-                    .setDescription(SetDescription(description))
+                    .setDescription(SetDescription(type, description))
                     .setColor((color == 'Create' ? Create : color == 'Update' ? Update : Delete));
             }
         }
