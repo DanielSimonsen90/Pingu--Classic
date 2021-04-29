@@ -6,7 +6,6 @@ module.exports = new PinguEvent('onready', null,
     async function execute(client) {
         const { SetBadges, CacheSavedServers, CacheDevelopers, consoleLog, DBExecute, raspberryLog, errorLog, latencyCheck } = PinguLibrary
         CacheSavedServers(client);
-        SetBadges();
 
         console.log('\n--== Client Info ==--');
         consoleLog(client, `Loaded ${client.commands.size} commands & ${client.events.size} events\n`);
@@ -16,6 +15,8 @@ module.exports = new PinguEvent('onready', null,
             client.users.fetch(PinguClient.Clients.PinguID),
             CacheDevelopers(client),
         ]);
+
+        SetBadges();
 
         if (connMessage) {
             CacheFromDB(client)
