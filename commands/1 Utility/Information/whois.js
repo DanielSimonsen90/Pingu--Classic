@@ -14,7 +14,7 @@ module.exports = new PinguCommand('whois', 'Utility', 'Gets the info of specifie
 
     let search = args.join(' ');
     //Variables
-    var member = message.guild?.members.cache.array().find(gm => [gm.user.username, gm.displayName, gm.user.id].includes(search)) || message.mentions.members?.first(), //No arguments provided || No member found
+    var member = message.guild && message.guild.members.cache.array().find(gm => [gm.user.username, gm.displayName, gm.user.id].includes(search)) || message.mentions.members && message.mentions.members.first(), //No arguments provided || No member found
         user = member ? member.user : message.client.users.cache.array().find(u => [u.username, u.id].includes(search)) || message.author;
 
     if (user == message.author)
