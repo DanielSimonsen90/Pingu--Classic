@@ -15,7 +15,7 @@ function useChannel(channel, extraInfo) {
     return `Use the #${channel.toLowerCase()} channel to ${extraInfo}`;
 }
 exports.useChannel = useChannel;
-const helpers_1 = require("../../../helpers");
+const Percentage_1 = require("../../../helpers/Percentage");
 const PinguGuild_1 = require("../../guild/PinguGuild");
 class GuildAchievement extends AchievementBase_1.AchievementBase {
     constructor(id, name, key, type, description) {
@@ -37,7 +37,7 @@ class GuildAchievement extends AchievementBase_1.AchievementBase {
             let pGuilds = yield PinguGuild_1.GetPinguGuilds();
             let whole = pGuilds.length;
             let part = pGuilds.filter(pGuild => pGuild.settings.config.achievements.achievements.find(a => a._id == this._id)).length;
-            return new helpers_1.Percentage(whole, part);
+            return new Percentage_1.default(whole, part);
         });
     }
     static useCommand(command, extraInfo) {
@@ -71,3 +71,4 @@ GuildAchievement.Achievements = [
     new GuildAchievement(19, "The Government of China", 'MODERATION', 'Logs', "Setup a logs channel to moderate the server's events"),
     new GuildAchievement(20, "We are the chosen ones!", 'EVENT', 'chosenGuild', 'Become the chosen server in Pingu Support'),
 ];
+exports.default = GuildAchievement;

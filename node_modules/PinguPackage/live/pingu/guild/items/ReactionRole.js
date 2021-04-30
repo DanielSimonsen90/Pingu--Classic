@@ -203,3 +203,4 @@ class ReactionRole {
     }
 }
 exports.ReactionRole = ReactionRole;
+exports.default = ReactionRole;

@@ -1,5 +1,5 @@
 import { Guild } from "discord.js";
-import { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from '.'
+import { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from './index'
 import { SavedServers } from "../../pingu/library/PinguLibrary";
 
 export class DecidablesConfig {
@@ -15,3 +15,5 @@ export class DecidablesConfig {
     public suggestionConfig: SuggestionConfig;
     public themeConfig: ThemeConfig;
 }
+
+export default DecidablesConfig;

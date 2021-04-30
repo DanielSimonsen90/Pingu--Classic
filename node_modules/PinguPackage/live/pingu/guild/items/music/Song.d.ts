@@ -1,8 +1,8 @@
 import { User } from "discord.js";
 import { MoreVideoDetails } from "ytdl-core";
-import { PUser } from "../../../../database/json/PUser";
-import { TimeLeftObject } from "../../../../helpers/TimeLeftObject";
-import { IMuisc } from "./IMusic";
+import PUser from "../../../../database/json/PUser";
+import TimeLeftObject from "../../../../helpers/TimeLeftObject";
+import IMuisc from "./IMusic";
 export declare class Song implements IMuisc {
     constructor(author: User, songInfo: MoreVideoDetails);
     _id: number;
@@ -22,3 +22,4 @@ export declare class Song implements IMuisc {
     getTimeLeft(): TimeLeftObject;
     private GetLength;
 }
+export default Song;

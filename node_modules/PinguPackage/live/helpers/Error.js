@@ -7,3 +7,4 @@ class PinguError extends global.Error {
     }
 }
 exports.PinguError = PinguError;
+exports.default = PinguError;

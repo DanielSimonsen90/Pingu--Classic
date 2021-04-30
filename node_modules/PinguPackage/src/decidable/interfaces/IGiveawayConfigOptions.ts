@@ -8,3 +8,5 @@ export interface IGiveawayConfigOptions extends IDecidableConfigOptions {
     winnerRole: PRole;
     giveaways: Giveaway[];
 }
+
+export default IGiveawayConfigOptions;

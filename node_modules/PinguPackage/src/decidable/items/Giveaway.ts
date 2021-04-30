@@ -1,6 +1,6 @@
 import { GuildChannel } from 'discord.js';
-import { PGuildMember } from '../../database';
-import { Decidable } from './Decidable';
+import PGuildMember from '../../database/json/PGuildMember';
+import Decidable from './Decidable';
 
 export class Giveaway extends Decidable {
     constructor(value: string, id: string, author: PGuildMember, channel: GuildChannel, endsAt: Date) {
@@ -9,3 +9,5 @@ export class Giveaway extends Decidable {
     }
     public winners: PGuildMember[]
 }
+
+export default Giveaway;

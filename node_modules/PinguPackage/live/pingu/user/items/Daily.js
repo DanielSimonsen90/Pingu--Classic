@@ -9,3 +9,4 @@ class Daily {
     }
 }
 exports.Daily = Daily;
+exports.default = Daily;

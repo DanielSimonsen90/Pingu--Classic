@@ -1,5 +1,5 @@
-import { PItem } from "./PItem";
-import { DecidableItem } from "./DecidablesItem";
+import PItem from "./PItem";
+import DecidableItem from "./DecidableItem";
 
 const DecidableConfig = {
     firstTimeExecuted: Boolean,
@@ -44,3 +44,5 @@ export const DecidablesConfig = {
     suggestionConfig: SuggestionConfig,
     themeConfig: ThemeConfig
 };
+
+export default DecidablesConfig;

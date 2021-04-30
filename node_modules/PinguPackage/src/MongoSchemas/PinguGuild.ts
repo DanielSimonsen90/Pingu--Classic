@@ -1,8 +1,8 @@
 import * as mongoose from 'mongoose';
-import { PinguGuild } from '../pingu/guild/PinguGuild';
+import PinguGuild from '../pingu/guild/PinguGuild';
 import { PinguGuildSettings, PItem, PClient, PinguGuildMember } from "./parts";
 
-const PinguGuildSchema = mongoose.model('PinguGuild', new mongoose.Schema({
+export const PinguGuildSchema = mongoose.model('PinguGuild', new mongoose.Schema({
     _id: String,
     name: String,
     guildOwner: PItem,
@@ -12,4 +12,4 @@ const PinguGuildSchema = mongoose.model('PinguGuild', new mongoose.Schema({
     joinedAt: Date
 })) as mongoose.Model<mongoose.Document<PinguGuild>>
 
-export { PinguGuildSchema };
+export default PinguGuildSchema

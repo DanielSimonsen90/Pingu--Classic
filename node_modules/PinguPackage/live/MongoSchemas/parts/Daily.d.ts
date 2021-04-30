@@ -9,3 +9,4 @@ export declare const Daily: {
     };
     streak: NumberConstructor;
 };
+export default Daily;

@@ -5,3 +5,4 @@ export declare class EmbedField {
     value: string;
     inline: boolean;
 }
+export default EmbedField;

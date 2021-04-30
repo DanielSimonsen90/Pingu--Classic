@@ -11,3 +11,4 @@ export declare class TimeLeftObject {
     endsAt: Date;
     toString(): string;
 }
+export default TimeLeftObject;

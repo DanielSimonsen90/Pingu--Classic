@@ -16,7 +16,7 @@ export interface GuildAchievementCallbackParams extends AchievementCallbackParam
 }
 export declare function useChannel(channel: Channels, extraInfo: string): string;
 import { IGuildAchievement } from "./IAchievementBase";
-import { Percentage } from "../../../helpers";
+import Percentage from "../../../helpers/Percentage";
 export declare class GuildAchievement<Key extends keyof GuildAchievementType, Type extends GuildAchievementType[Key]> extends AchievementBase implements IGuildAchievement<Key, Type, GuildAchievementCallbackParams> {
     constructor(id: number, name: string, key: Key, type: Type, description: string);
     key: Key;
@@ -27,3 +27,4 @@ export declare class GuildAchievement<Key extends keyof GuildAchievementType, Ty
     protected static useCommand(command: guildOnlyCommands, extraInfo: string): string;
     static Achievements: (GuildAchievement<"EVENT", "messageDelete"> | GuildAchievement<"EVENT", "messageDeleteBulk"> | GuildAchievement<"COMMAND", "giveaway"> | GuildAchievement<"COMMAND", "poll"> | GuildAchievement<"COMMAND", "suggestion"> | GuildAchievement<"COMMAND", "clear"> | GuildAchievement<"COMMAND", "embed"> | GuildAchievement<"COMMAND", "prefix"> | GuildAchievement<"COMMAND", "publish"> | GuildAchievement<"COMMAND", "reactionroles"> | GuildAchievement<"COMMAND", "slowmode"> | GuildAchievement<"COMMAND", "activity"> | GuildAchievement<"COMMAND", "music"> | GuildAchievement<"CHANNEL", "Giveaway"> | GuildAchievement<"CHANNEL", "Poll"> | GuildAchievement<"CHANNEL", "Suggestion"> | GuildAchievement<"VOICE", "Streaming"> | GuildAchievement<"VOICE", "Video"> | GuildAchievement<"MODERATION", "Logs"> | GuildAchievement<"EVENT", "chosenGuild">)[];
 }
+export default GuildAchievement;

@@ -10,3 +10,4 @@ class SuggestionConfig {
     }
 }
 exports.SuggestionConfig = SuggestionConfig;
+exports.default = SuggestionConfig;

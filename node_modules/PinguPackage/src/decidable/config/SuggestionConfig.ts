@@ -1,6 +1,6 @@
-import { ISuggestionConfigOptions } from '../interfaces/ISuggestionConfigOptions';
+import ISuggestionConfigOptions from '../interfaces/ISuggestionConfigOptions';
 import { PRole, PChannel } from '../../database/json';
-import { Suggestion } from '../items/Suggestion';
+import Suggestion from '../items/Suggestion';
 
 export class SuggestionConfig implements ISuggestionConfigOptions {
     constructor(options?: ISuggestionConfigOptions) {
@@ -15,3 +15,5 @@ export class SuggestionConfig implements ISuggestionConfigOptions {
     public channel: PChannel;
     public firstTimeExecuted: boolean;
 }
+
+export default SuggestionConfig;

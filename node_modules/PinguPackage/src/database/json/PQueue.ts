@@ -1,6 +1,6 @@
 import { Guild, TextChannel, VoiceChannel } from 'discord.js';
 import { Song, Queue } from '../../pingu/guild/items';
-import { PChannel } from './PChannel';
+import PChannel from './PChannel';
 
 export class PQueue {
     constructor(queue: Queue) {
@@ -37,3 +37,5 @@ export class PQueue {
         return queue;
     }
 }
+
+export default PQueue;

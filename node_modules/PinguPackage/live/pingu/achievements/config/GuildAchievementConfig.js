@@ -48,3 +48,4 @@ class GuildAchievementConfig extends AchievementConfigBase_1.AchievementConfigBa
     }
 }
 exports.GuildAchievementConfig = GuildAchievementConfig;
+exports.default = GuildAchievementConfig;

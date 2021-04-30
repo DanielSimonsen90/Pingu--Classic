@@ -1,8 +1,8 @@
 import * as mongoose from 'mongoose';
-import {PinguUser} from '../pingu/user/PinguUser';
+import PinguUser from '../pingu/user/PinguUser';
 import { PItem, Marry, Daily, Playlist, AchievementsConfig } from "./parts";
 
-const PinguUserSchema = mongoose.model('PinguUser', new mongoose.Schema({
+export const PinguUserSchema = mongoose.model('PinguUser', new mongoose.Schema({
     _id: String,
     tag: String,
     sharedServers: [PItem],
@@ -15,4 +15,4 @@ const PinguUserSchema = mongoose.model('PinguUser', new mongoose.Schema({
     joinedAt: Date
 })) as mongoose.Model<mongoose.Document<PinguUser>>
  
-export {PinguUserSchema};
+export default PinguUserSchema;

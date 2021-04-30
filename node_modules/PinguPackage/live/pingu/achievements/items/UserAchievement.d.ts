@@ -6,7 +6,7 @@ export declare type UserAchievementTypeKey = keyof UserAchievementType;
 export interface UserAchievementCallbackParams extends AchievementCallbackParams {
 }
 import { IUserAchievement } from "./IAchievementBase";
-import { Percentage } from "../../../helpers";
+import Percentage from "../../../helpers/Percentage";
 export declare class UserAchievement<Key extends keyof UserAchievementType, Type extends UserAchievementType[Key]> extends AchievementBase implements IUserAchievement<Key, Type, AchievementCallbackParams> {
     constructor(id: number, name: string, key: Key, type: Type, description: string);
     key: Key;
@@ -17,3 +17,4 @@ export declare class UserAchievement<Key extends keyof UserAchievementType, Type
     private static DailyStreak;
     static Achievements: (UserAchievement<"COMMAND", "daily"> | UserAchievement<"EVENT", "mostKnownUser"> | UserAchievement<"EVENT", "guildCreate"> | UserAchievement<"EVENT", "guildDelete"> | UserAchievement<"EVENT", "userUpdate"> | UserAchievement<"COMMAND", "help"> | UserAchievement<"COMMAND", "info"> | UserAchievement<"COMMAND", "ping"> | UserAchievement<"COMMAND", "spinthewheel"> | UserAchievement<"COMMAND", "meme"> | UserAchievement<"COMMAND", "tell"> | UserAchievement<"COMMAND", "fact"> | UserAchievement<"COMMAND", "noot"> | UserAchievement<"COMMAND", "contact"> | UserAchievement<"COMMAND", "invite"> | UserAchievement<"COMMAND", "marry"> | UserAchievement<"EVENT", "chosenUser">)[];
 }
+export default UserAchievement;

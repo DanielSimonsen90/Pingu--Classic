@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PinguUserSchema = void 0;
 const mongoose = require("mongoose");
 const parts_1 = require("./parts");
-const PinguUserSchema = mongoose.model('PinguUser', new mongoose.Schema({
+exports.PinguUserSchema = mongoose.model('PinguUser', new mongoose.Schema({
     _id: String,
     tag: String,
     sharedServers: [parts_1.PItem],
@@ -15,4 +15,4 @@ const PinguUserSchema = mongoose.model('PinguUser', new mongoose.Schema({
     achievementConfig: parts_1.AchievementsConfig,
     joinedAt: Date
 }));
-exports.PinguUserSchema = PinguUserSchema;
+exports.default = exports.PinguUserSchema;

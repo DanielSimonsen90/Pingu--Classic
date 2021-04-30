@@ -1,4 +1,4 @@
-import { Client, GuildChannel, GuildMember, MessageEmbed } from "discord.js";
+import { Client, GuildMember, MessageEmbed } from "discord.js";
 import { AchievementConfigBase, AchievementBaseNotificationType } from "./AchievementConfigBase";
 import { UserAchievementNotificationType } from "./UserAchievementConfig";
 import { GuildMemberAchievement, GuildMemberAchievementType } from "../items/GuildMemberAchievement";
@@ -27,3 +27,5 @@ export class GuildMemberAchievementConfig extends AchievementConfigBase {
         )
     }
 }
+
+export default GuildMemberAchievementConfig;

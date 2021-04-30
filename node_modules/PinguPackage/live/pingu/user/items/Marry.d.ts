@@ -1,5 +1,5 @@
 import { User } from "discord.js";
-import { PUser } from "../../../database/json/PUser";
+import PUser from "../../../database/json/PUser";
 export declare class Marry {
     constructor(partner?: PUser, internalDate?: string);
     partner: PUser;
@@ -8,3 +8,4 @@ export declare class Marry {
     marry(partner: User): void;
     divorce(): void;
 }
+export default Marry;

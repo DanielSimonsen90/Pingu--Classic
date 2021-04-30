@@ -45,3 +45,5 @@ export class Config {
     public testingMode: boolean = false;
     public updateStats: boolean = false;
 }
+
+export default Config;

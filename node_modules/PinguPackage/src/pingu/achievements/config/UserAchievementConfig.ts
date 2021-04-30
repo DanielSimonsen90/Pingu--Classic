@@ -23,3 +23,5 @@ export class UserAchievementConfig extends AchievementConfigBase {
         , {_id: (await achiever.createDM()).id}, config.notificationType as AchievementBaseNotificationType);
     }
 }
+
+export default UserAchievementConfig;

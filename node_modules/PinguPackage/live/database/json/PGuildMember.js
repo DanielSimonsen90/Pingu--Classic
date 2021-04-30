@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PGuildMember = void 0;
 const PItem_1 = require("./PItem");
-class PGuildMember extends PItem_1.PItem {
+class PGuildMember extends PItem_1.default {
     constructor(member) {
         super({
             id: member.id,
@@ -11,3 +11,4 @@ class PGuildMember extends PItem_1.PItem {
     }
 }
 exports.PGuildMember = PGuildMember;
+exports.default = PGuildMember;

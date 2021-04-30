@@ -1,6 +1,6 @@
 import { Guild } from 'discord.js';
 import { Song, Queue } from '../../pingu/guild/items';
-import { PChannel } from './PChannel';
+import PChannel from './PChannel';
 export declare class PQueue {
     constructor(queue: Queue);
     logChannel: PChannel;
@@ -12,3 +12,4 @@ export declare class PQueue {
     loop: boolean;
     static ToQueue(guild: Guild, pQueue: PQueue): Promise<Queue>;
 }
+export default PQueue;

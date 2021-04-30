@@ -15,3 +15,5 @@ export class Decidable {
     public channel: PChannel
     public endsAt: Date
 }
+
+export default Decidable;

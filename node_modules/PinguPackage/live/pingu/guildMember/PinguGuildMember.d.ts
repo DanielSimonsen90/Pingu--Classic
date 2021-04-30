@@ -36,3 +36,4 @@ export declare class PinguGuildMember extends PGuildMember {
     guild: PGuild;
     achievementConfig: GuildMemberAchievementConfig;
 }
+export default PinguGuildMember;

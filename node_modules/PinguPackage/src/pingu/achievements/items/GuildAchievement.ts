@@ -22,7 +22,7 @@ export function useChannel(channel: Channels, extraInfo: string) {
 }
 
 import { IGuildAchievement } from "./IAchievementBase";
-import { Percentage } from "../../../helpers";
+import Percentage from "../../../helpers/Percentage";
 import { GetPinguGuilds } from "../../guild/PinguGuild";
 
 export class GuildAchievement
@@ -88,3 +88,5 @@ extends AchievementBase implements IGuildAchievement<Key, Type, GuildAchievement
         new GuildAchievement(20, "We are the chosen ones!", 'EVENT', 'chosenGuild', 'Become the chosen server in Pingu Support'),
     ]
 }
+
+export default GuildAchievement;
