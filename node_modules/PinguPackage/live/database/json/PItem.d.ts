@@ -6,3 +6,4 @@ export declare class PItem {
     _id: string;
     name: string;
 }
+export default PItem;

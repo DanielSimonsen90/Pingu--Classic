@@ -19,6 +19,6 @@ export {
     PinguClient, PinguBadge, PinguLibrary
 } from './pingu';
 
-import { Config } from './helpers/Config'
+import Config from './helpers/Config'
 import * as configFile from '../config.json';
 export const config = new Config(configFile);

@@ -1,5 +1,5 @@
 import { Collection } from 'discord.js';
-import { Queue } from './Queue';
+import Queue from './Queue';
 
 const GuildQueue = new Collection<string, Queue>();
 export function get(guildID: string) {

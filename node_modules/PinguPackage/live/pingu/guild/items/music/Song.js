@@ -12,7 +12,7 @@ class Song {
         this.length = this.GetLength(songInfo.lengthSeconds);
         this.lengthMS = parseInt(songInfo.lengthSeconds) * 1000;
         this.thumbnail = songInfo.thumbnails[0].url;
-        this.requestedBy = new PUser_1.PUser(author);
+        this.requestedBy = new PUser_1.default(author);
         this._id = 0;
         this.volume = -1;
         this.loop = false;
@@ -25,7 +25,7 @@ class Song {
         this.endsAt = null;
     }
     getTimeLeft() {
-        return new TimeLeftObject_1.TimeLeftObject(new Date(Date.now()), this.endsAt);
+        return new TimeLeftObject_1.default(new Date(Date.now()), this.endsAt);
     }
     GetLength(secondsLength) {
         var seconds = parseInt(secondsLength), minutes = 0, hours = 0, final = [];
@@ -46,3 +46,4 @@ class Song {
     }
 }
 exports.Song = Song;
+exports.default = Song;

@@ -1,9 +1,9 @@
 import { Client, User, Collection } from "discord.js";
 import { PUser, PQueue, PGuild } from "../../database";
 import { Marry, Daily } from "./items";
-import { UserAchievementConfig } from "../achievements/config/UserAchievementConfig";
+import UserAchievementConfig from "../achievements/config/UserAchievementConfig";
 
-import { PinguUserSchema } from '../../MongoSchemas/PinguUser';
+import PinguUserSchema from '../../MongoSchemas/PinguUser';
 import { DBExecute, pUserLog, AchievementCheckType } from '../library/PinguLibrary'
 
 import { Error, Reason } from "../../helpers";
@@ -165,3 +165,5 @@ export class PinguUser {
     public achievementConfig: UserAchievementConfig
     public joinedAt: Date
 }
+
+export default PinguUser;

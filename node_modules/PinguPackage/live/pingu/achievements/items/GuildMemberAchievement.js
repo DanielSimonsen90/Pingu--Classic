@@ -12,11 +12,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GuildMemberAchievement = void 0;
 const AchievementBase_1 = require("./AchievementBase");
 const GuildAchievement_1 = require("./GuildAchievement");
-const helpers_1 = require("../../../helpers");
+const Percentage_1 = require("../../../helpers/Percentage");
 const PinguClient_1 = require("../../client/PinguClient");
 const PinguGuild_1 = require("../../guild/PinguGuild");
 const PinguUser_1 = require("../../user/PinguUser");
-class GuildMemberAchievement extends AchievementBase_1.AchievementBase {
+class GuildMemberAchievement extends AchievementBase_1.default {
     constructor(id, name, key, type, description) {
         super(id, name, description);
         this.key = key;
@@ -38,7 +38,7 @@ class GuildMemberAchievement extends AchievementBase_1.AchievementBase {
             let pGuildMembers = [];
             pGuildMembersMap.forEach(v => pGuildMembers.push(v));
             let part = pGuildMembers.filter(pGuildMember => pGuildMember.achievementConfig.achievements.find(a => a._id == this._id)).length;
-            return new helpers_1.Percentage(whole, part);
+            return new Percentage_1.default(whole, part);
         });
     }
     static DecidablesCheck(message, callback) {
@@ -112,3 +112,4 @@ GuildMemberAchievement.Achievements = [
     })),
     new GuildMemberAchievement(26, "You're on my watchlist...", 'MODERATION', 'Warn', "Warn a member")
 ];
+exports.default = GuildMemberAchievement;

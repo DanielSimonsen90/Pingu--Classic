@@ -5,3 +5,4 @@ exports.Achievement = {
     _id: String,
     achievedAt: Date
 };
+exports.default = exports.Achievement;

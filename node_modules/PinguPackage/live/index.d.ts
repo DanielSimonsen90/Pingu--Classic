@@ -5,5 +5,5 @@ export { HandleDecidables } from './decidable/HandleDecidables';
 export { EmbedField, Error, TimeLeftObject, DiscordPermissions, Percentage } from './helpers';
 export { PinguGuildSchema, PinguUserSchema } from './MongoSchemas';
 export { UserAchievementConfig, GuildAchievementConfig, GuildMemberAchievementConfig, UserAchievement, GuildAchievement, GuildMemberAchievement, PinguUser, Daily, Marry, PinguGuildMember, PinguGuild, Queue, Song, ReactionRole, PinguCommand, CommandCategories, PinguCommandParams, PinguEvent, PinguEventParams, PinguClientEvents, PinguClient, PinguBadge, PinguLibrary } from './pingu';
-import { Config } from './helpers/Config';
+import Config from './helpers/Config';
 export declare const config: Config;

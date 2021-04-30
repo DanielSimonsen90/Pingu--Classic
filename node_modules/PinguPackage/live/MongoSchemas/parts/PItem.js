@@ -5,3 +5,4 @@ exports.PItem = {
     _id: String,
     name: String
 };
+exports.default = exports.PItem;

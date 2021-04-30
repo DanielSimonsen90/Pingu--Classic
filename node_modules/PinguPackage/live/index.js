@@ -57,4 +57,4 @@ Object.defineProperty(exports, "PinguBadge", { enumerable: true, get: function (
 Object.defineProperty(exports, "PinguLibrary", { enumerable: true, get: function () { return pingu_1.PinguLibrary; } });
 const Config_1 = require("./helpers/Config");
 const configFile = require("../config.json");
-exports.config = new Config_1.Config(configFile);
+exports.config = new Config_1.default(configFile);

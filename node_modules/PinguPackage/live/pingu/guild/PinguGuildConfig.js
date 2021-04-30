@@ -5,11 +5,12 @@ const DecidablesConfig_1 = require("../../decidable/config/DecidablesConfig");
 const GuildAchievementConfig_1 = require("../achievements/config/GuildAchievementConfig");
 class PinguGuildConfig {
     constructor(guild) {
-        this.decidables = new DecidablesConfig_1.DecidablesConfig(guild);
-        this.achievements = new GuildAchievementConfig_1.GuildAchievementConfig({
+        this.decidables = new DecidablesConfig_1.default(guild);
+        this.achievements = new GuildAchievementConfig_1.default({
             guild: 'NONE',
             members: 'NONE'
         }, guild.id);
     }
 }
 exports.PinguGuildConfig = PinguGuildConfig;
+exports.default = PinguGuildConfig;

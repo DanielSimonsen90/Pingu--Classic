@@ -18,3 +18,4 @@ export declare const PinguGuildMember: {
     _id: StringConstructor;
     name: StringConstructor;
 };
+export default PinguGuildMember;

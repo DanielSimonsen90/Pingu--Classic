@@ -13,4 +13,4 @@ export declare class PinguBadge {
 export declare const Badges: Collection<IAmBadge, PinguBadge>;
 export declare function SetBadges(): Collection<IAmBadge, PinguBadge>;
 export declare function getBadges(user: User): Promise<Collection<IAmBadge, PinguBadge>>;
-export {};
+export default PinguBadge;

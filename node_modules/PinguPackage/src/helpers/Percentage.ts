@@ -13,3 +13,5 @@ export class Percentage {
     public part: number;
     public value: string;
 }
+
+export default Percentage;

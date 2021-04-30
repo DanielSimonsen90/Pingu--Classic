@@ -8,3 +8,5 @@ export class BitPermission {
     public permString: PermissionString | string
     public bit: number
 }
+
+export default BitPermission;

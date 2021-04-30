@@ -1,14 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PMarry = void 0;
-const items_1 = require("../../pingu/user/items");
+const Marry_1 = require("../../pingu/user/items/Marry");
 class PMarry {
     constructor(marry) {
         this.partner = marry.partner;
         this.internalDate = marry.internalDate.toString();
     }
     ToMarry() {
-        return new items_1.Marry(this.partner, this.internalDate);
+        return new Marry_1.default(this.partner, this.internalDate);
     }
 }
 exports.PMarry = PMarry;
+exports.default = PMarry;

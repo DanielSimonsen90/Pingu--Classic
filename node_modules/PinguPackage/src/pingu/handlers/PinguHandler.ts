@@ -6,3 +6,5 @@ export abstract class PinguHandler {
     public name: string
     public path: string
 }
+
+export default PinguHandler;

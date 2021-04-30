@@ -20,3 +20,4 @@ class Config {
     }
 }
 exports.Config = Config;
+exports.default = Config;

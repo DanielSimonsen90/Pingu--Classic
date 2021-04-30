@@ -6,3 +6,5 @@ export class PItem {
     public _id: string
     public name: string
 }
+
+export default PItem;

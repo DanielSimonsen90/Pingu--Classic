@@ -13,4 +13,4 @@ export declare class GuildAchievementConfig extends AchievementConfigBase {
     notificationTypes: Notifications;
     static notify(client: Client, achiever: Guild, achievement: GuildAchievement<GuildAchievementTypeKey, GuildAchievementType[GuildAchievementTypeKey]>, config: GuildAchievementConfig): Promise<import("discord.js").Message>;
 }
-export {};
+export default GuildAchievementConfig;

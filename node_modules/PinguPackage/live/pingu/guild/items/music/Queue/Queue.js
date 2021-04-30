@@ -129,7 +129,7 @@ class Queue {
     NowPlayingEmbed(message) {
         return __awaiter(this, void 0, void 0, function* () {
             let { thumbnail, title, requestedBy, endsAt, author, link } = this.currentSong;
-            let pGuildClient = PinguClient_1.PinguClient.ToPinguClient(message.client).toPClient(yield PinguGuild_1.GetPGuild(message.guild));
+            let pGuildClient = PinguClient_1.default.ToPinguClient(message.client).toPClient(yield PinguGuild_1.GetPGuild(message.guild));
             return new discord_js_1.MessageEmbed()
                 .setTitle(`Now playing: ${title} | by ${author}`)
                 .setDescription(`Requested by <@${requestedBy._id}>`)
@@ -142,3 +142,4 @@ class Queue {
     }
 }
 exports.Queue = Queue;
+exports.default = Queue;

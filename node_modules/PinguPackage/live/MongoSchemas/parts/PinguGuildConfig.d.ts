@@ -125,11 +125,6 @@ export declare const PinguGuildConfig: {
         };
     };
     achievements: {
-        guildID: StringConstructor;
-        notificationTypes: {
-            guild: StringConstructor;
-            members: StringConstructor;
-        };
         notificationType: StringConstructor;
         achievements: {
             _id: StringConstructor;
@@ -142,3 +137,4 @@ export declare const PinguGuildConfig: {
         };
     };
 };
+export default PinguGuildConfig;

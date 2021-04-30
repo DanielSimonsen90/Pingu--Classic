@@ -44,3 +44,5 @@ extends IAchievementBase<Key, Type> {
     ): this,
     callback(...params: CallbackParams[Key][keyof CallbackParams[Key]][]): Promise<boolean>
 }
+
+export default IAchievementBase;

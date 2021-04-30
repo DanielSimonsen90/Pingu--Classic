@@ -179,3 +179,5 @@ export class ReactionRole {
     public static async RemoveReactionRole(rr: ReactionRole, reactionRoles: ReactionRole[], pGuild: PinguGuild, client: Client) { return RemoveReactionRole(rr, reactionRoles, pGuild, client) }
     public static async OnMessageDelete(message: Message) { return OnMessageDelete(message); }
 }
+
+export default ReactionRole;

@@ -12,7 +12,7 @@ class Marry {
     }
     marry(partner) {
         this.internalDate = new Date(Date.now());
-        this.partner = new PUser_1.PUser(partner);
+        this.partner = new PUser_1.default(partner);
     }
     divorce() {
         this.internalDate = new Date(Date.now());
@@ -20,3 +20,4 @@ class Marry {
     }
 }
 exports.Marry = Marry;
+exports.default = Marry;

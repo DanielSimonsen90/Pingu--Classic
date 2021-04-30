@@ -22,7 +22,7 @@ function WritePUser(client, user, scriptName, reason) {
     return __awaiter(this, void 0, void 0, function* () {
         return PinguLibrary_1.DBExecute(client, (mongoose) => __awaiter(this, void 0, void 0, function* () {
             let pUser = new PinguUser(user);
-            let created = yield new PinguUser_1.PinguUserSchema(pUser).save();
+            let created = yield new PinguUser_1.default(pUser).save();
             const log = new helpers_1.Reason('create', 'PinguUser', pUser.tag, reason);
             PinguLibrary_1.pUserLog(client, scriptName, (created ? log.succMsg : log.errMsg));
             exports.cache.set(user.id, pUser);
@@ -39,7 +39,7 @@ function GetPUser(user) {
         let pUser = exports.cache.get(user.id);
         if (pUser)
             return pUser;
-        let pUserDoc = yield PinguUser_1.PinguUserSchema.findOne({ _id: user.id }).exec();
+        let pUserDoc = yield PinguUser_1.default.findOne({ _id: user.id }).exec();
         if (!pUserDoc)
             return null;
         pUser = pUserDoc.toObject();
@@ -50,7 +50,7 @@ function GetPUser(user) {
 exports.GetPUser = GetPUser;
 function UpdatePUser(client, updatedProperties, pUser, scriptName, reason) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield PinguUser_1.PinguUserSchema.updateOne({ _id: pUser._id }, getUpdatedProperty(), null, (err) => __awaiter(this, void 0, void 0, function* () {
+        yield PinguUser_1.default.updateOne({ _id: pUser._id }, getUpdatedProperty(), null, (err) => __awaiter(this, void 0, void 0, function* () {
             const log = new helpers_1.Reason('update', 'PinguUser', pUser.tag, reason);
             if (err)
                 return PinguLibrary_1.pUserLog(client, scriptName, log.errMsg, err);
@@ -93,7 +93,7 @@ function UpdatePUser(client, updatedProperties, pUser, scriptName, reason) {
 exports.UpdatePUser = UpdatePUser;
 function DeletePUser(client, user, scriptName, reason) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield PinguUser_1.PinguUserSchema.deleteOne({ _id: user.id }, null, err => {
+        yield PinguUser_1.default.deleteOne({ _id: user.id }, null, err => {
             const log = new helpers_1.Reason('delete', 'PinguUser', user.tag, reason);
             if (err)
                 return PinguLibrary_1.pUserLog(client, scriptName, log.errMsg, new helpers_1.Error(err));
@@ -107,7 +107,7 @@ function DeletePUser(client, user, scriptName, reason) {
 exports.DeletePUser = DeletePUser;
 function GetPinguUsers() {
     return __awaiter(this, void 0, void 0, function* () {
-        return (yield PinguUser_1.PinguUserSchema.find({}).exec()).map(collDoc => collDoc.toObject());
+        return (yield PinguUser_1.default.find({}).exec()).map(collDoc => collDoc.toObject());
     });
 }
 exports.GetPinguUsers = GetPinguUsers;
@@ -138,7 +138,7 @@ class PinguUser {
         this.daily = new items_1.Daily();
         this.avatar = user.avatarURL();
         this.playlists = new Array();
-        this.achievementConfig = new UserAchievementConfig_1.UserAchievementConfig('NONE');
+        this.achievementConfig = new UserAchievementConfig_1.default('NONE');
         this.joinedAt = new Date(Date.now());
     }
     //#region Statics
@@ -190,3 +190,4 @@ class PinguUser {
     }
 }
 exports.PinguUser = PinguUser;
+exports.default = PinguUser;

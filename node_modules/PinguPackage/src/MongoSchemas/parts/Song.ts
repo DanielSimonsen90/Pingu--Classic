@@ -1,4 +1,4 @@
-import { PItem } from "./PItem";
+import PItem from "./PItem";
 
 export const Song = {
     _id: Number,
@@ -14,3 +14,5 @@ export const Song = {
     endsAt: Date,
     requestedBy: PItem
 };
+
+export default Song;

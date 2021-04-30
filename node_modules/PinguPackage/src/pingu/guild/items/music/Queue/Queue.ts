@@ -2,11 +2,11 @@ import { Message, MessageEmbed, TextChannel, VoiceChannel, VoiceConnection } fro
 
 import { consoleLog } from "../../../../library/PinguLibrary";
 
-import { PinguClient } from '../../../../client/PinguClient';
+import PinguClient from '../../../../client/PinguClient';
 import { GetPGuild } from '../../../PinguGuild';
 
-import { IMuisc } from "../IMusic";
-import { Song } from '../Song';
+import IMuisc from "../IMusic";
+import Song from '../Song';
 import { get, set } from './statics';
 
 export class Queue implements IMuisc {
@@ -149,3 +149,5 @@ export class Queue implements IMuisc {
             .setTimestamp(endsAt)
     }
 }
+
+export default Queue;

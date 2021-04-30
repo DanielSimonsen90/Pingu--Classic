@@ -1,4 +1,4 @@
-import { PItem } from "./PItem";
+import PItem from "./PItem";
 
 export const ReactionRoles = {
     channel: PItem,
@@ -6,3 +6,5 @@ export const ReactionRoles = {
     emoteName: String,
     pRole: PItem
 }
+
+export default ReactionRoles;

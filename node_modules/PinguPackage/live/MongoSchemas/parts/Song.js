@@ -14,5 +14,6 @@ exports.Song = {
     playing: Boolean,
     loop: Boolean,
     endsAt: Date,
-    requestedBy: PItem_1.PItem
+    requestedBy: PItem_1.default
 };
+exports.default = exports.Song;

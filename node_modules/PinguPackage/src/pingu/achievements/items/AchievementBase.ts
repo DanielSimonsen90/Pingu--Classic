@@ -29,9 +29,8 @@ export interface AchievementCallbackParams {
     VOICE: [[VoiceState]]
 }
 
-
-import { PItem } from "../../../database/json/PItem";
-import { Percentage } from "../../../helpers/Percentage";
+import PItem from "../../../database/json/PItem";
+import Percentage from "../../../helpers/Percentage";
 export abstract class AchievementBase extends PItem {
     constructor(id: number, name: string, description: string) {
         super({ id: id.toString(), name });
@@ -45,3 +44,5 @@ export abstract class AchievementBase extends PItem {
         return `Use the \`${command}\` command to ${extraInfo}`;
     }
 }
+
+export default AchievementBase;

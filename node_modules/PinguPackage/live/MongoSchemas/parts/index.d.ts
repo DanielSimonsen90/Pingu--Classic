@@ -1,8 +1,8 @@
 export { PClient } from "./PClient";
 export { PItem } from "./PItem";
 export { DecidablesConfig } from "./DecidablesConfig";
-export { DecidableItem } from "./DecidablesItem";
-export { AchievementsConfig } from "./AchievementsConfig";
+export { DecidableItem } from "./DecidableItem";
+export { AchievementConfig as AchievementsConfig } from "./AchievementConfig";
 export { Achievement } from "./Achievement";
 export { PinguGuildMember } from "./PinguGuildMember";
 export { ReactionRoles } from "./ReactionRoles";

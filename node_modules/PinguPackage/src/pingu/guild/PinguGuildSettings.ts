@@ -1,9 +1,9 @@
 import { Guild } from 'discord.js';
 
-import { PChannel } from '../../database/json';
-import { PinguGuildConfig } from "./PinguGuildConfig";
+import PChannel from '../../database/json/PChannel';
+import PinguGuildConfig from "./PinguGuildConfig";
 
-import { ReactionRole } from './items';
+import ReactionRole from './items/ReactionRole';
 
 export class PinguGuildSettings {
     constructor(guild: Guild) {
@@ -20,3 +20,5 @@ export class PinguGuildSettings {
     public config: PinguGuildConfig;
     public reactionRoles: ReactionRole[];
 }
+
+export default PinguGuildSettings;

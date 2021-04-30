@@ -5,7 +5,8 @@ const ReactionRoles_1 = require("./ReactionRoles");
 const PItem_1 = require("./PItem");
 const PinguGuildConfig_1 = require("./PinguGuildConfig");
 exports.PinguGuildSettings = {
-    welcomeChannel: PItem_1.PItem,
-    reactionRoles: [ReactionRoles_1.ReactionRoles],
-    config: PinguGuildConfig_1.PinguGuildConfig
+    welcomeChannel: PItem_1.default,
+    reactionRoles: [ReactionRoles_1.default],
+    config: PinguGuildConfig_1.default
 };
+exports.default = exports.PinguGuildSettings;

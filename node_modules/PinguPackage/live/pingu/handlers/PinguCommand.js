@@ -20,7 +20,7 @@ var CommandCategories;
     CommandCategories[CommandCategories["DevOnly"] = 3] = "DevOnly";
     CommandCategories[CommandCategories["GuildSpecific"] = 4] = "GuildSpecific";
 })(CommandCategories = exports.CommandCategories || (exports.CommandCategories = {}));
-class PinguCommand extends PinguHandler_1.PinguHandler {
+class PinguCommand extends PinguHandler_1.default {
     constructor(name, category, description, data, execute) {
         //Must need these
         super(name);
@@ -50,3 +50,4 @@ class PinguCommand extends PinguHandler_1.PinguHandler {
     }
 }
 exports.PinguCommand = PinguCommand;
+exports.default = PinguCommand;

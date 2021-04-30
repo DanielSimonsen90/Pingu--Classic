@@ -1,5 +1,5 @@
 import { Client, Collection, Guild, GuildChannel, Message, MessageEmbed, User, PermissionString, TextChannel, GuildMember } from 'discord.js';
-import { PClient } from "../../database";
+import PClient from "../../database/json/PClient";
 import { Error, BitPermission } from '../../helpers';
 interface Check {
     author: User;
@@ -48,9 +48,9 @@ import { AchieverTypes, AchievementBaseType } from "../achievements/items/Achiev
 import { UserAchievement, UserAchievementType, UserAchievementTypeKey, UserAchievementCallbackParams } from "../achievements/items/UserAchievement";
 import { GuildMemberAchievement, GuildMemberAchievementType, GuildMemberAchievementTypeKey, GuildMemberAchievementCallbackParams } from "../achievements/items/GuildMemberAchievement";
 import { GuildAchievement, GuildAchievementType, GuildAchievementTypeKey, GuildAchievementCallbackParams } from "../achievements/items/GuildAchievement";
-import { UserAchievementConfig } from "../achievements/config/UserAchievementConfig";
-import { GuildMemberAchievementConfig } from "../achievements/config/GuildMemberAchievementConfig";
-import { GuildAchievementConfig } from "../achievements/config/GuildAchievementConfig";
+import UserAchievementConfig from "../achievements/config/UserAchievementConfig";
+import GuildMemberAchievementConfig from "../achievements/config/GuildMemberAchievementConfig";
+import GuildAchievementConfig from "../achievements/config/GuildAchievementConfig";
 interface Achievements {
     USER: UserAchievement<UserAchievementTypeKey, UserAchievementType[UserAchievementTypeKey]>;
     GUILDMEMBER: GuildMemberAchievement<GuildMemberAchievementTypeKey, GuildMemberAchievementType[GuildMemberAchievementTypeKey]>;
@@ -124,3 +124,4 @@ export declare class PinguLibrary {
     static DBExecute<T>(client: Client, callback: (mongoose: typeof import('mongoose')) => Promise<T>): Promise<T>;
     static RequestImage(message: Message, pGuildClient: PClient, caller: 'gif' | 'meme', types: string[], searchTerm?: (type: string) => string): Promise<Message>;
 }
+export default PinguLibrary;

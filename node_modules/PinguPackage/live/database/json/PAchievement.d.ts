@@ -6,3 +6,4 @@ export declare class PAchievement {
     _id: string;
     achievedAt: Date;
 }
+export default PAchievement;
