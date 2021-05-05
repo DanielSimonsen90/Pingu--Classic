@@ -3,3 +3,4 @@ export declare abstract class PinguHandler {
     name: string;
     path: string;
 }
+export default PinguHandler;

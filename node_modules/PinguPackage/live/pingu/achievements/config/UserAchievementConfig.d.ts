@@ -7,3 +7,4 @@ export declare class UserAchievementConfig extends AchievementConfigBase {
     notificationType: UserAchievementNotificationType;
     static notify<Key extends keyof UserAchievementType>(client: Client, achiever: User, achievement: UserAchievement<Key, UserAchievementType[Key]>, config: UserAchievementConfig): Promise<import("discord.js").Message>;
 }
+export default UserAchievementConfig;

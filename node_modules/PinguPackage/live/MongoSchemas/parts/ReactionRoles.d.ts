@@ -10,3 +10,4 @@ export declare const ReactionRoles: {
         name: StringConstructor;
     };
 };
+export default ReactionRoles;

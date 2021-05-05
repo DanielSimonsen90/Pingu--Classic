@@ -1,5 +1,5 @@
-import { Marry } from '../../pingu/user/items';
-import { PUser } from './PUser';
+import Marry from '../../pingu/user/items/Marry';
+import PUser from './PUser';
 
 export class PMarry {
     constructor(marry: Marry) {
@@ -14,3 +14,5 @@ export class PMarry {
         return new Marry(this.partner, this.internalDate);
     }
 }
+
+export default PMarry;

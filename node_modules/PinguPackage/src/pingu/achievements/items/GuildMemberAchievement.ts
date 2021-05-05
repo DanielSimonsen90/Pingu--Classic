@@ -3,19 +3,19 @@ export interface GuildMemberAchievementType extends GuildAchievementType {}
 export type GuildMemberAchievementTypeKey = keyof GuildMemberAchievementType;
 export interface GuildMemberAchievementCallbackParams extends GuildAchievementCallbackParams {}
 
-import { Collection, Guild, Snowflake, Message, User } from "discord.js";
+import { Guild, Message, User } from "discord.js";
 import { IGuildMemberAchievement } from "./IAchievementBase";
-import { AchievementBase } from "./AchievementBase";
+import AchievementBase from "./AchievementBase";
 import { useChannel } from "./GuildAchievement";
 
-import { Percentage } from "../../../helpers";
-import { DecidablesConfig } from "../../../decidable/config/DecidablesConfig";
-import { Decidable } from "../../../decidable/items/Decidable";
+import Percentage from "../../../helpers/Percentage";
+import DecidablesConfig from "../../../decidable/config/DecidablesConfig";
+import Decidable from "../../../decidable/items/Decidable";
 import { Clients } from "../../client/PinguClient";
 
 import { GetPGuild } from "../../guild/PinguGuild";
 import { GetPUser } from "../../user/PinguUser";
-import { PinguGuildMember } from "../../guildMember/PinguGuildMember";
+import PinguGuildMember from "../../guildMember/PinguGuildMember";
 
 export class GuildMemberAchievement
 <Key extends keyof GuildMemberAchievementType,
@@ -126,3 +126,5 @@ extends AchievementBase implements IGuildMemberAchievement<Key, Type, GuildMembe
         new GuildMemberAchievement(26, "You're on my watchlist...", 'MODERATION', 'Warn', "Warn a member")
     ];
 }
+
+export default GuildMemberAchievement;

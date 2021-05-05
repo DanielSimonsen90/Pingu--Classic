@@ -3,3 +3,4 @@ export interface IMuisc {
     volume: number,
     playing: boolean
 }
+export default IMuisc;

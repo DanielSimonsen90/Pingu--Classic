@@ -14,8 +14,8 @@ const items_1 = require("../../pingu/guild/items");
 const PChannel_1 = require("./PChannel");
 class PQueue {
     constructor(queue) {
-        this.logChannel = new PChannel_1.PChannel(queue.logChannel);
-        this.voiceChannel = new PChannel_1.PChannel(queue.voiceChannel);
+        this.logChannel = new PChannel_1.default(queue.logChannel);
+        this.voiceChannel = new PChannel_1.default(queue.voiceChannel);
         this.index = queue.index;
         this.songs = queue.songs;
         this.volume = queue.volume;
@@ -34,3 +34,4 @@ class PQueue {
     }
 }
 exports.PQueue = PQueue;
+exports.default = PQueue;

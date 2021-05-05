@@ -10,3 +10,4 @@ class PollConfig {
     }
 }
 exports.PollConfig = PollConfig;
+exports.default = PollConfig;

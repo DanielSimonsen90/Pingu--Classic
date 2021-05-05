@@ -34,3 +34,4 @@ class UserAchievementConfig extends AchievementConfigBase_1.AchievementConfigBas
     }
 }
 exports.UserAchievementConfig = UserAchievementConfig;
+exports.default = UserAchievementConfig;

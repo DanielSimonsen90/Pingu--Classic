@@ -17,4 +17,4 @@ export interface IGuildAchievement<Key extends keyof GuildAchievementType, Type 
     setCallback<setCBType extends keyof CallbackParams[Key]>(type: setCBType, callback: (...params: CallbackParams[Key][setCBType][]) => Promise<boolean>): this;
     callback(...params: CallbackParams[Key][keyof CallbackParams[Key]][]): Promise<boolean>;
 }
-export {};
+export default IAchievementBase;

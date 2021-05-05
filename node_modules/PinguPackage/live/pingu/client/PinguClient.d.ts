@@ -4,7 +4,7 @@ export declare const Clients: {
     BetaID: string;
 };
 export declare function ToPinguClient(client: Client): PinguClient;
-import { PinguGuild } from '../guild/PinguGuild';
+import PinguGuild from '../guild/PinguGuild';
 import { PinguCommand, PinguEvent, PinguClientEvents } from '../handlers';
 import { IConfigRequirements, Config } from '../../helpers/Config';
 export declare class PinguClient extends Client {
@@ -30,3 +30,4 @@ export declare class PinguClient extends Client {
     private handleEvent;
     private getEventParams;
 }
+export default PinguClient;

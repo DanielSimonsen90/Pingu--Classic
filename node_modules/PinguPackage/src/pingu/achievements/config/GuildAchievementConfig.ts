@@ -45,3 +45,5 @@ export class GuildAchievementConfig extends AchievementConfigBase {
         }
     }
 }
+
+export default GuildAchievementConfig;

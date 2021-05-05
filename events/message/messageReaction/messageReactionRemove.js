@@ -4,7 +4,7 @@ const { PinguLibrary, ReactionRole, PinguEvent, EmbedField } = require("PinguPac
 module.exports = new PinguEvent('messageReactionRemove',
     async function setContent(reaction, user) {
         return module.exports.content = new MessageEmbed()
-            .setDescription(reaction.message.content ? `"${reaction.message.content}"` : null)
+            .setDescription(reaction.message.content)
             .setURL(reaction.message.url)
             .setImage(reaction.message.attachments.first())
             .addFields([

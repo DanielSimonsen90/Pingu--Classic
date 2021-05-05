@@ -8,3 +8,4 @@ class BitPermission {
     }
 }
 exports.BitPermission = BitPermission;
+exports.default = BitPermission;

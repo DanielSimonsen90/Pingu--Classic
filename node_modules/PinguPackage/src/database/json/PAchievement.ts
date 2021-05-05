@@ -7,3 +7,5 @@ export class PAchievement {
     public _id: string;
     public achievedAt: Date;
 }
+
+export default PAchievement;

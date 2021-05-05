@@ -13,3 +13,4 @@ class Percentage {
     }
 }
 exports.Percentage = Percentage;
+exports.default = Percentage;

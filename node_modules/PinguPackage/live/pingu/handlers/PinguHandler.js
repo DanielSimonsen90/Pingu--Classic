@@ -7,3 +7,4 @@ class PinguHandler {
     }
 }
 exports.PinguHandler = PinguHandler;
+exports.default = PinguHandler;

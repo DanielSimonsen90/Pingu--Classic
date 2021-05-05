@@ -4,3 +4,4 @@ export declare class BitPermission {
     permString: PermissionString | string;
     bit: number;
 }
+export default BitPermission;

@@ -47,3 +47,4 @@ class TimeLeftObject {
     }
 }
 exports.TimeLeftObject = TimeLeftObject;
+exports.default = TimeLeftObject;

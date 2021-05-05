@@ -1,5 +1,5 @@
 import { User } from "discord.js";
-import { PUser } from "../../../database/json/PUser";
+import PUser from "../../../database/json/PUser";
 
 export class Marry {
     constructor(partner?: PUser, internalDate?: string) {
@@ -22,3 +22,5 @@ export class Marry {
         this.partner = null;
     }
 }
+
+export default Marry;

@@ -1,7 +1,7 @@
 import { Client, Collection, Guild, GuildMember, Snowflake } from 'discord.js';
 import { PItem, PClient, PGuildMember } from '../../database/json';
-import { PinguGuildSettings } from './PinguGuildSettings';
-import { PinguGuildMember } from "../guildMember/PinguGuildMember";
+import PinguGuildSettings from './PinguGuildSettings';
+import PinguGuildMember from "../guildMember/PinguGuildMember";
 export declare function WritePGuild(client: Client, guild: Guild, scriptName: string, reason: string): Promise<PinguGuild>;
 export declare function GetPGuild(guild: Guild): Promise<PinguGuild>;
 declare type PinguGuildUpdate = 'name' | 'guildOwner' | 'clients' | 'members' | 'settings';
@@ -46,4 +46,4 @@ export declare class PinguGuild extends PItem {
     settings: PinguGuildSettings;
     joinedAt: Date;
 }
-export {};
+export default PinguGuild;

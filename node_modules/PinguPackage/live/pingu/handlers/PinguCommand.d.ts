@@ -1,10 +1,10 @@
 import { Message, PermissionString, Snowflake, VoiceConnection } from 'discord.js';
-import { PinguHandler } from './PinguHandler';
-import { PClient } from '../../database/json/PClient';
-import { PinguUser } from '../user/PinguUser';
-import { PinguGuild } from '../guild/PinguGuild';
-import { PinguClient } from "../client/PinguClient";
-import { PinguGuildMember } from '../guildMember/PinguGuildMember';
+import PinguHandler from './PinguHandler';
+import PClient from '../../database/json/PClient';
+import PinguUser from '../user/PinguUser';
+import PinguGuild from '../guild/PinguGuild';
+import PinguClient from "../client/PinguClient";
+import PinguGuildMember from '../guildMember/PinguGuildMember';
 export declare enum CommandCategories {
     'Utility' = 0,
     'Fun' = 1,
@@ -44,4 +44,4 @@ export declare class PinguCommand extends PinguHandler {
     mustBeBeta: boolean;
     execute(params: PinguCommandParams): Promise<ExecuteReturns>;
 }
-export {};
+export default PinguCommand;

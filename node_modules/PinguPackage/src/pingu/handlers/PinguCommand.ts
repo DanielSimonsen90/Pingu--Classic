@@ -1,14 +1,14 @@
 import { Message, PermissionString, Snowflake, VoiceConnection } from 'discord.js';
 
-import { PinguHandler } from './PinguHandler'
+import PinguHandler from './PinguHandler'
 
-import { PClient } from '../../database/json/PClient';
+import PClient from '../../database/json/PClient';
 
 import { errorLog } from "../library/PinguLibrary";
-import { PinguUser } from '../user/PinguUser';
-import { PinguGuild } from '../guild/PinguGuild';
-import { PinguClient } from "../client/PinguClient";
-import { PinguGuildMember } from '../guildMember/PinguGuildMember';
+import PinguUser from '../user/PinguUser';
+import PinguGuild from '../guild/PinguGuild';
+import PinguClient from "../client/PinguClient";
+import PinguGuildMember from '../guildMember/PinguGuildMember';
 
 export enum CommandCategories { 'Utility', 'Fun', 'Supporting', 'DevOnly', 'GuildSpecific' }
 type CommandCategoriesType = keyof typeof CommandCategories;
@@ -72,3 +72,5 @@ export class PinguCommand extends PinguHandler {
         return errorLog(params.message.client, `Execute for command **${this.name}**, was not defined!`);
     }
 }
+
+export default PinguCommand;

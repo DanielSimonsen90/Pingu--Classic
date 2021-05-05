@@ -13,3 +13,4 @@ class ThemeConfig {
     }
 }
 exports.ThemeConfig = ThemeConfig;
+exports.default = ThemeConfig;

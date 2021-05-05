@@ -15,3 +15,4 @@ export declare const Song: {
         name: StringConstructor;
     };
 };
+export default Song;

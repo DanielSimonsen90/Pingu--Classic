@@ -10,19 +10,25 @@ module.exports = new PinguEvent('message',
     async function setContent({ content, id, url, channel, type, guild, attachments, tts, embeds, mentions }) {
         const { EmbedField } = require('PinguPackage');
         try {
+            let mentions = GetMentions();
+            let fields = [
+                new EmbedField(`ID`, id, true),
+                new EmbedField(`Channel`, channel, true),
+                new EmbedField(`Guild`, guild && guild.name || "DMs", true),
+                type != 'DEFAULT' ? new EmbedField(`Type`, type, true) : null,
+                attachments.first() ? new EmbedField(`Attachments`, attachments.first() != null, true) : null,
+                embeds[0] ? new EmbedField(`Embeds`, embeds[0] != null, true) : null,
+                tts ? new EmbedField(`TTS`, tts, true) : null,
+                mentions != 'No mentions' ? new EmbedField(`Mentions`, mentions, true) : null
+            ].filter(v => v);
+
+            let emptyFieldsToAdd = Math.round(fields.length % 3);
+            for (var i = 0; i < emptyFieldsToAdd; i++) fields.push(EmbedField.Blank(true));
+
             return module.exports.content = new MessageEmbed()
-                .setDescription(content ? `"${content}"` : "")
-                .addFields([
-                    new EmbedField(`ID`, id, true),
-                    new EmbedField(`URL`, url, true),
-                    new EmbedField(`Channel`, channel, true),
-                    new EmbedField(`Type`, type, true),
-                    new EmbedField(`Guild`, guild && guild.name || "DMs", true),
-                    new EmbedField(`Attachments?`, attachments.first() != null, true),
-                    new EmbedField(`Embeds?`, embeds[0] != null, true),
-                    new EmbedField(`TTS?`, tts, true),
-                    new EmbedField(`Mentions?`, GetMentions(), true)
-                ]);
+                .setURL(url)
+                .setDescription(content || "")
+                .addFields(fields);
         } catch (err) {
             console.log();
         }

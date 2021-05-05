@@ -1,6 +1,6 @@
-import { IGiveawayConfigOptions } from '../interfaces/IGiveawayConfigOptions';
+import IGiveawayConfigOptions from '../interfaces/IGiveawayConfigOptions';
 import { PRole, PChannel } from '../../database/json';
-import { Giveaway } from '../items/Giveaway';
+import Giveaway from '../items/Giveaway';
 export declare class GiveawayConfig implements IGiveawayConfigOptions {
     constructor(options?: IGiveawayConfigOptions);
     allowSameWinner: boolean;
@@ -10,3 +10,4 @@ export declare class GiveawayConfig implements IGiveawayConfigOptions {
     channel: PChannel;
     firstTimeExecuted: boolean;
 }
+export default GiveawayConfig;

@@ -8,3 +8,4 @@ class PItem {
     }
 }
 exports.PItem = PItem;
+exports.default = PItem;

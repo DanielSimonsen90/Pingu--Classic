@@ -8,3 +8,4 @@ export declare class Decidable {
     channel: PChannel;
     endsAt: Date;
 }
+export default Decidable;
