@@ -168,6 +168,8 @@ module.exports = {
             const pAuthor = await PinguUser.Get(author);
 
             if (args[0] == 'unset') {
+                if (!pAuthor.replyPerson) return message.channel.send(`You don't have a replyPerson!`);
+
                 let [replyPUser, replyUser] = await Promise.all([
                     PinguUser.Get(pAuthor.replyPerson._id),
                     client.users.fetch(pAuthor.replyPerson._id)
