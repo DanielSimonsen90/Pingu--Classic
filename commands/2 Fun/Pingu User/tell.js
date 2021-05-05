@@ -47,7 +47,7 @@ module.exports = {
         pAuthor.replyPerson = new PUser(Mention);
 
         /** @param {User} self @param {PinguUser} partner*/
-        let log = (self, partner) => `**${self.tag}**'s replyPerson is now **${partner.replyPerson.name}**.`;
+        let log = (self, partner) => `**${self.tag}**'s replyPerson is now **${partner.tag}**.`;
 
         let pMention = await PinguUser.Get(Mention);
         pMention.replyPerson = new PUser(message.author);
@@ -128,15 +128,15 @@ module.exports = {
             }
             //Create DM to replyPerson
             let replyPersonDM = await replyPersonUser.createDM();
-            if (!replyPersonDM) return cantMessage({ message: "Unable to create DM from ln: 366" });
+            if (!replyPersonDM) return cantMessage({ message: "Unable to create DM from ln: 131" });
 
             //Add "Conversation with" header to message's content
-            message.content = `**Conversation with __${message.author.username}__**\n` + message.content;
+            //message.content = `**Conversation with __${message.author.username}__**\n` + message.content;
 
             //Send author's reply to replyPerson
-            if (message.content && message.attachments.size > 0) replyPersonDM.send(message.content, message.attachments.array()).catch(async err => cantMessage(err)); //Message and files
-            else if (message.content) replyPersonDM.send(message.content).catch(async err => cantMessage(err)); //Message only
-            else PinguLibrary.errorLog(client, `${message.author} ➡️ ${replyPersonUser} used else statement from ExecuteTellReply, Index`, message.content, {
+            if (message.content && message.attachments.size > 0) var sent = replyPersonDM.send(message.content, message.attachments.array()).catch(async err => cantMessage(err)); //Message and files
+            else if (message.content) sent = replyPersonDM.send(message.content).catch(async err => cantMessage(err)); //Message only
+            else sent = PinguLibrary.errorLog(client, `${message.author} ➡️ ${replyPersonUser} used else statement from ExecuteTellReply, Index`, message.content, {
                 params: { message },
                 additional: {
                     author: { user: message.author, pUser: pAuthor },
@@ -146,7 +146,7 @@ module.exports = {
 
             //Show author that reply has been sent
             message.react('✅');
-            return message.channel.send(`**Sent message to __${replyPersonUser.tag}__**`);
+            return sent;
         },
         /**Returns Mention whether it's @Mentioned, username or nickname
         * @param {Message} message 
@@ -165,7 +165,7 @@ module.exports = {
          * @param {string[]} args*/
         async HandleTell(message, args) {
             const { author, client } = message;
-            const pAuthor = PinguUser.Get(author);
+            const pAuthor = await PinguUser.Get(author);
 
             if (args[0] == 'unset') {
                 let [replyPUser, replyUser] = await Promise.all([
