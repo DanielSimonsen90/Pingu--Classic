@@ -1,17 +1,14 @@
 {
   "ExpandedNodes": [
     "",
-    "\\commands",
     "\\commands\\1 Utility",
-    "\\commands\\1 Utility\\Information",
-    "\\commands\\2 Fun",
     "\\commands\\5 GuildSpecific",
-    "\\commands\\5 GuildSpecific\\Deadly Ninja",
-    "\\commands\\5 GuildSpecific\\Deadly Ninja\\Theme",
+    "\\commands\\5 GuildSpecific\\Danho's Misc",
     "\\events",
-    "\\events\\client",
+    "\\events\\guild",
+    "\\events\\guild\\guildMember",
     "\\events\\message"
   ],
-  "SelectedNode": "\\commands\\1 Utility\\Information\\help.js",
+  "SelectedNode": "\\events\\guild\\guildMember\\guildMemberRemove.js",
   "PreviewInSolutionExplorer": false
 }

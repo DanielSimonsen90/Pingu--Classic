@@ -8,8 +8,9 @@ module.exports = new PinguCommand('reactionroles', 'Utility', 'Gives/Removes rol
     permissions: ['ADD_REACTIONS', 'MANAGE_ROLES'],
     aliases: ["reactionrole", "rr"]
 }, async ({ message, args, pGuild, pGuildClient }) => {
+    let arg = args.shift();
     //Get command
-    let command = args.shift().toLowerCase();
+    let command = arg && arg.toLowerCase();
     if (!command) return message.channel.send(`Sub-command not provided! Do I **create** or **delete** a reactionrole?`);
 
     //Ensure correct command & args[0 & 1] exists
