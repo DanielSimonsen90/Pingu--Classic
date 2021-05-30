@@ -3,7 +3,7 @@ const { PinguUser, PinguEvent, PinguClient } = require("PinguPackage");
 
 module.exports = new PinguEvent('guildMemberRemove',
     async function setContent(member) {
-        if (!member.guild.me.hasPermission('VIEW_AUDIT_LOG'))
+        if (member.guild.me && !member.guild.me.hasPermission('VIEW_AUDIT_LOG'))
             return module.exports.content = new MessageEmbed()
                 .setDescription(`${member.displayName} (${member.user.tag}, ${member.id}) is no longer a part of ${member.guild.name}`)
 

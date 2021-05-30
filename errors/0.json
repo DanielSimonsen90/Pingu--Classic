@@ -1,0 +1,260 @@
+{
+  "err": {},
+  "params": {
+    "params": {
+      "message": {
+        "channelID": "847481105972330551",
+        "deleted": false,
+        "id": "848643496772763679",
+        "type": "DEFAULT",
+        "system": false,
+        "content": "b*rr",
+        "authorID": "245572699894710272",
+        "pinned": false,
+        "tts": false,
+        "nonce": "848643493503959040",
+        "embeds": [],
+        "attachments": [],
+        "createdTimestamp": 1622402776664,
+        "editedTimestamp": 0,
+        "webhookID": null,
+        "applicationID": null,
+        "activity": null,
+        "flags": 0,
+        "reference": null,
+        "guildID": "847481105972330547",
+        "cleanContent": "b*rr"
+      }
+    },
+    "additional": {
+      "args": [],
+      "ConsoleLog": "User **Danho** executed command **rr**, from \"Danho Streams\", #general, and **failed!**\nError: TypeError: Cannot read property 'toLowerCase' of undefined",
+      "commandName": "rr",
+      "command": {
+        "name": "reactionroles",
+        "guildOnly": true,
+        "mustBeBeta": false,
+        "description": "Gives/Removes roles for users who reacted to a message",
+        "category": "Utility",
+        "permissions": [
+          "ADD_REACTIONS",
+          "MANAGE_ROLES",
+          "SEND_MESSAGES"
+        ],
+        "usage": "<create [channel] <message id> <emoji> <role id> | delete [channel] <message id> <emoji> [remove from users? true/false]",
+        "examples": [
+          "*reactionroles create #role-select 801055604222984223 :movie_camera: @Content Creators"
+        ],
+        "aliases": [
+          "reactionrole",
+          "rr"
+        ],
+        "path": "/commands/1 Utility/Server Setup/reactionroles.js"
+      }
+    },
+    "trycatch": {
+      "pAuthor": {
+        "marry": {
+          "partner": {
+            "_id": "405331883157880846",
+            "name": "Synthy Sytro#5637"
+          },
+          "internalDate": "2021-04-23T16:52:14.307Z"
+        },
+        "replyPerson": {
+          "_id": "290131910091603968",
+          "name": "Slothman#7727"
+        },
+        "daily": {
+          "nextClaim": {
+            "endsAt": "2021-05-31T16:18:27.140Z",
+            "years": 0,
+            "months": 0,
+            "weeks": 0,
+            "days": 0,
+            "hours": 21,
+            "minutes": 0,
+            "seconds": 0,
+            "milliseconds": 0
+          },
+          "lastClaim": "2021-05-30T19:18:27.139Z",
+          "streak": 125
+        },
+        "achievementConfig": {
+          "enabled": true,
+          "achievements": [
+            {
+              "_id": "2",
+              "achievedAt": "2021-04-23T15:34:04.368Z"
+            },
+            {
+              "_id": "6",
+              "achievedAt": "2021-04-23T15:34:50.488Z"
+            },
+            {
+              "_id": "5",
+              "achievedAt": "2021-04-23T15:35:09.924Z"
+            },
+            {
+              "_id": "11",
+              "achievedAt": "2021-04-23T15:42:35.391Z"
+            },
+            {
+              "_id": "20",
+              "achievedAt": "2021-04-23T15:50:57.322Z"
+            },
+            {
+              "_id": "12",
+              "achievedAt": "2021-04-23T15:59:06.534Z"
+            },
+            {
+              "_id": "13",
+              "achievedAt": "2021-04-23T15:59:06.534Z"
+            },
+            {
+              "_id": "23",
+              "achievedAt": "2021-04-23T16:54:52.557Z"
+            },
+            {
+              "_id": "14",
+              "achievedAt": "2021-04-23T17:18:35.271Z"
+            },
+            {
+              "_id": "17",
+              "achievedAt": "2021-04-23T17:19:56.379Z"
+            },
+            {
+              "_id": "15",
+              "achievedAt": "2021-04-23T22:25:05.199Z"
+            },
+            {
+              "_id": "18",
+              "achievedAt": "2021-04-23T22:25:05.199Z"
+            },
+            {
+              "_id": "21",
+              "achievedAt": "2021-04-23T23:10:45.142Z"
+            },
+            {
+              "_id": "22",
+              "achievedAt": "2021-04-24T00:18:07.896Z"
+            },
+            {
+              "_id": "16",
+              "achievedAt": "2021-05-03T19:26:49.246Z"
+            },
+            {
+              "_id": "19",
+              "achievedAt": "2021-05-05T11:24:26.907Z"
+            },
+            {
+              "_id": "7",
+              "achievedAt": "2021-05-05T11:29:52.434Z"
+            }
+          ],
+          "notificationType": "NONE"
+        },
+        "_id": "245572699894710272",
+        "tag": "Danho#2105",
+        "sharedServers": [
+          {
+            "_id": "405763731079823380",
+            "name": "Niggers Rise Up"
+          },
+          {
+            "_id": "460926327269359626",
+            "name": "Danho's Misc"
+          },
+          {
+            "_id": "756383096646926376",
+            "name": "Pingu Support"
+          },
+          {
+            "_id": "778022031811543041",
+            "name": "The Genius Company LLC ™"
+          },
+          {
+            "_id": "791312245555855401",
+            "name": "Pingu Emote Server"
+          }
+        ],
+        "avatar": "https://cdn.discordapp.com/avatars/245572699894710272/a_9fd0d1044d437ad7249f7c0a0b3371c6.webp",
+        "playlists": [],
+        "__v": 0,
+        "joinedAt": "2018-04-01T13:22:19.471Z"
+      },
+      "pGuild": {
+        "_id": "847481105972330547",
+        "name": "Danho Streams",
+        "guildOwner": {
+          "_id": "245572699894710272",
+          "name": "Danho#2105"
+        },
+        "clients": [
+          null,
+          {
+            "_id": "778288722055659520",
+            "displayName": "Pingu BETA",
+            "embedColor": 0,
+            "prefix": "b*"
+          }
+        ],
+        "settings": {
+          "welcomeChannel": {
+            "_id": "847481105972330551",
+            "name": "general"
+          },
+          "config": {
+            "decidables": {
+              "giveawayConfig": {
+                "firstTimeExecuted": true
+              },
+              "pollConfig": {
+                "firstTimeExecuted": true
+              },
+              "suggestionConfig": {
+                "firstTimeExecuted": true
+              }
+            },
+            "achievements": {
+              "enabled": true,
+              "achievements": [],
+              "notificationTypes": {
+                "guild": "NONE",
+                "members": "NONE"
+              },
+              "guildID": "847481105972330547"
+            }
+          },
+          "reactionRoles": []
+        },
+        "members": {},
+        "joinedAt": "2021-05-30T19:25:42.438Z"
+      },
+      "pGuildMember": {
+        "_id": "245572699894710272",
+        "name": "Danho#2105",
+        "guild": {
+          "_id": "847481105972330547",
+          "name": "Danho Streams"
+        },
+        "achievementConfig": {
+          "enabled": true,
+          "achievements": [
+            {
+              "_id": "1",
+              "achievedAt": "2021-05-30T19:26:16.158Z"
+            }
+          ],
+          "notificationType": "NONE"
+        }
+      },
+      "pGuildClient": {
+        "_id": "778288722055659520",
+        "displayName": "Pingu BETA",
+        "embedColor": 0,
+        "prefix": "b*"
+      }
+    }
+  }
+}
