@@ -23,8 +23,8 @@ module.exports = {
                     .setThumbnail(member.guild.iconURL())
                 );
 
-            if (member.guild.id == '847481105972330547') {
-                member.roles.add('848648157691772998');
+            if (member.guild.id == '848623399739195463') {
+                member.roles.add('848625869853556806');
             }
 
         }
