@@ -9,8 +9,9 @@ module.exports = new PinguEvent('guildCreate',
         return module.exports.content = new MessageEmbed().setDescription(joinString(guild.client, guild));
     },
     async function execute(client, guild) {
-        //Add to MongolDB
-        await PinguGuild.Write(client, guild, module.exports.name, joinString(client, guild));
+        const pGuild = await PinguGuild.Get(guild);
+        if (!pGuild)
+            await PinguGuild.Write(client, guild, module.exports.name, joinString(client, guild));
 
         if (!guild.owner) return;
 
