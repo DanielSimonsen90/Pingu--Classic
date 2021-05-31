@@ -31,13 +31,12 @@ function DBExecute(client, callback) {
                 useNewUrlParser: true,
                 useUnifiedTopology: true
             });
-            var returnValue = yield callback(mongoose);
+            return callback(mongoose);
         }
         catch (err) {
             PinguLibrary_1.errorLog(client, 'Mongo error', null, new Error(err));
         }
         //finally { mongoose.connection.close(); }
-        return returnValue;
     });
 }
 exports.DBExecute = DBExecute;
