@@ -3,14 +3,14 @@
     "",
     "\\commands",
     "\\commands\\1 Utility",
-    "\\commands\\1 Utility\\Server Setup",
-    "\\commands\\5 GuildSpecific",
-    "\\commands\\5 GuildSpecific\\Danho's Misc",
-    "\\errors",
-    "\\events",
+    "\\commands\\3 Supporting",
+    "\\commands\\4 DevOnly",
+    "\\commands\\4 DevOnly\\Update",
+    "\\events\\client",
     "\\events\\guild",
     "\\events\\guild\\guildMember",
     "\\events\\message"
   ],
+  "SelectedNode": "\\commands\\3 Supporting\\invite.js",
   "PreviewInSolutionExplorer": false
 }

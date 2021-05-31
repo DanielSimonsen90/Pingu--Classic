@@ -20,7 +20,7 @@ module.exports = new PinguEvent('guildMemberRemove',
         if (!client.isLive && member.guild.members.cache.has(PinguClient.Clients.PinguID)) return;
 
         let welcomeChannel = await require('./guildMemberAdd').getWelcomeChannel(client, member.guild);
-        if (welcomeChannel) welcomeChannel.send(`**${member.displayName}** ${(member.displayName != member.user.username ? `(${member.user.username})` : ``)}has left ${member.guild.name}...`);
+        if (welcomeChannel) welcomeChannel.send(`**${member.displayName}** ${(member.displayName != member.user.username ? `(${member.user.username})` : ``)} has left ${member.guild.name}...`);
 
         (async function UpdateSharedServers() {
             if (member.user.bot) return;
