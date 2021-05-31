@@ -124,13 +124,24 @@ module.exports = new PinguEvent('message',
                     return false;
                 }
                 var newEmote = await guild.emojis.create(emote, name).catch(err => {
+                    if (err.message.endsWith('image: File cannot be larger than 256.0 kb.')) {
+                        var issue = err.message.split(':')[0];
+                        var reply = issue.substring(0, issue.length - 1) + "\n";
+
+                        let fileSplit = file.url.split('.');
+                        let fileExtension = fileSplit[fileSplit.length - 1];
+                        let compressOrDieUrl = 'https://compress-or-die.com/' +
+                            (['jpeg', 'jpg'].includes(fileExtension) ? 'jpg' : fileExtension);
+
+                        reply += `Try compressing the file using: ${compressOrDieUrl}`;
+                    }
                     channel.send(err.message);
                     return null;
                 });
                 if (!newEmote) continue;
 
                 channel.send(`${newEmote} was created!`);
-                PinguLibrary.consoleLog(client, `Created :${newEmote.name}: for ${guild.name}`);
+                PinguLibrary.consoleLog(client, `Created ${newEmote} for ${guild.name}`);
             }
             return true;
         }
