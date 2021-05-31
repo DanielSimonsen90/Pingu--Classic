@@ -21,9 +21,12 @@ module.exports = new PinguEvent('userUpdate',
     },
     async function execute(client, preUser, user) {
         let updated = await PinguUser.GetUpdatedProperty(preUser, user);
+        if (!updated) return;
+
         if (!Object.keys(updated)[0]) return;
 
         const pUser = await PinguUser.Get(user);
+        if (!pUser) return;
 
         updated.forEach(update => {
             switch (update) {
