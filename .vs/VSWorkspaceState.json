@@ -6,11 +6,11 @@
     "\\commands\\1 Utility\\Server Setup",
     "\\commands\\5 GuildSpecific",
     "\\commands\\5 GuildSpecific\\Danho's Misc",
+    "\\errors",
     "\\events",
     "\\events\\guild",
     "\\events\\guild\\guildMember",
     "\\events\\message"
   ],
-  "SelectedNode": "\\Archived",
   "PreviewInSolutionExplorer": false
 }
