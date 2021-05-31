@@ -71,7 +71,7 @@ module.exports = new PinguEvent('message',
         commandName = TestTagInteraction();
 
         var startsWithPrefix = content.startsWith(prefix) && !author.bot || content && content.includes(client.id);
-        const pAuthor = await PinguUser.Get(author));
+        const pAuthor = await PinguUser.Get(author);
         
 
         //If I'm not interacted with don't do anything
