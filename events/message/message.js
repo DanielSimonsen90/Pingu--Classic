@@ -71,9 +71,11 @@ module.exports = new PinguEvent('message',
         commandName = TestTagInteraction();
 
         var startsWithPrefix = content.startsWith(prefix) && !author.bot || content && content.includes(client.id);
+        let pAuthor = await PinguUser.Get(author);
+        
 
         //If I'm not interacted with don't do anything
-        if (channel.type == 'dm' && (author.bot || (await PinguUser.Get(author)).replyPerson) && (!startsWithPrefix || commandName && commandName.includes(prefix)))
+        if (channel.type == 'dm' && (author.bot || pAuthor && pAuthor.replyPerson) && (!startsWithPrefix || commandName && commandName.includes(prefix)))
             return ExecuteTellReply(message).catch(err => PinguLibrary.errorLog(client, `Failed to execute tell reply`, content, err, {
                 params: { message },
                 additional: { prefix, args, commandName, startsWithPrefix }
@@ -122,13 +124,24 @@ module.exports = new PinguEvent('message',
                     return false;
                 }
                 var newEmote = await guild.emojis.create(emote, name).catch(err => {
+                    if (err.message.endsWith('image: File cannot be larger than 256.0 kb.')) {
+                        var issue = err.message.split(':')[0];
+                        var reply = issue.substring(0, issue.length - 1) + "\n";
+
+                        let fileSplit = file.url.split('.');
+                        let fileExtension = fileSplit[fileSplit.length - 1];
+                        let compressOrDieUrl = 'https://compress-or-die.com/' +
+                            (['jpeg', 'jpg'].includes(fileExtension) ? 'jpg' : fileExtension);
+
+                        reply += `Try compressing the file using: ${compressOrDieUrl}`;
+                    }
                     channel.send(err.message);
                     return null;
                 });
                 if (!newEmote) continue;
 
                 channel.send(`${newEmote} was created!`);
-                PinguLibrary.consoleLog(client, `Created :${newEmote.name}: for ${guild.name}`);
+                PinguLibrary.consoleLog(client, `Created ${newEmote} for ${guild.name}`);
             }
             return true;
         }
@@ -151,7 +164,8 @@ module.exports = new PinguEvent('message',
                 await PinguGuild.Update(client, ['clients'], pGuild, module.exports.name, `Added ${client.user.tag} to ${pGuild.name}'s PinguGuild`);
             }
 
-            if (pGuildClient.embedColor != guild.me.roles.cache.find(botRoles => botRoles.managed).color)
+            const botRole = guild.me.roles.cache.find(r => r.managed);
+            if (botRole && pGuildClient.embedColor != botRole.color)
                 CheckRoleChange(guild, pGuild, module.exports.name);
             return pGuildClient.prefix || client.DefaultPrefix
         }
@@ -230,10 +244,9 @@ module.exports = new PinguEvent('message',
             try {
                 if (commandName == "tell") await HandleTell(message, args);
 
-                var [pGuild, pGuildMember, pAuthor] = await Promise.all([
+                var [pGuild, pGuildMember] = await Promise.all([
                     guild ? PinguGuild.Get(guild) : null,
                     member ? PinguGuildMember.Get(member, module.exports.name) : null,
-                    PinguUser.Get(author)
                 ]);
                 pAuthor = !pAuthor ? await PinguUser.Write(client, author, module.exports.name, `${message.author.tag} did not have a PinguUser entry`) : pAuthor;
 

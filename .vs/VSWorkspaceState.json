@@ -3,15 +3,14 @@
     "",
     "\\commands",
     "\\commands\\1 Utility",
-    "\\commands\\1 Utility\\Information",
-    "\\commands\\2 Fun",
-    "\\commands\\5 GuildSpecific",
-    "\\commands\\5 GuildSpecific\\Deadly Ninja",
-    "\\commands\\5 GuildSpecific\\Deadly Ninja\\Theme",
-    "\\events",
+    "\\commands\\3 Supporting",
+    "\\commands\\4 DevOnly",
+    "\\commands\\4 DevOnly\\Update",
     "\\events\\client",
+    "\\events\\guild",
+    "\\events\\guild\\guildMember",
     "\\events\\message"
   ],
-  "SelectedNode": "\\commands\\1 Utility\\Information\\help.js",
+  "SelectedNode": "\\commands\\3 Supporting\\invite.js",
   "PreviewInSolutionExplorer": false
 }

@@ -3,7 +3,7 @@ const { PinguUser, PinguEvent, PinguClient } = require("PinguPackage");
 
 module.exports = new PinguEvent('guildMemberRemove',
     async function setContent(member) {
-        if (!member.guild.me.hasPermission('VIEW_AUDIT_LOG'))
+        if (member.guild.me && !member.guild.me.hasPermission('VIEW_AUDIT_LOG'))
             return module.exports.content = new MessageEmbed()
                 .setDescription(`${member.displayName} (${member.user.tag}, ${member.id}) is no longer a part of ${member.guild.name}`)
 
@@ -20,7 +20,7 @@ module.exports = new PinguEvent('guildMemberRemove',
         if (!client.isLive && member.guild.members.cache.has(PinguClient.Clients.PinguID)) return;
 
         let welcomeChannel = await require('./guildMemberAdd').getWelcomeChannel(client, member.guild);
-        if (welcomeChannel) welcomeChannel.send(`**${member.displayName}** ${(member.displayName != member.user.username ? `(${member.user.username})` : ``)}has left ${member.guild.name}...`);
+        if (welcomeChannel) welcomeChannel.send(`**${member.displayName}** ${(member.displayName != member.user.username ? `(${member.user.username})` : ``)} has left ${member.guild.name}...`);
 
         (async function UpdateSharedServers() {
             if (member.user.bot) return;

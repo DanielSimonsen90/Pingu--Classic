@@ -11,7 +11,7 @@ module.exports = new PinguEvent('onready', null,
         consoleLog(client, `Loaded ${client.commands.size} commands & ${client.events.size} events\n`);
 
         let [connMessage] = await Promise.all([
-            DBExecute(client, () => consoleLog(client, `Connected to MongolDB!`)),
+            DBExecute(client, async () => await consoleLog(client, `Connected to MongolDB!`)),
             client.users.fetch(PinguClient.Clients.PinguID),
             CacheDevelopers(client),
         ]);
@@ -145,7 +145,7 @@ module.exports = new PinguEvent('onready', null,
         }
 
         async function CacheFromDB() {
-            for (var guild of client.guilds.cache) {
+            for (var guild of client.guilds.cache.array()) {
                 let pGuild = await PinguGuild.Get(guild);
                 if (!pGuild) return;
 
@@ -153,7 +153,7 @@ module.exports = new PinguEvent('onready', null,
 
                 for (var rr of reactionRoles) {
                     let gChannel = guild.channels.cache.get(rr.channel._id);
-                    if (!gChannel) return;
+                    if (!gChannel) continue;
 
                     let channel = ToTextChannel(gChannel);
 
@@ -164,11 +164,11 @@ module.exports = new PinguEvent('onready', null,
                 }
 
                 let { pollConfig, giveawayConfig, suggestionConfig, themeConfig } = pGuild.settings.config.decidables;
-                let configs = [pollConfig, giveawayConfig, suggestionConfig, themeConfig].filter(config => !config.firstTimeExecuted);
+                let configs = [pollConfig, giveawayConfig, suggestionConfig, themeConfig].filter(config => config.firstTimeExecuted == false);
                 let decidables = configs.map(config => config.polls || config.giveaways || config.suggestions || config.themes);
 
                 for (var decidable of decidables) {
-                    if (!decidable.endsAt || new Date(decidable.endsAt).getTime() < Date.now() || decidable.approved != undefined) return;
+                    if (!decidable.endsAt || new Date(decidable.endsAt).getTime() < Date.now() || decidable.approved != undefined) continue;
                     let channel = ToTextChannel(guild.channels.cache.get(decidable.channel._id));
 
                     channel.messages.fetch(decidable._id, false, true)

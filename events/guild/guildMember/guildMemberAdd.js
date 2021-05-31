@@ -12,7 +12,7 @@ module.exports = {
             let pGuild = await PinguGuild.Get(member.guild);
             let pGuildClient = client.toPClient(pGuild);
 
-            let welcomeChannel = module.exports.getWelcomeChannel(client, member.guild);
+            let welcomeChannel = await module.exports.getWelcomeChannel(client, member.guild);
             if (welcomeChannel)
                 welcomeChannel.send(new MessageEmbed()
                     .setTitle(`Welcome ${member.user.username}!`)
@@ -22,6 +22,11 @@ module.exports = {
                     .setAuthor(member.displayName, member.user.avatarURL())
                     .setThumbnail(member.guild.iconURL())
                 );
+
+            if (member.guild.id == '848623399739195463') {
+                member.roles.add('848625869853556806');
+            }
+
         }
     ), ...{
         /**@param {Client} client

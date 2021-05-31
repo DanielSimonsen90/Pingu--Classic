@@ -9,6 +9,8 @@ module.exports = new PinguEvent('guildDelete',
     },
     async function execute(client, guild) {
         let pGuild = await PinguGuild.Get(guild);
+        if (!pGuild) return;
+
         if (pGuild.clients.find(c => c && c._id != client.id)) /*Other Pingu client is in guild*/ return;
 
         //Remove guild from MongolDB
