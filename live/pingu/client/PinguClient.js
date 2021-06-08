@@ -24,7 +24,7 @@ const PinguLibrary_1 = require("../library/PinguLibrary");
 const handlers_1 = require("../handlers");
 const Config_1 = require("../../helpers/Config");
 class PinguClient extends discord_js_1.Client {
-    constructor(config, subscribedEvents, commandsPath, evensPath, options) {
+    constructor(config, subscribedEvents, commandsPath, eventsPath, options) {
         super(options);
         this.commands = new discord_js_1.Collection();
         this.events = new discord_js_1.Collection();
@@ -35,12 +35,13 @@ class PinguClient extends discord_js_1.Client {
                 v).sort();
         if (commandsPath)
             this.HandlePath(commandsPath, 'command');
-        if (evensPath)
-            this.HandlePath(evensPath, 'event');
+        if (eventsPath)
+            this.HandlePath(eventsPath, 'event');
     }
     static ToPinguClient(client) { return ToPinguClient(client); }
     //Public properties
     get id() { return this.user.id; }
+    get tag() { return this.user.tag; }
     //Pubic methods
     setActivity(options) {
         if (options)
@@ -80,7 +81,7 @@ class PinguClient extends discord_js_1.Client {
             type: activity.type
         });
     }
-    get isLive() { return this.user.id == PinguClient.Clients.PinguID; }
+    get isLive() { return this.user.id == exports.Clients.PinguID; }
     toPClient(pGuild) {
         return pGuild.clients.find(c => c && c._id == this.user.id);
     }
@@ -90,7 +91,7 @@ class PinguClient extends discord_js_1.Client {
             return PinguLibrary_1.AchievementCheckType(this, key.substring(6).toUpperCase(), //cut away "chosen"
             args[0], 'EVENT', key, (function getConfig() {
                 switch (key) {
-                    case 'chosenUser': return args[1] && args[1].achievementConfig;
+                    case 'chosenUser': return args[1].achievementConfig;
                     case 'chosenGuild': return args[1].settings.config.achievements;
                     default: return null;
                 }

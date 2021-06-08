@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PinguLibrary = exports.PinguEvent = exports.CommandCategories = exports.PinguCommand = exports.Marry = exports.Daily = exports.PinguUser = exports.PinguGuildMember = exports.ReactionRole = exports.Song = exports.Queue = exports.PinguGuild = exports.PinguClient = exports.Badges = exports.PinguBadge = exports.GuildAchievementConfig = exports.GuildMemberAchievementConfig = exports.UserAchievementConfig = exports.GuildAchievement = exports.GuildMemberAchievement = exports.UserAchievement = void 0;
+exports.PinguLibrary = exports.PinguMusicCommand = exports.PinguMusicEvent = exports.PinguEvent = exports.CommandCategories = exports.PinguCommand = exports.Marry = exports.Daily = exports.PinguUser = exports.PinguGuildMember = exports.ReactionRole = exports.Song = exports.Queue = exports.PinguGuild = exports.PinguMusicClient = exports.PinguClient = exports.Badges = exports.PinguBadge = exports.GuildAchievementConfig = exports.GuildMemberAchievementConfig = exports.UserAchievementConfig = exports.GuildAchievement = exports.GuildMemberAchievement = exports.UserAchievement = void 0;
 var items_1 = require("./achievements/items");
 Object.defineProperty(exports, "UserAchievement", { enumerable: true, get: function () { return items_1.UserAchievement; } });
 Object.defineProperty(exports, "GuildMemberAchievement", { enumerable: true, get: function () { return items_1.GuildMemberAchievement; } });
@@ -14,6 +14,8 @@ Object.defineProperty(exports, "PinguBadge", { enumerable: true, get: function (
 Object.defineProperty(exports, "Badges", { enumerable: true, get: function () { return PinguBadge_1.Badges; } });
 var PinguClient_1 = require("./client/PinguClient");
 Object.defineProperty(exports, "PinguClient", { enumerable: true, get: function () { return PinguClient_1.PinguClient; } });
+var PinguMusicClient_1 = require("./client/PinguMusicClient");
+Object.defineProperty(exports, "PinguMusicClient", { enumerable: true, get: function () { return PinguMusicClient_1.PinguMusicClient; } });
 var PinguGuild_1 = require("./guild/PinguGuild");
 Object.defineProperty(exports, "PinguGuild", { enumerable: true, get: function () { return PinguGuild_1.PinguGuild; } });
 var items_2 = require("./guild/items");
@@ -31,5 +33,7 @@ var handlers_1 = require("./handlers");
 Object.defineProperty(exports, "PinguCommand", { enumerable: true, get: function () { return handlers_1.PinguCommand; } });
 Object.defineProperty(exports, "CommandCategories", { enumerable: true, get: function () { return handlers_1.CommandCategories; } });
 Object.defineProperty(exports, "PinguEvent", { enumerable: true, get: function () { return handlers_1.PinguEvent; } });
+Object.defineProperty(exports, "PinguMusicEvent", { enumerable: true, get: function () { return handlers_1.PinguMusicEvent; } });
+Object.defineProperty(exports, "PinguMusicCommand", { enumerable: true, get: function () { return handlers_1.PinguMusicCommand; } });
 var PinguLibrary_1 = require("./library/PinguLibrary");
 Object.defineProperty(exports, "PinguLibrary", { enumerable: true, get: function () { return PinguLibrary_1.PinguLibrary; } });

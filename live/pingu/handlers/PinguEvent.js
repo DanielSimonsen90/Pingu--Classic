@@ -199,9 +199,11 @@ function HandleEvent(caller, client, path, ...args) {
                     result = achievementOptions(arg, type);
             }
         }
-        var user = getAchiever('User');
-        var guild = getAchiever('Guild');
-        var guildMember = getAchiever('GuildMember');
+        var [user, guild, guildMember] = [
+            getAchiever('User'),
+            getAchiever('Guild'),
+            getAchiever('GuildMember')
+        ];
         user = !user && guildMember ? guildMember.user : null;
         PinguLibrary_1.AchievementCheck(client, { user, guild, guildMember }, 'EVENT', caller, args);
         function SendToLog() {
@@ -211,7 +213,7 @@ function HandleEvent(caller, client, path, ...args) {
                         parameter.author && parameter.author.tag,
                         parameter.tag,
                         parameter.user && parameter.user.tag,
-                        parameter.member && parameter.member.user && parameter.member.user.tag,
+                        parameter.member && parameter.member.user.tag,
                         parameter.users && parameter.users.cache.last() && parameter.users.cache.last().tag,
                         parameter.last && parameter.last() && parameter.last().author.tag,
                         parameter.inviter && parameter.inviter.tag,

@@ -155,7 +155,7 @@ function PermissionCheckDecidable(params) {
         yield CheckRoleUpdates();
         if (decidablesType == DecidablesEnum.Suggestion)
             return PinguLibrary.PermissionGranted;
-        if (!message.member.hasPermission('ADMINISTRATOR') && pRole && !message.member.roles.cache.has(pRole._id))
+        if (!message.member.hasPermission(helpers_1.DiscordPermissions.ADMINISTRATOR) && pRole && !message.member.roles.cache.has(pRole._id))
             return "You don't have `Administrator` permissions" + (pRole ? ` or the \`${pRole.name}\` role` : "" + "!");
         if (decidablesType == DecidablesEnum.Giveaway && args[0].endsWith('w') && !isNaN(parseInt(args[0].substring(0, args[0].length - 1))))
             args.shift();

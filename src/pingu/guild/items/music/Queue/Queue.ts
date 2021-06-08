@@ -1,6 +1,6 @@
 import { Message, MessageEmbed, TextChannel, VoiceChannel, VoiceConnection } from "discord.js";
 
-import { consoleLog } from "../../../../library/PinguLibrary";
+import { consoleLog, errorLog } from "../../../../library/PinguLibrary";
 
 import PinguClient from '../../../../client/PinguClient';
 import { GetPGuild } from '../../../PinguGuild';
@@ -9,13 +9,12 @@ import IMuisc from "../IMusic";
 import Song from '../Song';
 import { get, set } from './statics';
 
+import { PinguMusicCommandParams } from "../../../../handlers/PinguMusicCommand";
+import { PClient } from "../../../../../database/json/PClient";
+
 export class Queue implements IMuisc {
-    public static get(guildID: string) {
-        return get(guildID);
-    }
-    public static set(guildID: string, queue: Queue) {
-        return set(guildID, queue);
-    }
+    public static get(guildID: string) { return get(guildID); }
+    public static set(guildID: string, queue: Queue) { return set(guildID, queue); }
 
     constructor(logChannel: TextChannel, voiceChannel: VoiceChannel, songs: Song[], playing = true) {
         this.logChannel = logChannel;
@@ -37,9 +36,7 @@ export class Queue implements IMuisc {
     public playing: boolean
     public loop: boolean
 
-    public get currentSong() {
-        return this.songs[this.index];
-    }
+    public get currentSong() { return this.songs[this.index]; }
 
     /** Adds song to the start of the queue
      * @param song song to add*/

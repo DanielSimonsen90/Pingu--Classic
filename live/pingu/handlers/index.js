@@ -1,9 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LoggedCache = exports.PinguEvent = exports.CommandCategories = exports.PinguCommand = void 0;
+exports.PinguMusicCommand = exports.PinguMusicEvent = exports.LoggedCache = exports.PinguEvent = exports.CommandCategories = exports.PinguCommand = void 0;
 var PinguCommand_1 = require("./PinguCommand");
 Object.defineProperty(exports, "PinguCommand", { enumerable: true, get: function () { return PinguCommand_1.PinguCommand; } });
 Object.defineProperty(exports, "CommandCategories", { enumerable: true, get: function () { return PinguCommand_1.CommandCategories; } });
 var PinguEvent_1 = require("./PinguEvent");
 Object.defineProperty(exports, "PinguEvent", { enumerable: true, get: function () { return PinguEvent_1.PinguEvent; } });
 Object.defineProperty(exports, "LoggedCache", { enumerable: true, get: function () { return PinguEvent_1.LoggedCache; } });
+var PinguMusicEvent_1 = require("./PinguMusicEvent");
+Object.defineProperty(exports, "PinguMusicEvent", { enumerable: true, get: function () { return PinguMusicEvent_1.PinguMusicEvent; } });
+var PinguMusicCommand_1 = require("./PinguMusicCommand");
+Object.defineProperty(exports, "PinguMusicCommand", { enumerable: true, get: function () { return PinguMusicCommand_1.PinguMusicCommand; } });

@@ -18,11 +18,11 @@ export interface PinguCommandParams {
     message: Message;
     args?: string[];
     pAuthor?: PinguUser;
+    pGuildMember?: PinguGuildMember;
     pGuild?: PinguGuild;
     pGuildClient?: PClient;
-    pGuildMember?: PinguGuildMember;
 }
-declare type ExecuteReturns = void | Message | VoiceConnection;
+export declare type ExecuteReturns = void | Message | VoiceConnection;
 export declare class PinguCommand extends PinguHandler {
     constructor(name: string, category: CommandCategoriesType, description: string, data: {
         usage: string;

@@ -15,14 +15,15 @@ interface ChosenOnes {
     chosenUser: [User, PinguUser]
 }
 
-export interface PinguClientEvents extends ClientEvents, ChosenOnes {
+export interface PinguEvents extends ChosenOnes {
     onready: [PinguClient],
     ondebug: [PinguClient],
     mostKnownUser: [User]
 }
+export type SubscribedEvents = 'Discord' | 'Pingu';
+export interface PinguClientEvents extends ClientEvents, PinguEvents {}
 
 import PinguHandler from './PinguHandler'
-
 import { errorLog, eventLog, errorCache, SavedServers, AchievementCheck } from "../library/PinguLibrary";
 const PinguLibrary = { errorLog, eventLog, errorCache, SavedServers }
 
@@ -223,9 +224,11 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
         }
     }
 
-    var user = getAchiever('User') as User;
-    var guild = getAchiever('Guild') as Guild;
-    var guildMember = getAchiever('GuildMember') as GuildMember;
+    var [user, guild, guildMember] = [
+        getAchiever('User') as User,
+        getAchiever('Guild') as Guild,
+        getAchiever('GuildMember') as GuildMember
+    ];
 
     user = !user && guildMember ? guildMember.user : null;
     AchievementCheck(client, { user, guild, guildMember }, 'EVENT', caller, args);
@@ -236,7 +239,7 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
                 parameter.author && parameter.author.tag,
                 parameter.tag,
                 parameter.user && parameter.user.tag,
-                parameter.member && parameter.member.user && parameter.member.user.tag,
+                parameter.member && parameter.member.user.tag,
                 parameter.users && parameter.users.cache.last() && parameter.users.cache.last().tag,
                 parameter.last && parameter.last() && parameter.last().author.tag,
                 parameter.inviter && parameter.inviter.tag,

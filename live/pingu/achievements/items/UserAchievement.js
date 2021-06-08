@@ -82,6 +82,6 @@ UserAchievement.Achievements = [
     new UserAchievement(23, "You! With me.", 'COMMAND', 'invite', "Use the `invite` command to invite Pingu to your server"),
     new UserAchievement(24, "Marry me!", 'COMMAND', 'marry', "Use the `marry` command to marry someone"),
     new UserAchievement(25, "I'm the chosen one!", 'EVENT', 'chosenUser', "Become the chosen user in Pingu Support")
-        .setCallback('chosenUser', ([user, pUser]) => __awaiter(void 0, void 0, void 0, function* () { return pUser && pUser.sharedServers.find(pg => pg._id == PinguLibrary_1.SavedServers.get('Pingu Support').id) != null; }))
+        .setCallback('chosenUser', ([user, pUser]) => __awaiter(void 0, void 0, void 0, function* () { return pUser.sharedServers.find(pg => pg._id == PinguLibrary_1.SavedServers.get('Pingu Support').id) != null; }))
 ];
 exports.default = UserAchievement;

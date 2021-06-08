@@ -23,7 +23,6 @@ class AchievementConfigBase {
             PinguLibrary_1.achievementLog(client, embed);
             if (notificationType == 'NONE')
                 return null;
-            PinguLibrary_1.DanhoDM(`Messaging ${(guild || announceChannel.guild ? guild.owner : announceChannel.recipient)} as their notificationtype = ${notificationType}`);
             try {
                 let message = yield announceChannel.send(embed);
                 yield message.react(PinguLibrary_1.SavedServers.get('Pingu Support').emojis.cache.find(e => e.name == 'hypers'));

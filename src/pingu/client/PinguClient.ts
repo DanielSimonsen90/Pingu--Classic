@@ -1,100 +1,46 @@
 import { ActivityOptions, ActivityType, Client, ClientEvents, ClientOptions, Collection } from "discord.js";
 import * as fs from 'fs';
 
-export const Clients = {
-    PinguID: '562176550674366464',
-    BetaID: '778288722055659520'
-}
+
 export function ToPinguClient(client: Client): PinguClient {
     return client as PinguClient;
 }
 
+import BasePinguClient from "./BasePinguClient";
 import { errorLog, DanhoDM, Developers, AchievementCheckType, AchievementCheck, consoleLog } from '../library/PinguLibrary';
 import PinguGuild from '../guild/PinguGuild';
-
-import { PinguCommand, PinguEvent, PinguClientEvents } from '../handlers';
-
+import { PinguCommand, PinguEvent, PinguEvents, SubscribedEvents, PinguClientEvents } from '../handlers';
 import { IConfigRequirements, Config } from '../../helpers/Config';
 
-export class PinguClient extends Client {
+export class PinguClient extends BasePinguClient<[keyof PinguClientEvents]> {
     //Statics
-    public static Clients = Clients;
     public static ToPinguClient(client: Client) { return ToPinguClient(client); }
 
-    constructor(config: IConfigRequirements, subscribedEvents: [keyof PinguClientEvents], commandsPath?: string, evensPath?: string, options?: ClientOptions) {
-        super(options);
-
-        this.config = new Config(config);
-        this.subscribedEvents = subscribedEvents.map(v => 
-            v == 'ready' ? 'onready' : 
-            v == 'debug' ? 'ondebug' : 
-            v
-        ).sort() as [keyof PinguClientEvents];
+    constructor(config: IConfigRequirements, subscribedEvents: Collection<SubscribedEvents, keyof PinguClientEvents>, commandsPath?: string, evensPath?: string, options?: ClientOptions) {
+        super(config, subscribedEvents as any, options);
 
         if (commandsPath) this.HandlePath(commandsPath, 'command');
         if (evensPath) this.HandlePath(evensPath, 'event');
     }
 
     //Public properties
-    public get id() { return this.user.id; }
     public commands = new Collection<string, PinguCommand>();
     public events = new Collection<string, PinguEvent<keyof PinguClientEvents>>();
-    public DefaultEmbedColor = 3447003;
-    public DefaultPrefix: string;
-    public subscribedEvents: [keyof PinguClientEvents];
-    public config: Config;
+    public subscribedEvents: Collection<SubscribedEvents, keyof PinguClientEvents>;
 
     //Pubic methods
-    public setActivity(options?: ActivityOptions) {
-        if (options) return this.user.setActivity(options);
 
-        class Activity {
-            constructor(text: string, type: ActivityType) {
-                this.text = text;
-                this.type = type;
-            }
-            public text: string
-            public type: ActivityType
-        }
-        
-        let date = {
-            day: new Date(Date.now()).getDate(),
-            month: new Date(Date.now()).getMonth() + 1,
-            year: new Date(Date.now()).getFullYear()
-        };
-
-        var activity = this.isLive ? new Activity('your screams for', 'LISTENING') : new Activity('Danho cry over bad code', 'WATCHING');
-
-        if (date.month == 12)
-            activity = date.day < 26 ?
-                new Activity('Jingle Bells...', 'LISTENING') :
-                new Activity('fireworks go boom', 'WATCHING');
-        else if (date.month == 5)
-            activity =
-                date.day == 3 ? new Activity(`Danho's birthday wishes`, 'LISTENING') :
-                    date.day == 4 ? new Activity('Star Wars', 'WATCHING') : null;
-
-        let Danho = Developers.get('Danho');
-        let DanhoStream = Danho.presence.activities.find(a => a.type == 'STREAMING');
-        if (DanhoStream) return this.user.setActivity({
-            name: DanhoStream.details,
-            type: DanhoStream.type,
-            url: DanhoStream.url
-        });
-
-        if (!activity) activity = new Activity('your screams for', 'LISTENING');
-
-        return this.user.setActivity({
-            name: activity.text + ` ${this.DefaultPrefix}help`, 
-            type: activity.type 
-        });
-    }
-    public get isLive() { return this.user.id == PinguClient.Clients.PinguID }
     public toPClient(pGuild: PinguGuild) {
         return pGuild.clients.find(c => c && c._id == this.user.id);
     }
 
     public emit<PCE extends keyof PinguClientEvents, CE extends keyof ClientEvents>(key: PCE, ...args: PinguClientEvents[PCE]) {
+        if (this.subscribedEvents.get('Discord').includes(key))
+            return super.emit(
+                key as unknown as CE, 
+                ...args as unknown as ClientEvents[CE]
+            );
+        
         const chosenEvents = ['chosenUser', 'chosenGuild'];
 
         if (chosenEvents.includes(key)) return AchievementCheckType(
@@ -105,7 +51,7 @@ export class PinguClient extends Client {
             key, 
             (function getConfig(){
                 switch (key) {
-                    case 'chosenUser': return args[1] && (args[1] as any).achievementConfig;
+                    case 'chosenUser': return (args[1] as any).achievementConfig;
                     case 'chosenGuild': return (args[1] as PinguGuild).settings.config.achievements;
                     default: return null;
                 }
@@ -116,17 +62,6 @@ export class PinguClient extends Client {
         else if (key == 'mostKnownUser') return AchievementCheck(
             this, { user: args[0] }, 'EVENT', 'mostKnownUser', args
         ) != null;
-
-        return super.emit(
-            key as unknown as CE, 
-            ...args as unknown as ClientEvents[CE]
-        );
-    }
-
-    public async login(token?: string){
-        let result = await super.login(token);        
-        this.DefaultPrefix = this.isLive || !this.config.BetaPrefix ? this.config.Prefix : this.config.BetaPrefix;
-        return result;
     }
 
     //Private methods
@@ -139,7 +74,7 @@ export class PinguClient extends Client {
                     module.path = `${path.substring(1, path.length)}/${file}`;
 
                     if (type == 'event') {
-                        if (!module.name || !this.subscribedEvents.includes(module.name as keyof PinguClientEvents)) continue;
+                        if (!module.name || !this.subscribedEvents.find(e => module.name as keyof PinguClientEvents == e)) continue;
 
                         const type = module.name as keyof PinguClientEvents
                         const event = module as PinguEvent<typeof type>;
@@ -164,7 +99,7 @@ export class PinguClient extends Client {
         }
     }
     private handleEvent<eventType extends keyof PinguClientEvents>(caller: eventType, ...args: PinguClientEvents[eventType]) {
-        if (this.subscribedEvents.includes(caller)) 
+        if (this.subscribedEvents.find(e => e == caller)) 
             PinguEvent.HandleEvent(caller, this, this.events.get(caller).path, ...args as PinguClientEvents[eventType]);
         return this;
     }

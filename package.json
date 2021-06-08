@@ -8,12 +8,11 @@
   "license": "ISC",
   "dependencies": {
     "commonjs": "0.0.1",
-    "discord.js": "^12.5.3",
     "fliegdoc": "^0.4.7",
     "fs": "0.0.1-security",
-    "mongoose": "^5.12.12",
+    "mongoose": "^5.11.15",
     "request": "^2.88.2",
     "typescript": "^4.1.5",
-    "ytdl-core": "^4.8.2"
+    "ytdl-core": "^4.4.5"
   }
 }
