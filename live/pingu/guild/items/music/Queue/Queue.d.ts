@@ -1,6 +1,6 @@
 import { Message, MessageEmbed, TextChannel, VoiceChannel, VoiceConnection } from "discord.js";
-import { IMuisc } from "../IMusic";
-import { Song } from '../Song';
+import IMuisc from "../IMusic";
+import Song from '../Song';
 export declare class Queue implements IMuisc {
     static get(guildID: string): Queue;
     static set(guildID: string, queue: Queue): void;
@@ -31,3 +31,4 @@ export declare class Queue implements IMuisc {
     Update(message: Message, commandName: string, succMsg: string): Promise<void>;
     NowPlayingEmbed(message: Message): Promise<MessageEmbed>;
 }
+export default Queue;

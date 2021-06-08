@@ -1,6 +1,6 @@
-import { IDecidableConfigOptions } from './IDecidableConfigOptions';
-import { PRole } from '../../database/json';
-import { Theme } from '../items/Theme';
+import IDecidableConfigOptions from './IDecidableConfigOptions';
+import PRole from '../../database/json/PRole';
+import Theme from '../items/Theme';
 export interface IThemeConfigOptions extends IDecidableConfigOptions {
     allowSameWinner: boolean;
     ignoreLastWins: number;
@@ -8,3 +8,4 @@ export interface IThemeConfigOptions extends IDecidableConfigOptions {
     winnerRole: PRole;
     themes: Theme[];
 }
+export default IThemeConfigOptions;

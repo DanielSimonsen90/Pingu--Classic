@@ -11,8 +11,7 @@ export async function DBExecute<T>(client: Client, callback: (mongoose: typeof i
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
-        var returnValue = await callback(mongoose);
+        return callback(mongoose);
     } catch (err) { errorLog(client, 'Mongo error', null, new Error(err)); }
     //finally { mongoose.connection.close(); }
-    return returnValue;
 }

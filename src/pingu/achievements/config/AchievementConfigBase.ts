@@ -1,10 +1,10 @@
 export type AchievementBaseNotificationType = 'NONE';
 
-import { Client, Guild, MessageEmbed, TextChannel } from "discord.js";
+import { Client, DMChannel, Guild, GuildChannel, MessageEmbed, TextChannel } from "discord.js";
 import { PChannel, PAchievement } from "../../../database/json";
-import { Percentage } from "../../../helpers/Percentage";
-import { SavedServers, achievementLog } from "../../library/PinguLibrary";
-import { AchievementBase } from "../items/AchievementBase";
+import Percentage from "../../../helpers/Percentage";
+import { SavedServers, achievementLog, DanhoDM } from "../../library/PinguLibrary";
+import AchievementBase from "../items/AchievementBase";
 
 export abstract class AchievementConfigBase {
     public enabled: boolean = true;
@@ -18,7 +18,9 @@ export abstract class AchievementConfigBase {
         
         achievementLog(client, embed)
 
-        if (notificationType == 'NONE') return null;      
+        if (notificationType == 'NONE') return null;
+        DanhoDM(`Messaging ${(guild || (announceChannel as GuildChannel).guild ? guild.owner : (announceChannel as DMChannel).recipient)} as their notificationtype = ${notificationType}`)
+        
         try {
             let message = await (announceChannel as TextChannel).send(embed);
             await message.react(SavedServers.get('Pingu Support').emojis.cache.find(e => e.name == 'hypers'));
@@ -27,3 +29,4 @@ export abstract class AchievementConfigBase {
         catch { return null; }
     }
 }
+export default AchievementConfigBase;

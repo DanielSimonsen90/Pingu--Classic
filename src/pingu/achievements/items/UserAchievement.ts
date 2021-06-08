@@ -9,7 +9,7 @@ export interface UserAchievementCallbackParams extends AchievementCallbackParams
 import { IUserAchievement } from "./IAchievementBase";
 import { User } from "discord.js";
 import { GetPinguUsers, GetPUser, GetUpdatedProperty } from "../../user/PinguUser";
-import { Percentage } from "../../../helpers";
+import Percentage from "../../../helpers/Percentage";
 import { SavedServers } from "../../library/PinguLibrary";
 
 export class UserAchievement
@@ -89,6 +89,8 @@ extends AchievementBase implements IUserAchievement<Key, Type, AchievementCallba
         new UserAchievement(23, "You! With me.", 'COMMAND', 'invite', "Use the `invite` command to invite Pingu to your server"),
         new UserAchievement(24, "Marry me!", 'COMMAND', 'marry', "Use the `marry` command to marry someone"),
         new UserAchievement(25, "I'm the chosen one!", 'EVENT', 'chosenUser', "Become the chosen user in Pingu Support")
-            .setCallback('chosenUser', async ([user, pUser]) => pUser.sharedServers.find(pg => pg._id == SavedServers.get('Pingu Support').id) != null)
+            .setCallback('chosenUser', async ([user, pUser]) => pUser && pUser.sharedServers.find(pg => pg._id == SavedServers.get('Pingu Support').id) != null)
     ];
 }
+
+export default UserAchievement;

@@ -8,3 +8,4 @@ class PAchievement {
     }
 }
 exports.PAchievement = PAchievement;
+exports.default = PAchievement;

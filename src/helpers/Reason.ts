@@ -13,3 +13,5 @@ export class Reason {
     public succMsg: string;
     public errMsg: string;
 }
+
+export default Reason;

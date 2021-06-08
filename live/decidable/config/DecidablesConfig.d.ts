@@ -1,5 +1,5 @@
 import { Guild } from "discord.js";
-import { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from '.';
+import { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from './index';
 export declare class DecidablesConfig {
     constructor(guild: Guild);
     giveawayConfig: GiveawayConfig;
@@ -7,3 +7,4 @@ export declare class DecidablesConfig {
     suggestionConfig: SuggestionConfig;
     themeConfig: ThemeConfig;
 }
+export default DecidablesConfig;

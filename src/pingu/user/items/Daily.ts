@@ -1,4 +1,4 @@
-import { TimeLeftObject } from "../../../helpers";
+import TimeLeftObject from "../../../helpers/TimeLeftObject";
 
 export class Daily {
     constructor() {
@@ -11,3 +11,5 @@ export class Daily {
     public nextClaim: TimeLeftObject
     public streak: number
 }
+
+export default Daily;

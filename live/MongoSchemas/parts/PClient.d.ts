@@ -4,3 +4,4 @@ export declare const PClient: {
     prefix: StringConstructor;
     displayName: StringConstructor;
 };
+export default PClient;

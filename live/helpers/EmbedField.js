@@ -10,3 +10,4 @@ class EmbedField {
     static Blank(inline = false) { return new EmbedField('\u200B', '\u200B', inline); }
 }
 exports.EmbedField = EmbedField;
+exports.default = EmbedField;

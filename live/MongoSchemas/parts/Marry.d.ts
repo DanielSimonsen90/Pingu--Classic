@@ -5,3 +5,4 @@ export declare const Marry: {
     };
     internalDate: DateConstructor;
 };
+export default Marry;

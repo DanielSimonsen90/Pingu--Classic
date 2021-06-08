@@ -21,11 +21,12 @@ export interface AchievementCallbackParams {
     COMMAND: [[PinguCommandParamsResponse]];
     VOICE: [[VoiceState]];
 }
-import { PItem } from "../../../database/json/PItem";
-import { Percentage } from "../../../helpers/Percentage";
+import PItem from "../../../database/json/PItem";
+import Percentage from "../../../helpers/Percentage";
 export declare abstract class AchievementBase extends PItem {
     constructor(id: number, name: string, description: string);
     description: string;
     abstract getPercentage(guild?: Guild): Promise<Percentage>;
     protected static useCommand(command: Commands, extraInfo: string): string;
 }
+export default AchievementBase;

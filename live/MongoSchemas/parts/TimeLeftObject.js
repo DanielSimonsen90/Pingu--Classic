@@ -8,3 +8,4 @@ exports.TimeLeftObject = {
     hours: Number,
     days: Number
 };
+exports.default = exports.TimeLeftObject;

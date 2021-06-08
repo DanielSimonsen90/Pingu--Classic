@@ -4,3 +4,5 @@ export const PClient = {
     prefix: String,
     displayName: String
 }
+
+export default PClient;

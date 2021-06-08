@@ -3,11 +3,9 @@
     MessageAttachment, MessageEmbed, MessageReaction,
     User, PermissionString, Snowflake, TextChannel, GuildMember
 } from 'discord.js';
-
 import * as fs from 'fs';
 import * as request from 'request';
-
-import { PClient } from "../../database";
+import PClient from "../../database/json/PClient";
 import { Error, DiscordPermissions, BitPermission } from '../../helpers';
 
 //#region Permissions
@@ -20,7 +18,7 @@ interface Check {
 export const PermissionGranted = "Permission Granted";
 export function PermissionCheck(check: Check, ...permissions: PermissionString[]) {
     if (permissions[0].length == 1) {
-        PinguLibrary.errorLog(check.client, `Permissions not defined correctly!`, check.content);
+        errorLog(check.client, `Permissions not defined correctly!`, check.content);
         return "Permissions for this script was not defined correctly!";
     }
 
@@ -30,7 +28,7 @@ export function PermissionCheck(check: Check, ...permissions: PermissionString[]
         if (!checkPermisson(check.channel, check.client.user, permissions[x]))
             return `I don't have permission to **${permString}** in ${check.channel.name}.`;
         else if (!checkPermisson(check.channel, check.author, permissions[x]) &&
-            (PinguLibrary.isPinguDev(check.author) && ToPinguClient(check.client).config.testingMode || !this.isPinguDev(check.author)))
+            (isPinguDev(check.author) && ToPinguClient(check.client).config.testingMode || !isPinguDev(check.author)))
             return `<@${check.author.id}> you don't have permission to **${permString}** in #${check.channel.name}.`;
     }
     return PermissionGranted;
@@ -137,20 +135,12 @@ export async function getSharedServers(client: Client, user: User): Promise<Guil
 
 //#region Developers
 type DeveloperNames = 'Danho' | 'SynthySytro' | 'Slothman' | 'DefilerOfCats';
-class Developer {
-    constructor(name: DeveloperNames, id: Snowflake) {
-        this.name = name;
-        this.id = id;
-    }
-
-    public name: DeveloperNames;
-    public id: Snowflake;
-}
-const developers = new Collection<DeveloperNames, Snowflake>()
-    .set('Danho', '245572699894710272')
-    .set('SynthySytro', '405331883157880846')
-    .set('Slothman', '290131910091603968')
-    .set('DefilerOfCats', '803903863706484756');
+const developers = new Collection<DeveloperNames, Snowflake>([
+    ['Danho', '245572699894710272'],
+    ['SynthySytro', '405331883157880846'],
+    ['Slothman', '290131910091603968'],
+    ['DefilerOfCats', '803903863706484756']
+]);
 
 export const Developers = new Collection<DeveloperNames, User>();
 export async function CacheDevelopers(client: Client): Promise<Collection<DeveloperNames, User>> {
@@ -314,7 +304,7 @@ export async function consoleLog(client: Client, message: string) {
     let consoleLogChannel = getTextChannel(client, SavedServers.get('Pingu Support').id, "console-log-📝");
     if (!consoleLogChannel) return DanhoDM(`Unable to find #console-log-📝 in Pingu Support, ${PinguLibrary.PinguSupportInvite}`);
 
-    consoleLogChannel.send(message);
+    return consoleLogChannel.send(message);
 }
 
 import { LoggedCache } from "../handlers";
@@ -359,7 +349,7 @@ export async function tellLog(client: Client, sender: User, reciever: User, mess
 
         consoleLog(client, consoleLogValue);
 
-        var format = (ping: boolean) => `${new Date(Date.now()).toLocaleTimeString()} [<@${(ping ? sender : sender.username)}> ➡️ <@${(ping ? reciever : reciever.username)}>]`;
+        var format = (ping: boolean) => `${new Date(Date.now()).toLocaleTimeString()} [${(ping ? sender : sender.username)} ➡️ ${(ping ? reciever : reciever.username)}]`;
 
         if (messageAsMessage.content && messageAsMessage.attachments)
             tellLogChannel.send(format(false) + `: ||${messageAsMessage.content}||`, messageAsMessage.attachments.array())
@@ -397,11 +387,11 @@ export async function latencyCheck(client: Client, timestamp: number) {
     pingChannelSent.edit(latency + 'ms');
 
     //Get outages channel
-    let outages = getTextChannel(client, SavedServers.get('Pingu Support').id, "outages-😵");
-    if (!outages) return errorLog(client, `Unable to find #outages-😵 channel from LatencyCheck!`);
+    let outagesChannel = getTextChannel(client, SavedServers.get('Pingu Support').id, "outages-😵");
+    if (!outagesChannel) return errorLog(client, `Unable to find #outages-😵 channel from LatencyCheck!`);
 
     //Set up to find last Pingu message
-    let outagesMessages = outages.messages.cache.array();
+    let outagesMessages = outagesChannel.messages.cache.array();
     let outageMessagesCount = outagesMessages.length - 1;
 
     //Find Pingu message
@@ -422,7 +412,7 @@ export async function latencyCheck(client: Client, timestamp: number) {
             return lastPinguMessage.edit(`I have a latency delay on ${latency}!`);
     }
 
-    if (latency > 1000) PinguLibrary.outages(client, `I have a latency delay on ${latency}!`);
+    if (latency > 1000) outages(client, `I have a latency delay on ${latency}!`);
 }
 export async function raspberryLog(client: Client) {
     if (!ToPinguClient(client).isLive) return;
@@ -443,11 +433,11 @@ import { GuildAchievement, GuildAchievementType, GuildAchievementTypeKey, GuildA
 import { GetPUser, UpdatePUser } from "../user/PinguUser";
 import { GetPGuildMember, UpdatePGuildMember } from "../guildMember/PinguGuildMember";
 import { GetPGuild, UpdatePGuild } from "../guild/PinguGuild";
-import { PAchievement } from "../../database/json/PAchievement";
+import PAchievement from "../../database/json/PAchievement";
 
-import { UserAchievementConfig } from "../achievements/config/UserAchievementConfig";
-import { GuildMemberAchievementConfig } from "../achievements/config/GuildMemberAchievementConfig";
-import { GuildAchievementConfig } from "../achievements/config/GuildAchievementConfig";
+import UserAchievementConfig from "../achievements/config/UserAchievementConfig";
+import GuildMemberAchievementConfig from "../achievements/config/GuildMemberAchievementConfig";
+import GuildAchievementConfig from "../achievements/config/GuildAchievementConfig";
 
 interface Achievements {
     USER: UserAchievement<UserAchievementTypeKey, UserAchievementType[UserAchievementTypeKey]>,
@@ -504,8 +494,12 @@ export async function AchievementCheckType
 
     let pAchievements = ((await (async function getAllPAchievements() {
         switch (achieverType) {
-            case 'USER': return (await GetPUser(achiever as User)).achievementConfig.achievements;
-            case 'GUILDMEMBER': return (await GetPGuildMember(achiever as GuildMember, 'PinguLibrary.AchievementCheckType()')).achievementConfig.achievements;
+            case 'USER': 
+                const user = await GetPUser(achiever as User);
+                return user && user.achievementConfig.achievements;
+            case 'GUILDMEMBER': 
+                const member = await GetPGuildMember(achiever as GuildMember, 'PinguLibrary.AchievementCheckType()');
+                return member && member.achievementConfig.achievements;
             case 'GUILD': return (await GetPGuild(achiever as Guild)).settings.config.achievements.achievements;
             default: return null;
         }
@@ -620,7 +614,7 @@ Key extends keyof AchievementType, Type extends AchievementType[Key],>
             callback as never
         );
     }
-    if (data.guildMember && !data.guildMember.user.bot) {
+    if (data.guildMember && !data.guildMember.user?.bot) {
         let pGuildMember = await GetPGuildMember(data.guildMember, 'PinguLibrary.AchievementCheck()');
         if (!pGuildMember) return false;
 
@@ -780,3 +774,5 @@ export class PinguLibrary {
     { return RequestImage(message, pGuildClient, caller, types, searchTerm); }
     //#endregion
 }
+
+export default PinguLibrary;

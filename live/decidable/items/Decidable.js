@@ -12,3 +12,4 @@ class Decidable {
     }
 }
 exports.Decidable = Decidable;
+exports.default = Decidable;

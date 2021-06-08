@@ -75,7 +75,7 @@ class PinguClient extends discord_js_1.Client {
             });
         if (!activity)
             activity = new Activity('your screams for', 'LISTENING');
-        this.user.setActivity({
+        return this.user.setActivity({
             name: activity.text + ` ${this.DefaultPrefix}help`,
             type: activity.type
         });
@@ -90,7 +90,7 @@ class PinguClient extends discord_js_1.Client {
             return PinguLibrary_1.AchievementCheckType(this, key.substring(6).toUpperCase(), //cut away "chosen"
             args[0], 'EVENT', key, (function getConfig() {
                 switch (key) {
-                    case 'chosenUser': return args[1].achievementConfig;
+                    case 'chosenUser': return args[1] && args[1].achievementConfig;
                     case 'chosenGuild': return args[1].settings.config.achievements;
                     default: return null;
                 }
@@ -163,3 +163,4 @@ class PinguClient extends discord_js_1.Client {
 exports.PinguClient = PinguClient;
 //Statics
 PinguClient.Clients = exports.Clients;
+exports.default = PinguClient;

@@ -1,7 +1,7 @@
 import { Client, User, Collection } from "discord.js";
 import { PUser, PQueue, PGuild } from "../../database";
 import { Marry, Daily } from "./items";
-import { UserAchievementConfig } from "../achievements/config/UserAchievementConfig";
+import UserAchievementConfig from "../achievements/config/UserAchievementConfig";
 export declare function WritePUser(client: Client, user: User, scriptName: string, reason: string): Promise<PinguUser>;
 export declare function GetPUser(user: User): Promise<PinguUser>;
 declare type PinguUserUpdate = 'tag' | 'sharedServers' | 'marry' | 'replyPerson' | 'daily' | 'avatar' | 'playlists' | 'achievementConfig';
@@ -57,4 +57,4 @@ export declare class PinguUser {
     achievementConfig: UserAchievementConfig;
     joinedAt: Date;
 }
-export {};
+export default PinguUser;

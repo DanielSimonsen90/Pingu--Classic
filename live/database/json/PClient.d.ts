@@ -6,3 +6,4 @@ export declare class PClient {
     prefix: string;
     _id: string;
 }
+export default PClient;

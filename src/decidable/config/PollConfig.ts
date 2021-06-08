@@ -1,6 +1,6 @@
-import { IPollConfigOptions } from '../interfaces/IPollConfigOptions';
+import IPollConfigOptions from '../interfaces/IPollConfigOptions';
 import { PRole, PChannel } from '../../database/json';
-import { Poll } from '../items/Poll';
+import Poll from '../items/Poll';
 
 export class PollConfig implements IPollConfigOptions {
     constructor(options?: IPollConfigOptions) {
@@ -14,3 +14,5 @@ export class PollConfig implements IPollConfigOptions {
     public polls: Poll[];
     public channel: PChannel;
 }
+
+export default PollConfig;

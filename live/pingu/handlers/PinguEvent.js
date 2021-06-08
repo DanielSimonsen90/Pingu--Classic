@@ -16,7 +16,7 @@ const PinguHandler_1 = require("./PinguHandler");
 const PinguLibrary_1 = require("../library/PinguLibrary");
 const PinguLibrary = { errorLog: PinguLibrary_1.errorLog, eventLog: PinguLibrary_1.eventLog, errorCache: PinguLibrary_1.errorCache, SavedServers: PinguLibrary_1.SavedServers };
 const PinguGuild_1 = require("../guild/PinguGuild");
-const helpers_1 = require("../../helpers");
+const Error_1 = require("../../helpers/Error");
 const PinguUser_1 = require("../user/PinguUser");
 //#region Statics
 exports.Colors = {
@@ -79,9 +79,9 @@ function GoThroughArrays(type, preArr, newArr, callback) {
     let updateMessage = `[**${type}**] `;
     let added = GoThroguhArray(newArr, preArr);
     let removed = GoThroguhArray(preArr, newArr);
-    if (added.length == 0 && removed.length != 0)
+    if (!added.length && removed.length)
         return updateMessage += removed.join(`, `).substring(removed.join(', ').length - 2);
-    else if (removed.length == 0 && added.length != 0)
+    else if (!removed.length && added.length)
         return updateMessage += added.join(`, `).substring(added.join(', ').length - 2);
     return updateMessage += `Unable to find out what changed!`;
     function GoThroguhArray(cycleArr, otherCycleArr) {
@@ -131,7 +131,7 @@ function HandleEvent(caller, client, path, ...args) {
         }
         catch (err) {
             console.log({ err, caller, path });
-            return PinguLibrary.errorLog(client, `Unable to get event for ${caller}`, null, new helpers_1.Error(err));
+            return PinguLibrary.errorLog(client, `Unable to get event for ${caller}`, null, new Error_1.default(err));
         }
         if (!event || !event.execute && !event.setContent)
             return; //Event not found or doesn't have any callbacks assigned
@@ -141,7 +141,7 @@ function HandleEvent(caller, client, path, ...args) {
                     return event.execute(PinguClient_1.ToPinguClient(client), ...args);
                 }
                 catch (err) {
-                    PinguLibrary.errorLog(client, `${event.name}.execute`, null, new helpers_1.Error(err), {
+                    PinguLibrary.errorLog(client, `${event.name}.execute`, null, new Error_1.default(err), {
                         params: { caller, path, args: Object.assign({}, args) },
                         additional: { event, args }
                     });
@@ -154,7 +154,7 @@ function HandleEvent(caller, client, path, ...args) {
                     return SendToLog();
                 }
                 catch (err) {
-                    PinguLibrary.errorLog(client, `${event.name}.setContent`, null, new helpers_1.Error(err), {
+                    PinguLibrary.errorLog(client, `${event.name}.setContent`, null, new Error_1.default(err), {
                         params: { caller, path, args: Object.assign({}, args) },
                         additional: { event, args }
                     });
@@ -199,11 +199,9 @@ function HandleEvent(caller, client, path, ...args) {
                     result = achievementOptions(arg, type);
             }
         }
-        var [user, guild, guildMember] = [
-            getAchiever('User'),
-            getAchiever('Guild'),
-            getAchiever('GuildMember')
-        ];
+        var user = getAchiever('User');
+        var guild = getAchiever('Guild');
+        var guildMember = getAchiever('GuildMember');
         user = !user && guildMember ? guildMember.user : null;
         PinguLibrary_1.AchievementCheck(client, { user, guild, guildMember }, 'EVENT', caller, args);
         function SendToLog() {
@@ -213,7 +211,7 @@ function HandleEvent(caller, client, path, ...args) {
                         parameter.author && parameter.author.tag,
                         parameter.tag,
                         parameter.user && parameter.user.tag,
-                        parameter.member && parameter.member.user.tag,
+                        parameter.member && parameter.member.user && parameter.member.user.tag,
                         parameter.users && parameter.users.cache.last() && parameter.users.cache.last().tag,
                         parameter.last && parameter.last() && parameter.last().author.tag,
                         parameter.inviter && parameter.inviter.tag,
@@ -236,7 +234,7 @@ function HandleEvent(caller, client, path, ...args) {
                     var isPinguUser = false;
                     let user = client.users.cache.find(u => u.tag == emitAssociator);
                     if (user) {
-                        isPinguUser = !user.bot && (yield PinguUser_1.PinguUser.Get(user)) != null;
+                        isPinguUser = !user.bot && (yield PinguUser_1.default.Get(user)) != null;
                     }
                     // if (!isPinguUser) return null;
                 }
@@ -346,7 +344,7 @@ function HandleEvent(caller, client, path, ...args) {
                                 else if (event.name.includes('Update'))
                                     return PinguEvent.Colors.Update;
                                 try {
-                                    return (yield PinguGuild_1.PinguGuild.Get(PinguLibrary.SavedServers.get('Pingu Support'))).clients.find(c => c._id == client.user.id).embedColor;
+                                    return (yield PinguGuild_1.default.Get(PinguLibrary.SavedServers.get('Pingu Support'))).clients.find(c => c._id == client.user.id).embedColor;
                                 }
                                 catch (_a) {
                                     return PinguClient_1.ToPinguClient(client).DefaultEmbedColor;
@@ -365,7 +363,7 @@ function HandleEvent(caller, client, path, ...args) {
 }
 exports.HandleEvent = HandleEvent;
 //#endregion
-class PinguEvent extends PinguHandler_1.PinguHandler {
+class PinguEvent extends PinguHandler_1.default {
     //#endregion
     constructor(name, setContent, execute) {
         super(name);
@@ -400,3 +398,4 @@ exports.PinguEvent = PinguEvent;
 PinguEvent.Colors = exports.Colors;
 PinguEvent.noAuditLog = exports.noAuditLog;
 PinguEvent.LoggedCache = exports.LoggedCache;
+exports.default = PinguEvent;

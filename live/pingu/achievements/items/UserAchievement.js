@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserAchievement = void 0;
 const AchievementBase_1 = require("./AchievementBase");
 const PinguUser_1 = require("../../user/PinguUser");
-const helpers_1 = require("../../../helpers");
+const Percentage_1 = require("../../../helpers/Percentage");
 const PinguLibrary_1 = require("../../library/PinguLibrary");
 class UserAchievement extends AchievementBase_1.AchievementBase {
     constructor(id, name, key, type, description) {
@@ -34,7 +34,7 @@ class UserAchievement extends AchievementBase_1.AchievementBase {
             let pUsers = yield PinguUser_1.GetPinguUsers();
             let whole = pUsers.length;
             let part = pUsers.filter(pUser => pUser.achievementConfig.achievements.find(a => a._id == this._id)).length;
-            return new helpers_1.Percentage(whole, part);
+            return new Percentage_1.default(whole, part);
         });
     }
     static DailyStreak(id, name, streak) {
@@ -82,5 +82,6 @@ UserAchievement.Achievements = [
     new UserAchievement(23, "You! With me.", 'COMMAND', 'invite', "Use the `invite` command to invite Pingu to your server"),
     new UserAchievement(24, "Marry me!", 'COMMAND', 'marry', "Use the `marry` command to marry someone"),
     new UserAchievement(25, "I'm the chosen one!", 'EVENT', 'chosenUser', "Become the chosen user in Pingu Support")
-        .setCallback('chosenUser', ([user, pUser]) => __awaiter(void 0, void 0, void 0, function* () { return pUser.sharedServers.find(pg => pg._id == PinguLibrary_1.SavedServers.get('Pingu Support').id) != null; }))
+        .setCallback('chosenUser', ([user, pUser]) => __awaiter(void 0, void 0, void 0, function* () { return pUser && pUser.sharedServers.find(pg => pg._id == PinguLibrary_1.SavedServers.get('Pingu Support').id) != null; }))
 ];
+exports.default = UserAchievement;

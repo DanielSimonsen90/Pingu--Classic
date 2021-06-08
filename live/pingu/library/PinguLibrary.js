@@ -17,7 +17,7 @@ const helpers_1 = require("../../helpers");
 exports.PermissionGranted = "Permission Granted";
 function PermissionCheck(check, ...permissions) {
     if (permissions[0].length == 1) {
-        PinguLibrary.errorLog(check.client, `Permissions not defined correctly!`, check.content);
+        errorLog(check.client, `Permissions not defined correctly!`, check.content);
         return "Permissions for this script was not defined correctly!";
     }
     for (var x = 0; x < permissions.length; x++) {
@@ -25,7 +25,7 @@ function PermissionCheck(check, ...permissions) {
         if (!checkPermisson(check.channel, check.client.user, permissions[x]))
             return `I don't have permission to **${permString}** in ${check.channel.name}.`;
         else if (!checkPermisson(check.channel, check.author, permissions[x]) &&
-            (PinguLibrary.isPinguDev(check.author) && PinguClient_1.ToPinguClient(check.client).config.testingMode || !this.isPinguDev(check.author)))
+            (isPinguDev(check.author) && PinguClient_1.ToPinguClient(check.client).config.testingMode || !isPinguDev(check.author)))
             return `<@${check.author.id}> you don't have permission to **${permString}** in #${check.channel.name}.`;
     }
     return exports.PermissionGranted;
@@ -118,17 +118,12 @@ function getSharedServers(client, user) {
     });
 }
 exports.getSharedServers = getSharedServers;
-class Developer {
-    constructor(name, id) {
-        this.name = name;
-        this.id = id;
-    }
-}
-const developers = new discord_js_1.Collection()
-    .set('Danho', '245572699894710272')
-    .set('SynthySytro', '405331883157880846')
-    .set('Slothman', '290131910091603968')
-    .set('DefilerOfCats', '803903863706484756');
+const developers = new discord_js_1.Collection([
+    ['Danho', '245572699894710272'],
+    ['SynthySytro', '405331883157880846'],
+    ['Slothman', '290131910091603968'],
+    ['DefilerOfCats', '803903863706484756']
+]);
 exports.Developers = new discord_js_1.Collection();
 function CacheDevelopers(client) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -290,7 +285,7 @@ function consoleLog(client, message) {
         let consoleLogChannel = getTextChannel(client, exports.SavedServers.get('Pingu Support').id, "console-log-📝");
         if (!consoleLogChannel)
             return DanhoDM(`Unable to find #console-log-📝 in Pingu Support, ${PinguLibrary.PinguSupportInvite}`);
-        consoleLogChannel.send(message);
+        return consoleLogChannel.send(message);
     });
 }
 exports.consoleLog = consoleLog;
@@ -339,7 +334,7 @@ function tellLog(client, sender, reciever, message) {
             if (messageAsMessage.attachments)
                 consoleLogValue += messageAsMessage.attachments.map(a => `\n${a.url}`);
             consoleLog(client, consoleLogValue);
-            var format = (ping) => `${new Date(Date.now()).toLocaleTimeString()} [<@${(ping ? sender : sender.username)}> ➡️ <@${(ping ? reciever : reciever.username)}>]`;
+            var format = (ping) => `${new Date(Date.now()).toLocaleTimeString()} [${(ping ? sender : sender.username)} ➡️ ${(ping ? reciever : reciever.username)}]`;
             if (messageAsMessage.content && messageAsMessage.attachments)
                 tellLogChannel.send(format(false) + `: ||${messageAsMessage.content}||`, messageAsMessage.attachments.array())
                     .then(sent => sent.edit(format(true) + `: ||${messageAsMessage.content}||`));
@@ -372,11 +367,11 @@ function latencyCheck(client, timestamp) {
         let latency = pingChannelSent.createdTimestamp - timestamp;
         pingChannelSent.edit(latency + 'ms');
         //Get outages channel
-        let outages = getTextChannel(client, exports.SavedServers.get('Pingu Support').id, "outages-😵");
-        if (!outages)
+        let outagesChannel = getTextChannel(client, exports.SavedServers.get('Pingu Support').id, "outages-😵");
+        if (!outagesChannel)
             return errorLog(client, `Unable to find #outages-😵 channel from LatencyCheck!`);
         //Set up to find last Pingu message
-        let outagesMessages = outages.messages.cache.array();
+        let outagesMessages = outagesChannel.messages.cache.array();
         let outageMessagesCount = outagesMessages.length - 1;
         //Find Pingu message
         for (var i = outageMessagesCount - 1; i >= 0; i--) {
@@ -395,7 +390,7 @@ function latencyCheck(client, timestamp) {
                 return lastPinguMessage.edit(`I have a latency delay on ${latency}!`);
         }
         if (latency > 1000)
-            PinguLibrary.outages(client, `I have a latency delay on ${latency}!`);
+            outages(client, `I have a latency delay on ${latency}!`);
     });
 }
 exports.latencyCheck = latencyCheck;
@@ -436,8 +431,12 @@ function AchievementCheckType(client, achieverType, achiever, key, keyType, conf
         let pAchievements = ((yield (function getAllPAchievements() {
             return __awaiter(this, void 0, void 0, function* () {
                 switch (achieverType) {
-                    case 'USER': return (yield PinguUser_1.GetPUser(achiever)).achievementConfig.achievements;
-                    case 'GUILDMEMBER': return (yield PinguGuildMember_1.GetPGuildMember(achiever, 'PinguLibrary.AchievementCheckType()')).achievementConfig.achievements;
+                    case 'USER':
+                        const user = yield PinguUser_1.GetPUser(achiever);
+                        return user && user.achievementConfig.achievements;
+                    case 'GUILDMEMBER':
+                        const member = yield PinguGuildMember_1.GetPGuildMember(achiever, 'PinguLibrary.AchievementCheckType()');
+                        return member && member.achievementConfig.achievements;
                     case 'GUILD': return (yield PinguGuild_1.GetPGuild(achiever)).settings.config.achievements.achievements;
                     default: return null;
                 }
@@ -456,7 +455,7 @@ function AchievementCheckType(client, achieverType, achiever, key, keyType, conf
         if (!achievements.length)
             return null;
         return (yield Promise.all(achievements.map((achievement) => __awaiter(this, void 0, void 0, function* () {
-            let pAchievement = new PAchievement_1.PAchievement({
+            let pAchievement = new PAchievement_1.default({
                 _id: achievement._id,
                 achievedAt: new Date(Date.now())
             });
@@ -483,9 +482,9 @@ function AchievementCheckType(client, achieverType, achiever, key, keyType, conf
             const notificationType = config.notificationType || config.notificationTypes.guild;
             return (function notify() {
                 switch (achieverType) {
-                    case 'USER': return UserAchievementConfig_1.UserAchievementConfig.notify(client, achiever, achievement, config);
-                    case 'GUILDMEMBER': return GuildMemberAchievementConfig_1.GuildMemberAchievementConfig.notify(client, achiever, achievement, config);
-                    case 'GUILD': return GuildAchievementConfig_1.GuildAchievementConfig.notify(client, achiever, achievement, config);
+                    case 'USER': return UserAchievementConfig_1.default.notify(client, achiever, achievement, config);
+                    case 'GUILDMEMBER': return GuildMemberAchievementConfig_1.default.notify(client, achiever, achievement, config);
+                    case 'GUILD': return GuildAchievementConfig_1.default.notify(client, achiever, achievement, config);
                     default: return null;
                 }
             })();
@@ -494,6 +493,7 @@ function AchievementCheckType(client, achieverType, achiever, key, keyType, conf
 }
 exports.AchievementCheckType = AchievementCheckType;
 function AchievementCheck(client, data, key, type, callback) {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         if (data.user && !data.user.bot) {
             let pUser = yield PinguUser_1.GetPUser(data.user);
@@ -507,7 +507,7 @@ function AchievementCheck(client, data, key, type, callback) {
                 return false;
             givenAchievement = yield AchievementCheckType(client, 'GUILD', data.guild, key, type, pGuild.settings.config.achievements, key, callback);
         }
-        if (data.guildMember && !data.guildMember.user.bot) {
+        if (data.guildMember && !((_a = data.guildMember.user) === null || _a === void 0 ? void 0 : _a.bot)) {
             let pGuildMember = yield PinguGuildMember_1.GetPGuildMember(data.guildMember, 'PinguLibrary.AchievementCheck()');
             if (!pGuildMember)
                 return false;
@@ -679,3 +679,4 @@ PinguLibrary.errorCache = exports.errorCache;
 //#endregion
 //#region Badges
 PinguLibrary.Badges = PinguBadge_1.Badges;
+exports.default = PinguLibrary;

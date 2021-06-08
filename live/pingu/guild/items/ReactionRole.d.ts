@@ -22,3 +22,4 @@ export declare class ReactionRole {
     static RemoveReactionRole(rr: ReactionRole, reactionRoles: ReactionRole[], pGuild: PinguGuild, client: Client): Promise<void>;
     static OnMessageDelete(message: Message): Promise<Message>;
 }
+export default ReactionRole;

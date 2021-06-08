@@ -21,14 +21,14 @@ export interface PinguClientEvents extends ClientEvents, ChosenOnes {
     mostKnownUser: [User]
 }
 
-import { PinguHandler } from './PinguHandler'
+import PinguHandler from './PinguHandler'
 
 import { errorLog, eventLog, errorCache, SavedServers, AchievementCheck } from "../library/PinguLibrary";
 const PinguLibrary = { errorLog, eventLog, errorCache, SavedServers }
 
-import { PinguGuild } from '../guild/PinguGuild';
-import { Error } from '../../helpers';
-import { PinguUser } from '../user/PinguUser';
+import PinguGuild from '../guild/PinguGuild';
+import Error from '../../helpers/Error';
+import PinguUser from '../user/PinguUser';
 
 export interface PinguEventParams {
     client?: Client,
@@ -120,8 +120,8 @@ export function GoThroughArrays<T>(type: string, preArr: T[], newArr: T[], callb
     let added = GoThroguhArray(newArr, preArr);
     let removed = GoThroguhArray(preArr, newArr);
 
-    if (added.length == 0 && removed.length != 0) return updateMessage += removed.join(`, `).substring(removed.join(', ').length - 2);
-    else if (removed.length == 0 && added.length != 0) return updateMessage += added.join(`, `).substring(added.join(', ').length - 2);
+    if (!added.length && removed.length) return updateMessage += removed.join(`, `).substring(removed.join(', ').length - 2);
+    else if (!removed.length && added.length) return updateMessage += added.join(`, `).substring(added.join(', ').length - 2);
     return updateMessage += `Unable to find out what changed!`;
 
     function GoThroguhArray(cycleArr: T[], otherCycleArr: T[]) {
@@ -223,11 +223,9 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
         }
     }
 
-    var [user, guild, guildMember] = [
-        getAchiever('User') as User,
-        getAchiever('Guild') as Guild,
-        getAchiever('GuildMember') as GuildMember
-    ];
+    var user = getAchiever('User') as User;
+    var guild = getAchiever('Guild') as Guild;
+    var guildMember = getAchiever('GuildMember') as GuildMember;
 
     user = !user && guildMember ? guildMember.user : null;
     AchievementCheck(client, { user, guild, guildMember }, 'EVENT', caller, args);
@@ -238,7 +236,7 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
                 parameter.author && parameter.author.tag,
                 parameter.tag,
                 parameter.user && parameter.user.tag,
-                parameter.member && parameter.member.user.tag,
+                parameter.member && parameter.member.user && parameter.member.user.tag,
                 parameter.users && parameter.users.cache.last() && parameter.users.cache.last().tag,
                 parameter.last && parameter.last() && parameter.last().author.tag,
                 parameter.inviter && parameter.inviter.tag,
@@ -422,3 +420,5 @@ export class PinguEvent<eventType extends keyof PinguClientEvents> extends Pingu
     public async setContent(...args: PinguClientEvents[eventType]): Promise<MessageEmbed> { return null; }
     public async execute(client: PinguClient, ...args: PinguClientEvents[eventType]): Promise<Message> { return null; }
 }
+
+export default PinguEvent;

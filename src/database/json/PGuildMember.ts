@@ -1,5 +1,5 @@
 import { GuildMember } from 'discord.js';
-import { PItem } from './PItem';
+import PItem from './PItem';
 
 export class PGuildMember extends PItem {
     constructor(member: GuildMember) {
@@ -9,3 +9,5 @@ export class PGuildMember extends PItem {
         });
     }
 }
+
+export default PGuildMember;

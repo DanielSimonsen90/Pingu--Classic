@@ -1,4 +1,4 @@
-import { ActivityOptions, ActivityType, Client, ClientEvents, ClientOptions, Collection, User } from "discord.js";
+import { ActivityOptions, ActivityType, Client, ClientEvents, ClientOptions, Collection } from "discord.js";
 import * as fs from 'fs';
 
 export const Clients = {
@@ -10,8 +10,7 @@ export function ToPinguClient(client: Client): PinguClient {
 }
 
 import { errorLog, DanhoDM, Developers, AchievementCheckType, AchievementCheck, consoleLog } from '../library/PinguLibrary';
-import { PinguGuild } from '../guild/PinguGuild';
-import { GetPUser } from "../user/PinguUser";
+import PinguGuild from '../guild/PinguGuild';
 
 import { PinguCommand, PinguEvent, PinguClientEvents } from '../handlers';
 
@@ -85,7 +84,7 @@ export class PinguClient extends Client {
 
         if (!activity) activity = new Activity('your screams for', 'LISTENING');
 
-        this.user.setActivity({
+        return this.user.setActivity({
             name: activity.text + ` ${this.DefaultPrefix}help`, 
             type: activity.type 
         });
@@ -106,7 +105,7 @@ export class PinguClient extends Client {
             key, 
             (function getConfig(){
                 switch (key) {
-                    case 'chosenUser': return (args[1] as any).achievementConfig;
+                    case 'chosenUser': return args[1] && (args[1] as any).achievementConfig;
                     case 'chosenGuild': return (args[1] as PinguGuild).settings.config.achievements;
                     default: return null;
                 }
@@ -178,3 +177,4 @@ export class PinguClient extends Client {
         }
     }
 }
+export default PinguClient;

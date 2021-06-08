@@ -155,7 +155,7 @@ function PermissionCheckDecidable(params) {
         yield CheckRoleUpdates();
         if (decidablesType == DecidablesEnum.Suggestion)
             return PinguLibrary.PermissionGranted;
-        if (!message.member.hasPermission(helpers_1.DiscordPermissions.ADMINISTRATOR) && pRole && !message.member.roles.cache.has(pRole._id))
+        if (!message.member.hasPermission('ADMINISTRATOR') && pRole && !message.member.roles.cache.has(pRole._id))
             return "You don't have `Administrator` permissions" + (pRole ? ` or the \`${pRole.name}\` role` : "" + "!");
         if (decidablesType == DecidablesEnum.Giveaway && args[0].endsWith('w') && !isNaN(parseInt(args[0].substring(0, args[0].length - 1))))
             args.shift();
@@ -741,7 +741,7 @@ function GetCheckMark() {
 }
 function UpdatePGuild(client, pGuild, decidableType, reason) {
     return __awaiter(this, void 0, void 0, function* () {
-        return PinguGuild_1.PinguGuild.Update(client, ['settings'], pGuild, `HandleDecidables: ${decidableType}`, reason);
+        return PinguGuild_1.default.Update(client, ['settings'], pGuild, `HandleDecidables: ${decidableType}`, reason);
     });
 }
 function SaveVerdictToPGuilds(params, decidable) {
@@ -776,3 +776,4 @@ function AddDecidableToPGuilds(params, decidable) {
         return yield UpdatePGuild(message.client, pGuild, decidablesType, `New ${decidablesType.toLowerCase()} was added  to **${message.guild.name}**'s PinguGuild.`);
     });
 }
+exports.default = HandleDecidables;

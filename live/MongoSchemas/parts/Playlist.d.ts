@@ -18,3 +18,4 @@ export declare const Playlist: {
         };
     }[];
 };
+export default Playlist;

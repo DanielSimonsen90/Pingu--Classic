@@ -59,3 +59,5 @@ export class TimeLeftObject {
         return returnMsg.substring(0, returnMsg.length - 2);
     }
 }
+
+export default TimeLeftObject;

@@ -10,3 +10,5 @@ export class EmbedField {
     public value: string
     public inline: boolean
 }
+
+export default EmbedField;

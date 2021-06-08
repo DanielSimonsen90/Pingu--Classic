@@ -7,3 +7,4 @@ exports.PClient = {
     prefix: String,
     displayName: String
 };
+exports.default = exports.PClient;

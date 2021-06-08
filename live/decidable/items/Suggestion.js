@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Suggestion = void 0;
 const Decidable_1 = require("./Decidable");
-class Suggestion extends Decidable_1.Decidable {
+class Suggestion extends Decidable_1.default {
     constructor(value, id, suggester, channel) {
         super(value, id, suggester, channel, null);
         this.approved = "Undecided";
@@ -15,3 +15,4 @@ class Suggestion extends Decidable_1.Decidable {
     }
 }
 exports.Suggestion = Suggestion;
+exports.default = Suggestion;

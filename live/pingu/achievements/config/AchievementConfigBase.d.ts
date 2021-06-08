@@ -1,8 +1,8 @@
 export declare type AchievementBaseNotificationType = 'NONE';
 import { Client, Guild, MessageEmbed } from "discord.js";
 import { PChannel, PAchievement } from "../../../database/json";
-import { Percentage } from "../../../helpers/Percentage";
-import { AchievementBase } from "../items/AchievementBase";
+import Percentage from "../../../helpers/Percentage";
+import AchievementBase from "../items/AchievementBase";
 export declare abstract class AchievementConfigBase {
     enabled: boolean;
     channel: PChannel;
@@ -11,3 +11,4 @@ export declare abstract class AchievementConfigBase {
         _id: string;
     }, notificationType: AchievementBaseNotificationType, guild?: Guild): Promise<import("discord.js").Message>;
 }
+export default AchievementConfigBase;

@@ -4,3 +4,4 @@ export declare class Percentage {
     part: number;
     value: string;
 }
+export default Percentage;

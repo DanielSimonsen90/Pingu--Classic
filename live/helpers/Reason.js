@@ -11,3 +11,4 @@ class Reason {
     }
 }
 exports.Reason = Reason;
+exports.default = Reason;

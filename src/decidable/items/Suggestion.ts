@@ -1,6 +1,6 @@
 import { GuildChannel } from 'discord.js';
-import { PGuildMember } from '../../database';
-import { Decidable } from './Decidable';
+import PGuildMember from '../../database/json/PGuildMember';
+import Decidable from './Decidable';
 
 export class Suggestion extends Decidable {
     constructor(value: string, id: string, suggester: PGuildMember, channel: GuildChannel) {
@@ -16,3 +16,5 @@ export class Suggestion extends Decidable {
     public decidedBy: PGuildMember
     public approved: string = "Undecided"
 }
+
+export default Suggestion;

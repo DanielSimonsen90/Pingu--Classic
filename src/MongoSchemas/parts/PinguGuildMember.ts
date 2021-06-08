@@ -1,7 +1,9 @@
-import { PItem } from "./PItem";
-import { AchievementsConfig } from "./AchievementsConfig";
+import PItem from "./PItem";
+import AchievementConfig from "./AchievementConfig";
 
 export const PinguGuildMember = { ...PItem,
     guild: PItem,
-    achievementConfig: AchievementsConfig
+    achievementConfig: AchievementConfig
 }
+
+export default PinguGuildMember;

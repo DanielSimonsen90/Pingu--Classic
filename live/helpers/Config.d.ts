@@ -30,4 +30,4 @@ export declare class Config {
     testingMode: boolean;
     updateStats: boolean;
 }
-export {};
+export default Config;

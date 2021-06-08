@@ -123,3 +123,4 @@ export declare const DecidablesConfig: {
         };
     };
 };
+export default DecidablesConfig;

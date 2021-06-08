@@ -12,3 +12,4 @@ class GiveawayConfig {
     }
 }
 exports.GiveawayConfig = GiveawayConfig;
+exports.default = GiveawayConfig;

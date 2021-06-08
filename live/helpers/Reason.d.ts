@@ -4,3 +4,4 @@ export declare class Reason {
     succMsg: string;
     errMsg: string;
 }
+export default Reason;

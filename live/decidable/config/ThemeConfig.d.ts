@@ -1,6 +1,6 @@
-import { IThemeConfigOptions } from '../interfaces/IThemeConfigOptions';
+import IThemeConfigOptions from '../interfaces/IThemeConfigOptions';
 import { PRole, PChannel } from '../../database/json';
-import { Theme } from '../items/Theme';
+import Theme from '../items/Theme';
 export declare class ThemeConfig implements IThemeConfigOptions {
     constructor(options?: IThemeConfigOptions);
     allowSameWinner: boolean;
@@ -11,3 +11,4 @@ export declare class ThemeConfig implements IThemeConfigOptions {
     channel: PChannel;
     firstTimeExecuted: boolean;
 }
+export default ThemeConfig;

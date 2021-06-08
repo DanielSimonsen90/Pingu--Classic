@@ -5,3 +5,4 @@ export declare const TimeLeftObject: {
     hours: NumberConstructor;
     days: NumberConstructor;
 };
+export default TimeLeftObject;

@@ -5,7 +5,7 @@ type PinguPartners = 'Partnered Developer' | 'Partnered Server Owner';
 
 type IAmBadge = DeveloperBadge | StaffBadge | PinguSupporter | PinguPartners;
 
-import { GuildEmoji, Collection, User, Guild } from "discord.js";
+import { GuildEmoji, Collection, User } from "discord.js";
 export class PinguBadge {
     constructor(name: IAmBadge, emoji: GuildEmoji, weight: number) {
         this.name = name;
@@ -18,7 +18,7 @@ export class PinguBadge {
     public weight: number;
 }
 
-import { SavedServers, SavedServerNames } from "../library/PinguLibrary";
+import { SavedServers, SavedServerNames, Developers } from "../library/PinguLibrary";
 class TempBadge {
     constructor(name: IAmBadge, emojiName: string, guild: SavedServerNames, weight: number) {
         this.name = name;
@@ -32,17 +32,18 @@ class TempBadge {
     public guild: SavedServerNames;
     public weight: number;
 }
-const TempBadges = new Collection<IAmBadge, TempBadge>()
-    .set('Pingu Developer', new TempBadge('Pingu Developer', 'PinguDeveloper', 'Pingu Support', 1))
-    .set('Pingu Administrators', new TempBadge('Pingu Administrators', 'BadgeAdministratorTeam', 'Pingu Support', 2))
-    .set('Pingu Moderator Team', new TempBadge('Pingu Moderator Team', 'BadgeModeratorTeam', 'Pingu Support', 3))
-    .set('Pingu Support Team', new TempBadge('Pingu Support Team', 'BadgeSupportTeam', 'Pingu Support', 4))
-    .set('Pingu Staff Member', new TempBadge('Pingu Staff Member', 'BadgeStaffTeam', 'Pingu Support', 5))
-    .set('Partnered Developer', new TempBadge('Partnered Developer', 'PinguPartnerDev', 'Pingu Emotes', 6))
-    .set('Partnered Server Owner', new TempBadge('Partnered Server Owner', 'PinguPartnerServer', 'Pingu Emotes', 7))
-  //.set('Patreon Supporter', new TempBadge('Patreon Supporter', null, 'Pingu Support', 8))
-    .set('Early Supporter', new TempBadge('Early Supporter', 'BadgeEarlySupporter', 'Danho Misc', 9))
-    .set('Discord Bot Developer', new TempBadge('Discord Bot Developer', 'BotDeveloper', 'Pingu Support', 10))
+const TempBadges = new Collection<IAmBadge, TempBadge>([
+    ['Pingu Developer', new TempBadge('Pingu Developer', 'PinguDeveloper', 'Pingu Support', 1)],
+    ['Pingu Administrators', new TempBadge('Pingu Administrators', 'BadgeAdministratorTeam', 'Pingu Support', 2)],
+    ['Pingu Moderator Team', new TempBadge('Pingu Moderator Team', 'BadgeModeratorTeam', 'Pingu Support', 3)],
+    ['Pingu Support Team', new TempBadge('Pingu Support Team', 'BadgeSupportTeam', 'Pingu Support', 4)],
+    ['Pingu Staff Member', new TempBadge('Pingu Staff Member', 'BadgeStaffTeam', 'Pingu Support', 5)],
+    ['Partnered Developer', new TempBadge('Partnered Developer', 'PinguPartnerDev', 'Pingu Emotes', 6)],
+    ['Partnered Server Owner', new TempBadge('Partnered Server Owner', 'PinguPartnerServer', 'Pingu Emotes', 7)],
+//  ['Patreon Supporter', new TempBadge('Patreon Supporter', null, 'Pingu Support', 8)],
+    ['Early Supporter', new TempBadge('Early Supporter', 'BadgeEarlySupporter', 'Danho Misc', 9)],
+    ['Discord Bot Developer', new TempBadge('Discord Bot Developer', 'BotDeveloper', 'Pingu Support', 10)],
+])
 
 export const Badges = new Collection<IAmBadge, PinguBadge>();
 export function SetBadges() {
@@ -74,20 +75,22 @@ export async function getBadges(user: User) {
 
     let isPinguSupportMember = PinguSupportMembers.cache.has(user.id);
     if (!isPinguSupportMember) {
+        if (Developers.has(user.tag as any))
+            badgeNames.push('Pingu Developer');
         return toReturnValue();
     }
 
-    let rolesToGiveBadge = (function setRolesToGive() {
-        return new Collection<string, IAmBadge>()
-        .set('Discord Bot Developer', 'Discord Bot Developer')
-        .set('Partnered Server Owner', 'Partnered Server Owner')
-        .set('Partnered Bot Developer', 'Partnered Developer')
-        .set('Pingu Staff', 'Pingu Staff Member')
-        .set('Support Team', 'Pingu Support Team')
-        .set('Moderators', 'Pingu Moderator Team')
-        .set('Administrators', 'Pingu Administrators')
-        .set('Pingu Developers', 'Pingu Developer');
-    })();
+    let rolesToGiveBadge = new Collection<string, IAmBadge>([
+        ['Discord Bot Developer', 'Discord Bot Developer'],
+        ['Discord Bot Developer', 'Discord Bot Developer'],
+        ['Partnered Server Owner', 'Partnered Server Owner'],
+        ['Partnered Bot Developer', 'Partnered Developer'],
+        ['Pingu Staff', 'Pingu Staff Member'],
+        ['Support Team', 'Pingu Support Team'],
+        ['Moderators', 'Pingu Moderator Team'],
+        ['Administrators', 'Pingu Administrators'],
+        ['Pingu Developers', 'Pingu Developer']
+    ]);
 
     let member = await PinguSupportMembers.fetch(user);
     badgeNames.push(...member.roles.cache
@@ -98,3 +101,5 @@ export async function getBadges(user: User) {
 
     return toReturnValue();
 }
+
+export default PinguBadge;

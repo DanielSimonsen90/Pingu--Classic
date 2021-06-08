@@ -14,7 +14,7 @@ const PinguLibrary = {
     AchievementCheck
 }
 
-import { PinguGuild } from '../pingu/guild/PinguGuild';
+import PinguGuild from '../pingu/guild/PinguGuild';
 
 import { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from '../decidable/config'; //Decidable configs
 import { Giveaway, Poll, Suggestion, Theme, Decidable } from '../decidable/items'; //Decidable items
@@ -183,7 +183,7 @@ async function PermissionCheckDecidable(params: DecidablesParams) {
 
     if (decidablesType == DecidablesEnum.Suggestion) return PinguLibrary.PermissionGranted;
 
-    if (!message.member.hasPermission(DiscordPermissions.ADMINISTRATOR as PermissionString) && pRole && !message.member.roles.cache.has(pRole._id))
+    if (!message.member.hasPermission('ADMINISTRATOR') && pRole && !message.member.roles.cache.has(pRole._id))
         return "You don't have `Administrator` permissions" + (pRole ? ` or the \`${pRole.name}\` role` : "" + "!");
 
     if (decidablesType == DecidablesEnum.Giveaway && args[0].endsWith('w') && !isNaN(parseInt(args[0].substring(0, args[0].length - 1))))
@@ -832,3 +832,5 @@ async function AddDecidableToPGuilds(params: DecidablesParams, decidable: Decida
 
     return await UpdatePGuild(message.client, pGuild, decidablesType, `New ${decidablesType.toLowerCase()} was added  to **${message.guild.name}**'s PinguGuild.`);
 }
+
+export default HandleDecidables;

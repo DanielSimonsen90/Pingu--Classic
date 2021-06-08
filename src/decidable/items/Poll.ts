@@ -1,4 +1,4 @@
-import { Decidable } from './Decidable';
+import Decidable from './Decidable';
 
 export class Poll extends Decidable {
     public YesVotes: number
@@ -14,3 +14,5 @@ export class Poll extends Decidable {
         return poll;
     }
 }
+
+export default Poll;

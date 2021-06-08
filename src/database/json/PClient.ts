@@ -1,4 +1,4 @@
-import { Client, Guild } from 'discord.js';
+import { Client, Guild, Util } from 'discord.js';
 import { ToPinguClient } from '../../pingu/client/PinguClient';
 
 export class PClient {
@@ -8,7 +8,9 @@ export class PClient {
         this._id = client.user.id;
         this.displayName = guild.me.displayName;
 
-        this.embedColor = guild.me.roles.cache.find(role => role.managed).color || pinguClient.DefaultEmbedColor;
+        const botRole = guild.me.roles.cache.find(r => r.managed);
+        
+        this.embedColor = botRole && botRole.color || Util.resolveColor(guild.me.displayHexColor) || pinguClient.DefaultEmbedColor;
         this.prefix = pinguClient.DefaultPrefix;
     }
     public displayName: string
@@ -16,3 +18,5 @@ export class PClient {
     public prefix: string
     public _id: string
 }
+
+export default PClient;
