@@ -71,7 +71,7 @@ module.exports = new PinguEvent('message',
         commandName = TestTagInteraction();
 
         var startsWithPrefix = content.startsWith(prefix) && !author.bot || content && content.includes(client.id);
-        const pAuthor = await PinguUser.Get(author);
+        let pAuthor = await PinguUser.Get(author);
         
 
         //If I'm not interacted with don't do anything
@@ -99,6 +99,7 @@ module.exports = new PinguEvent('message',
 
         async function fromEmotesChannel() {
             if (!guild || author.bot || (!channel.name.includes('emote') && !channel.name.includes('emoji'))) return false;
+            if (!client.isLive && guild.members.cache.has(PinguClient.Clients.PinguID)) return false;
 
             let permCheck = PinguLibrary.PermissionCheck(message, 'MANAGE_EMOJIS', 'SEND_MESSAGES')
             if (permCheck != PinguLibrary.PermissionGranted) {
@@ -106,10 +107,7 @@ module.exports = new PinguEvent('message',
                 return false;
             }
 
-            if (!client.isLive && guild.members.cache.has(PinguClient.Clients.PinguID)) return false;
-
-            const { attachments } = message;
-            for (var file of attachments.array()) {
+            for (var file of message.attachments.array()) {
                 let errMsg = "";
 
                 let emote = file && file.attachment;
@@ -124,13 +122,24 @@ module.exports = new PinguEvent('message',
                     return false;
                 }
                 var newEmote = await guild.emojis.create(emote, name).catch(err => {
+                    if (err.message.endsWith('image: File cannot be larger than 256.0 kb.')) {
+                        var issue = err.message.split(':')[0];
+                        var reply = issue.substring(0, issue.length - 1) + "\n";
+
+                        let fileSplit = file.url.split('.');
+                        let fileExtension = fileSplit[fileSplit.length - 1];
+                        let compressOrDieUrl = 'https://compress-or-die.com/' +
+                            (['jpeg', 'jpg'].includes(fileExtension) ? 'jpg' : fileExtension);
+
+                        reply += `Try compressing the file using: ${compressOrDieUrl}`;
+                    }
                     channel.send(err.message);
                     return null;
                 });
                 if (!newEmote) continue;
 
                 channel.send(`${newEmote} was created!`);
-                PinguLibrary.consoleLog(client, `Created :${newEmote.name}: for ${guild.name}`);
+                PinguLibrary.consoleLog(client, `Created ${newEmote} for ${guild.name}`);
             }
             return true;
         }

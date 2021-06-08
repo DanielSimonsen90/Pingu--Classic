@@ -36,7 +36,6 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('472484901237686292', 'announcements📢');
                     collection.set('646736836861100043', 'themes🎭');
                     collection.set('781087883259543563', 'themes-log🎭');
-                    collection.set('788056918421798994', 'giveaways🎁');
                     collection.set('472483818893344779', 'door-idk🚪');
                     collection.set('505809025221525525', 'promotions🎥');
                     collection.set('639546268410052609', 'roles🤷🏼');
@@ -55,22 +54,22 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('405763731713425422', 'Chillin');
                     collection.set('721110569050046504', 'Party Corner');
                     collection.set('802258274291417109', 'Sad Corner');
-                    collection.set('689391865023299682', `Bica's Corner`);
+                    collection.set('822413607953629254', "Zaint's Dusty Corner");
                     collection.set('796029341913972806', 'Tax Payers');
-                    collection.set('801101138043863080', 'Women Gaymers');
                     collection.set('475616873115811860', 'Schleepy💤');
                 })();
                 (function setStreaming() {
                     collection.set('826102288338780221', '🎙️ Streaming 📹');
                     collection.set('826102383238184990', 'stream-announcements📢');
                     collection.set('826102461600235630', 'stream-clips🎬');
+                    collection.set('836526296082415646', 'onlyfarms🥔');
                     collection.set('826909661268934697', "I'm on stream🔴");
                     collection.set('826909732576821259', "I'm on stream too🔴");
                 })();
                 (function setBotSpam() {
                     collection.set('472714293012332554', '🤖 Bot Spam 👾');
-                    collection.set('641887302418956318', 'daily-spam🌅');
                     collection.set('474129152065273866', 'bot-spam🤖');
+                    collection.set('641887302418956318', 'daily-spam🌅');
                     collection.set('655020851216908289', 'music-bots📻');
                     collection.set('472484741023531012', 'memes😂');
                     collection.set('752613661800923147', 'bot-updates🔔');
@@ -88,7 +87,10 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('635548726487810055', 'uwu-whats-this🤏🏼🍆');
                     collection.set('641215175931723797', 'weeb-trashes🗼');
 
+                    collection.set('689391865023299682', `Bica's Corner`);
                     collection.set('760145289956294716', `Danhoe's Dungeon that kinda smells like coffee..?☕`);
+                    collection.set('821263640698290206', 'Hackers Unite');
+                    collection.set('831115172583309352', 'School At Home');
                     collection.set('774168229005230100', 'SKP At Home');
                     collection.set('646441103523840050', 'Time Out Corner');
                     collection.set('405808852991475722', 'Under 4 ears');
@@ -103,14 +105,17 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('745351317412905112', 'fall-guys👑');
                     collection.set('799070160458874950', 'genshin-impact🌠');
                     collection.set('476051063502274560', 'gta🏎');
+                    collection.set('835136903761625158', 'league-of-legends🌋');
                     collection.set('474511736213340180', 'mineqwaft⛏');
                     collection.set('473422442656825346', 'overwatch🕓');
                     collection.set('768906794029285406', 'phasmophobia👻');
                     collection.set('734884680439955499', 'pixelspark-bois🐭');
 
                     collection.set('473422577210228746', '— Seperator —');
+                    collection.set('833070846519017482', '👑Fall Guys👑');
                     collection.set('626836542857412628', '🏎 GTA 🏎');
                     collection.set('405764753655463947', '⛏ Minecraft ⛏');
+                    collection.set('835137304623579196', '🌋League of Legends🌋');
                     collection.set('405790616669257760', '🕓 Overwatch 🕓');
                     collection.set('768906942478680084', '👻 Phasmophobia 👻');
                 })();
@@ -124,8 +129,8 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                 (function setManagement() {
                     collection.set('752613523858784264', '🔧 Management 🕵🏼');
                     collection.set('651046560863354891', 'big-boi-place🤵🏻');
-                    collection.set('825013875635519548', 'slave-dungeon📏');
                     collection.set('752613635179675648', 'logs📝');
+                    collection.set('825013875635519548', 'slave-dungeon📏');
                 })();
                 (function setBigBoiGrouping() {
                     collection.set('752571680089702522', '🧍🏽 Big Boi Grouping 👫🏽');
@@ -137,6 +142,10 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('761231609314672660', 'hypesquad-grouping');
                     collection.set('752572386640920646', 'level-grouping');
                 })();
+                (function setArchived() {
+                    collection.set('829008233703276544', 'theme-submissions🎭');
+                    collection.set('788056918421798994', 'giveaways🎁');
+                })
                 return collection;
             })();
             for (var item of defaultChannles) {
@@ -161,10 +170,11 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                 }
 
                 (function setManagement() {
+                    collection.set('816289109705883678', new Role("Upper Management", 0));
+                    collection.set('816289454259830784', new Role("Birthday Child", "#cc2b1a"));
+                    collection.set('822469954040234044', new Role("Pog Streamer", "#9247ff"));
                     collection.set('549611213374488578', new Role("—=—=— Managment Roles —=—=—", 0));
-                    collection.set('762403363727736844', new Role("Creator", '#b99bf3'));
                     collection.set('672100455127711774', new Role("Theme Winner", '#ff75fa'));
-                    collection.set('699870814421516301', new Role("Big Boi", '#fab54b'));
                     collection.set('497439032138006530', new Role("Slaves with Perms", 0));
                     collection.set('682547571721371679', new Role("All-Seeing Eye", 0));
                     collection.set('720894710092267550', new Role("HAdmins", 0));
@@ -175,22 +185,26 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                 (function setPersonal() {
                     collection.set('752520063679987732', new Role("—=—=— Personal Roles —=—=—", 0));
                     collection.set('719882559562973195', new Role("Giveaway Winner", '#d9a760'));
+                    collection.set('765700083890257940', new Role("An Actual Demon", '#811919'));
+                    collection.set('801837541945769985', new Role("Autism", '#e3a1ff'));
+                    collection.set('699870814421516301', new Role("Big Boi", '#fab54b'));
+                    collection.set('761174118946701373', new Role("Brorzmandskabsleder", '#f3f3f3'));
+                    collection.set('762403363727736844', new Role("Creator", '#b99bf3'));
+                    collection.set('716613307624062977', new Role("Dad", '#4671b5'));
+                    collection.set('737073804890734654', new Role("DiscordM", '#aefff4'));
+                    collection.set('827306534315884605', new Role("Discord Technician", '#687eff'));
+                    collection.set('818555826917736488', new Role("Documentary Boy", '#4a90d1'));
+                    collection.set('756406381904396288', new Role("Elektrikker pleb", '#ff00d9'));
                     collection.set('755766216701771776', new Role("Flyttemand m. speciale i IT", '#ffed00'));
+                    collection.set('773524857001476096', new Role("Granddad", '#ff2700'));
+                    collection.set('800476348995993650', new Role("Member #69", '#ff00de'));
                     collection.set('778528112748396554', new Role("Mr. Nice Guy", '#000001'));
                     collection.set('800995896048746506', new Role("OMNOM", '#b900ff'));
-                    collection.set('765700083890257940', new Role("An Actual Demon", '#811919'));
-                    collection.set('761174118946701373', new Role("Brorzmandskabsleder", '#f3f3f3'));
-                    collection.set('801837541945769985', new Role("Autism", '#e3a1ff'));
-                    collection.set('716613307624062977', new Role("Dad", '#4671b5'));
-                    collection.set('802955952361308211', new Role("The Best Little Sister", '#a2bcff'));
-                    collection.set('737073804890734654', new Role("DiscordM", '#aefff4'));
-                    collection.set('756406381904396288', new Role("Elektrikker pleb", '#ff00d9'));
-                    collection.set('800476348995993650', new Role("Member #69", '#ff00de'));
-                    collection.set('773524857001476096', new Role("Granddad", '#ff2700'));
-                    collection.set('754454781178806422', new Role("Pin this BITCh", 0));
+                    collection.set('849626465209417729', new Role("Pin this BITCH", 0));
                     collection.set('754454781178806422', new Role("Professional Fortnite Gaymer", '#71368A'));
                     collection.set('796001764260053002', new Role("Shtoje", '#F1C40F'));
                     collection.set('756562029271318530', new Role("Test Subject", '#F1C40F'));
+                    collection.set('802955952361308211', new Role("The Best Little Sister", '#a2bcff'));
                     collection.set('804324247287496755', new Role("The Grinder", '#ff00ed'));
                     collection.set('796692899970416640', new Role("Unrespectable Gamer", '#7359B6'));
                 })();
@@ -204,12 +218,10 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('772804441203933194', new Role("Content Creator", '#9147ff'));
                     collection.set('803247641035014175', new Role("Danhoe Family", '#ff5e00'));
                     collection.set('651046415161622528', new Role("Datatekniker m. Specialer", '#81553c'));
-                    collection.set('736608812307316868', new Role("Fuck-Off Boomer Gang", '#95A5A6'));
                     collection.set('796027540136656946', new Role("Kids", '#ffa7ef'));
-                    collection.set('720895938163376128', new Role("Krævende Lillesøster", '#ff00ca'));
                     collection.set('641213873948590101', new Role("IT-Fattehoved", '#06b12c'));
                     collection.set('631563372428787735', new Role("Pornhub Premium paid by Mommy", '#F1C40F'));
-                    collection.set('707891197045112922', new Role("Red Circle", '#c90000'));
+                    collection.set('821262355257884674', new Role("Proffesional Hackerman", '#806ffc'));
                     collection.set('760822983848755221', new Role("SKP Bois", '#F1C40F'));
                     collection.set('773087069395484683', new Role("Still Sword Staff", 3447003));
                     collection.set('724517363281690686', new Role("Tweeka Family", '#8c00ff'));
@@ -224,8 +236,8 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('794951298062745620', new Role("Genshin Impact", '#AD1457'));
                     collection.set('476050602720231435', new Role("GTA", '#fc2727'));
                     collection.set('835124529621368843', new Role('League of Legends', '#ecdb3e'));
+                    collection.set('773087069395484683', new Role("Still Sword Staff", 3447003));
                     collection.set('711355295250513950', new Role("PixelSpark Bois", '#95A5A6'));
-                    collection.set('738470298709393468', new Role("HeartGolderz", '#e3b353'));
                     collection.set('494753197076905995', new Role("Minequafters", '#59ec88'));
                     collection.set('405790775188783107', new Role("Overwatchers", '#ffb20e'));
                     collection.set('768906510012383242', new Role("Phasmophobia", '#f0f0f0'));
@@ -245,6 +257,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('505806408810233866', new Role("GiveawayBot [g!]", '#F1C40F'));
                     collection.set('710093698385576026', new Role("Groovy [-]", '#71368A'));
                     collection.set('776958941384409128', new Role("Groovy 2 [--]", '#ff50fd'));
+                    collection.set('844291660228984892', new Role("KDBot [' ]", '#e4ffb0'));
                     collection.set('472130394326564864', new Role("Mee6 [!]", 3447003));
                     collection.set('641886780345417732', new Role("Miki [>]", '#E67E22'));
                     collection.set('746726375326613605', new Role("Mudae [$]", 0));

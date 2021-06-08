@@ -18,9 +18,9 @@
         'chosenUser', 'chosenGuild', 'mostKnownUser'                                                                                                                            //custom
     ], './commands', './events');
 
-    try { var { token } = require('../PinguBetaToken.json'); throw null }
+    try { var { token } = require('../PinguBetaToken.json'); /*throw null*/ }
     catch { token = config.token; }
     finally { client.login(token); }
 })().catch(err => {
-    require('fs').writeFile('./errors/startUpError.json', JSON.stringify(err, null, 2))
+    require('fs').writeFile('./errors/startUpError.json', JSON.stringify(err, null, 2), () => null)
 });
