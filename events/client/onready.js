@@ -36,7 +36,7 @@ module.exports = new PinguEvent('onready', null,
         setInterval(() => {
             //Log latency every minute
             latencyCheck(client, Date.now())
-                .catch(err => errorLog(client, `LatencyCheck error`, content, err, { params: message }));
+                .catch(err => errorLog(client, `LatencyCheck error`, err));
         }, ms('1m'));
 
         if (client.config.updateStats && client.isLive) {

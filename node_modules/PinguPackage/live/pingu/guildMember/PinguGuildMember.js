@@ -14,12 +14,17 @@ const json_1 = require("../../database/json");
 const PinguGuild_1 = require("../guild/PinguGuild");
 const PinguLibrary_1 = require("../library/PinguLibrary");
 const GuildMemberAchievementConfig_1 = require("../achievements/config/GuildMemberAchievementConfig");
+const GuildAchievementConfig_1 = require("../achievements/config/GuildAchievementConfig");
 function WritePGuildMember(member, scriptName) {
     return __awaiter(this, void 0, void 0, function* () {
         if (member.user.bot)
             return null;
         const { client, guild, id } = member;
         let pGuild = yield PinguGuild_1.GetPGuild(guild);
+        if (!pGuild.settings.config.achievements.notificationTypes) {
+            pGuild.settings.config.achievements = new GuildAchievementConfig_1.GuildAchievementConfig({ guild: 'NONE', members: 'NONE' }, pGuild._id);
+            yield PinguGuild_1.UpdatePGuild(client, ['settings'], pGuild, "WritePGuildMember, " + scriptName, 'PinguGuild did not have NotificationType');
+        }
         let pGuildMember = new PinguGuildMember(member, pGuild.settings.config.achievements.notificationTypes.members);
         pGuild.members.set(id, pGuildMember);
         yield PinguGuild_1.UpdatePGuild(client, ['members'], pGuild, scriptName, `${member.user.tag} was added to ${pGuild.name}'s PinguGuild.members.`);
@@ -60,7 +65,9 @@ exports.DeletePGuildMember = DeletePGuildMember;
 function GetPGuildMembers(guild) {
     return __awaiter(this, void 0, void 0, function* () {
         let pGuild = yield PinguGuild_1.GetPGuild(guild);
-        return pGuild.members.array();
+        let members = new Array();
+        pGuild.members.forEach(v => members.push(v));
+        return members;
     });
 }
 exports.GetPGuildMembers = GetPGuildMembers;

@@ -4,13 +4,10 @@
     "\\commands",
     "\\commands\\1 Utility",
     "\\commands\\1 Utility\\Information",
-    "\\commands\\2 Fun",
-    "\\commands\\5 GuildSpecific\\Deadly Ninja",
-    "\\commands\\5 GuildSpecific\\Deadly Ninja\\Theme",
     "\\events",
     "\\events\\client",
     "\\events\\message"
   ],
-  "SelectedNode": "\\commands\\2 Fun\\music.js",
+  "SelectedNode": "\\commands\\1 Utility\\Information\\whois.js",
   "PreviewInSolutionExplorer": false
 }

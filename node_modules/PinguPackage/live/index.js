@@ -59,6 +59,5 @@ Object.defineProperty(exports, "PinguClient", { enumerable: true, get: function 
 Object.defineProperty(exports, "PinguMusicClient", { enumerable: true, get: function () { return pingu_1.PinguMusicClient; } });
 Object.defineProperty(exports, "PinguBadge", { enumerable: true, get: function () { return pingu_1.PinguBadge; } });
 Object.defineProperty(exports, "PinguLibrary", { enumerable: true, get: function () { return pingu_1.PinguLibrary; } });
-const Config_1 = require("./helpers/Config");
 const configFile = require("../config.json");
-exports.config = new Config_1.default(configFile);
+exports.config = configFile;

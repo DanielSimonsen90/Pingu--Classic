@@ -13,18 +13,54 @@ module.exports = new PinguCommand('whois', 'Utility', 'Gets the info of specifie
     }
 
     let search = args.join(' ');
+
     //Variables
-    var member = message.guild?.members.cache.array().find(gm => [gm.user.username, gm.displayName, gm.user.id].includes(search)) || message.mentions.members?.first(), //No arguments provided || No member found
-        user = member ? member.user : message.client.users.cache.array().find(u => [u.username, u.id].includes(search)) || message.author;
+    var member = await GetMember(message, search);
+    var user = await GetUser(message, member, search) || message.author;
 
     if (user == message.author)
         member = message.member;
 
     //Promise becomes a user
-    return search != null && user != (member && member.user || true) && (isNaN(user) || message.client.users.cache.get(user?.id) != null || true) ?
+    return search != null && user != (member?.user || true) ?
         SendNonGuildMessage(message, user) :
         HandleGuildMember(message, member || message.member);
 });
+
+/**@param {Message} message
+ * @param {string} search*/
+async function GetMember(message, search) {
+    const options = [
+        message.guild?.members.cache.array().find(gm => [gm.user.username, gm.nickname, gm.user.id].includes(search)),
+        message.mentions.members?.first()
+    ];
+
+    let result = "";
+    for (var i = 0; i < options.length; i++) {
+        result = options[i];
+        if (result) return result;
+    }
+    return null;
+}
+/**@param {Message} message
+ * @param {GuildMember} member
+ * @param {string} search*/
+async function GetUser(message, member, search) {
+    const options = [
+        member && member.user,
+        message.client.users.cache.array().find(u => [u.username, u.id].includes(search)),
+        !isNaN(search) && search.match(/\d{18}/h) && message.client.users.fetch(search),
+        search.match(/<@\d{18}>/g) && message.client.users.fetch(search.substring(2, search.length - 1)),
+        search.match(/<@\??\d{18}>/g) && message.client.users.fetch(search.substring(3, search.length - 1))
+    ];
+
+    let result = "";
+    for (var i = 0; i < options.length; i++) {
+        result = await options[i];
+        if (result) return result;
+    }
+    return null;
+}
 
 /**@param {Message} message 
  * @param {GuildMember} member*/

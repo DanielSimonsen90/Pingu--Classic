@@ -10,8 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PinguCommand = exports.CommandCategories = void 0;
-const PinguHandler_1 = require("./PinguHandler");
-const PinguLibrary_1 = require("../library/PinguLibrary");
 var CommandCategories;
 (function (CommandCategories) {
     CommandCategories[CommandCategories["Utility"] = 0] = "Utility";
@@ -20,6 +18,8 @@ var CommandCategories;
     CommandCategories[CommandCategories["DevOnly"] = 3] = "DevOnly";
     CommandCategories[CommandCategories["GuildSpecific"] = 4] = "GuildSpecific";
 })(CommandCategories = exports.CommandCategories || (exports.CommandCategories = {}));
+const PinguHandler_1 = require("./PinguHandler");
+const PinguLibrary_1 = require("../library/PinguLibrary");
 class PinguCommand extends PinguHandler_1.default {
     constructor(name, category, description, data, execute) {
         //Must need these

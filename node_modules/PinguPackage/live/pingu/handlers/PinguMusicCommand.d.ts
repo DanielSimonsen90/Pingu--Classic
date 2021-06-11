@@ -1,9 +1,9 @@
 import { Message, PermissionString, VoiceChannel } from "discord.js";
-import { PinguCommand, ExecuteReturns } from "./PinguCommand";
-import { PinguGuild } from "../guild/PinguGuild";
-import { PinguMusicClient } from "../client/PinguMusicClient";
-import { PClient } from "../../database/json/PClient";
-import { Queue } from "../guild/items/music/Queue/Queue";
+import { ExecuteReturns } from "./PinguCommand";
+import PinguGuild from "../guild/PinguGuild";
+import PinguMusicClient from "../client/PinguMusicClient";
+import PClient from "../../database/json/PClient";
+import Queue from "../guild/items/music/Queue/Queue";
 export interface PinguMusicCommandParams {
     client?: PinguMusicClient;
     message: Message;
@@ -13,7 +13,8 @@ export interface PinguMusicCommandParams {
     pGuild?: PinguGuild;
     pGuildClient: PClient;
 }
-export declare class PinguMusicCommand extends PinguCommand {
+import PinguHandler from "./PinguHandler";
+export declare class PinguMusicCommand extends PinguHandler {
     constructor(name: string, description: string, data: {
         usage: string;
         examples?: string[];
@@ -21,6 +22,11 @@ export declare class PinguMusicCommand extends PinguCommand {
         aliases?: string[];
         queueRequired?: boolean;
     }, execute: (params: PinguMusicCommandParams) => Promise<ExecuteReturns>);
+    description: string;
+    usage: string;
+    examples: string[];
+    aliases: string[];
     queueRequired: boolean;
     execute(params: PinguMusicCommandParams): Promise<ExecuteReturns>;
 }
+export default PinguMusicCommand;

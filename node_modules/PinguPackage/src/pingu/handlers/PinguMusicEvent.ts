@@ -5,59 +5,69 @@ import Song from "../guild/items/music/Song";
 import PinguMusicClient from "../client/PinguMusicClient";
 import PinguClient from "../client/PinguClient";
 
-/**
- * Arguments that came with the command
- */
-type CommandArgumnents = string[];
-
 type QueueMessage = [Queue, Message];
-type QueueMessageArgs = [...QueueMessage, CommandArgumnents];
 type QueueMessageSong = [...QueueMessage, Song]
 
 export interface PinguMusicEvents {
-    /**[
-     *  Voice channel that was joined, 
-     *  GuildMember that requested the join
-     * ]
-     */
     voiceChannelJoin: [VoiceChannel, GuildMember],
     voiceChannelDisconnect: [VoiceChannel, GuildMember, Queue],
-    // commandPlay: [...QueueMessage, VoiceChannel, CommandArgumnents],
-    // commandPlayskip: QueueMessageArgs,s
-    // commandRemove: QueueMessageArgs,
-    // commandStop: QueueMessage,
-    // commandSkip: QueueMessage,
-    // commandNowPlaying: QueueMessage,
-    // commandVolume: [...QueueMessage, string],
-    // commandQueue: QueueMessage,
     commandPauseResume: [Queue, boolean],
-    // commandMove: QueueMessageArgs,
-    // commandLoop: QueueMessageArgs,
-    // commandRestart: QueueMessageArgs,
-    // commandShuffle: QueueMessage,
 
     controlPanelRequest: [...QueueMessage, boolean],
 
-    play: QueueMessageSong,
+    play: [...QueueMessageSong],
     resetClient: [Message]
 
-    dispatcherStart: QueueMessageSong,
+    dispatcherStart: [...QueueMessageSong],
     dispatcherError: [...QueueMessageSong, Error],
-    dispatcherFinish: QueueMessageSong
+    dispatcherFinish: [...QueueMessageSong]
 }
 export interface PinguMusicClientEvents extends PinguMusicEvents, PinguClientEvents {}
 
-
-import { PinguEvent } from "./PinguEvent";
-export class PinguMusicEvent<eventType extends keyof PinguMusicClientEvents, baseEventType extends keyof PinguClientEvents> extends PinguEvent<baseEventType> {
-    constructor(name: eventType, execute?: (client: PinguMusicClient, ...args: PinguMusicClientEvents[eventType]) => Promise<Message>) {
-        super(name as unknown as baseEventType);
-        this.execute = execute as unknown as (client: PinguClient, ...args: PinguClientEvents[baseEventType]) => Promise<Message>;
+import { errorLog } from "../library/PinguLibrary";
+export async function HandleEvent<EventType extends keyof PinguMusicClientEvents>(caller: EventType, client: PinguMusicClient, path: string, ...args: PinguMusicClientEvents[EventType]) {
+    try { var event = require(`../../../../..${path}`) as PinguMusicEvent<EventType>; }
+    catch (err) {
+        console.log({ err, caller, path });
+        return errorLog(client, `Unable to get event for ${caller}`, null, err, {
+            params: { caller, path, args },
+            additional: { event }
+        });
     }
 
-    name: baseEventType;
+    if (!event || !event.execute) return;
 
-    public async execute(client: PinguMusicClient, ...args: PinguMusicClientEvents[baseEventType]): Promise<Message> { return null; }
+    async function execute() {
+        try { return event.execute(client, ...args); } 
+        catch (err) { errorLog(client, `${event.name}.execute`, null, err, {
+                params: { caller, path, args },
+                additional: { event }
+            });
+        }
+    }
+
+    await execute().catch(err => {
+        return errorLog(client, err.message, JSON.stringify(args, null, 2), err, {
+            params: { caller, path, args },
+            additional: { event }
+        });
+    })
+}
+
+import PinguHandler from "./PinguHandler";
+export class PinguMusicEvent<Event extends keyof PinguMusicClientEvents> extends PinguHandler {
+    public static HandleEvent<EventType extends keyof PinguMusicClientEvents>(caller: EventType, client: PinguMusicClient, path: string, ...args: PinguMusicClientEvents[EventType]) {
+        return HandleEvent(caller, client, path, ...args);
+    }
+
+    constructor(name: Event, execute?: (client: PinguMusicClient, ...args: PinguMusicClientEvents[Event]) => Promise<Message>) {
+        super(name);
+        this.execute = execute;
+    }
+
+    name: Event;
+
+    public async execute(client: PinguMusicClient, ...args: PinguMusicClientEvents[Event]): Promise<Message> { return null; }
 }
 
 export default PinguMusicEvent;
