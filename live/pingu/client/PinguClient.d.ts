@@ -1,37 +1,19 @@
-import { ActivityOptions, Client, ClientEvents, ClientOptions, Collection } from "discord.js";
-export declare const Clients: {
-    PinguID: string;
-    BetaID: string;
-};
+import { Client, ClientEvents, ClientOptions, Collection } from "discord.js";
 export declare function ToPinguClient(client: Client): PinguClient;
+import BasePinguClient from "./BasePinguClient";
 import PinguGuild from '../guild/PinguGuild';
 import { PinguCommand, PinguEvent, PinguClientEvents } from '../handlers';
-import { IConfigRequirements, Config } from '../../helpers/Config';
-export declare class PinguClient extends Client {
-    static Clients: {
-        PinguID: string;
-        BetaID: string;
-    };
+import IConfigRequirements from '../../helpers/Config';
+export declare class PinguClient extends BasePinguClient<PinguClientEvents> {
     static ToPinguClient(client: Client): PinguClient;
-    constructor(config: IConfigRequirements, subscribedEvents: [keyof PinguClientEvents], commandsPath?: string, eventsPath?: string, options?: ClientOptions);
-    get id(): string;
-    get tag(): string;
+    constructor(config: IConfigRequirements, subscribedEvents: Array<keyof PinguClientEvents>, commandsPath?: string, eventsPath?: string, options?: ClientOptions);
     commands: Collection<string, PinguCommand>;
-    events: Collection<string, PinguEvent<keyof PinguClientEvents>>;
-    DefaultEmbedColor: number;
-    DefaultPrefix: string;
-    subscribedEvents: [keyof PinguClientEvents];
-    config: Config;
-    setActivity(options?: ActivityOptions): Promise<import("discord.js").Presence>;
-    get isLive(): boolean;
-    toPClient(pGuild: PinguGuild): import("PinguPackage/src").PClient;
+    events: Collection<keyof PinguClientEvents, PinguEvent<keyof PinguClientEvents>>;
+    subscribedEvents: Array<keyof PinguClientEvents>;
+    toPClient(pGuild: PinguGuild): import("../..").PClient;
     emit<PCE extends keyof PinguClientEvents, CE extends keyof ClientEvents>(key: PCE, ...args: PinguClientEvents[PCE]): boolean;
-    login(token?: string): Promise<string>;
     protected HandlePath(path: string, type: 'command' | 'event'): void;
-    protected handleEvent<eventType extends keyof PinguClientEvents>(caller: eventType, ...args: PinguClientEvents[eventType]): this;
-    protected getEventParams<eventType extends keyof PinguClientEvents>(client: PinguClient, caller: eventType, ...args: PinguClientEvents[eventType]): {
-        caller: eventType;
-        args: PinguClientEvents[eventType];
-    };
+    private handleEvent;
+    private getEventParams;
 }
 export default PinguClient;

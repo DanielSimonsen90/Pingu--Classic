@@ -1,10 +1,3 @@
-import { Message, PermissionString, Snowflake, VoiceConnection } from 'discord.js';
-import PinguHandler from './PinguHandler';
-import PClient from '../../database/json/PClient';
-import PinguUser from '../user/PinguUser';
-import PinguGuild from '../guild/PinguGuild';
-import PinguClient from "../client/PinguClient";
-import PinguGuildMember from '../guildMember/PinguGuildMember';
 export declare enum CommandCategories {
     'Utility' = 0,
     'Fun' = 1,
@@ -13,6 +6,12 @@ export declare enum CommandCategories {
     'GuildSpecific' = 4
 }
 declare type CommandCategoriesType = keyof typeof CommandCategories;
+import PinguClient from "../client/PinguClient";
+import { Message, PermissionString, Snowflake, VoiceConnection } from 'discord.js';
+import PinguUser from '../user/PinguUser';
+import PinguGuildMember from '../guildMember/PinguGuildMember';
+import PinguGuild from '../guild/PinguGuild';
+import PClient from '../../database/json/PClient';
 export interface PinguCommandParams {
     client?: PinguClient;
     message: Message;
@@ -23,6 +22,7 @@ export interface PinguCommandParams {
     pGuildClient?: PClient;
 }
 export declare type ExecuteReturns = void | Message | VoiceConnection;
+import PinguHandler from './PinguHandler';
 export declare class PinguCommand extends PinguHandler {
     constructor(name: string, category: CommandCategoriesType, description: string, data: {
         usage: string;

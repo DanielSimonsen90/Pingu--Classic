@@ -1,30 +1,38 @@
 import { ActivityOptions, ActivityType, Client, ClientEvents, ClientOptions, Collection } from "discord.js";
-export type BaseSubscribedEvents = 'Discord';
 export const Clients = {
     PinguID: '562176550674366464',
     BetaID: '778288722055659520'
 }
 
 import PinguCommand from "../handlers/PinguCommand";
-import { IConfigRequirements, Config } from "../../helpers/Config";
+import IConfigRequirements from "../../helpers/Config";
 import { Developers } from "../library/PinguLibrary";
-import PinguEvent from "../handlers/PinguEvent";
-export class BasePinguClient<Events extends string[]> extends Client {
-    constructor(config: IConfigRequirements, subscribedEvents: Collection<BaseSubscribedEvents, [keyof ClientEvents]>, options?: ClientOptions) {
+import PinguHandler from "../handlers/PinguHandler";
+
+export abstract class BasePinguClient<Events extends ClientEvents> extends Client {
+    constructor(config: IConfigRequirements, subscribedEvents: Array<keyof ClientEvents>, commandsPath?: string, eventsPath?: string, options?: ClientOptions) {
         super(options);
-        this.config = new Config(config);
+        this.config = config;
         this.subscribedEvents = subscribedEvents;
+
+        if (commandsPath) this.HandlePath(commandsPath, 'command');
+        if (eventsPath) this.HandlePath(eventsPath, 'event');
     }
 
-    public get id() { return this.user.id; }
-    public get isLive() { return this.user.id == Clients.PinguID }
+    public get id() { 
+        return this.user.id; 
+    }
+    public get isLive() { 
+        return this.user.id == Clients.PinguID 
+    }
     
-    public commands: Collection<string, PinguCommand>
-    public events: Collection<BaseSubscribedEvents, PinguEvent<keyof ClientEvents>>
-    public subscribedEvents: Collection<BaseSubscribedEvents, [keyof ClientEvents]>;
+    public commands: Collection<string, PinguHandler>;
+    public events: Collection<string | keyof Events, PinguHandler>;
+    public subscribedEvents: Array<string | keyof Events>;
+
     public DefaultEmbedColor = 3447003;
     public DefaultPrefix: string;
-    public config: Config;
+    public config: IConfigRequirements;
 
     public setActivity(options?: ActivityOptions) {
         if (options) return this.user.setActivity(options);
@@ -76,6 +84,8 @@ export class BasePinguClient<Events extends string[]> extends Client {
         this.DefaultPrefix = this.isLive || !this.config.BetaPrefix ? this.config.Prefix : this.config.BetaPrefix;
         return result;
     }
+
+    protected abstract HandlePath(path: string, type: 'command' | 'event'): void;
 }
 
 export default BasePinguClient;

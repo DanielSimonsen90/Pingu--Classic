@@ -1,7 +1,9 @@
+
 export { UserAchievement, GuildMemberAchievement, GuildAchievement } from './achievements/items';
 export { UserAchievementConfig, GuildMemberAchievementConfig, GuildAchievementConfig } from './achievements/config';
 
 export { PinguBadge, Badges } from './badge/PinguBadge';
+
 export { PinguClient } from './client/PinguClient';
 export { PinguMusicClient } from './client/PinguMusicClient';
 
@@ -15,9 +17,9 @@ export { Daily, Marry } from './user/items';
 
 export { 
     PinguCommand, CommandCategories, PinguCommandParams, 
-    PinguEvent, PinguEventParams, PinguClientEvents,
+    PinguEvent, PinguClientEvents, 
     PinguMusicEvent, PinguMusicEvents, PinguMusicClientEvents,
     PinguMusicCommand, PinguMusicCommandParams
 } from './handlers';
 
-export { PinguLibrary } from './library/PinguLibrary';
+export { PinguLibrary } from './library/PinguLibrary'

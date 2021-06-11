@@ -1,5 +1,5 @@
 import { Message, PermissionString, VoiceChannel } from "discord.js";
-import { PinguCommand, ExecuteReturns } from "./PinguCommand";
+import { ExecuteReturns } from "./PinguCommand";
 import PinguGuild from "../guild/PinguGuild";
 import PinguMusicClient from "../client/PinguMusicClient";
 import { errorLog } from "../library/PinguLibrary";
@@ -16,7 +16,8 @@ export interface PinguMusicCommandParams {
     pGuildClient: PClient
 }
 
-export class PinguMusicCommand extends PinguCommand {
+import PinguHandler from "./PinguHandler";
+export class PinguMusicCommand extends PinguHandler {
     constructor(name: string, description: string, data: {
         usage: string,
         examples?: string[],
@@ -25,10 +26,22 @@ export class PinguMusicCommand extends PinguCommand {
         queueRequired?: boolean
     },
     execute: (params: PinguMusicCommandParams) => Promise<ExecuteReturns>) {
-        super(name, 'Fun', description, data, execute);
-        this.queueRequired = data.queueRequired;
+        super(name);
+        this.description = description;
+        if (execute) this.execute = execute;
+
+        const { usage, examples, permissions, aliases, queueRequired } = data;
+        
+        this.usage = usage || "";
+        this.examples = examples?.length ? examples : [""];
+        this.aliases = aliases?.length && aliases;
+        this.queueRequired = queueRequired || false;
     }
 
+    public description: string;
+    public usage: string;
+    public examples: string[];
+    public aliases: string[];
     public queueRequired = false;
 
     public execute(params: PinguMusicCommandParams): Promise<ExecuteReturns> {
