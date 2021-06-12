@@ -77,7 +77,7 @@ export async function UpdatePUser(client: Client, updatedProperties: PinguUserUp
     }
 }
 export async function DeletePUser(client: Client, user: User, scriptName: string, reason: string): Promise<void> {
-    await PinguUserSchema.deleteOne({ _id: user.id }, null, err => {
+    await PinguUserSchema.deleteOne({ _id: user.id as unknown }, null, err => {
         const log = new Reason('delete', 'PinguUser', user.tag, reason);
 
         if (err) return pUserLog(client, scriptName, log.errMsg, new Error(err));

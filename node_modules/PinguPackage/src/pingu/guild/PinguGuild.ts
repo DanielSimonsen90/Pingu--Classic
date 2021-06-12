@@ -74,7 +74,7 @@ export async function UpdatePGuild(client: Client, updatedProperties: PinguGuild
     }
 }
 export async function DeletePGuild(client: Client, guild: Guild, scriptName: string, reason: string) {
-    await PinguGuildSchema.deleteOne({ _id: guild.id }, null, err => {
+    await PinguGuildSchema.deleteOne({ _id: guild.id as unknown }, null, err => {
         const log = new Reason('delete', 'PinguGuild', guild.name, reason);
 
         if (err) return pGuildLog(client, scriptName, log.errMsg, new Error(err));

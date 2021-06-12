@@ -107,28 +107,24 @@ module.exports = new PinguEvent('onready', null,
 
                             let chosenUser = availableUsers[index];
                             let pUser = await PinguUser.Get(chosenUser);
+                            if (!pUser) return getRandomUser();
 
                             client.emit('chosenUser', ...[chosenUser, pUser]);
                             return chosenUser.tag;
                         }
                         function getMostKnownUser() {
-                            let Users = new Collection(); //<User, number of Guilds>
+                            let Users = client.guilds.cache.reduce((users, guild) => {
+                                return guild.members.cache.reduce((_, member) => {
+                                    let { user } = member;
+                                    if (user.bot) return users;
 
-                            client.guilds.cache.forEach(guild => {
-                                guild.members.cache.forEach(gm => {
-                                    let { user } = gm;
-                                    if (user.bot) return;
-
-                                    if (!Users.has(user))
-                                        return Users.set(user, 1);
-
-                                    Users.set(user, Users.get(user) + 1);
-                                })
-                            });
-
+                                    return users.set(user, !users.has(user) ? 1 : users.get(user) + 1);
+                                }, users);
+                            }, new Collection());
+                            
                             let sorted = Users.sort((a, b) => b - a);
                             let mostKnownUsers = sorted.filter((v, u) => sorted.first() == v);
-                            mostKnownUsers.forEach(user => client.emit('mostKnownUser', user))
+                            mostKnownUsers.forEach((_, user) => client.emit('mostKnownUser', user))
                             let strings = mostKnownUsers.map((v, u) => `${u.tag} | #${v}`);
                             return strings[Math.floor(Math.random() * strings.length)];
                         }

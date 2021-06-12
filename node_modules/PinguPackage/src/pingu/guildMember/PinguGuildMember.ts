@@ -29,6 +29,7 @@ export async function WritePGuildMember(member: GuildMember, scriptName: string)
 export async function GetPGuildMember(member: GuildMember, scriptName: string) {
     if (!member) return null;
     let pGuild = await GetPGuild(member.guild);
+    if (!pGuild) return null;
     let pgm = pGuild.members.get(member.id); //Can returns Mongoose.Document<PinguGuildMember>(?)
     return pgm ? (pgm as any).toObject ? (pgm as any).toObject() as PinguGuildMember : pgm : WritePGuildMember(member, scriptName)
 }
