@@ -148,4 +148,5 @@ class PinguMusicClient extends BasePinguClient_1.default {
     }
 }
 exports.PinguMusicClient = PinguMusicClient;
+PinguMusicClient.Clients = BasePinguClient_1.Clients;
 exports.default = PinguMusicClient;

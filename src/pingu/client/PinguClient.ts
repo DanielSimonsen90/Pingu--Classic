@@ -5,8 +5,7 @@ export function ToPinguClient(client: Client): PinguClient {
     return client as unknown as PinguClient;
 }
 
-import BasePinguClient from "./BasePinguClient";
-import { errorLog, DanhoDM } from '../library/PinguLibrary';
+import BasePinguClient, { Clients } from "./BasePinguClient";
 import PinguGuild from '../guild/PinguGuild';
 import { PinguCommand, PinguEvent, PinguClientEvents } from '../handlers';
 import IConfigRequirements from '../../helpers/Config';
@@ -14,14 +13,15 @@ import IConfigRequirements from '../../helpers/Config';
 export class PinguClient extends BasePinguClient<PinguClientEvents> {
     //Statics
     public static ToPinguClient(client: Client) { return ToPinguClient(client); }
+    public static Clients = Clients;
 
     constructor(config: IConfigRequirements, subscribedEvents?: Array<keyof PinguClientEvents>, commandsPath?: string, eventsPath?: string, options?: ClientOptions) {
         super(config, subscribedEvents as any, commandsPath, eventsPath, options);
     }
 
     //Public properties
-    public commands = new Collection<string, PinguCommand>();
-    public events = new Collection<keyof PinguClientEvents, PinguEvent<keyof PinguClientEvents>>();
+    public commands: Collection<string, PinguCommand>;
+    public events: Collection<keyof PinguClientEvents, PinguEvent<keyof PinguClientEvents>>;
     public subscribedEvents: Array<keyof PinguClientEvents>;
 
     //Pubic methods
@@ -62,12 +62,12 @@ export class PinguClient extends BasePinguClient<PinguClientEvents> {
                         })
                     }
                     else if (type == 'command') this.commands.set(module.name, module as PinguCommand);
-                    else errorLog(this, `"${type}" was not recognized!`);
+                    else console.log(`"${type}" was not recognized!`);
                 }
                 else if (file.endsWith('.png') || file.toLowerCase().includes('archived')) continue;
                 else this.HandlePath(`${path}/${file}`, type);
             } catch (err) {
-                DanhoDM(`"${file}" threw an exception:\n${err.message}\n${err.stack}\n`)
+                console.log(`"${file}" threw an exception:\n${err.message}\n${err.stack}\n`)
             }
         }
     }

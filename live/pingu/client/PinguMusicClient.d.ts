@@ -10,6 +10,10 @@ interface VideoThing {
 }
 export declare class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
     static ToPinguMusicClient(client: Client): PinguMusicClient;
+    static Clients: {
+        PinguID: string;
+        BetaID: string;
+    };
     constructor(config: IConfigRequirements, subscribedEvents?: Array<keyof PinguMusicClientEvents>, commandsPath?: string, eventsPath?: string, options?: ClientOptions);
     queues: Collection<Snowflake, Queue>;
     events: Collection<keyof PinguMusicClientEvents, PinguMusicEvent<keyof PinguMusicClientEvents>>;

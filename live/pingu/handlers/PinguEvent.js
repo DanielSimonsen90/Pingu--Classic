@@ -227,11 +227,12 @@ function HandleEvent(caller, client, path, ...args) {
         function SendToLog() {
             return __awaiter(this, void 0, void 0, function* () {
                 const emitAssociatorOptions = (parameter = {}) => {
+                    var _a;
                     const options = [
                         parameter.author && parameter.author.tag,
                         parameter.tag,
                         parameter.user && parameter.user.tag,
-                        parameter.member && parameter.member.user.tag,
+                        parameter.member && ((_a = parameter.member.user) === null || _a === void 0 ? void 0 : _a.tag),
                         parameter.users && parameter.users.cache.last() && parameter.users.cache.last().tag,
                         parameter.last && parameter.last() && parameter.last().author.tag,
                         parameter.inviter && parameter.inviter.tag,

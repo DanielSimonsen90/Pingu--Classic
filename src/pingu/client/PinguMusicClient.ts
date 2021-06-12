@@ -11,7 +11,7 @@ import Queue from "../guild/items/music/Queue/Queue";
 
 import { DanhoDM, errorLog } from "../library/PinguLibrary";
 import Song from "../guild/items/music/Song";
-import BasePinguClient from "./BasePinguClient";
+import BasePinguClient, { Clients } from "./BasePinguClient";
 
 interface VideoThing { url: string }
 
@@ -21,6 +21,7 @@ import PinguHandler from "../handlers/PinguHandler";
 export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
     //#region Statics
     public static ToPinguMusicClient(client: Client) { return ToPinguMusicClient(client); }
+    public static Clients = Clients;
     //#endregion 
 
     constructor(config: IConfigRequirements, subscribedEvents?: Array<keyof PinguMusicClientEvents>, commandsPath?: string, eventsPath?: string, options?: ClientOptions) {
