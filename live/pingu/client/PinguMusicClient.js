@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PinguMusicClient = exports.ToPinguMusicClient = void 0;
-const discord_js_1 = require("discord.js");
+const PinguClient_1 = require("./PinguClient");
 function ToPinguMusicClient(client) {
     return client;
 }
@@ -25,15 +25,17 @@ class PinguMusicClient extends BasePinguClient_1.default {
     //#endregion 
     constructor(config, subscribedEvents, commandsPath, eventsPath, options) {
         super(config, subscribedEvents, commandsPath, eventsPath, options);
-        this.queues = new discord_js_1.Collection();
-        this.events = new discord_js_1.Collection();
-        this.commands = new discord_js_1.Collection();
-        this.subscribedEvents = new Array();
     }
     //#region Statics
     static ToPinguMusicClient(client) { return ToPinguMusicClient(client); }
+    AsPinguClient() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const client = new PinguClient_1.default(this.config);
+            yield client.login(this.token);
+            return client;
+        });
+    }
     emit(key, ...args) {
-        console.log(typeof key);
         return super.emit(key, ...args);
     }
     getVideo(params, url, searchType, youTube, ytdl) {

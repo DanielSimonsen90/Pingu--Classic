@@ -23,18 +23,22 @@ export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
     public static ToPinguMusicClient(client: Client) { return ToPinguMusicClient(client); }
     //#endregion 
 
-    constructor(config: IConfigRequirements, subscribedEvents: [keyof PinguMusicClientEvents], commandsPath?: string, eventsPath?: string, options?: ClientOptions) {
+    constructor(config: IConfigRequirements, subscribedEvents?: Array<keyof PinguMusicClientEvents>, commandsPath?: string, eventsPath?: string, options?: ClientOptions) {
         super(config, subscribedEvents as any, commandsPath, eventsPath, options);
     }
 
-    public queues = new Collection<Snowflake, Queue>();
-    public events = new Collection<keyof PinguMusicClientEvents, PinguMusicEvent<keyof PinguMusicClientEvents>>();
-    public commands = new Collection<string, PinguMusicCommand>();
-    public subscribedEvents = new Array<keyof PinguMusicClientEvents>();
+    public queues: Collection<Snowflake, Queue>;
+    public events: Collection<keyof PinguMusicClientEvents, PinguMusicEvent<keyof PinguMusicClientEvents>>;
+    public commands: Collection<string, PinguMusicCommand>;
+    public subscribedEvents: Array<keyof PinguMusicClientEvents>;
+
+    public async AsPinguClient() {
+        const client = new PinguClient(this.config);
+        await client.login(this.token);
+        return client;
+    }
 
     public emit<PMCE extends keyof PinguMusicClientEvents, CE extends keyof ClientEvents>(key: PMCE, ...args: PinguMusicClientEvents[PMCE]) {
-        console.log(typeof key);
-
         return super.emit(
             key as unknown as CE, 
             ...args as unknown as PinguClientEvents[CE]

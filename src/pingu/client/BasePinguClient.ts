@@ -4,13 +4,12 @@ export const Clients = {
     BetaID: '778288722055659520'
 }
 
-import PinguCommand from "../handlers/PinguCommand";
 import IConfigRequirements from "../../helpers/Config";
 import { Developers } from "../library/PinguLibrary";
 import PinguHandler from "../handlers/PinguHandler";
 
 export abstract class BasePinguClient<Events extends ClientEvents> extends Client {
-    constructor(config: IConfigRequirements, subscribedEvents: Array<keyof ClientEvents>, commandsPath?: string, eventsPath?: string, options?: ClientOptions) {
+    constructor(config: IConfigRequirements, subscribedEvents?: Array<keyof ClientEvents>, commandsPath?: string, eventsPath?: string, options?: ClientOptions) {
         super(options);
         this.config = config;
         this.subscribedEvents = subscribedEvents;
@@ -26,9 +25,9 @@ export abstract class BasePinguClient<Events extends ClientEvents> extends Clien
         return this.user.id == Clients.PinguID 
     }
     
-    public commands: Collection<string, PinguHandler>;
-    public events: Collection<string | keyof Events, PinguHandler>;
-    public subscribedEvents: Array<string | keyof Events>;
+    public commands = new Collection<string, PinguHandler>();
+    public events = new Collection<string | keyof Events, PinguHandler>();
+    public subscribedEvents = new Array<string | keyof Events>();
 
     public DefaultEmbedColor = 3447003;
     public DefaultPrefix: string;

@@ -1,4 +1,2 @@
-import * as mongoose from 'mongoose';
-import PinguUser from '../pingu/user/PinguUser';
-export declare const PinguUserSchema: mongoose.Model<mongoose.Document<PinguUser, any>, {}, {}>;
+export declare const PinguUserSchema: any;
 export default PinguUserSchema;

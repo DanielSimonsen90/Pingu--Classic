@@ -15,7 +15,7 @@ export class PinguClient extends BasePinguClient<PinguClientEvents> {
     //Statics
     public static ToPinguClient(client: Client) { return ToPinguClient(client); }
 
-    constructor(config: IConfigRequirements, subscribedEvents: Array<keyof PinguClientEvents>, commandsPath?: string, eventsPath?: string, options?: ClientOptions) {
+    constructor(config: IConfigRequirements, subscribedEvents?: Array<keyof PinguClientEvents>, commandsPath?: string, eventsPath?: string, options?: ClientOptions) {
         super(config, subscribedEvents as any, commandsPath, eventsPath, options);
     }
 
