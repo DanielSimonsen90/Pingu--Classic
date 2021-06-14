@@ -21,7 +21,6 @@
     try { var { token } = require('../PinguBetaToken.json'); /*throw null*/ }
     catch { token = config.token; }
     finally { client.login(token); }
-    console.log(client.events);
 })().catch(err => {
     require('fs').writeFile('./errors/startUpError.json', JSON.stringify(err, null, 2), () => null)
 });
