@@ -28,9 +28,9 @@ export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
     }
 
     public queues = new Collection<Snowflake, Queue>();
-    public events = new Collection<keyof PinguMusicClientEvents, PinguMusicEvent<keyof PinguMusicClientEvents>>();
-    public commands = new Collection<string, PinguMusicCommand>();
-    public subscribedEvents = new Array<keyof PinguMusicClientEvents>();
+    public events: Collection<keyof PinguMusicClientEvents, PinguMusicEvent<keyof PinguMusicClientEvents>>;
+    public commands: Collection<string, PinguMusicCommand>;
+    public subscribedEvents: Array<keyof PinguMusicClientEvents>;
 
     public emit<PMCE extends keyof PinguMusicClientEvents, CE extends keyof ClientEvents>(key: PMCE, ...args: PinguMusicClientEvents[PMCE]) {
         console.log(typeof key);

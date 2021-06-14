@@ -26,9 +26,9 @@ export abstract class BasePinguClient<Events extends ClientEvents> extends Clien
         return this.user.id == Clients.PinguID 
     }
     
-    public commands: Collection<string, PinguHandler>;
-    public events: Collection<string | keyof Events, PinguHandler>;
-    public subscribedEvents: Array<string | keyof Events>;
+    public commands = new Collection<string, PinguHandler>();
+    public events = new Collection<string | keyof Events, PinguHandler>();
+    public subscribedEvents = new Array<string | keyof Events>();
 
     public DefaultEmbedColor = 3447003;
     public DefaultPrefix: string;

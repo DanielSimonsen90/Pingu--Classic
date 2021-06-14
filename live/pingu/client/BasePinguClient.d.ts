@@ -11,7 +11,7 @@ export declare abstract class BasePinguClient<Events extends ClientEvents> exten
     get isLive(): boolean;
     commands: Collection<string, PinguHandler>;
     events: Collection<string | keyof Events, PinguHandler>;
-    subscribedEvents: Array<string | keyof Events>;
+    subscribedEvents: (string | keyof Events)[];
     DefaultEmbedColor: number;
     DefaultPrefix: string;
     config: IConfigRequirements;

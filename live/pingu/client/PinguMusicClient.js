@@ -26,9 +26,6 @@ class PinguMusicClient extends BasePinguClient_1.default {
     constructor(config, subscribedEvents, commandsPath, eventsPath, options) {
         super(config, subscribedEvents, commandsPath, eventsPath, options);
         this.queues = new discord_js_1.Collection();
-        this.events = new discord_js_1.Collection();
-        this.commands = new discord_js_1.Collection();
-        this.subscribedEvents = new Array();
     }
     //#region Statics
     static ToPinguMusicClient(client) { return ToPinguMusicClient(client); }

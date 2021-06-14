@@ -19,6 +19,9 @@ const PinguLibrary_1 = require("../library/PinguLibrary");
 class BasePinguClient extends discord_js_1.Client {
     constructor(config, subscribedEvents, commandsPath, eventsPath, options) {
         super(options);
+        this.commands = new discord_js_1.Collection();
+        this.events = new discord_js_1.Collection();
+        this.subscribedEvents = new Array();
         this.DefaultEmbedColor = 3447003;
         this.config = config;
         this.subscribedEvents = subscribedEvents;

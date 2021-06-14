@@ -13,7 +13,7 @@ export declare class PinguMusicClient extends BasePinguClient<PinguClientEvents>
     queues: Collection<string, Queue>;
     events: Collection<keyof PinguMusicClientEvents, PinguMusicEvent<keyof PinguMusicClientEvents>>;
     commands: Collection<string, PinguMusicCommand>;
-    subscribedEvents: (keyof PinguMusicClientEvents)[];
+    subscribedEvents: Array<keyof PinguMusicClientEvents>;
     emit<PMCE extends keyof PinguMusicClientEvents, CE extends keyof ClientEvents>(key: PMCE, ...args: PinguMusicClientEvents[PMCE]): boolean;
     getVideo(params: PinguMusicCommandParams, url: string, searchType: 'video' | 'playlist', youTube: any, ytdl: any): Promise<VideoThing>;
     protected HandlePath(path: string, type: 'command' | 'event'): void;
