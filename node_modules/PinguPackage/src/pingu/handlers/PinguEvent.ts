@@ -224,15 +224,15 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
     async function SendToLog() {
         const emitAssociatorOptions = (parameter: any = {}) => {
             const options = [
-                parameter.author && parameter.author.tag,
+                parameter.author?.tag,
                 parameter.tag,
-                parameter.user && parameter.user.tag,
-                parameter.member && parameter.member.user.tag,
-                parameter.users && parameter.users.cache.last() && parameter.users.cache.last().tag,
-                parameter.last && parameter.last() && parameter.last().author.tag,
-                parameter.inviter && parameter.inviter.tag,
+                parameter.user?.tag,
+                parameter.member?.user?.tag,
+                parameter.users?.cache.last?.()?.tag,
+                parameter.last?.()?.author.tag,
+                parameter.inviter?.tag,
                 parameter.name,
-                parameter.guild && parameter.guild.name
+                parameter.guild?.name
             ];
             return options.filter(v => v)[0];
         }
