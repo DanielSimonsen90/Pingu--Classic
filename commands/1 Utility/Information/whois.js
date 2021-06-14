@@ -49,7 +49,7 @@ async function GetUser(message, member, search) {
     const options = [
         member && member.user,
         message.client.users.cache.array().find(u => [u.username, u.id].includes(search)),
-        !isNaN(search) && search.match(/\d{18}/h) && message.client.users.fetch(search),
+        !isNaN(search) && search.match(/\d{18}/g) && message.client.users.fetch(search),
         search.match(/<@\d{18}>/g) && message.client.users.fetch(search.substring(2, search.length - 1)),
         search.match(/<@\??\d{18}>/g) && message.client.users.fetch(search.substring(3, search.length - 1))
     ];
