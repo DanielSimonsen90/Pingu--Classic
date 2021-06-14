@@ -11,7 +11,7 @@ class Song {
         this.author = songInfo.author && songInfo.author.name;
         this.length = this.GetLength(songInfo.lengthSeconds);
         this.lengthMS = parseInt(songInfo.lengthSeconds) * 1000;
-        this.thumbnail = songInfo.thumbnail.thumbnails[0].url;
+        this.thumbnail = songInfo.thumbnails[0].url;
         this.requestedBy = new PUser_1.default(author);
         this._id = 0;
         this.volume = -1;
