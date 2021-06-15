@@ -1,4 +1,4 @@
-export { PAchievement, PChannel, PClient, PGuild, PGuildMember, PItem, PMarry, PQueue, PRole, PUser } from './database';
+    export { PAchievement, PChannel, PClient, PGuild, PGuildMember, PItem, PMarry, PQueue, PRole, PUser } from './database';
 
 export { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from './decidable/config';
 export { Giveaway, Poll, Suggestion, Theme, Decidable } from './decidable/items';
@@ -25,4 +25,3 @@ export {
 import * as configFile from '../config.json';
 import IConfigRequirements from './helpers/Config';
 export const config = configFile as IConfigRequirements;
-

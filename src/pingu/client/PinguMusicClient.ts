@@ -11,7 +11,7 @@ import Queue from "../guild/items/music/Queue/Queue";
 
 import { DanhoDM, errorLog } from "../library/PinguLibrary";
 import Song from "../guild/items/music/Song";
-import BasePinguClient from "./BasePinguClient";
+import BasePinguClient, { Clients } from "./BasePinguClient";
 
 interface VideoThing { url: string }
 
@@ -21,9 +21,10 @@ import PinguHandler from "../handlers/PinguHandler";
 export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
     //#region Statics
     public static ToPinguMusicClient(client: Client) { return ToPinguMusicClient(client); }
+    public static Clients = Clients;
     //#endregion 
 
-    constructor(config: IConfigRequirements, subscribedEvents: [keyof PinguMusicClientEvents], commandsPath?: string, eventsPath?: string, options?: ClientOptions) {
+    constructor(config: IConfigRequirements, subscribedEvents?: Array<keyof PinguMusicClientEvents>, commandsPath?: string, eventsPath?: string, options?: ClientOptions) {
         super(config, subscribedEvents as any, commandsPath, eventsPath, options);
     }
 
@@ -32,9 +33,13 @@ export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
     public commands: Collection<string, PinguMusicCommand>;
     public subscribedEvents: Array<keyof PinguMusicClientEvents>;
 
-    public emit<PMCE extends keyof PinguMusicClientEvents, CE extends keyof ClientEvents>(key: PMCE, ...args: PinguMusicClientEvents[PMCE]) {
-        console.log(typeof key);
+    public async AsPinguClient() {
+        const client = new PinguClient(this.config);
+        await client.login(this.token);
+        return client;
+    }
 
+    public emit<PMCE extends keyof PinguMusicClientEvents, CE extends keyof ClientEvents>(key: PMCE, ...args: PinguMusicClientEvents[PMCE]) {
         return super.emit(
             key as unknown as CE, 
             ...args as unknown as PinguClientEvents[CE]
