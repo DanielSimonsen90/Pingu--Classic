@@ -14,7 +14,7 @@ export declare class PinguClient extends BasePinguClient<PinguClientEvents> {
     commands: Collection<string, PinguCommand>;
     events: Collection<keyof PinguClientEvents, PinguEvent<keyof PinguClientEvents>>;
     subscribedEvents: Array<keyof PinguClientEvents>;
-    toPClient(pGuild: PinguGuild): import("PinguPackage/src").PClient;
+    toPClient(pGuild: PinguGuild): import("../..").PClient;
     emit<PCE extends keyof PinguClientEvents, CE extends keyof ClientEvents>(key: PCE, ...args: PinguClientEvents[PCE]): boolean;
     protected HandlePath(path: string, type: 'command' | 'event'): void;
     private handleEvent;

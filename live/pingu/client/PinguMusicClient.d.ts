@@ -1,4 +1,4 @@
-import { Client, ClientEvents, ClientOptions, Collection, Snowflake } from "discord.js";
+import { Client, ClientEvents, ClientOptions, Collection } from "discord.js";
 import PinguClient from "./PinguClient";
 export declare function ToPinguMusicClient(client: Client): PinguMusicClient;
 import { PinguClientEvents, PinguMusicCommand, PinguMusicClientEvents, PinguMusicEvent, PinguMusicCommandParams } from '../handlers';
@@ -15,7 +15,7 @@ export declare class PinguMusicClient extends BasePinguClient<PinguClientEvents>
         BetaID: string;
     };
     constructor(config: IConfigRequirements, subscribedEvents?: Array<keyof PinguMusicClientEvents>, commandsPath?: string, eventsPath?: string, options?: ClientOptions);
-    queues: Collection<Snowflake, Queue>;
+    queues: Collection<string, Queue>;
     events: Collection<keyof PinguMusicClientEvents, PinguMusicEvent<keyof PinguMusicClientEvents>>;
     commands: Collection<string, PinguMusicCommand>;
     subscribedEvents: Array<keyof PinguMusicClientEvents>;

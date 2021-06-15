@@ -121,8 +121,7 @@ exports.getSharedServers = getSharedServers;
 const developers = new discord_js_1.Collection([
     ['Danho', '245572699894710272'],
     ['SynthySytro', '405331883157880846'],
-    ['Slothman', '290131910091603968'],
-    ['DefilerOfCats', '803903863706484756']
+    ['Slothman', '290131910091603968']
 ]);
 exports.Developers = new discord_js_1.Collection();
 function CacheDevelopers(client) {

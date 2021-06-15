@@ -39,6 +39,8 @@ function GetPGuildMember(member, scriptName) {
         if (!member)
             return null;
         let pGuild = yield PinguGuild_1.GetPGuild(member.guild);
+        if (!pGuild)
+            return null;
         let pgm = pGuild.members.get(member.id); //Can returns Mongoose.Document<PinguGuildMember>(?)
         return pgm ? pgm.toObject ? pgm.toObject() : pgm : WritePGuildMember(member, scriptName);
     });
