@@ -138,8 +138,7 @@ type DeveloperNames = 'Danho' | 'SynthySytro' | 'Slothman' | 'DefilerOfCats';
 const developers = new Collection<DeveloperNames, Snowflake>([
     ['Danho', '245572699894710272'],
     ['SynthySytro', '405331883157880846'],
-    ['Slothman', '290131910091603968'],
-    ['DefilerOfCats', '803903863706484756']
+    ['Slothman', '290131910091603968']
 ]);
 
 export const Developers = new Collection<DeveloperNames, User>();
@@ -221,7 +220,7 @@ export async function errorLog(client: Client, message: string, messageContent?:
     //Send and react
     let sent = await sendMessage(getErrorMessage(message, messageContent, err));
     let paramsSent = await sendMessage("```\n[Parameters]:\n" + JSON.stringify(params, null, 2) + "\n```").catch(async err => {
-        if (err.message.includes('Must be 2000 or fewer in length'))
+        if (err.message.includes('Must be 4000 or fewer in length.'))
             return await errorlogChannel.send(new MessageAttachment(errorFilePath, `Error ${errorID}.json`));
     })
 

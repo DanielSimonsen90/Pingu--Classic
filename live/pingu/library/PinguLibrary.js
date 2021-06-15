@@ -204,7 +204,7 @@ function errorLog(client, message, messageContent, err, params = {}) {
         //Send and react
         let sent = yield sendMessage(getErrorMessage(message, messageContent, err));
         let paramsSent = yield sendMessage("```\n[Parameters]:\n" + JSON.stringify(params, null, 2) + "\n```").catch((err) => __awaiter(this, void 0, void 0, function* () {
-            if (err.message.includes('Must be 2000 or fewer in length'))
+            if (err.message.includes('Must be 4000 or fewer in length.'))
                 return yield errorlogChannel.send(new discord_js_1.MessageAttachment(errorFilePath, `Error ${errorID}.json`));
         }));
         //Add to errorCache

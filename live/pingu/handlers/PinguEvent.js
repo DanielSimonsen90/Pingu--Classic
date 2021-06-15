@@ -227,16 +227,17 @@ function HandleEvent(caller, client, path, ...args) {
         function SendToLog() {
             return __awaiter(this, void 0, void 0, function* () {
                 const emitAssociatorOptions = (parameter = {}) => {
+                    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
                     const options = [
-                        parameter.author && parameter.author.tag,
+                        (_a = parameter.author) === null || _a === void 0 ? void 0 : _a.tag,
                         parameter.tag,
-                        parameter.user && parameter.user.tag,
-                        parameter.member && parameter.member.user.tag,
-                        parameter.users && parameter.users.cache.last() && parameter.users.cache.last().tag,
-                        parameter.last && parameter.last() && parameter.last().author.tag,
-                        parameter.inviter && parameter.inviter.tag,
+                        (_b = parameter.user) === null || _b === void 0 ? void 0 : _b.tag,
+                        (_d = (_c = parameter.member) === null || _c === void 0 ? void 0 : _c.user) === null || _d === void 0 ? void 0 : _d.tag,
+                        (_h = (_g = (_e = parameter.users) === null || _e === void 0 ? void 0 : (_f = _e.cache).last) === null || _g === void 0 ? void 0 : _g.call(_f)) === null || _h === void 0 ? void 0 : _h.tag,
+                        (_k = (_j = parameter.last) === null || _j === void 0 ? void 0 : _j.call(parameter)) === null || _k === void 0 ? void 0 : _k.author.tag,
+                        (_l = parameter.inviter) === null || _l === void 0 ? void 0 : _l.tag,
                         parameter.name,
-                        parameter.guild && parameter.guild.name
+                        (_m = parameter.guild) === null || _m === void 0 ? void 0 : _m.name
                     ];
                     return options.filter(v => v)[0];
                 };
