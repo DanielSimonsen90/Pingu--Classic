@@ -72,6 +72,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('641887302418956318', 'daily-spam🌅');
                     collection.set('655020851216908289', 'music-bots📻');
                     collection.set('472484741023531012', 'memes😂');
+                    collection.set('855876897070252072', 'emotes🖼');
                     collection.set('752613661800923147', 'bot-updates🔔');
                     collection.set('801030503531806720', 'bot-status🔔');
                 })();

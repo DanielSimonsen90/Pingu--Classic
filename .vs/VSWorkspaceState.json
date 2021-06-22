@@ -2,12 +2,14 @@
   "ExpandedNodes": [
     "",
     "\\commands",
+    "\\commands\\1 Utility",
+    "\\commands\\1 Utility\\Information",
     "\\commands\\4 DevOnly",
     "\\commands\\4 DevOnly\\Update",
     "\\commands\\5 GuildSpecific",
     "\\commands\\5 GuildSpecific\\Deadly Ninja",
     "\\commands\\5 GuildSpecific\\Deadly Ninja\\Theme"
   ],
-  "SelectedNode": "\\index.js",
+  "SelectedNode": "\\commands\\5 GuildSpecific\\Deadly Ninja\\Theme\\resettheme.js",
   "PreviewInSolutionExplorer": false
 }
