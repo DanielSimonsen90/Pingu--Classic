@@ -9,7 +9,9 @@ module.exports = new PinguEvent('voiceStateUpdate',
         module.exports.content = embed.description ? embed : null;
 
         async function GetEmbed() {
-            let userTag = state.member.user.tag;
+            let userTag = state.member?.user.tag;
+            if (!userTag) return;
+
             const [forceDisconnectExecutor, forceMoveExecutor, forceDeaf, forceMute] = await Promise.all([
                 PinguEvent.GetAuditLogs(state.guild, 'MEMBER_DISCONNECT'),
                 PinguEvent.GetAuditLogs(state.guild, 'MEMBER_MOVE'),

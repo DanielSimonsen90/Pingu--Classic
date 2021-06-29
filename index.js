@@ -22,5 +22,5 @@
     catch { token = config.token; }
     finally { client.login(token); }
 })().catch(err => {
-    require('fs').writeFile('./errors/startUpError.json', JSON.stringify(err, null, 2), () => null)
+    require('fs').writeFile('./errors/startUpError.json', JSON.stringify(err, null, 2))
 });

@@ -7,8 +7,8 @@ module.exports = new PinguEvent('roleDelete',
             return module.exports.content = new MessageEmbed().setDescription(`${role.name} was deleted.`)
 
         let auditLogs = await role.guild.fetchAuditLogs({ type: 'ROLE_DELETE' });
-        let { executor } = auditLogs.entries.first();
+        let executor = auditLogs.entries.first()?.executor;
 
-        return module.exports.content = new MessageEmbed().setDescription(`${role.name} was deleted by ${executor}`);
+        return module.exports.content = new MessageEmbed().setDescription(`${role.name} was deleted${(executor ? ` by ${executor}` : "")}.`);
     }
 );
