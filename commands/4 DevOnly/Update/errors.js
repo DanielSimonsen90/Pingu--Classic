@@ -1,9 +1,11 @@
-const { PinguCommand, PinguLibrary } = require('PinguPackage');
+const { Message, MessageAttachment } = require('discord.js');
+const { PinguCommand } = require('PinguPackage');
 const fs = require('fs');
+const ms = require('ms');
 
 module.exports = new PinguCommand('clearerrors', 'DevOnly', `Clears all errors in folder`, {
     
-}, async ({ client, message, args, pAuthor, pGuild, pGuildClient }) => {
+}, async ({ message, args }) => {
     const errorPath = '../../../errors';
 
     const errorFolder = fs.readdirSync(errorPath);
@@ -16,25 +18,56 @@ module.exports = new PinguCommand('clearerrors', 'DevOnly', `Clears all errors i
 
     if (args[0] == 'show') {
         let errorId = args[1];
-        if (!errorId) return (await message.channel.send(`If I need to show you an error, I need to know which error you want. Length is ${length}.`))
-            .channel.createMessageCollector(msg => msg.author.id == message.author.id, { max: 1, time: 5000 })
-            .on('collect', messages => {
-                let m = messages.first();
-                
-                if (isNaN(m.content))
-                    return message.channel.send(`Invalid error number!`);
 
-                errorId = parseInt(m.content);
+        if (!errorId) 
+            errorId = await createMessageCollector(
+                message.channel.send(`If I need to show you an error, I need to know which error you want. Length is ${length}.`)
+            );
+        else if (isNaN(errorId) || errorId > length || errorId < 0) 
+            errorId = await createMessageCollector(
+                message.channel.send(`Please provide a proper number!`)
+            );
 
-            });
-        else if (isNaN(errorId) || errorId > length || errorId < 0) return message.channel.send(`Please provide a proper number!`)
+        //If not parsable, "You didn't reply in time!" recieved.
+        if (isNaN(errorId)) return message.channel.send(errorId);
 
         let error = files.find(file => file.includes(errorId));
 
-        if (!error) return message.channel.send(`I couldn't find that error!`);
+        return error ? 
+            message.channel.send(`Error #${errorId}`, new MessageAttachment(`${errorPath}/${error}`, error)) :
+            message.channel.send(`I couldn't find that error!`);
+
     }
 
     files.forEach(file => fs.unlink(`${errorPath}/${file}`));
 
     return message.channel.send(`Deleted ${length} errors.`);
+
+    /**@param {Promise<Message>} promise
+     * @returns {Promise<string>}*/
+    function createMessageCollector(promise) {
+        const sent = await promise;
+        const filter = m => m.author.id == message.author.id;
+        const collector = sent.channel.createMessageCollector(filter, { time: ms('10s') });
+
+        /**@param {string} response */
+        function invalid(response) {
+            collector.resetTimer();
+            return message.channel.send(response);
+        }
+
+        return new Promise((resolve, reject) => {
+            collector.on('collect', m => {
+
+                if (isNaN(m.content)) return invalid(`Invalid error number!`);
+
+                let errorId = parseInt(m.content);
+
+                if (errorId > length || errorId < 0) return invalid(`Please provide a proper number! The length is ${length}.`);
+
+                resolve(m.content);
+            }).on('end', () => reject(`You didn't reply in time!`))
+        })
+            
+    }
 })
