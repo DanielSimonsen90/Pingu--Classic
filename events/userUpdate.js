@@ -9,7 +9,7 @@ module.exports = new PinguEvent('userUpdate',
             if (user.avatarURL() != preUser.avatarURL() || user.avatar != preUser.avatar) return PinguEvent.SetDescriptionValuesLink('Avatar', preUser.avatarURL(), user.avatarURL());
             else if (user.discriminator != preUser.discriminator) return PinguEvent.SetDescriptionValues('Discriminator', preUser.discriminator, user.discriminator);
             else if (user.flags != preUser.flags) return `Flags Update: ${(
-                user.flags.toArray().length > preUser.flags.toArray().length ?
+                user.flags?.toArray().length > preUser.flags?.toArray().length ?
                     `${user.flags.toArray().find(flag => !preUser.flags.toArray().includes(flag))} added` :
                     user.flags.toArray().length < preUser.flags.toArray().length ?
                         `${preUser.flags.toArray().find(flag => !user.flags.toArray().includes(flag))} removed` :
