@@ -6,7 +6,7 @@ module.exports = new PinguCommand('poll', 'Utility', 'Create a poll for users to
     examples: ["setup", "list", "10m Am I asking a question?"],
     permissions: ["ADD_REACTIONS", "MANAGE_MESSAGES"]
 }, async ({ message, args, pGuild, pGuildClient }) => {
-    return await HandleDecidables({
+    return HandleDecidables({
         message, args, pGuild, pGuildClient,
         decidablesType: 'Poll',
         reactionEmojis: ['👍', '👎'],

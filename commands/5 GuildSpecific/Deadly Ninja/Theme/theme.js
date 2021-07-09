@@ -1,4 +1,4 @@
-﻿const { PinguCommand, PinguLibrary, HandleDecidables } = require('PinguPackage');
+﻿const { PinguCommand, HandleDecidables } = require('PinguPackage');
 const { usage, examples, permissions } = require('../../../1 Utility/Decidable/giveaway');
 
 module.exports = new PinguCommand('theme', 'GuildSpecific', `Themes for Danho's Discord`, {

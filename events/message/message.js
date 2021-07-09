@@ -238,7 +238,7 @@ module.exports = new PinguEvent('message',
             return returnValue.setValue(true);
         }
         async function ExecuteAndLogCommand() {
-            let ConsoleLog = `User **${author.username}** executed command **${commandName}**, from ${(!guild ? `DMs and ` : `"${guild}", #${channel.name}, and `)}`;
+            let ConsoleLog = `User **${author.username}** executed command **${command.name}**, from ${(!guild ? `DMs and ` : `"${guild}", #${channel.name}, and `)}`;
 
             //Attempt execution of command
             try {

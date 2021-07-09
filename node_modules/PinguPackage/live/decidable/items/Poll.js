@@ -4,11 +4,11 @@ exports.Poll = void 0;
 const Decidable_1 = require("./Decidable");
 class Poll extends Decidable_1.default {
     static Decide(poll, yesVotes, noVotes) {
-        poll.YesVotes = yesVotes;
-        poll.NoVotes = noVotes;
+        poll.yesVotes = yesVotes;
+        poll.noVotes = noVotes;
         poll.approved =
-            poll.YesVotes > poll.NoVotes ? 'Yes' :
-                poll.NoVotes > poll.YesVotes ? 'No' : 'Undecided';
+            poll.yesVotes > poll.noVotes ? 'Approved' :
+                poll.noVotes > poll.yesVotes ? 'Denied' : 'Undecided';
         return poll;
     }
 }

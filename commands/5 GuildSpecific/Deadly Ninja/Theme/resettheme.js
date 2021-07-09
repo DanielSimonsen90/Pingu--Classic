@@ -183,7 +183,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('801837541945769985', new Role("Autism", '#e3a1ff'));
                     collection.set('716613307624062977', new Role("Dad", '#4671b5'));
                     collection.set('802955952361308211', new Role("The Best Little Sister", '#a2bcff'));
-                    collection.set('737073804890734654', new Role("DiscordM", '#aefff4'));
+                    collection.set('737073804890734654', new Role("RobloxOwner", '#aefff4'));
                     collection.set('756406381904396288', new Role("Elektrikker pleb", '#ff00d9'));
                     collection.set('800476348995993650', new Role("Member #69", '#ff00de'));
                     collection.set('773524857001476096', new Role("Granddad", '#ff2700'));

@@ -7,7 +7,7 @@ module.exports = new PinguCommand('giveaway', 'Utility', 'Giveaway time!', {
     permissions: ["ADD_REACTIONS", "MANAGE_MESSAGES"],
     aliases: ["ga"]
 }, async ({ message, args, pGuild, pGuildClient }) => {
-    return await HandleDecidables({
+    return HandleDecidables({
         message, args, pGuild, pGuildClient,
         decidablesType: 'Giveaway',
         reactionEmojis: ['🤞'],

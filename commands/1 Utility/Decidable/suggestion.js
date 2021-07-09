@@ -1,4 +1,4 @@
-﻿const { PinguCommand, HandleDecidables, PinguLibrary } = require('PinguPackage');
+﻿const { PinguCommand, HandleDecidables } = require('PinguPackage');
 
 module.exports = new PinguCommand('suggestion', 'Utility', 'Suggest something', {
     usage: '<setup> | <list> | [#channel] <suggestion>',
@@ -7,10 +7,10 @@ module.exports = new PinguCommand('suggestion', 'Utility', 'Suggest something', 
     permissions: ['ADD_REACTIONS', 'MANAGE_MESSAGES'],
     aliases: ["suggest"]
 }, async ({ message, args, pGuild, pGuildClient }) => {
-    return await HandleDecidables({
+    return HandleDecidables({
         message, args, pGuild, pGuildClient,
         decidablesType: 'Suggestion',
-        reactionEmojis: [PinguLibrary.SavedServers.get('Danho Misc').emojis.cache.find(e => e.name == 'Checkmark'), '❌'],
+        reactionEmojis: ['👍', '👎'],
         listEmojis: ['⬅️', '🗑️', '➡️', '🛑'],
         config: pGuild.settings.config.decidables.suggestionConfig
     })
