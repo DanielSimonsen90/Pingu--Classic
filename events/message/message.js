@@ -99,6 +99,7 @@ module.exports = new PinguEvent('message',
 
         async function fromEmotesChannel() {
             if (!guild || author.bot || (!channel.name.includes('emote') && !channel.name.includes('emoji'))) return false;
+            if (!client.isLive && guild.members.cache.has(PinguClient.Clients.PinguID)) return false;
 
             let permCheck = PinguLibrary.PermissionCheck(message, 'MANAGE_EMOJIS', 'SEND_MESSAGES')
             if (permCheck != PinguLibrary.PermissionGranted) {
@@ -106,10 +107,7 @@ module.exports = new PinguEvent('message',
                 return false;
             }
 
-            if (!client.isLive && guild.members.cache.has(PinguClient.Clients.PinguID)) return false;
-
-            const { attachments } = message;
-            for (var file of attachments.array()) {
+            for (var file of message.attachments.array()) {
                 let errMsg = "";
 
                 let emote = file && file.attachment;

@@ -78,34 +78,36 @@ module.exports = {
     }), ...{
         /**@param {Message} message*/
         async ExecuteTellReply(message) {
-            //Pingu sent message in PM
-            if (message.author.bot) return;
+            const { client, author, content } = message;
 
-            let pAuthor = await PinguUser.Get(message.author);
+            //Pingu sent message in PM
+            if (author.bot) return;
+
+            let pAuthor = await PinguUser.Get(author);
 
             //Get author's replyPerson
             let authorReplyPerson = pAuthor.replyPerson;
-            if (!authorReplyPerson) return PinguLibrary.consoleLog(message.client, `No replyPerson found for ${message.author.username}.`);
+            if (!authorReplyPerson) return PinguLibrary.consoleLog(client, `No replyPerson found for ${author.username}.`);
 
             //Find replyPerson as Discord User
-            let replyPersonUser = await message.client.users.fetch(authorReplyPerson._id)
+            let replyPersonUser = await client.users.fetch(authorReplyPerson._id)
 
             //Find replyPerson as PinguUser
             let replyPersonPinguUser = await PinguUser.Get(replyPersonUser);
 
             //If replyPerson's replyPerson isn't author anymore, re-bind them again (replyPerson is talking to multiple people through Pingu)
-            if (replyPersonPinguUser.replyPerson._id != message.author.id) {
-                replyPersonPinguUser.replyPerson = new PUser(message.author);
+            if (replyPersonPinguUser.replyPerson._id != author.id) {
+                replyPersonPinguUser.replyPerson = new PUser(author);
 
-                PinguUser.Update(message.client, ['replyPerson'], replyPersonPinguUser, "tell: ExecuteTellReply", `Re-binded **${replyPersonUser.tag}**'s replyPerson to **${message.author.tag}**`);
+                PinguUser.Update(client, ['replyPerson'], replyPersonPinguUser, "tell: ExecuteTellReply", `Re-binded **${replyPersonUser.tag}**'s replyPerson to **${author.tag}**`);
             }
 
             //Log conversation
-            PinguLibrary.tellLog(message.client, message.author, replyPersonUser, message).catch(err => {
-                PinguLibrary.errorLog(message.client, 'Tell reply failed', message.content, err, {
+            PinguLibrary.tellLog(client, author, replyPersonUser, message).catch(err => {
+                PinguLibrary.errorLog(client, 'Tell reply failed', content, err, {
                     params: { message },
                     additional: {
-                        author: { user: message.author, pUser: pAuthor },
+                        author: { user: author, pUser: pAuthor },
                         replyPerson: { user: replyPersonUser, pUser: replyPersonPinguUser }
                     },
                 });
@@ -117,10 +119,10 @@ module.exports = {
                 if (err.message == 'Cannot send messages to this user')
                     return message.channel.send(`Unable to send message to ${Mention.username}, as they have \`Allow direct messages from server members\` disabled!`);
 
-                await PinguLibrary.errorLog(message.client, `${message.author} attempted to ${client.DefaultPrefix}tell ${Mention}`, message.content, err, {
+                await PinguLibrary.errorLog(client, `${author} attempted to ${client.DefaultPrefix}tell ${Mention}`, content, err, {
                     params: { message },
                     additional: {
-                        author: { user: message.author, pUser: pAuthor },
+                        author: { user: author, pUser: pAuthor },
                         replyPerson: { user: replyPersonUser, pUser: replyPersonPinguUser }
                     },
                 })
@@ -134,12 +136,12 @@ module.exports = {
             //message.content = `**Conversation with __${message.author.username}__**\n` + message.content;
 
             //Send author's reply to replyPerson
-            if (message.content && message.attachments.size > 0) var sent = replyPersonDM.send(message.content, message.attachments.array()).catch(async err => cantMessage(err)); //Message and files
-            else if (message.content) sent = replyPersonDM.send(message.content).catch(async err => cantMessage(err)); //Message only
-            else sent = PinguLibrary.errorLog(client, `${message.author} ➡️ ${replyPersonUser} used else statement from ExecuteTellReply, Index`, message.content, {
+            if (content && message.attachments.size > 0) var sent = replyPersonDM.send(content, message.attachments.array()).catch(async err => cantMessage(err)); //Message and files
+            else if (content) sent = replyPersonDM.send(content).catch(async err => cantMessage(err)); //Message only
+            else sent = PinguLibrary.errorLog(client, `${author} ➡️ ${replyPersonUser} used else statement from ExecuteTellReply, Index`, content, {
                 params: { message },
                 additional: {
-                    author: { user: message.author, pUser: pAuthor },
+                    author: { user: author, pUser: pAuthor },
                     replyPerson: { user: replyPersonUser, pUser: replyPersonPinguUser }
                 },
             });

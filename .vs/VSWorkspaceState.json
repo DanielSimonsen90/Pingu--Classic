@@ -1,16 +1,16 @@
 {
   "ExpandedNodes": [
     "",
-    "\\commands",
-    "\\commands\\1 Utility",
-    "\\commands\\3 Supporting",
     "\\commands\\4 DevOnly",
     "\\commands\\4 DevOnly\\Update",
-    "\\events\\client",
+    "\\commands\\5 GuildSpecific",
+    "\\commands\\5 GuildSpecific\\Deadly Ninja",
+    "\\commands\\5 GuildSpecific\\Deadly Ninja\\Theme",
+    "\\errors",
+    "\\events",
     "\\events\\guild",
-    "\\events\\guild\\guildMember",
-    "\\events\\message"
+    "\\events\\guild\\role"
   ],
-  "SelectedNode": "\\commands\\3 Supporting\\invite.js",
+  "SelectedNode": "\\events\\guild\\role\\roleDelete.js",
   "PreviewInSolutionExplorer": false
 }

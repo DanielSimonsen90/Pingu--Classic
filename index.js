@@ -4,7 +4,7 @@
     const { config, PinguClient } = require('PinguPackage');
     const client = new PinguClient(config, [
         'channelCreate', 'channelDelete', 'channelPinsUpdate', 'channelUpdate', 'typingStart', 'webhookUpdate',                                                                 //channel
-        'error', 'invalidated', 'ready',                                                                                                                                        //client
+        'error', 'invalidated', 'onready',                                                                                                                                        //client
         'emojiCreate', 'emojiDelete', 'emojiUpdate',                                                                                                                            //emoji
         'guildMemberAdd', 'guildMemberAvailable', 'guildMemberRemove', 'guildMemberUpdate',                                                                                     //guildMember
         'inviteCreate', 'inviteDelete',                                                                                                                                         //invite

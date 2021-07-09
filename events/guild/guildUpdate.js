@@ -183,7 +183,7 @@ module.exports = new PinguEvent('guildUpdate',
 
             (async function UpdateSharedServers() {
                 const pUsers = await PinguUser.GetUsers();
-                const pUsersWithPGuild = pUsers.filter(pu => pu.sharedServers.filter(pg => pg.find(g => g._id == guild.id)));
+                const pUsersWithPGuild = pUsers.filter(pu => pu.sharedServers.filter(pg => pg._id == guild.id));
                 pUsersWithPGuild.forEach(pUser => {
                     let { sharedServers } = pUser;
                     let pg = sharedServers.find(pg => pg._id == guild.id);

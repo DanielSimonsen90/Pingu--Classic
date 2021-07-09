@@ -13,7 +13,7 @@ exports.GuildMemberAchievement = void 0;
 const AchievementBase_1 = require("./AchievementBase");
 const GuildAchievement_1 = require("./GuildAchievement");
 const Percentage_1 = require("../../../helpers/Percentage");
-const PinguClient_1 = require("../../client/PinguClient");
+const BasePinguClient_1 = require("../../client/BasePinguClient");
 const PinguGuild_1 = require("../../guild/PinguGuild");
 const PinguUser_1 = require("../../user/PinguUser");
 class GuildMemberAchievement extends AchievementBase_1.default {
@@ -92,7 +92,7 @@ GuildMemberAchievement.Achievements = [
     new GuildMemberAchievement(15, "I'm vibin!", 'COMMAND', 'viberate', "Use the `viberate` command and be rated higher than 7")
         .setCallback('0', ([params]) => __awaiter(void 0, void 0, void 0, function* () {
         return params.response && params.response.author.bot &&
-            [PinguClient_1.Clients.BetaID, PinguClient_1.Clients.PinguID].includes(params.response.author.id) &&
+            [BasePinguClient_1.Clients.BetaID, BasePinguClient_1.Clients.PinguID].includes(params.response.author.id) &&
             params.response.content.includes('7');
     })),
     new GuildMemberAchievement(16, "Text-To-Image", 'CHANNEL', "Emotes", GuildAchievement_1.useChannel('Emotes', "create an emote")),

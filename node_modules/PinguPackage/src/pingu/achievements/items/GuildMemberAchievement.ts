@@ -11,7 +11,7 @@ import { useChannel } from "./GuildAchievement";
 import Percentage from "../../../helpers/Percentage";
 import DecidablesConfig from "../../../decidable/config/DecidablesConfig";
 import Decidable from "../../../decidable/items/Decidable";
-import { Clients } from "../../client/PinguClient";
+import { Clients } from "../../client/BasePinguClient";
 
 import { GetPGuild } from "../../guild/PinguGuild";
 import { GetPUser } from "../../user/PinguUser";
