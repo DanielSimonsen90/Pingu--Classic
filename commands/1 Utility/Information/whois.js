@@ -79,13 +79,13 @@ async function HandleGuildMember(message, member) {
 async function SendGuildMessage(message, gm, SharedServers) {
     let badges = await PinguLibrary.getBadges(gm.user);
 
-    return await message.channel.send(new MessageEmbed()
+    return message.channel.send(new MessageEmbed()
         .setTitle(`${gm.displayName} ${(gm.displayName != gm.user.username ? `(${gm.user.username})` : ``)}`)
         .setThumbnail(gm.user.avatarURL())
         .setColor(await GetColor(null, gm.user.presence))
         .addFields([
-            new EmbedField(`Created at`, gm.user.createdAt, true),
-            new EmbedField(`Joined at`, gm.joinedAt, true),
+            new EmbedField(`Created at`, `<t:${Math.round(gm.user.createdTimestamp / 1000)}:R>`, true),
+            new EmbedField(`Joined at`, `<t:${Math.round(gm.joinedTimestamp / 1000)}:R>`, true),
             EmbedField.Blank(true),
             new EmbedField(`Shared Servers`, SharedServers, true),
             badges && badges.array().length ? new EmbedField(`Badges`, badges.map(badge => badge.emoji).join(' '), true) : EmbedField.Blank(true),
@@ -106,7 +106,7 @@ async function SendNonGuildMessage(message, user) {
         .setThumbnail(user.avatarURL())
         .setColor(await GetColor(null, user.presence))
         .addFields([
-            new EmbedField(`Created at`, user.createdAt, true),
+            new EmbedField(`Created at`, `<t:${Math.round(user.createdTimestamp / 1000)}:R>`, true),
             EmbedField.Blank(true),
             EmbedField.Blank(true),
             badges && badges.array().length ? new EmbedField(`Badges`, badges.map(badge => badge.emoji).join(' '), true) : EmbedField.Blank(true),

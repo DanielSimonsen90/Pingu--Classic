@@ -11,10 +11,8 @@ import { useChannel } from "./GuildAchievement";
 import Percentage from "../../../helpers/Percentage";
 import DecidablesConfig from "../../../decidable/config/DecidablesConfig";
 import Decidable from "../../../decidable/items/Decidable";
-import { Clients } from "../../client/BasePinguClient";
+import BasePinguClient, { Clients } from "../../client/BasePinguClient";
 
-import { GetPGuild } from "../../guild/PinguGuild";
-import { GetPUser } from "../../user/PinguUser";
 import PinguGuildMember from "../../guildMember/PinguGuildMember";
 
 export class GuildMemberAchievement
@@ -42,8 +40,8 @@ extends AchievementBase implements IGuildMemberAchievement<Key, Type, GuildMembe
         return true
     }
 
-    public async getPercentage(guild: Guild) {
-        let pGuildMembersMap = ((await GetPGuild(guild)).members);
+    public async getPercentage(client: BasePinguClient, guild: Guild) {
+        const pGuildMembersMap = client.pGuilds.get(guild).members;
         let whole = pGuildMembersMap.size;
         
         let pGuildMembers: PinguGuildMember[] = [];
@@ -56,7 +54,7 @@ extends AchievementBase implements IGuildMemberAchievement<Key, Type, GuildMembe
     private static async DecidablesCheck(message: Message, callback: (config: DecidablesConfig) => Decidable[]) {
         if (!message.guild) return false;
 
-        let pGuild = await GetPGuild(message.guild);
+        let pGuild = (message.client as BasePinguClient).pGuilds.get(message.guild);
         return callback(pGuild.settings.config.decidables).find(d => d._id == message.id) != null;
     }
 
@@ -76,10 +74,11 @@ extends AchievementBase implements IGuildMemberAchievement<Key, Type, GuildMembe
         new GuildMemberAchievement(10, "I am inevitable", 'COMMAND', 'clear', GuildMemberAchievement.useCommand('clear', "\"snap\" messages in a chat")),
         new GuildMemberAchievement(11, "I see only what I want to see", 'EVENT', 'messageReactionAdd', "Use the server's ReactionRole feature")
             .setCallback('messageReactionAdd', async ([reaction, user]) => {
-                const { guild } = reaction.message;
+                const { guild, client: _client } = reaction.message;
                 if (!guild) return false;
 
-                const pGuild = await GetPGuild(guild);
+                const client = _client as BasePinguClient;
+                const pGuild = client.pGuilds.get(guild);
                 if (!pGuild) return false;
 
                 const { reactionRoles } = pGuild.settings;
@@ -91,11 +90,12 @@ extends AchievementBase implements IGuildMemberAchievement<Key, Type, GuildMembe
         new GuildMemberAchievement(13, "Proffesional DJ", 'COMMAND', 'music', GuildMemberAchievement.useCommand('music', "play some sick tunes in a voice channel")),
         new GuildMemberAchievement(14, "I said that?", 'COMMAND', 'quote', "Be quoted by someone that used the `quote` command")
             .setCallback('0', async ([params]) => {
-            const { message } = params;
+            const { message, client: _client } = params;
             const member = message.mentions.members.first();
             if (!member || message.member.id == member.id) return false;
 
-            const pMention = await GetPUser(member.user);
+            const client = _client as BasePinguClient;
+            const pMention = client.pUsers.get(member.user);
             return pMention != null;
         }),
         new GuildMemberAchievement(15, "I'm vibin!", 'COMMAND', 'viberate', "Use the `viberate` command and be rated higher than 7")

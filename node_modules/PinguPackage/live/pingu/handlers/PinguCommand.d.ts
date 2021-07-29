@@ -7,6 +7,7 @@ export declare enum CommandCategories {
 }
 declare type CommandCategoriesType = keyof typeof CommandCategories;
 import PinguClient from "../client/PinguClient";
+import Arguments from "../../helpers/Arguments";
 import { Message, PermissionString, Snowflake, VoiceConnection } from 'discord.js';
 import PinguUser from '../user/PinguUser';
 import PinguGuildMember from '../guildMember/PinguGuildMember';
@@ -15,7 +16,7 @@ import PClient from '../../database/json/PClient';
 export interface PinguCommandParams {
     client?: PinguClient;
     message: Message;
-    args?: string[];
+    args?: Arguments;
     pAuthor?: PinguUser;
     pGuildMember?: PinguGuildMember;
     pGuild?: PinguGuild;

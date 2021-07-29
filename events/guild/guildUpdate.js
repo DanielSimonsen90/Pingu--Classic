@@ -204,10 +204,12 @@ module.exports = new PinguEvent('guildUpdate',
             let rrChannels = guild.channels.cache.filter(c => rrPChannels.includes(c.id));
             let newReactionRoles = pGuild.settings.reactionRoles;
 
-            rrChannels.array().forEach((c, i) => {
-                if (c.name != pGuild.reactionRoles[i].channel.name)
+            if (pGuild.reactionRoles[0]) {
+                rrChannels.array().forEach((c, i) => {
+                    if (c.name != pGuild.reactionRoles[i].channel.name)
                     pGuild.settings.reactionRoles[i].channel.name = c.name;
-            });
+                });
+            }
 
             if (pGuild.settings.reactionRoles.find((rr, i) =>
                 rr.channel.name != newReactionRoles[i].channel.name)) {

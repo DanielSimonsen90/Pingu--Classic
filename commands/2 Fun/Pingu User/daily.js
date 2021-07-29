@@ -31,7 +31,7 @@ module.exports = new PinguCommand('daily', 'Fun', `Daily streams just like as if
         };
 
         if (nextClaim.toString())
-            return message.channel.send(`You've already claimed your daily! Come back in ${nextClaim.toString()} (**${endsAt.toLocaleTimeString('da-DK')}**, **${endsAt.toLocaleDateString('da-DK', format)}**)`);
+            return message.channel.send(`You've already claimed your daily! Come back in ${nextClaim.toString()} (<t:${Math.round(nextClaim.endsAt.getTime() / 1000)}:R>)`);
         else if (daily.nextClaim.hours + 36 > hourDiff)
             return ClaimDaily(daily.streak += 1);
         return ClaimDaily(1);

@@ -19,7 +19,6 @@ var CommandCategories;
     CommandCategories[CommandCategories["GuildSpecific"] = 4] = "GuildSpecific";
 })(CommandCategories = exports.CommandCategories || (exports.CommandCategories = {}));
 const PinguHandler_1 = require("./PinguHandler");
-const PinguLibrary_1 = require("../library/PinguLibrary");
 class PinguCommand extends PinguHandler_1.default {
     constructor(name, category, description, data, execute) {
         //Must need these
@@ -32,7 +31,7 @@ class PinguCommand extends PinguHandler_1.default {
             this.execute = execute;
         if (data) {
             const { permissions } = data;
-            this.permissions = permissions && permissions.length ? [...permissions, 'SEND_MESSAGES'] : ['SEND_MESSAGES'];
+            this.permissions = (permissions === null || permissions === void 0 ? void 0 : permissions.length) ? [...permissions, 'SEND_MESSAGES'] : ['SEND_MESSAGES'];
             //Optional
             const { usage, guildOnly, specificGuildID, examples, aliases, mustBeBeta } = data;
             this.usage = usage || "";
@@ -45,7 +44,7 @@ class PinguCommand extends PinguHandler_1.default {
     }
     execute(params) {
         return __awaiter(this, void 0, void 0, function* () {
-            return PinguLibrary_1.errorLog(params.message.client, `Execute for command **${this.name}**, was not defined!`);
+            return params.client.log('error', `Execute for command **${this.name}**, was not defined!`);
         });
     }
 }

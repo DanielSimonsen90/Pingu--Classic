@@ -1,16 +1,11 @@
 {
   "ExpandedNodes": [
     "",
+    "\\commands\\1 Utility",
+    "\\commands\\3 Supporting",
     "\\commands\\4 DevOnly",
-    "\\commands\\4 DevOnly\\Update",
-    "\\commands\\5 GuildSpecific",
-    "\\commands\\5 GuildSpecific\\Deadly Ninja",
-    "\\commands\\5 GuildSpecific\\Deadly Ninja\\Theme",
-    "\\errors",
-    "\\events",
-    "\\events\\guild",
-    "\\events\\guild\\role"
+    "\\commands\\4 DevOnly\\Update"
   ],
-  "SelectedNode": "\\events\\guild\\role\\roleDelete.js",
+  "SelectedNode": "\\eslintrc.json",
   "PreviewInSolutionExplorer": false
 }

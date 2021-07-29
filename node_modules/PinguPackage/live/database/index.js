@@ -21,20 +21,18 @@ Object.defineProperty(exports, "PMarry", { enumerable: true, get: function () { 
 Object.defineProperty(exports, "PQueue", { enumerable: true, get: function () { return json_1.PQueue; } });
 Object.defineProperty(exports, "PRole", { enumerable: true, get: function () { return json_1.PRole; } });
 Object.defineProperty(exports, "PUser", { enumerable: true, get: function () { return json_1.PUser; } });
-const PinguLibrary_1 = require("../pingu/library/PinguLibrary");
-const PinguClient_1 = require("../pingu/client/PinguClient");
 function DBExecute(client, callback) {
     return __awaiter(this, void 0, void 0, function* () {
         const mongoose = require('mongoose');
         try {
-            yield mongoose.connect(`mongodb+srv://Pingu:${PinguClient_1.ToPinguClient(client).config.mongoPass}@pingudb.kh2uq.mongodb.net/PinguDB?retryWrites=true&w=majority`, {
+            yield mongoose.connect(`mongodb+srv://Pingu:${client.config.mongoPass}@pingudb.kh2uq.mongodb.net/PinguDB?retryWrites=true&w=majority`, {
                 useNewUrlParser: true,
                 useUnifiedTopology: true
             });
             var returnValue = yield callback(mongoose);
         }
         catch (err) {
-            PinguLibrary_1.errorLog(client, 'Mongo error', null, new Error(err));
+            client.log('error', 'Mongo error', null, new Error(err));
         }
         //finally { mongoose.connection.close(); }
         return returnValue;

@@ -11,9 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Queue = void 0;
 const discord_js_1 = require("discord.js");
-const PinguLibrary_1 = require("../../../../library/PinguLibrary");
-const PinguClient_1 = require("../../../../client/PinguClient");
-const PinguGuild_1 = require("../../../PinguGuild");
 const statics_1 = require("./statics");
 class Queue {
     constructor(logChannel, voiceChannel, songs, playing = true) {
@@ -117,21 +114,23 @@ class Queue {
     Update(message, commandName, succMsg) {
         return __awaiter(this, void 0, void 0, function* () {
             Queue.set(message.guild.id, ['HandleStop', 'Play'].includes(commandName) ? null : this);
-            PinguLibrary_1.consoleLog(message.client, `{**${commandName}**}: ${succMsg}`);
+            message.client.log('console', `{**${commandName}**}: ${succMsg}`);
         });
     }
     NowPlayingEmbed(message) {
         return __awaiter(this, void 0, void 0, function* () {
             let { thumbnail, title, requestedBy, endsAt, author, link } = this.currentSong;
-            let pGuildClient = PinguClient_1.default.ToPinguClient(message.client).toPClient(yield PinguGuild_1.GetPGuild(message.guild));
-            return new discord_js_1.MessageEmbed()
-                .setTitle(`Now playing: ${title} | by ${author}`)
-                .setDescription(`Requested by <@${requestedBy._id}>`)
-                .setFooter(`Song finished at`)
-                .setThumbnail(thumbnail)
-                .setURL(link)
-                .setColor(pGuildClient.embedColor)
-                .setTimestamp(endsAt);
+            const client = message.client;
+            const pGuildClient = client.toPClient(client.pGuilds.get(message.guild));
+            return new discord_js_1.MessageEmbed({
+                title: `Now playing: ${title} | by ${author}`,
+                description: `Requested by <@${requestedBy._id}>`,
+                footer: { text: 'Song finished at' },
+                thumbnail: { url: thumbnail },
+                url: link,
+                color: pGuildClient.embedColor || client.DefaultEmbedColor,
+                timestamp: endsAt
+            });
         });
     }
 }

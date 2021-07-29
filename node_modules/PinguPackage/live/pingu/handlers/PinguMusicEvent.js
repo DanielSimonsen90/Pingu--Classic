@@ -10,15 +10,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PinguMusicEvent = exports.HandleEvent = void 0;
-const PinguLibrary_1 = require("../library/PinguLibrary");
 function HandleEvent(caller, client, path, ...args) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             var event = require(`../../../../..${path}`);
         }
         catch (err) {
-            console.log({ err, caller, path });
-            return PinguLibrary_1.errorLog(client, `Unable to get event for ${caller}`, null, err, {
+            console.error({ err, caller, path });
+            return client.log('error', `Unable to get event for ${caller}`, null, err, {
                 params: { caller, path, args },
                 additional: { event }
             });
@@ -31,7 +30,7 @@ function HandleEvent(caller, client, path, ...args) {
                     return event.execute(client, ...args);
                 }
                 catch (err) {
-                    PinguLibrary_1.errorLog(client, `${event.name}.execute`, null, err, {
+                    client.log('error', `${event.name}.execute`, null, err, {
                         params: { caller, path, args },
                         additional: { event }
                     });
@@ -39,7 +38,7 @@ function HandleEvent(caller, client, path, ...args) {
             });
         }
         yield execute().catch(err => {
-            return PinguLibrary_1.errorLog(client, err.message, JSON.stringify(args, null, 2), err, {
+            return client.log('error', err.message, JSON.stringify(args, null, 2), err, {
                 params: { caller, path, args },
                 additional: { event }
             });

@@ -10,7 +10,7 @@ export class Marry {
     public partner: PUser
     public internalDate: Date
     public marriedMessage(): string {
-        return `You have been ${(this.partner ? `married to <@${this.partner._id}> since` : `single since`)} **${this.internalDate.toLocaleTimeString()}, ${this.internalDate.toLocaleDateString().split('.').join('/')}**`;
+        return `You have been ${(this.partner ? `married to <@${this.partner._id}> for` : `single for`)} <t:${Math.round(this.internalDate.getTime() / 1000)}:R>`;
     }
 
     public marry(partner: User) {

@@ -1,13 +1,15 @@
 const { Message, GuildChannel, TextChannel, GuildEmoji, Role, MessageEmbed } = require('discord.js');
 const { PinguCommand, PinguLibrary, PinguGuild, ReactionRole } = require('PinguPackage');
 
+const { PermissionGranted } = PinguLibrary;
+
 module.exports = new PinguCommand('reactionroles', 'Utility', 'Gives/Removes roles for users who reacted to a message', {
     usage: '<create [channel] <message id> <emoji> <role id> | delete [channel] <message id> <emoji> [remove from users? true/false]',
     guildOnly: true,
     examples: ["*reactionroles create #role-select 801055604222984223 :movie_camera: @Content Creators"],
     permissions: ['ADD_REACTIONS', 'MANAGE_ROLES'],
     aliases: ["reactionrole", "rr"]
-}, async ({ message, args, pGuild, pGuildClient }) => {
+}, async ({ client, message, args, pGuild, pGuildClient }) => {
     let arg = args.shift();
     //Get command
     let command = arg && arg.toLowerCase();
@@ -15,11 +17,11 @@ module.exports = new PinguCommand('reactionroles', 'Utility', 'Gives/Removes rol
 
     //Ensure correct command & args[0 & 1] exists
     let permCheck = PermissionCheck(command, args);
-    if (permCheck != PinguLibrary.PermissionGranted) return message.channel.send(permCheck);
+    if (permCheck != PermissionGranted) return message.channel.send(permCheck);
 
     //User mentioned a channel
     let channelResult = GetChannel(message, args);
-    if (channelResult.result != PinguLibrary.PermissionGranted) return message.channel.send(channelResult.result);
+    if (channelResult.result != PermissionGranted) return message.channel.send(channelResult.result);
     args = channelResult.args;
     let { channel } = channelResult;
 
@@ -29,7 +31,7 @@ module.exports = new PinguCommand('reactionroles', 'Utility', 'Gives/Removes rol
 
     //Get emote
     let emoteResult = GetEmote(message, args)
-    if (emoteResult.result != PinguLibrary.PermissionGranted) return message.channel.send(emoteResult.result);
+    if (emoteResult.result != PermissionGranted) return message.channel.send(emoteResult.result);
     args = emoteResult.args;
     let { emote } = emoteResult;
 
@@ -38,22 +40,22 @@ module.exports = new PinguCommand('reactionroles', 'Utility', 'Gives/Removes rol
 
     //Get role
     let roleResult = await GetRole(message, args);
-    if (roleResult.result != PinguLibrary.PermissionGranted) return message.channel.send(roleResult.result);
+    if (roleResult.result != PermissionGranted) return message.channel.send(roleResult.result);
     args = roleResult.args;
     let { role } = roleResult;
 
     //Set ReactionRole
     let setRRResult = await SetReactionRoles(pGuild, rrMessage, emote, role);
-    if (setRRResult != PinguLibrary.PermissionGranted) return message.channel.send(`I cannot create that reactionrole, as I already have a reactionrole with that ${setRRResult}!`);
+    if (setRRResult != PermissionGranted) return message.channel.send(`I cannot create that reactionrole, as I already have a reactionrole with that ${setRRResult}!`);
 
     await rrMessage.react(emote);
 
-    return message.channel.send(new MessageEmbed()
-        .setTitle(`ReactionRole Created!`)
-        .setURL(rrMessage.url)
-        .setDescription(`Your reactionrole in ${channel} (${rrMessage.id}), giving ${role} for reacting with ${emote} is now ready!`)
-        .setColor(pGuildClient.embedColor)
-    )
+    return message.channel.send(new MessageEmbed({
+        title: `ReactionRole Created!`,
+        url: rrMessage.url,
+        description: `Your reactionrole in ${channel} (${rrMessage.id}), giving ${role} for reacting with ${emote} is now ready!`,
+        color: pGuildClient.embedColor || client.DefaultEmbedColor
+    }))
 })
 
 
@@ -63,7 +65,7 @@ function PermissionCheck(command, args) {
     if (!['create', 'delete'].includes(command)) return `Sub-command not recognized! Do I **create** or **delete** a reactionrole?`;
     else if (!args[0]) return `Please provide a **message id**!`;
     else if (!args[1]) return `Please provide the emoji I need to remove!`;
-    return PinguLibrary.PermissionGranted
+    return PermissionGranted
 }
 
 /**@param {Message} message
@@ -76,7 +78,7 @@ function GetChannel(message, args) {
         var channel = toTextChannel(guildChannel);
     }
     if (!channel) channel = message.channel;
-    return { channel, args, result: PinguLibrary.PermissionGranted };
+    return { channel, args, result: PermissionGranted };
 
     /**@param {GuildChannel} channel
  * @returns {TextChannel}*/
@@ -101,7 +103,7 @@ function GetEmote(message, args) {
     else return { result: `${emoteString} is not an emote!` };
     if (!emote) return { result: `Emote not found!` };
 
-    return { result: PinguLibrary.PermissionGranted, emote, args };
+    return { result: PermissionGranted, emote, args };
 }
 
 /**@param {Message} message
@@ -115,7 +117,7 @@ async function GetRole(message, args) {
     let role = message.mentions.roles.first() || await message.guild.roles.fetch(roleID);
     if (!role) return { result: `Role wasn't found!` };
 
-    return { result: PinguLibrary.PermissionGranted, role, args };
+    return { result: PermissionGranted, role, args };
 }
 
 /**@param {PinguGuild} pGuild
@@ -123,23 +125,23 @@ async function GetRole(message, args) {
  * @param {GuildEmoji} emote
  * @param {Role} role*/
 async function SetReactionRoles(pGuild, rrMessage, emote, role) {
-    let containsCheck = PinguLibrary.PermissionGranted;
+    let containsCheck = PermissionGranted;
     let { reactionRoles } = pGuild.settings;
 
     reactionRoles.find(rr => {
         let check = !((rr.emoteName == emote && rr.emoteName.charCodeAt(0) == emote.charCodeAt(0) ||
             rr.emoteName == emote.name) && "emote" ||
-            rr.pRole._id == role.id && "role") && PinguLibrary.PermissionGranted
-        if (check != PinguLibrary.PermissionGranted)
+            rr.pRole._id == role.id && "role") && PermissionGranted
+        if (check != PermissionGranted)
             containsCheck = check;
     });
-    if (containsCheck != PinguLibrary.PermissionGranted) return containsCheck;
+    if (containsCheck != PermissionGranted) return containsCheck;
 
     reactionRoles.push(new ReactionRole(rrMessage, emote && emote.name || emote, role));
 
     await PinguGuild.Update(rrMessage.client, ['settings'], pGuild, `ReactionRoles: SetReactionRoles`, `Added ReactionRole to **${rrMessage.guild.name}**'s PinguGuild using ${(emote.name || emote)} giving ${role.name}.`);
 
-    return PinguLibrary.PermissionGranted;
+    return PermissionGranted;
 }
 
 /**@param {Message} message
@@ -155,14 +157,14 @@ async function Delete(message, channel, rrMessage, emote, args) {
     let rr = reactionRoles.find(rr => rr.channel._id == channel.id && rr.messageID == rrMessage.id && (rr.emoteName == emote.name || rr.emoteName == emote));
     if (!rr) return message.channel.send(`I wasn't able to find that reactionrole in your pGuild!`);
 
-    if (!rrMessage.reactions.cache.array().find(reaction => reaction.emoji.name == rr.emoteName))
+    if (!rrMessage.reactions.cache.find(reaction => reaction.emoji.name == rr.emoteName))
         return message.channel.send(`No one has reacted with ${emote} on that message!\n${rrMessage.url}`);
 
     if (removeFromUsers) {
         let role = await rrMessage.guild.roles.fetch(rr.pRole._id);
 
         let gMembers = rrMessage.reactions.cache.map(reaction =>
-            reaction.emoji.name == rr.emoteName && reaction.users.cache.array().map(u =>
+            reaction.emoji.name == rr.emoteName && reaction.users.cache.map(u =>
                 rrMessage.guild.member(u)
             )
         )[0];

@@ -10,7 +10,7 @@ export class PClient {
 
         const botRole = guild.me.roles.cache.find(r => r.managed);
         
-        this.embedColor = botRole && botRole.color || Util.resolveColor(guild.me.displayHexColor) || pinguClient.DefaultEmbedColor;
+        this.embedColor = botRole?.color || Util.resolveColor(guild.me.displayHexColor) || pinguClient.DefaultEmbedColor;
         this.prefix = pinguClient.DefaultPrefix;
     }
     public displayName: string

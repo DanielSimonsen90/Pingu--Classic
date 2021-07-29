@@ -1,4 +1,4 @@
-const { Message } = require('discord.js');
+const { Message, Collection } = require('discord.js');
 const { PinguCommand, PinguLibrary } = require('PinguPackage');
 
 module.exports = new PinguCommand('setpfp', 'DevOnly', 'Changes my profile picutre', {
@@ -6,30 +6,28 @@ module.exports = new PinguCommand('setpfp', 'DevOnly', 'Changes my profile picut
     example: ["AFools", "preview Green"]
 }, async ({ client, message, args, pGuildClient }) => {
     if (!args[0]) args[0] = "preview";
-    let PFP = args[0].toLowerCase() == "preview" ? args[1] : args[0];
-    PFP = (function getPFP() {
-        switch (PFP.toLowerCase()) {
-            case 'preview': return PFP;
-            case '1k': return '1k days celebration hype.png';
-            case 'afools': return 'April Fools.png';
-            case 'cool': return 'FeelsCoolMan.png';
-            case 'christmas': return 'Christmas.png';
-            case 'green': return 'Greeny_Boi.png';
-            case 'hollywood': return 'Hollywood Party.png';
-            case 'blogger': return 'The Blogger.png';
-            case 'sithlord': return 'The Sithlord.png';
-            case 'wiking': return 'Wiking.png';
-            case 'winter': return 'Winter.png';
-            default: return null;
-        }
-    })();
+    
+    const keyword = args[0].toLowerCase() == "preview" ? args[1] : args[0];
+    const PFP = new Collection([
+        ['preview', keyword],
+        ['1k', '1k days celebration hype'],
+        ['afools', 'April Fools'],
+        ['cool', 'FeelsCoolMan'],
+        ['christmas', 'Christmas'],
+        ['green', 'Greeny_Boi'],
+        ['hollywood', 'Hollywood Party'],
+        ['blogger', 'The Blogger'],
+        ['sithlord', 'The Sithlord'],
+        ['wiking', 'Wiking'],
+        ['winter', 'Winter']
+    ]).get(keyword.toLowerCase())
 
     if (!PFP) return message.channel.send(`I couldn't find that PFP in my folder!`);
 
     if (args[0].toLowerCase() == "preview")
         return HandlePreview(message, PFP);
 
-    var newPFP = `./commands/4 DevOnly/pfps/${PFP}`;
+    var newPFP = `./commands/4 DevOnly/pfps/${PFP}.png`;
 
     await client.user.setAvatar(newPFP).catch(err => message.channel.send(`Error while changing picture\n${err}`));
 
@@ -48,10 +46,7 @@ function HandlePreview(message, imageToPreview) {
     if (!imageToPreview) return message.channel.send(`Preview image not specified!`);
     try {
         message.channel.send(`Preview image for: **${imageToPreview}**`, {
-            files: [{
-                attachment: `./pfps/${imageToPreview}`,
-                name: `${imageToPreview}.png`
-            }]
+            files: [{ attachment: `./pfps/${imageToPreview}.png`, name: `${imageToPreview}.png` }]
         }).catch(err => message.channel.send(`Error while sending preview!\n${err}`));
     }
     catch (e) { message.channel.send(`Unable to find ${imageToPreview} in my available PFPs!\n` + e.message); }

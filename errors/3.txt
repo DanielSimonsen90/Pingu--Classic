@@ -1,0 +1,47 @@
+Error #3
+```
+[Provided Message]
+cmd.aliases?.some is not a function
+
+[Message content]
+[
+  {
+    "channelID": "858689545624748033",
+    "deleted": false,
+    "id": "869160513064542218",
+    "type": "DEFAULT",
+    "system": false,
+    "content": "```\n[Parameters]:\n{\n  \"err\": {},\n  \"params\": {\n    \"params\": {\n      \"caller\": \"guildMemberRemove\",\n      \"path\": \"/events/guild/guildMember/guildMemberRemove.js\",\n      \"args\": {\n        \"0\": {\n          \"guildID\": \"847481105972330547\",\n          \"joinedTimestamp\": 1622402735140,\n          \"lastMessageChannelID\": null,\n          \"premiumSinceTimestamp\": 0,\n          \"deleted\": true,\n          \"nickname\": null,\n          \"userID\": \"778288722055659520\",\n          \"displayName\": \"Pingu BETA\"\n        }\n      }\n    },\n    \"additional\": {\n      \"event\": {\n        \"name\": \"guildMemberRemove\",\n        \"path\": \"/events/guild/guildMember/guildMemberRemove.js\"\n      }\n    }\n  }\n}\n```",
+    "authorID": "778288722055659520",
+    "pinned": false,
+    "tts": false,
+    "nonce": null,
+    "embeds": [],
+    "attachments": [],
+    "createdTimestamp": 1627294414536,
+    "editedTimestamp": 0,
+    "webhookID": null,
+    "applicationID": null,
+    "activity": null,
+    "flags": 0,
+    "reference": null,
+    "guildID": "756383096646926376",
+    "cleanContent": "```\n[Parameters]:\n{\n  \"err\": {},\n  \"params\": {\n    \"params\": {\n      \"caller\": \"guildMemberRemove\",\n      \"path\": \"/events/guild/guildMember/guildMemberRemove.js\",\n      \"args\": {\n        \"0\": {\n          \"guildID\": \"847481105972330547\",\n          \"joinedTimestamp\": 1622402735140,\n          \"lastMessageChannelID\": null,\n          \"premiumSinceTimestamp\": 0,\n          \"deleted\": true,\n          \"nickname\": null,\n          \"userID\": \"778288722055659520\",\n          \"displayName\": \"Pingu BETA\"\n        }\n      }\n    },\n    \"additional\": {\n      \"event\": {\n        \"name\": \"guildMemberRemove\",\n        \"path\": \"/events/guild/guildMember/guildMemberRemove.js\"\n      }\n    }\n  }\n}\n```"
+  }
+]
+
+[Error message]: 
+cmd.aliases?.some is not a function
+
+[Stack]
+TypeError: cmd.aliases?.some is not a function
+    at c:\Users\Daniel Simonsen\Documents\GitHub\Discord\Bots\Pingu\Pingu\events\message\message.js:173:57
+    at Array.find (<anonymous>)
+    at AssignCommand (c:\Users\Daniel Simonsen\Documents\GitHub\Discord\Bots\Pingu\Pingu\events\message\message.js:173:32)
+    at PinguEvent.execute (c:\Users\Daniel Simonsen\Documents\GitHub\Discord\Bots\Pingu\Pingu\events\message\message.js:86:23)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:93:5)
+    at async Promise.all (index 0)
+
+
+```

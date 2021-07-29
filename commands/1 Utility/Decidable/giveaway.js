@@ -6,12 +6,11 @@ module.exports = new PinguCommand('giveaway', 'Utility', 'Giveaway time!', {
     examples: ["setup", "list", "10m Discord Nitro", "24h 2w Movie tickets for 2!"],
     permissions: ["ADD_REACTIONS", "MANAGE_MESSAGES"],
     aliases: ["ga"]
-}, async ({ message, args, pGuild, pGuildClient }) => {
+}, async ({ client, message, args, pGuild, pGuildClient }) => {
     return HandleDecidables({
-        message, args, pGuild, pGuildClient,
+        client, message, args, pGuild, pGuildClient,
         decidablesType: 'Giveaway',
         reactionEmojis: ['🤞'],
-        listEmojis: ['⬅️', '🗑️', '➡️', '🛑'],
         config: pGuild.settings.config.decidables.giveawayConfig
     })
 });

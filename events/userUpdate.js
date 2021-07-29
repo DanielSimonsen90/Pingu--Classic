@@ -9,7 +9,7 @@ module.exports = new PinguEvent('userUpdate',
             if (user.avatarURL() != preUser.avatarURL() || user.avatar != preUser.avatar) return PinguEvent.SetDescriptionValuesLink('Avatar', preUser.avatarURL(), user.avatarURL());
             else if (user.discriminator != preUser.discriminator) return PinguEvent.SetDescriptionValues('Discriminator', preUser.discriminator, user.discriminator);
             else if (user.flags != preUser.flags) return `Flags Update: ${(
-                user.flags?.toArray().length > preUser.flags?.toArray().length ?
+                user.flags?.toArray?.().length > preUser.flags?.toArray?.().length ?
                     `${user.flags.toArray().find(flag => !preUser.flags.toArray().includes(flag))} added` :
                     user.flags.toArray().length < preUser.flags.toArray().length ?
                         `${preUser.flags.toArray().find(flag => !user.flags.toArray().includes(flag))} removed` :
@@ -28,14 +28,16 @@ module.exports = new PinguEvent('userUpdate',
         const pUser = await PinguUser.Get(user);
         if (!pUser) return;
 
-        updated.forEach(update => {
-            switch (update) {
-                case 'avatar': pUser.avatar = user.avatarURL(); break;
-                case 'tag': pUser.tag = user.tag; break;
-                default: break;
-            }
-        })
+        pUser = updated.reduce((result, prop) => {
+            result[prop] = user[prop];
 
+            if (prop == 'avatar') {
+                result[prop] = user.avatarURL();
+            }
+
+            return result;
+        }, { ...pUser, updated })
+        
         return await PinguUser.Update(client, updated, pUser, module.exports.name, updated.join(', '));
     }
 );

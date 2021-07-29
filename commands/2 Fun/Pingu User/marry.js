@@ -8,7 +8,7 @@ module.exports = new PinguCommand('marry', 'Fun', 'Marries a user', {
 }, async ({ client, message, args, pAuthor, pGuildClient }) => {
     if (!pAuthor) return message.channel.send(`I can't find your PinguUser in my database!`);
 
-    else if (args[0] && args[0].toLowerCase() == `divorce`) {
+    else if (args[0]?.toLowerCase() == `divorce`) {
         if (pAuthor.marry.partner) return HandleDivorce(message, pAuthor);
         else return message.channel.send(`Divorce who? ${PinguLibrary.getEmote(client, 'kekw', PinguLibrary.SavedServers.get('Deadly Ninja'))}`);
     }

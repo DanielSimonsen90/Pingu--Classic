@@ -1,6 +1,6 @@
 const { Message, MessageEmbed } = require('discord.js');
 const {
-    PinguCommand, PinguLibrary, EmbedField,
+    PinguCommand, PinguLibrary, EmbedField, Arguments,
     PinguUser, PinguGuildMember, PinguGuild,
     UserAchievement, GuildMemberAchievement, GuildAchievement
 } = require('PinguPackage');
@@ -191,7 +191,7 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
 });
 
 /**@param {Message} message
- * @param {string[]} args
+ * @param {Arguments} args
  * @returns {{
  *  granted: string,
  *  command: "missing" | "achieved" | "info",
@@ -200,17 +200,15 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
  *  id: string
  * }}*/
 function PermissionCheck(message, args) {
-    args = args.map(v => v.toLowerCase());
+    args.lowercase();
+    const [command, type, achievementID, id] = args;
+
     const result = {
         granted: PinguLibrary.PermissionGranted,
-        command: args[0],
-        type: args[1],
-        achievementID: args[2],
-        id: args[3]
+        command, type, achievementID, id
     };
 
     //Arguments length are met & command & type are both valid arguments
-    const { command, type, achievementID } = result;
     if (!command || !type ||
         !achievementCommands.includes(command) || !achievementTypes.includes(type)) {
         result.granted = `You didn't provide me with the achievement ${!command ? "command" : "type"}! Use the following:\n` +
@@ -231,13 +229,13 @@ function PermissionCheck(message, args) {
             }
         })();
 
-        if (isNaN(achievementID) || parseInt(achievementID) <= 0 || parseInt(achievementID) > achievements.length)
-            if (!message.client.guilds.cache.has(achievementID) && !message.client.users.cache.has(achievementID))
-                result.granted = `The achievement id provided is not a valid id! Pick a number between 1 - ${achievements.length}`;
-            else {
-                result.id = achievementID;
-                result.achievementID = null;
-            }
+    if (isNaN(achievementID) || parseInt(achievementID) <= 0 || parseInt(achievementID) > achievements.length)
+        if (!message.client.guilds.cache.has(achievementID) && !message.client.users.cache.has(achievementID))
+            result.granted = `The achievement id provided is not a valid id! Pick a number between 1 - ${achievements.length}`;
+        else {
+            result.id = achievementID;
+            result.achievementID = null;
+        }
     }
 
     return result;

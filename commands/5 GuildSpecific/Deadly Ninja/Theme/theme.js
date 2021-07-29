@@ -5,12 +5,11 @@ module.exports = new PinguCommand('theme', 'GuildSpecific', `Themes for Danho's 
     usage, examples, permissions,
     guildOnly: true,
     specificGuildID: '405763731079823380',
-}, async ({ message, args, pGuild, pGuildClient }) => {
+}, async ({ client, message, args, pGuild, pGuildClient }) => {
     return HandleDecidables({
-        message, args, pGuild, pGuildClient,
+        client, message, args, pGuild, pGuildClient,
         decidablesType: 'Theme',
         reactionEmojis: ['🎭'],
-        listEmojis: ['⬅️', '🗑️', '➡️', '🛑'],
         config: pGuild.settings.config.decidables.themeConfig
     })
 });

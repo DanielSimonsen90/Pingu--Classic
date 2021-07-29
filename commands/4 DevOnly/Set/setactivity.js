@@ -1,20 +1,25 @@
 const { PinguCommand } = require("PinguPackage");
+const { Presence } = require('discord.js')
 
 module.exports = new PinguCommand('setactivity', 'DevOnly', "Make me do something else than listening to people's screams", {
     usage: '<status type> <status message>',
     examples: ["listening my jam"]
 }, async ({ client, message, args }) => {
-    if (!args[0] || !args[1])
-        return message.channel.send(`You didn't provide me with enough arguments!`);
-    else if (!['PLAYING', 'WATCHING', 'LISTENING', 'COMPETING'].includes(args[0]))
-        return message.channel.send(`What am I supposed to do? Play? Listen? Watch?`);
+    return message.channel.send(await (async () => {
+        /**@param {Promise<Presence>} promise */
+        const response = async (promise) => {
+            const presense = await promise;
+            const { type, name } = presense.activities[0];
+            return `Updated activity to ${type} ${name}.`;
+        };
 
-    let Activity = args.shift(),
-        ActivityMessage = args.join(" ");
-        client.user.setActivity({
-            name: `${ActivityMessage} ${client.DefaultPrefix}help`,
-            type: Activity
-        });
-
-    return message.channel.send(`Updated activity!`);
+        if (!args[0] || !args[1]) return response(client.setActivity());
+        
+        const activityTypes = ['PLAYING', 'WATCHING', 'LISTENING', 'COMPETING'];
+        const type = args.shift().toUpperCase();
+        if (!activityTypes.includes(type)) return `Activity type not recognized! Please choose: ${activityTypes.join(' | ')}`;
+        
+        const name = args.join(' ');
+        return response(client.setActivity({ name: `${name} ${client.DefaultPrefix}help`, type }));
+    })());
 });

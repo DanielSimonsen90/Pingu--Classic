@@ -3,6 +3,12 @@
 (async function main() {
     const { config, PinguClient } = require('PinguPackage');
     const client = new PinguClient(config, [
+        'ADD_REACTIONS', 'ATTACH_FILES', 'CHANGE_NICKNAME', 'CONNECT', 'EMBED_LINKS', 
+        'MANAGE_CHANNELS', 'MANAGE_EMOJIS', 'MANAGE_MESSAGES', 'MANAGE_ROLES',
+        'READ_MESSAGE_HISTORY', 'SEND_MESSAGES', 'SEND_TTS_MESSAGES', 'SPEAK', 
+        'USE_EXTERNAL_EMOJIS', 'USE_VAD', 
+        'VIEW_AUDIT_LOG', 'VIEW_CHANNEL'
+    ], [
         'channelCreate', 'channelDelete', 'channelPinsUpdate', 'channelUpdate', 'typingStart', 'webhookUpdate',                                                                 //channel
         'error', 'invalidated', 'onready',                                                                                                                                        //client
         'emojiCreate', 'emojiDelete', 'emojiUpdate',                                                                                                                            //emoji

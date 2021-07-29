@@ -24,7 +24,7 @@ module.exports = new PinguEvent('guildCreate',
             `I've successfully joined your server, **${guild.name}**!\n\n` +
 
             `Thank you for adding me!\n` +
-            `Use \`*help\`, if you don't know how I work!`
+            `Use \`${client.DefaultPrefix}help\`, if you don't know how I work!`
         )
             .catch(err => PinguLibrary.errorLog(client, `Failed to send ${guild.owner} a DM`, null, err, { params: { guild }, additional: { OwnerDM } }))
             .then(PinguLibrary.consoleLog(guild.client, `Sent ${guild.owner.user.tag} my "thank you" message.`));

@@ -8,9 +8,8 @@ export interface UserAchievementCallbackParams extends AchievementCallbackParams
 
 import { IUserAchievement } from "./IAchievementBase";
 import { User } from "discord.js";
-import { GetPinguUsers, GetPUser, GetUpdatedProperty } from "../../user/PinguUser";
 import Percentage from "../../../helpers/Percentage";
-import { SavedServers } from "../../library/PinguLibrary";
+import BasePinguClient from '../../client/BasePinguClient'
 
 export class UserAchievement
 <Key extends keyof UserAchievementType, 
@@ -38,8 +37,8 @@ extends AchievementBase implements IUserAchievement<Key, Type, AchievementCallba
         return true;
     }
 
-    public async getPercentage() {
-        let pUsers = await GetPinguUsers();
+    public async getPercentage(client: BasePinguClient) {
+        let pUsers = client.pUsers.array();
         let whole = pUsers.length;
         let part = pUsers.filter(pUser => pUser.achievementConfig.achievements.find(a => a._id == this._id)).length;
         return new Percentage(whole, part);
@@ -54,14 +53,15 @@ extends AchievementBase implements IUserAchievement<Key, Type, AchievementCallba
     public static Achievements = [
         new UserAchievement(1, "Pingu? Yeah he's my best friend!", 'EVENT', 'mostKnownUser', "Of all Pingu Users, you share the most servers with Pingu")
             .setCallback('mostKnownUser', async ([user]) => {
-            const [pUser, pUsers] = await Promise.all([GetPUser(user), GetPinguUsers()])
+            const client = user.client as BasePinguClient;
+            const [pUser, pUsers] = [client.pUsers.get(user), client.pUsers.array()];
             const mKUser = pUsers.sort((a, b) => b.sharedServers.length - a.sharedServers.length)[0];
             return pUser._id == mKUser._id
         }),
         new UserAchievement(2, 'Penguin Owner', 'EVENT', 'guildCreate', "Add Pingu to your server"),
         new UserAchievement(3, "Rest in Peace", 'EVENT', 'guildDelete', "Remove Pingu from your server"),
         new UserAchievement(4, "I'm trying something new...", 'EVENT', 'userUpdate', "Change your PinguUser information")
-            .setCallback('userUpdate', async ([pre, cur]) => Object.keys(GetUpdatedProperty(pre as User, cur))[0] != null),
+            .setCallback('userUpdate', async ([pre, cur]) => true),
         new UserAchievement(5, "OwO whots dis", 'COMMAND', 'help', "Use the `help` command, to see everything you can do with Pingu"),
         new UserAchievement(6, "Curious...", 'COMMAND', 'info', "Use the `info` command to display Pingu's internal information"),
         new UserAchievement(7, 'Pong!', 'COMMAND', 'ping', "Use the `ping` command to see Pingu's latency"),
@@ -77,8 +77,8 @@ extends AchievementBase implements IUserAchievement<Key, Type, AchievementCallba
         UserAchievement.DailyStreak(16, "Dedication", 100),
         UserAchievement.DailyStreak(17, "Blaze it!", 420),
         new UserAchievement(18, "King of the Streaks", 'COMMAND', 'daily', "Achieve the highest streak among all Pingu users")
-            .setCallback('0', async ([params]) => {
-                const [pUser, pUsers] = await Promise.all([GetPUser(params.message.author), GetPinguUsers()]);
+            .setCallback('0', async ([{ client, message, args, pGuild, pAuthor, pGuildMember, pGuildClient }]) => {
+                const [pUser, pUsers] = [client.pUsers.get(message.author), client.pUsers.array()]
                 const highestStreak = pUsers.sort((a, b) => b.daily.streak - a.daily.streak)[0];
                 return pUser._id == highestStreak._id;
         }),
@@ -89,7 +89,7 @@ extends AchievementBase implements IUserAchievement<Key, Type, AchievementCallba
         new UserAchievement(23, "You! With me.", 'COMMAND', 'invite', "Use the `invite` command to invite Pingu to your server"),
         new UserAchievement(24, "Marry me!", 'COMMAND', 'marry', "Use the `marry` command to marry someone"),
         new UserAchievement(25, "I'm the chosen one!", 'EVENT', 'chosenUser', "Become the chosen user in Pingu Support")
-            .setCallback('chosenUser', async ([user, pUser]) => pUser && pUser.sharedServers.find(pg => pg._id == SavedServers.get('Pingu Support').id) != null)
+            .setCallback('chosenUser', async ([user, pUser]) => pUser?.sharedServers.find(pg => pg._id == (user.client as BasePinguClient).savedServers.get('Pingu Support').id) != null)
     ];
 }
 

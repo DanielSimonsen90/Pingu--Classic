@@ -1,7 +1,7 @@
 ﻿const { MessageEmbed } = require("discord.js");
 const {
     PinguGuild, PinguLibrary, PinguUser, PClient, PinguEvent, PinguGuildMember, PinguClient,
-    DiscordPermissions, Error, CommandCategories
+    DiscordPermissions, Error, CommandCategories, Arguments
 } = require("PinguPackage");
 const { HandleTell, ExecuteTellReply } = require('../../commands/2 Fun/Pingu User/tell');
 const { CheckRoleChange } = require("../guild/role/roleUpdate");
@@ -50,6 +50,7 @@ module.exports = new PinguEvent('message',
     },
     async function execute(client, message) {
         const { content, channel, guild, author, member } = message;
+        if (!content) return;
 
         //User sent a message in #emotes, and is expecitng an emote to be made
         if (await fromEmotesChannel()) return;
@@ -58,24 +59,23 @@ module.exports = new PinguEvent('message',
         let prefix = guild ? await HandlePGuild() : client.DefaultPrefix;
 
         //Split prefix from message content
-        let args = content.slice(prefix.length).split(/ +/);
+        let args = new Arguments(...content.slice(prefix.length).split(/ +/));
 
         //Get commandName
-        let commandName = args.shift();
+        let commandName = args.shift().toLowerCase();
 
         //If mentioned without prefix
-        if (content && content.includes(client.user.id) && !args.length && !author.bot)
+        if (content?.includes(client.id) && !args.length && !author.bot)
             return channel.send(`My prefix is \`${prefix}\``);
 
         //If interacted via @
         commandName = TestTagInteraction();
 
-        var startsWithPrefix = content.startsWith(prefix) && !author.bot || content && content.includes(client.id);
+        var startsWithPrefix = content.startsWith(prefix) && !author.bot || content?.includes(client.id);
         let pAuthor = await PinguUser.Get(author);
-        
 
         //If I'm not interacted with don't do anything
-        if (channel.type == 'dm' && (author.bot || pAuthor && pAuthor.replyPerson) && (!startsWithPrefix || commandName && commandName.includes(prefix)))
+        if (channel.type == 'dm' && (author.bot || pAuthor?.replyPerson) && (!startsWithPrefix || commandName?.includes(prefix)))
             return ExecuteTellReply(message).catch(err => PinguLibrary.errorLog(client, `Failed to execute tell reply`, content, err, {
                 params: { message },
                 additional: { prefix, args, commandName, startsWithPrefix }
@@ -108,15 +108,11 @@ module.exports = new PinguEvent('message',
             }
 
             for (var file of message.attachments.array()) {
-                let errMsg = "";
-
-                let emote = file && file.attachment;
-                let name = content && content.replace(' ', '_') || file && file.name.split('.')[0];
-
-                if (!file) errMsg = "No file attatched!";
-                else if (!emote) errMsg = "No suitable emote attachment!";
-                else if (!name) errMsg = "No name provided!";
-
+                
+                let emote = file?.attachment;
+                let name = content?.replace(' ', '_') || file?.name.split('.')[0];
+                let errMsg = !file ? "No file attached!" : !emote ? "No suitable emote attachment!" : !name ? "No name provided!" : "";
+                
                 if (errMsg) {
                     channel.send(errMsg);
                     return false;
@@ -150,7 +146,7 @@ module.exports = new PinguEvent('message',
             //If pGuild wasn't found, create pGuild
             if (!pGuild) {
                 PinguLibrary.pGuildLog(client, module.exports.name, `Unable to find pGuild for **${guild.name}**! Creating one now...`)
-                await PinguGuild.Write(client, message.guild, module.exports.name, `**${guild.name}** did not have a PinguGuild.`)
+                await PinguGuild.Write(client, guild, module.exports.name, `**${guild.name}** did not have a PinguGuild.`)
                 return client.DefaultPrefix;
             }
             else if (pGuild.name != guild.name) client.emit('guildUpdate', { name: pGuild.name, client, id: pGuild._id }, guild);
@@ -175,7 +171,7 @@ module.exports = new PinguEvent('message',
             if (command) return command;
 
             let commands = client.commands.array();
-            command = commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName))
+            command = commands.find(cmd => cmd.aliases?.some(alias => alias == commandName))
             if (command) {
                 //Music alias was used
                 if (command.name == 'music') {
@@ -187,10 +183,10 @@ module.exports = new PinguEvent('message',
             }
 
             //If command assignment failed, assign command
-            commandName = args[0] && args[0].toLowerCase();
+            commandName = args[0]?.toLowerCase();
             if (!commandName) return null;
 
-            return command = client.commands.get(commandName) || commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+            return command = client.commands.get(commandName) || commands.find(cmd => cmd.aliases?.includes(commandName));
         }
         function DecodeCommand() {
             let returnValue = {
@@ -225,7 +221,7 @@ module.exports = new PinguEvent('message',
             if (command.category == CommandCategories.DevOnly && !PinguLibrary.isPinguDev(author))
                 return returnValue.setMessage(`Who do you think you are exactly?`);
             else if (command.mustBeBeta && client.isLive)
-                return returnValue.setMessage(`${client.DefaultPrefix}test should only be used on <@${PinguClient.Clients.PinguID}>.`);
+                return returnValue.setMessage(`${client.DefaultPrefix}test should only be used on <@${PinguClient.Clients.BetaID}>.`);
 
             //Permission check for required permissions
             if (channel.type != 'dm' && command.permissions) {
@@ -270,9 +266,13 @@ module.exports = new PinguEvent('message',
                 ConsoleLog += `**failed!**\nError: ${err}`;
 
                 PinguLibrary.errorLog(client, `Trying to execute "${command.name}"!`, content, err, {
-                    params: { message },
+                    params: { message: { 
+                        channelID: channel.id, 
+                        id: message.id,
+                        content: content,
+                        guildID: guild?.id
+                    } },
                     additional: { args, ConsoleLog, commandName, command },
-                    trycatch: { pAuthor, pGuild, pGuildMember, pGuildClient }
                 });
             }
             console.log(" ");

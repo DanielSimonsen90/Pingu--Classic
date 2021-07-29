@@ -6,12 +6,11 @@ module.exports = new PinguCommand('suggestion', 'Utility', 'Suggest something', 
     examples: ["setup", "list", "Give more Nitro away"],
     permissions: ['ADD_REACTIONS', 'MANAGE_MESSAGES'],
     aliases: ["suggest"]
-}, async ({ message, args, pGuild, pGuildClient }) => {
+}, async ({ client, message, args, pGuild, pGuildClient }) => {
     return HandleDecidables({
-        message, args, pGuild, pGuildClient,
+        client, message, args, pGuild, pGuildClient,
         decidablesType: 'Suggestion',
         reactionEmojis: ['👍', '👎'],
-        listEmojis: ['⬅️', '🗑️', '➡️', '🛑'],
         config: pGuild.settings.config.decidables.suggestionConfig
     })
 });

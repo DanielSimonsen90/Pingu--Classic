@@ -25,6 +25,7 @@ module.exports = new PinguEvent('guildMemberRemove',
         (async function UpdateSharedServers() {
             if (member.user.bot) return;
             let pUser = await PinguUser.Get(member.user);
+            if (!pUser) return;
             pUser.sharedServers = pUser.sharedServers.filter(guild => guild._id != member.guild.id);
 
             await PinguUser.Update(client, ['sharedServers'], pUser, module.exports.name, `Removed **${member.guild.name}** from **${pUser.tag}**'s SharedServers, after leaving the guild.`);

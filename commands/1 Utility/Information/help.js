@@ -1,5 +1,5 @@
 const { MessageEmbed, Message } = require('discord.js');
-const { PinguLibrary, PinguCommand, PinguClient, PinguUser } = require('PinguPackage');
+const { PinguLibrary, PinguCommand, PinguClient, PinguUser, Arguments } = require('PinguPackage');
 const fs = require('fs');
 
 module.exports = new PinguCommand('help', 'Utility', 'List all of my commands or info about a specific command.', {
@@ -7,8 +7,8 @@ module.exports = new PinguCommand('help', 'Utility', 'List all of my commands or
     examples: ["", "giveaway", "Fun"]
 }, async ({ client, message, args, pAuthor, pGuildClient }) => {
     //#region Create variables
-    let color = pGuildClient && pGuildClient.embedColor || client.DefaultEmbedColor;
-    let prefix = pGuildClient && pGuildClient.prefix || client.DefaultPrefix;
+    let color = pGuildClient?.embedColor || client.DefaultEmbedColor;
+    let prefix = pGuildClient?.prefix || client.DefaultPrefix;
 
     let embed = new MessageEmbed()
         .setColor(color)
@@ -17,23 +17,22 @@ module.exports = new PinguCommand('help', 'Utility', 'List all of my commands or
 
     switch (args.length) {
         case 0: return CategoryHelp(message, embed, prefix, getCommandsPath(), pAuthor); //If no argument was provided, send default help menu
-        default: return CategoryOrSpecificHelp(message, args, embed, prefix, 'DevOnly', pAuthor); //If 1 argument is provided || if args[0] exists
+        default: return CategoryOrSpecificHelp(message, args, embed, prefix, pAuthor); //If 1 argument is provided || if args[0] exists
     }
 });
 
 /**@param {Message} message
- * @param {string[]} args
+ * @param {Arguments} args
  * @param {MessageEmbed} embed
  * @param {string} prefix
- * @param {import('PinguPackage').CommandCategories devOnlyType
  * @param {PinguUser} pAuthor*/
-function CategoryOrSpecificHelp(message, args, embed, prefix, devOnlyType, pAuthor) {
+function CategoryOrSpecificHelp(message, args, embed, prefix, pAuthor) {
     let search = args.join(' ').toLowerCase();
     let client = PinguClient.ToPinguClient(message.client);
 
     /**@param {SubCategory[]} arr
      * @returns {SubCategory}*/
-    let getCategory = (arr) => {
+    const getCategory = (arr) => {
         if (!arr) return null;
         let result = arr.find(c => c.name.toLowerCase() == search);
 
@@ -64,7 +63,7 @@ function CategoryOrSpecificHelp(message, args, embed, prefix, devOnlyType, pAuth
  * @param {string} prefix
  * @param {string} path
  * @param {PinguUser} pAuthor*/
-function CategoryHelp(message, embed, prefix, path, pAuthor) {
+async function CategoryHelp(message, embed, prefix, path, pAuthor) {
     let pathFolder = new Category(path); //Path folder
     let categories = pathFolder.subCategories.length && pathFolder.subCategories.map(category => new Category(category.path)) || [pathFolder] //Get path's sub categories to category classes
 
@@ -87,8 +86,8 @@ function CategoryHelp(message, embed, prefix, path, pAuthor) {
 
         category.scripts = category.scripts.filter(viewFilter);
 
-        let hasSubCategories = category.subCategories && category.subCategories.length;
-        let hasScripts = category.scripts && category.scripts.length;
+        let hasSubCategories = category.subCategories?.length > 0;
+        let hasScripts = category.scripts?.length > 0;
 
         return hasSubCategories || hasScripts ? `**__${category.name}__**\n` +
 
@@ -111,17 +110,16 @@ function CategoryHelp(message, embed, prefix, path, pAuthor) {
         .setFooter(`Developed by Simonsen Techs`);
 
     //Return embed
-    return message.channel.send(embed)
-        .catch(err => {
-            PinguLibrary.errorLog(message.client, `Unable to send help DM to ${message.author.tag}.`, message.content, err, {
-                params: { message, embed, prefix, path },
-                additional: { pathFolder, categories }
-            });
-            return message.reply(`It seems like I can't DM you! Do you have DMs disabled?`);
+    return message.channel.send(embed).catch(err => {
+        PinguLibrary.errorLog(message.client, `Unable to send help DM to ${message.author.tag}.`, message.content, err, {
+            params: { message, embed, prefix, path },
+            additional: { pathFolder, categories }
         });
+        return message.reply(`It seems like I can't DM you! Do you have DMs disabled?`);
+    })
 }
 /**@param {Message} message
- * @param {string[]} args
+ * @param {Arguments} args
  * @param {MessageEmbed} embed
  * @param {string} prefix
  * @param {PinguUser} pAuthor*/
@@ -129,7 +127,7 @@ function CommandHelp(message, args, embed, prefix, pAuthor) {
     let client = PinguClient.ToPinguClient(message.client);
 
     //Create variables to find the specific command message.author is looking for
-    const command = client.commands.get(args[0].toLowerCase());
+    const command = client.commands.get(args.first.toLowerCase());
     if (!command) return message.channel.send(`Command not recognized!`);
     else if (command.category == 'DevOnly' && !PinguLibrary.isPinguDev(message.author)) return message.channel.send("This is a developer command. No dev, no help.");
     else if (command.category == 'GuildSpecific' && !pAuthor.sharedServers.map(pg => pg._id).includes(command.specificGuildID)) return message.channel.send("You're not in the required guild to see that command!");
@@ -141,7 +139,7 @@ function CommandHelp(message, args, embed, prefix, pAuthor) {
             command.description + "\n" +
             "\n**Usage**\n" +
             "```\n" + `${prefix}${command.name} ${command.usage}\n` + "```" +
-            (command.aliases && command.aliases.length ?
+            (command.aliases?.length ?
                 "\n**Aliases**\n" +
                 "```\n" +
                 command.aliases.map(alias => `${prefix}${alias} ${command.usage}`).join('\n') +

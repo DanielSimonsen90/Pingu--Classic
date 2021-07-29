@@ -2,7 +2,7 @@ import { Client, Guild, MessageEmbed, Snowflake } from "discord.js";
 import { AchievementConfigBase, AchievementBaseNotificationType } from "./AchievementConfigBase";
 import { GuildAchievement, GuildAchievementType, GuildAchievementTypeKey } from "../items/GuildAchievement";
 import { GuildMemberAchievementNotificationType } from "../config/GuildMemberAchievementConfig";
-import { ToPinguClient } from "../../client/PinguClient";
+import BasePinguClient from "../../client/BasePinguClient";
 
 export type GuildAchievementNotificationType = AchievementBaseNotificationType | 'OWNER' | 'CHANNEL'
 
@@ -20,8 +20,8 @@ export class GuildAchievementConfig extends AchievementConfigBase {
     public guildID: Snowflake
     public notificationTypes: Notifications;
 
-    public static async notify(client: Client, achiever: Guild, achievement: GuildAchievement<GuildAchievementTypeKey, GuildAchievementType[GuildAchievementTypeKey]>, config: GuildAchievementConfig) {
-        const color = ToPinguClient(client).DefaultEmbedColor;
+    public static async notify(client: BasePinguClient, achiever: Guild, achievement: GuildAchievement<GuildAchievementTypeKey, GuildAchievementType[GuildAchievementTypeKey]>, config: GuildAchievementConfig) {
+        const color = client.DefaultEmbedColor;
         switch (config.notificationTypes.guild) {
             case 'CHANNEL': return super._notify(client, achievement, percentage => new MessageEmbed()
                 .setTitle(`🏆 Achievement Unlocked! 🏆\n${achievement.name}`)

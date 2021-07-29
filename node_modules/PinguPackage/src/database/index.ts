@@ -1,18 +1,16 @@
 export { PAchievement, PChannel, PClient, PGuild, PGuildMember, PItem, PMarry, PQueue, PRole, PUser } from './json';
 
-import { Client } from 'discord.js'
-import { errorLog } from "../pingu/library/PinguLibrary";
-import { ToPinguClient } from "../pingu/client/PinguClient";
+import BasePinguClient from "../pingu/client/BasePinguClient";
 
-export async function DBExecute<T>(client: Client, callback: (mongoose: typeof import('mongoose')) => Promise<T>) {
+export async function DBExecute<T>(client: BasePinguClient, callback: (mongoose: typeof import('mongoose')) => Promise<T>) {
     const mongoose = require('mongoose');
     try {
-        await mongoose.connect(`mongodb+srv://Pingu:${ToPinguClient(client).config.mongoPass}@pingudb.kh2uq.mongodb.net/PinguDB?retryWrites=true&w=majority`, {
+        await mongoose.connect(`mongodb+srv://Pingu:${client.config.mongoPass}@pingudb.kh2uq.mongodb.net/PinguDB?retryWrites=true&w=majority`, {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
         var returnValue = await callback(mongoose);
-    } catch (err) { errorLog(client, 'Mongo error', null, new Error(err)); }
+    } catch (err) { client.log('error', 'Mongo error', null, new Error(err)); }
     //finally { mongoose.connection.close(); }
     return returnValue;
 }

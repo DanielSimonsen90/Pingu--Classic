@@ -3,9 +3,11 @@ type StaffBadge = 'Pingu Staff Member' | 'Pingu Support Team' | 'Pingu Moderator
 type PinguSupporter = 'Early Supporter' | 'Patreon Supporter';
 type PinguPartners = 'Partnered Developer' | 'Partnered Server Owner';
 
-type IAmBadge = DeveloperBadge | StaffBadge | PinguSupporter | PinguPartners;
+export type IAmBadge = DeveloperBadge | StaffBadge | PinguSupporter | PinguPartners;
 
 import { GuildEmoji, Collection, User } from "discord.js";
+import BasePinguClient, { SavedServerNames } from "../client/BasePinguClient";
+
 export class PinguBadge {
     constructor(name: IAmBadge, emoji: GuildEmoji, weight: number) {
         this.name = name;
@@ -18,7 +20,6 @@ export class PinguBadge {
     public weight: number;
 }
 
-import { SavedServers, SavedServerNames, Developers } from "../library/PinguLibrary";
 class TempBadge {
     constructor(name: IAmBadge, emojiName: string, guild: SavedServerNames, weight: number) {
         this.name = name;
@@ -32,7 +33,7 @@ class TempBadge {
     public guild: SavedServerNames;
     public weight: number;
 }
-const TempBadges = new Collection<IAmBadge, TempBadge>([
+export const TempBadges = new Collection<IAmBadge, TempBadge>([
     ['Pingu Developer', new TempBadge('Pingu Developer', 'PinguDeveloper', 'Pingu Support', 1)],
     ['Pingu Administrators', new TempBadge('Pingu Administrators', 'BadgeAdministratorTeam', 'Pingu Support', 2)],
     ['Pingu Moderator Team', new TempBadge('Pingu Moderator Team', 'BadgeModeratorTeam', 'Pingu Support', 3)],
@@ -45,37 +46,29 @@ const TempBadges = new Collection<IAmBadge, TempBadge>([
     ['Discord Bot Developer', new TempBadge('Discord Bot Developer', 'BotDeveloper', 'Pingu Support', 10)],
 ])
 
-export const Badges = new Collection<IAmBadge, PinguBadge>();
-export function SetBadges() {
-    for (const [name, tempBadge] of TempBadges) {
-        let guild = SavedServers.get(tempBadge.guild);
-        let emoji = guild.emojis.cache.find(e => e.name == tempBadge.emojiName);
-        Badges.set(name, new PinguBadge(name, emoji, tempBadge.weight));
-    }
-    return Badges;
-}
-
-import { GetPUser } from "../user/PinguUser";
 export async function getBadges(user: User) {
-    const PinguSupportMembers = SavedServers.get('Pingu Support').members;
+    const client = user.client as BasePinguClient;
+    const PinguSupportMembers = client.savedServers.get('Pingu Support').members;
+
     let badgeNames = new Array<IAmBadge>();
 
     function toReturnValue() {
         return badgeNames
-        .reduce((result, name) => 
-            result.set(name, Badges.get(name)), 
-            new Collection<IAmBadge, PinguBadge>())
-        .sort((a, b) => a.weight - b.weight);
+            .reduce((result, name) => 
+                result.set(name, client.badges.get(name)), 
+                new Collection<IAmBadge, PinguBadge>())
+            .sort((a, b) => a.weight - b.weight);
     }
 
     const releaseDate = Date.now(); //TODO: Change when Pingu is finally released
-    let pUser = await GetPUser(user);
-    if (pUser && pUser.joinedAt && new Date(pUser.joinedAt).getTime() < releaseDate)
+
+    let pUser = client.pUsers.get(user);
+    if (pUser?.joinedAt && new Date(pUser.joinedAt).getTime() < releaseDate)
         badgeNames.push('Early Supporter');
 
     let isPinguSupportMember = PinguSupportMembers.cache.has(user.id);
     if (!isPinguSupportMember) {
-        if (Developers.has(user.tag as any))
+        if (client.developers.isPinguDev(user))
             badgeNames.push('Pingu Developer');
         return toReturnValue();
     }

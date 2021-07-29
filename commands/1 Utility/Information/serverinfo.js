@@ -125,7 +125,7 @@ async function SendCallerInfo(message, bigboiinfo) {
             .addFields([
                 new EmbedField(`${savedEmotes.ownerCrown} Owner`, guild.owner, true),
                 new EmbedField(getRegionEmoji(guild.region), guild.region.charAt(0).toUpperCase() + guild.region.substring(1, guild.region.length), true),
-                new EmbedField(`⏰ Creation Date`, guild.createdAt.toUTCString(), false),
+                new EmbedField(`⏰ Creation Date`, `<t:${Math.round(guild.createdTimestamp / 1000)}:R>`, false),
                 new EmbedField(`👥 Total members`, guild.memberCount, true),
                 new EmbedField(`🧍 Total users`, guild.members.cache.filter(gm => !gm.user.bot).size, true),
                 new EmbedField(`🤖 Total bots`, guild.members.cache.filter(gm => gm.user.bot).size, true),
@@ -247,5 +247,7 @@ function SendFeatures(message, serverGuild) {
 
 /**@param {Guild} guild*/
 async function GetPGuildColor(guild) {
-    return PinguClient.ToPinguClient(guild.client).toPClient(await PinguGuild.Get(guild)).embedColor;
+    const client = PinguClient.ToPinguClient(guild.client);
+    const pGuild = await PinguGuild.Get(guild);
+    return client.toPClient(pGuild).embedColor || client.DefaultEmbedColor;
 }
