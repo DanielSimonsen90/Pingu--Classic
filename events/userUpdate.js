@@ -1,43 +1,47 @@
 const { MessageEmbed } = require("discord.js");
-const { PinguEvent, PinguUser } = require("PinguPackage");
+const { PinguEvent } = require("PinguPackage");
 
 module.exports = new PinguEvent('userUpdate', 
-    async function setContent(preUser, user) {
-        return module.exports.content = GetDifference() ? new MessageEmbed().setDescription(GetDifference()) : null;
+    async function setContent(client, preUser, user) {
+        const difference = GetDifference();
+        return module.exports.content = difference ? new MessageEmbed({ description: difference }) : null;
 
         function GetDifference() {
             if (user.avatarURL() != preUser.avatarURL() || user.avatar != preUser.avatar) return PinguEvent.SetDescriptionValuesLink('Avatar', preUser.avatarURL(), user.avatarURL());
             else if (user.discriminator != preUser.discriminator) return PinguEvent.SetDescriptionValues('Discriminator', preUser.discriminator, user.discriminator);
-            else if (user.flags != preUser.flags) return `Flags Update: ${(
-                user.flags?.toArray?.().length > preUser.flags?.toArray?.().length ?
-                    `${user.flags.toArray().find(flag => !preUser.flags.toArray().includes(flag))} added` :
-                    user.flags.toArray().length < preUser.flags.toArray().length ?
-                        `${preUser.flags.toArray().find(flag => !user.flags.toArray().includes(flag))} removed` :
-                        `Changed from ${preUser.flags.toArray().find(flag => !user.flags.toArray().includes(flag))} to ${user.flags.toArray().find(flag => !preUser.flags.toArray().includes(flag))}`
-            )}`;
+            else if (user.flags != preUser.flags) return `Flags Update: ${(() => {
+                const userFlags = user.flags?.toArray?.();
+                const preUserFlags = preUser.flags?.toArray?.();
+
+                if (!userFlags && preUserFlags || userFlags.length > preUserFlags.length)
+                    return `Removed flags: ${preUserFlags.join(', ')}`;
+                else if (userFlags && !preUserFlags || userFlags.length < preUserFlags.length)
+                    return `Added flags: ${userFlags.join(', ')}`;
+                return `Unknown`
+            })()}`
             else if (user.tag != preUser.tag) return PinguEvent.SetDescriptionValues('Tag', preUser.tag, user.tag);
             return null;
         }
     },
     async function execute(client, preUser, user) {
-        let updated = await PinguUser.GetUpdatedProperty(preUser, user);
-        if (!updated) return;
+        client.developers.update(user);
 
-        if (!Object.keys(updated)[0]) return;
+        const relevant = {
+            avatar: user.avatarURL(),
+            tag: user.tag
+        };
+        const pUser = client.pUsers.get(user);
 
-        const pUser = await PinguUser.Get(user);
-        if (!pUser) return;
+        const updated = Object.keys(relevant).reduce((updated, prop) => {
+            if (pUser[prop] != relevant[prop])
+                updated.push(prop);
+            return updated;
+        }, []);
 
-        pUser = updated.reduce((result, prop) => {
-            result[prop] = user[prop];
+        if (!updated.length) return;
 
-            if (prop == 'avatar') {
-                result[prop] = user.avatarURL();
-            }
+        updated.forEach(prop => pUser[prop] = updated[prop]);
 
-            return result;
-        }, { ...pUser, updated })
-        
-        return await PinguUser.Update(client, updated, pUser, module.exports.name, updated.join(', '));
+        return client.pUsers.update(pUser, module.exports.name, `User updated: ${updated.join(', ')}`);
     }
 );

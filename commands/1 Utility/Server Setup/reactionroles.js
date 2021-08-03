@@ -1,7 +1,5 @@
 const { Message, GuildChannel, TextChannel, GuildEmoji, Role, MessageEmbed } = require('discord.js');
-const { PinguCommand, PinguLibrary, PinguGuild, ReactionRole } = require('PinguPackage');
-
-const { PermissionGranted } = PinguLibrary;
+const { PinguCommand, PinguClient, PinguGuild, ReactionRole, Arguments } = require('PinguPackage');
 
 module.exports = new PinguCommand('reactionroles', 'Utility', 'Gives/Removes roles for users who reacted to a message', {
     usage: '<create [channel] <message id> <emoji> <role id> | delete [channel] <message id> <emoji> [remove from users? true/false]',
@@ -11,8 +9,10 @@ module.exports = new PinguCommand('reactionroles', 'Utility', 'Gives/Removes rol
     aliases: ["reactionrole", "rr"]
 }, async ({ client, message, args, pGuild, pGuildClient }) => {
     let arg = args.shift();
+    const { PermissionGranted } = client.permissions;
+
     //Get command
-    let command = arg && arg.toLowerCase();
+    let command = arg?.toLowerCase();
     if (!command) return message.channel.send(`Sub-command not provided! Do I **create** or **delete** a reactionrole?`);
 
     //Ensure correct command & args[0 & 1] exists
@@ -59,13 +59,14 @@ module.exports = new PinguCommand('reactionroles', 'Utility', 'Gives/Removes rol
 })
 
 
-/**@param {string} command
- * @param {string[]} args*/
-function PermissionCheck(command, args) {
+/**@param {PinguClient} client
+ * @param {string} command
+ * @param {Arguments} args*/
+function PermissionCheck(client, command, args) {
     if (!['create', 'delete'].includes(command)) return `Sub-command not recognized! Do I **create** or **delete** a reactionrole?`;
-    else if (!args[0]) return `Please provide a **message id**!`;
-    else if (!args[1]) return `Please provide the emoji I need to remove!`;
-    return PermissionGranted
+    else if (!args.mentions.get('SNOWFLAKE').value) return `Please provide a **message id**!`;
+    else if (!args.mentions.get('EMOJI')) return `Please provide the emoji I need to remove!`;
+    return client.permissions.PermissionGranted
 }
 
 /**@param {Message} message
@@ -88,17 +89,15 @@ function GetChannel(message, args) {
 }
 
 /**@param {Message} message
- * @param {string[]} args*/
+ * @param {Arguments} args*/
 function GetEmote(message, args) {
-    let emoteString = args.shift();
+    const emoteMention = args.mentions.get('EMOJI');
+    const emoteString = args.splice(emoteMention.index)[0];
 
-    if (emoteString.match(/<:\w{2,}:\d{18}>/g)) { //stirng has <: + 2 characters or more + : + 18 digits + > | <:EmojiExample:123456789012345678>
+    if (emoteMention.value) { 
         let emoteID = emoteString.split(':')[2];
         emoteID = emoteID.substring(0, emoteID.length - 1);
-        var emote = message.guild.emojis.cache.get(emoteID);
-    }
-    else if (emoteString.charCodeAt(0) > 255) {
-        emote = emoteString;
+        var emote = message.guild.emojis.cache.get(emoteID) || emoteString;
     }
     else return { result: `${emoteString} is not an emote!` };
     if (!emote) return { result: `Emote not found!` };
@@ -125,6 +124,9 @@ async function GetRole(message, args) {
  * @param {GuildEmoji} emote
  * @param {Role} role*/
 async function SetReactionRoles(pGuild, rrMessage, emote, role) {
+    const client = PinguClient.ToPinguClient(rrMessage.client);
+    const { PermissionGranted } = client.permissions
+
     let containsCheck = PermissionGranted;
     let { reactionRoles } = pGuild.settings;
 
@@ -137,9 +139,11 @@ async function SetReactionRoles(pGuild, rrMessage, emote, role) {
     });
     if (containsCheck != PermissionGranted) return containsCheck;
 
-    reactionRoles.push(new ReactionRole(rrMessage, emote && emote.name || emote, role));
+    reactionRoles.push(new ReactionRole(rrMessage, emote?.name || emote, role));
 
-    await PinguGuild.Update(rrMessage.client, ['settings'], pGuild, `ReactionRoles: SetReactionRoles`, `Added ReactionRole to **${rrMessage.guild.name}**'s PinguGuild using ${(emote.name || emote)} giving ${role.name}.`);
+    await client.pGuilds.update(pGuild, `ReactionRoles: SetReactionRoles`, 
+        `Added ReactionRole to **${rrMessage.guild.name}**'s PinguGuild using ${(emote.name || emote)} giving ${role.name}.`
+    );
 
     return PermissionGranted;
 }
@@ -148,11 +152,11 @@ async function SetReactionRoles(pGuild, rrMessage, emote, role) {
  * @param {TextChannel} channel
  * @param {Message} rrMessage
  * @param {string | GuildEmoji} emote
- * @param {string[]} args*/
+ * @param {Arguments} args*/
 async function Delete(message, channel, rrMessage, emote, args) {
     let removeFromUsers = args[0] && args.shift().toLowerCase() == `true`;
-
-    let pGuild = await PinguGuild.Get(rrMessage.guild);
+    const client = PinguClient.ToPinguClient(message.client);
+    const pGuild = client.pGuilds.get(rrMessage.guild);
     let { reactionRoles } = pGuild.settings;
     let rr = reactionRoles.find(rr => rr.channel._id == channel.id && rr.messageID == rrMessage.id && (rr.emoteName == emote.name || rr.emoteName == emote));
     if (!rr) return message.channel.send(`I wasn't able to find that reactionrole in your pGuild!`);
@@ -164,9 +168,7 @@ async function Delete(message, channel, rrMessage, emote, args) {
         let role = await rrMessage.guild.roles.fetch(rr.pRole._id);
 
         let gMembers = rrMessage.reactions.cache.map(reaction =>
-            reaction.emoji.name == rr.emoteName && reaction.users.cache.map(u =>
-                rrMessage.guild.member(u)
-            )
+            reaction.emoji.name == rr.emoteName && reaction.users.cache.map(u => rrMessage.guild.member(u))
         )[0];
 
         for (var gm of gMembers) {
@@ -180,6 +182,6 @@ async function Delete(message, channel, rrMessage, emote, args) {
             await reaction.remove();
     }
 
-    await PinguGuild.Update(message.client, ['settings'], pGuild, `reactionroles: Delete()`, `Deleted **${rrMessage.guild.name}**'s ${rr.emoteName} ReactionRole`);
+    await client.pGuilds.update(pGuild, `reactionroles: Delete()`, `Deleted **${rrMessage.guild.name}**'s ${rr.emoteName} ReactionRole`);
     return message.channel.send(`Reaction role for ${emote} was removed.`);
 }

@@ -4,7 +4,7 @@ const { PinguCommand } = require('PinguPackage');
 module.exports = new PinguCommand('fact', 'Fun', 'Pingu facts woah', {
     permissions: ['EMBED_LINKS']
 }, async ({ client, message, pGuildClient }) => {
-    const Facts = [
+    const facts = [
         //Literal Penguin facts
         "Penguins are birds but they __cannot__ fly whatsoever. Visit LearnToFly to learn more.",
         "There are in fact no penguins at the North Pole.",
@@ -31,15 +31,15 @@ module.exports = new PinguCommand('fact', 'Fun', 'Pingu facts woah', {
         "Pingu has a tomboy sister named Pinga.",
         "There are 157 episodes of Pingu, including the original series and the revived series.",
         "Pingu was created by Otmar Gutmann from Switzerland."],
-        Fact = Math.floor(Math.random() * (Facts.length - 1)),
-        Title = Fact <= 8 ? "Penguin Facts" : Fact <= 16 ? "Club Penguin Facts" : "Pingu (TV) Facts";
+        fact = Math.floor(Math.random() * (facts.length - 1)),
+        title = fact <= 8 ? "Penguin Facts" : fact <= 16 ? "Club Penguin Facts" : "Pingu (TV) Facts";
 
-    return message.channel.send(new MessageEmbed()
-        .setTitle(Title)
-        .setDescription(Facts[Fact])
-        .setColor(message.channel.type != 'dm' ? pGuildClient.embedColor : client.DefaultEmbedColor)
-        .attachFiles([`./commands/4 DevOnly/pfps/Greeny_Boi.png`])
-        .setThumbnail(`attachment://Greeny_Boi.png`)
-        .setFooter('For more facts, use *fact again!')
+    return message.channel.send(new MessageEmbed({
+        title, 
+        description: facts[fact], 
+        color: pGuildClient.embedColor || client.DefaultEmbedColor,
+        footer: { text: 'For more facts, use *fact again!' },
+    }).attachFiles([`./commands/4 DevOnly/pfps/Greeny_Boi.png`])
+      .setThumbnail(`attachment://Greeny_Boi.png`)
     );
 });

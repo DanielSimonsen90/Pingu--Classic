@@ -1,17 +1,14 @@
 const { MessageEmbed } = require("discord.js");
-const { PinguLibrary, PinguEvent, ReactionRole } = require("PinguPackage");
+const { PinguEvent, ReactionRole } = require("PinguPackage");
 
 module.exports = new PinguEvent('messageReactionRemoveEmoji',
-    async function setContent(reaction) {
-        return module.exports.content = new MessageEmbed().setDescription(`${reaction.emoji} was removed from ${reaction.message.id}`);
+    async function setContent(client, { emoji, message }) {
+        return module.exports.content = new MessageEmbed({ description: `${emoji} was removed from ${message.id}` })
     },
     async function execute(client, reaction) {
-        PinguLibrary.consoleLog(client, `${module.exports.name} called`);
-        TestForReactionRole(reaction);
+        client.log('console', `${module.exports.name} called`);
 
-        async function TestForReactionRole() {
-            return ReactionRole.RemoveReaction(reaction);
-        }
+        return ReactionRole.RemoveReaction(reaction);
     }
 );
 

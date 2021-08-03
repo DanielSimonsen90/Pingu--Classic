@@ -1,13 +1,13 @@
-﻿const { PinguCommand, PinguLibrary, PinguGuild, PinguGuildSchema } = require('PinguPackage');
+﻿const { PinguCommand, PinguGuildSchema } = require('PinguPackage');
 
 module.exports = new PinguCommand('updatepguilds', 'DevOnly', `Updates all PinguGuilds`, {
     mustBeBeta: true
 }, async ({ client, message, args, pAuthor, pGuild, pGuildClient }) => {
-    const PinguGuilds = await PinguGuild.GetGuilds();
+    await client.pGuilds.refresh(client);
 
-    //Promise.all(PinguGuilds.map(pGuild => {
-    await PinguGuildSchema.updateMany({}, { $set: { joinedAt: new Date(Date.now()) } }).exec();
-    //}))
+    // Promise.all(client.pGuilds.array().map(async pGuild => 
+    //     PinguGuildSchema.updateMany({}, { $set: { joinedAt: new Date() } }).exec()
+    // ))
 
     if (message.content.includes(module.exports.name))
         message.react('👌');

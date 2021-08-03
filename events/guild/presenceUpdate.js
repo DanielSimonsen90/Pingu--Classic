@@ -1,9 +1,15 @@
 const { Presence, MessageEmbed, Activity } = require("discord.js");
-const { PinguEvent, PinguLibrary, PinguGuild, PinguClient } = require("PinguPackage");
+const { PinguEvent, PinguClient } = require("PinguPackage");
 
 module.exports = { ...new PinguEvent('presenceUpdate',
-    async function setContent(prePresence, presence) {
-        let user = presence.user.tag;
+    async function setContent(client, prePresence, presence) {
+        const { user } = presence;
+
+        if (user == client.clients.get('Live')) client.clients.set('Live', user);
+        else if (user == client.clients.get('Beta')) client.clients.set('Beta', user);
+
+        client.developers.update(user);
+
         function FindActivity() {
             if (!prePresence || !presence) return null;
 
@@ -23,8 +29,9 @@ module.exports = { ...new PinguEvent('presenceUpdate',
          * @param {boolean} sameApp*/
         function FindChanged(arr, item) {
             return arr.find(a => { //array contains item
-                let sameApplication = a.name && item.name && a.name == item.name || !a.name && !item.name;
-                let details = (a.state && item.state && a.state == item.state || !a.state && !item.state) &&
+                const sameApplication = a.name && item.name && a.name == item.name || !a.name && !item.name;
+
+                const details = (a.state && item.state && a.state == item.state || !a.state && !item.state) &&
                     (a.details && item.details && a.details == item.details || !a.details && !item.details) &&
                     (a.emoji && item.emoji && a.emoji.id == item.emoji.id || !a.emoji && !item.emoji);
                 return sameApplication && !details;
@@ -32,19 +39,20 @@ module.exports = { ...new PinguEvent('presenceUpdate',
         }
 
         let preActivity = FindActivity();
-        let preActivityType = preActivity && preActivity.type.toLowerCase();
+        let preActivityType = preActivity?.type.toLowerCase();
 
         let activity = FindActivity();
-        let activityType = activity && activity.type.toLowerCase();
+        let activityType = activity?.type.toLowerCase();
+        const Danho = client.developers.get('Danho');
 
-        if (presence.userID == PinguLibrary.Developers.get('Danho') && PinguLibrary.Developers.get('Danho').id && activityType == 'streaming') {
-            PinguClient.ToPinguClient(presence.guild.client).setActivity();
+        if (presence.userID == Danho.id && activityType == 'streaming') {
+            client.setActivity();
         }
 
         activityType = activityType == 'listening' ? 'listening to' : activityType == 'competing' ? 'competing in' : activityType;
         try { var description = GetDescription(); }
         catch (err) {
-            PinguLibrary.errorLog(presence.user.client, `Description Error`, null, err, {
+            client.log('error', `Description Error`, null, err, {
                 params: { prePresence, presence },
                 additional: { user, pre: { preActivity, preActivityType }, cur: { activity, activityType } },
                 trycatch: { description }
@@ -52,13 +60,13 @@ module.exports = { ...new PinguEvent('presenceUpdate',
             console.log({ user, preActivity, activity });
         }
 
-        return module.exports.content = description ? new MessageEmbed()
-            .setDescription(description)
-            .setColor(await module.exports.GetColor(activityType, presence, prePresence)) : null;
+        return module.exports.content = description ? new MessageEmbed({
+            description, color: module.exports.GetColor(activityType, presence, prePresence)
+        }) : null;
 
         function GetDescription() {
-            if (!prePresence || !activity || presence && presence.status != prePresence.status)
-                return `**${presence.user.tag}** is ${(prePresence && prePresence.status == 'offline' ? `online as` : "")} **${presence.status}**${(activity && presence.status != 'offline' ? `, ${GetActivity(true, false)}` : "")}`; //Just got online || status changed
+            if (!prePresence || !activity || presence?.status != prePresence.status)
+                return `**${presence.user.tag}** is ${(prePresence?.status == 'offline' ? `online as` : "")} **${presence.status}**${(activity && presence.status != 'offline' ? `, ${GetActivity(true, false)}` : "")}`; //Just got online || status changed
             else if (presence.user.bot) return null; //Bot changed its activity; not status
             else if (presence.activities.length < prePresence.activities.length)
                 GetActivity(false, true);
@@ -71,13 +79,13 @@ module.exports = { ...new PinguEvent('presenceUpdate',
             function getActivity() {
                 if (started)
                     switch (activityType) {
-                        case 'listening to': return `**${activity.details}** by ${activity.state && activity.state.includes(';') ? activity.state.split(';').join(', ') : activity.state}`;
+                        case 'listening to': return `**${activity.details}** by ${activity.state?.includes(';') ? activity.state.split(';').join(', ') : activity.state}`;
                         case 'competing in': return `**${activity.details}**`;
-                        case 'custom_status': return `${(preActivity.emoji ? preActivity.emoji : "")} ${activity.state ? `${activity.state}` : ""}`;
-                        default: return `**${activity.details || (`${activity.name}${(activity.state ? `, ${activity.state}` : "")}`)}** ${(prePresence && prePresence.guild && presence.guild && prePresence.guild.id != presence.guild.id ? `in ${presence.guild.name}` : "")}`;
+                        case 'custom_status': return `${(preActivity.emoji ? preActivity.emoji : "")} ${activity.state ? activity.state : ""}`;
+                        default: return `**${activity.details || (`${activity.name}${(activity.state ? `, ${activity.state}` : "")}`)}** ${(prePresence.guild?.id != presence.guild?.id ? `in ${presence.guild.name}` : "")}`;
                     }
                 else switch (preActivityType) {
-                    case 'listening to': `**${activity.details}** by ${activity.state && activity.state.includes(';') ? activity.state.split(';').join(', ') : activity.state}`;
+                    case 'listening to': `**${activity.details}** by ${activity.state?.includes(';') ? activity.state.split(';').join(', ') : activity.state}`;
                     case 'custom_status': return `${(preActivity.emoji ? preActivity.emoji : "")} ${activity.state ? `**${activity.state}**` : ""}`;
                     default: return `**${preActivity.details || (`${preActivity.name}${(preActivity.state ? `, ${preActivity.state}` : "")}`)}**`;
                 }
@@ -94,7 +102,9 @@ module.exports = { ...new PinguEvent('presenceUpdate',
     /**@param {string} activityType
      * @param {Presence} presence
      * @param {Presence} prePresence*/
-    async GetColor(activityType, presence, prePresence) {
+    GetColor(activityType, presence, prePresence) {
+        const client = PinguClient.ToPinguClient(presence.user.client);
+
         if (activityType) {
             if (activityType == 'listening to' && presence.status == prePresence.status) return '#1ED760';
             if (activityType == 'streaming' && presence.status == prePresence.status) return '#593695';
@@ -106,10 +116,7 @@ module.exports = { ...new PinguEvent('presenceUpdate',
             case 'dnd': return '#F04747';
             case 'offline': return '#727D8A';
             case 'invisible': return '#ffffff';
+            default: return client.toPClient(client.pGuilds.get(guild)).embedColor || client.DefaultEmbedColor;
         }
-        
-        let pGuild = await PinguGuild.Get(presence.guild);
-        let client = PinguClient.ToPinguClient(presence.guild.client);
-        return client.toPClient(pGuild).embedColor || client.DefaultEmbedColor;
     }
 }};

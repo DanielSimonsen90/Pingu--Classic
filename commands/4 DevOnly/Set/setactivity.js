@@ -1,5 +1,5 @@
+const { Presence } = require('discord.js');
 const { PinguCommand } = require("PinguPackage");
-const { Presence } = require('discord.js')
 
 module.exports = new PinguCommand('setactivity', 'DevOnly', "Make me do something else than listening to people's screams", {
     usage: '<status type> <status message>',

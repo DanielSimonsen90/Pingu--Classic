@@ -2,9 +2,11 @@ const { MessageEmbed, ReactionManager } = require("discord.js");
 const { PinguEvent } = require("PinguPackage");
 
 module.exports = new PinguEvent('messageUpdate',
-    async function setContent(preMessage, message) {
+    async function setContent(client, preMessage, message) {
         let description = GetDifference();
-        return module.exports.content = description ? new MessageEmbed().setDescription(description.length < 2048 ? description : description.substring(0, description[2040]) + "...") : null;
+        return module.exports.content = description ? new MessageEmbed({
+            description: description.length < 2048 ? description : description.substring(0, description[2040]) + "..."
+        }) : null;
 
         function GetDifference() {
             if (message.content != preMessage.content) return PinguEvent.SetDescriptionValues('Content', preMessage.content, message.content);
@@ -20,14 +22,14 @@ module.exports = new PinguEvent('messageUpdate',
         function FindReactionDifference(old, current) {
             let updateMessage = `[**Reactions**]: `;
 
-            for (var reaction of current.cache.array()) {
+            for (var [_, reaction] of current.cache) {
                 let oldReaction = old.cache.find(r => r.emoji == reaction.emoji);
 
                 if (!oldReaction || oldReaction.count > reaction.count) return updateMessage += `${reaction.emoji} was added from [message](${message.url})`;
                 else if (oldReaction.count < reaction.count) return updateMessage += `${reaction.emoji} was added to [message](${message.url})`;
             }
 
-            for (var oldReaction of old.cache.array()) {
+            for (var [__, oldReaction] of old.cache) {
                 let reaction = current.cache.find(r => r.emoji == oldReaction.emoji);
                 if (!reaction) return updateMessage += `${reaction.emoji} was removed from [message](${message.url})`;
             }

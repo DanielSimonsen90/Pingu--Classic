@@ -19,14 +19,8 @@ module.exports = new PinguCommand('clearerrors', 'DevOnly', `Clears all errors i
     if (args[0] == 'show') {
         let errorId = args[1];
 
-        if (!errorId) 
-            errorId = await createMessageCollector(
-                message.channel.send(`If I need to show you an error, I need to know which error you want. Length is ${length}.`)
-            );
-        else if (isNaN(errorId) || errorId > length || errorId < 0) 
-            errorId = await createMessageCollector(
-                message.channel.send(`Please provide a proper number!`)
-            );
+        if (!errorId) errorId = await createMessageCollector(message.channel.send(`If I need to show you an error, I need to know which error you want. Length is ${length}.`));
+        else if (isNaN(errorId) || errorId > length || errorId < 0) errorId = await createMessageCollector(message.channel.send(`Please provide a proper number!`));
 
         //If not parsable, "You didn't reply in time!" recieved.
         if (isNaN(errorId)) return message.channel.send(errorId);

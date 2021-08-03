@@ -1,13 +1,13 @@
 const { Guild, MessageEmbed } = require("discord.js");
-const { PinguGuild, PinguLibrary, PinguEvent, PClient, PinguClient } = require("PinguPackage");
+const { PinguGuild, PinguEvent, PClient, PinguClient } = require("PinguPackage");
 
 module.exports = {
     ...new PinguEvent('roleUpdate',
-        async function setContent(preRole, role) {
+        async function setContent(client, preRole, role) {
             let description = GetDescription();
-            return module.exports.content = description ? new MessageEmbed()
-                .setTitle(module.exports.name + ` - ${role.name} ${(role.name != preRole.name ? `(${preRole.name})` : "")}`)
-                .setDescription(description) : null;
+            return module.exports.content = description ? new MessageEmbed({
+                description, title: module.exports.name + ` - ${role.name} ${(role.name != preRole.name ? `(${preRole.name})` : "")}`
+            }) : null;
 
             function GetDescription() {
                 if (role.color != preRole.color) return PinguEvent.SetDescriptionValues('Color', preRole.color, role.color);
@@ -46,20 +46,19 @@ module.exports = {
                 )}`);
             }
         },
-        async function execute(client, preRole, role) {
-            let guild = role.guild;
-            let pGuild = await PinguGuild.Get(guild);
-            module.exports.CheckRoleChange(guild, pGuild, module.exports.name);
+        async function execute(client, preRole, { guild }) {
+            let pGuild = client.pGuilds.get(guild);
+            module.exports.CheckRoleChange(client, guild, pGuild, module.exports.name);
         },
     ), ...{
         /**Checks if role color was changed, to update embed colors
+         * @param {PinguClient} client
          * @param {Guild} guild
          * @param {PinguGuild} pGuild
          * @param {string} scriptName*/
-        CheckRoleChange(guild, pGuild, scriptName) {
+        CheckRoleChange(client, guild, pGuild, scriptName) {
             //Get the color of the Pingu role in message.guild
             const guildRoleColor = guild.me.roles.cache.find(botRoles => botRoles.managed).color;
-            const client = PinguClient.ToPinguClient(guild.client);
             const pGuildClient = client.toPClient(pGuild);
 
             if (!pGuildClient) pGuildClient = pGuild.clients[(client.isLive ? 0 : 1)] = new PClient(guild.client, guild);
@@ -73,10 +72,10 @@ module.exports = {
             pGuild.clients[clientIndex].embedColor = guildRoleColor;
 
             //Save Index of pGuild & log the change
-            PinguLibrary.consoleLog(guild.client, `[**${guild.name}**]: Embedcolor for **${client.user.username}** updated from ${pGuildClient.embedColor} to ${guildRoleColor}`);
+            client.log('console', `[**${guild.name}**]: Embedcolor for **${client.user.username}** updated from ${pGuildClient.embedColor} to ${guildRoleColor}`);
 
             //Update Pingu Guild
-            PinguGuild.Update(client, ['clients'], pGuild, scriptName, `Role color from **${guild.name}**`);
+            client.pGuilds.update(pGuild, scriptName, `Role color from **${guild.name}**`)
         }
     }
 };

@@ -1,49 +1,38 @@
 const { Collection, GuildChannel, TextChannel, Guild, VoiceChannel } = require("discord.js");
-const { PinguLibrary, PinguGuild, PinguEvent, PinguClient, PinguUser, PinguGuildMember, PGuild, DecidablesTypes } = require("PinguPackage");
+const { PinguEvent, PinguGuildMember, PGuild, DecidablesTypes } = require("PinguPackage");
 const ms = require('ms');
 
 module.exports = new PinguEvent('onready', null,
-    async function execute(client) {
-        const { SetBadges, CacheSavedServers, CacheDevelopers, consoleLog, DBExecute, raspberryLog, errorLog, latencyCheck } = PinguLibrary
-        CacheSavedServers(client);
-
+    async function execute(_, client) {
         console.log('\n--== Client Info ==--');
-        consoleLog(client, `Loaded ${client.commands.size} commands & ${client.events.size} events\n`);
+        client.log('console', `Loaded ${client.commands.size} commands & ${client.events.size} events\n`)
 
-        let [connMessage] = await Promise.all([
-            DBExecute(client, async () => await consoleLog(client, `Connected to MongolDB!`)),
-            client.users.fetch(PinguClient.Clients.PinguID),
-            CacheDevelopers(client),
-        ]);
-
-        SetBadges();
+        const connMessage = await client.DBExecute(() => client.log('console', `Connected to MongolDB!`));
 
         if (connMessage) {
             CacheFromDB(client)
             //UpdateGuilds()
         }
 
-        consoleLog(client, `I'm back online!\n`);
+        client.log('console', `I'm back online!\n`);
+        client.log('raspberry');
         console.log(`Logged in as ${client.user.username}`);
-
-        client.setActivity();
-        raspberryLog(client);
-
         console.log(`--== | == - == | ==--\n`);
 
         client.setActivity();
         setInterval(() => client.setActivity(), ms('24h'));
         
         //Log latency every minute
-        setInterval(() => latencyCheck(client, Date.now()).catch(err => errorLog(client, `LatencyCheck error`, null, err)), ms('1m'));
+        setInterval(() => client.log('ping', Date.now()).catch(err => client.log('error', `LatencyCheck error`, null, err)), ms('1m'));
 
         if (client.config.updateStats && client.isLive) {
             UpdateStats();
             setInterval(() => UpdateStats, ms('24h'));
+
             function UpdateStats() {
                 /**@param {string} channelID
                  * @returns {VoiceChannel}*/
-                let getChannel = (channelID) => PinguLibrary.SavedServers.get('Pingu Support').channels.cache.get(channelID);
+                let getChannel = (channelID) => client.savedServers.get('Pingu Support').channels.cache.get(channelID);
                 let channels = [
                     '799596588859129887', //Servers
                     '799597092107583528', //Users
@@ -58,44 +47,36 @@ module.exports = new PinguEvent('onready', null,
                     const getUsersInfo = () => client.users.cache.size.toString();
                     const getDailyLeader = async () => {
                         try {
-                            let pUser = (await PinguUser.GetUsers()).sort((a, b) => {
+                            let pUser = client.pUsers.array().sort((a, b) => {
                                 try { return b.daily.streak - a.daily.streak }
-                                catch (err) { PinguLibrary.errorLog(client, `unable to get daily streak difference between ${a.tag} and ${b.tag}`, null, err); }
+                                catch (err) { client.log('error', `unable to get daily streak difference between ${a.tag} and ${b.tag}`, null, err); }
                             })[0];
                             return `${pUser.tag} #${pUser.daily.streak}`;
                         }
-                        catch (err) {
-                            PinguLibrary.errorLog(client, `Unable to get Daily Leader`, null, err, {
-                                PinguUsers: await PinguUser.GetUsers()
-                            });
-                        }
+                        catch (err) { client.log('error', `Unable to get Daily Leader`, null, err, { PinguUsers: client.pUsers.array() }); }
                     }
                     const getRandomServer = async () => {
-                        let availableGuilds = client.guilds.cache.array().map(g => ![
-                            PinguLibrary.SavedServers.get('Danho Misc').id,
-                            PinguLibrary.SavedServers.get('Pingu Emotes').id,
-                            PinguLibrary.SavedServers.get('Pingu Support').id,
-                        ].includes(g.id) && g.name != undefined && g).filter(v => v);
-                        let index = Math.floor(Math.random() * availableGuilds.length);
+                        let availableGuilds = client.guilds.cache.map(g => !client.savedServers.map(g => g.id).includes(g.id) && g.name != undefined && g).filter(v => v);
+                        let i = Math.floor(Math.random() * availableGuilds.length);
 
-                        let chosenGuild = availableGuilds[index];
-                        let pGuild = await PinguGuild.Get(chosenGuild);
+                        let chosenGuild = availableGuilds[i];
+                        let pGuild = client.pGuilds.get(chosenGuild);
                         client.emit('chosenGuild', ...[chosenGuild, pGuild]);
                         return chosenGuild.name;
                     }
                     const getRandomUser = async () => {
-                        let availableUsers = client.users.cache.array().map(u => !u.bot && u).filter(v => v);
-                        let index = Math.floor(Math.random() * availableUsers.length);
+                        let availableUsers = client.users.cache.filter(u => !u.bot);
+                        let i = Math.floor(Math.random() * availableUsers.length);
 
-                        let chosenUser = availableUsers[index];
-                        let pUser = await PinguUser.Get(chosenUser);
+                        let chosenUser = availableUsers[i];
+                        let pUser = client.pUsers.get(chosenUser);
                         if (!pUser) return getRandomUser();
 
                         client.emit('chosenUser', ...[chosenUser, pUser]);
                         return chosenUser.tag;
                     }
                     const getMostKnownUser = () => {
-                        let Users = client.guilds.cache.reduce((users, guild) => {
+                        let users = client.guilds.cache.reduce((users, guild) => {
                             return guild.members.cache.reduce((_, member) => {
                                 let { user } = member;
                                 if (user.bot) return users;
@@ -104,7 +85,7 @@ module.exports = new PinguEvent('onready', null,
                             }, users);
                         }, new Collection());
                         
-                        let sorted = Users.sort((a, b) => b - a);
+                        let sorted = users.sort((a, b) => b - a);
                         let mostKnownUsers = sorted.filter((v, u) => sorted.first() == v);
                         mostKnownUsers.forEach((_, user) => client.emit('mostKnownUser', user))
                         let strings = mostKnownUsers.map((v, u) => `${u.tag} | #${v}`);
@@ -122,7 +103,7 @@ module.exports = new PinguEvent('onready', null,
                     ]);
                     let channelName = channel.name.split(':')[0];
                     let info = await getInfo.get(channel.id)?.() || (function onNoKey() {
-                        PinguLibrary.errorLog(client, `ID of ${channel.name} was not recognized!`); 
+                        client.log('error', `ID of ${channel.name} was not recognized!`)
                         return "No Info";
                     })();
                     let newName = `${channelName}: ${info}`;
@@ -136,12 +117,12 @@ module.exports = new PinguEvent('onready', null,
 
         async function CacheFromDB() {
             for (var [_, guild] of client.guilds.cache) {
-                let pGuild = await PinguGuild.Get(guild);
+                let pGuild = client.pGuilds.get(guild);
                 if (!pGuild) return;
 
                 const { reactionRoles } = pGuild.settings;
 
-                await Promise.all(reactionRoles.map(rr => {
+                await Promise.all(reactionRoles.map(async rr => {
                     if (!rr) return null;
 
                     const gChannel = guild.channels.cache.get(rr.channel._id);
@@ -154,11 +135,11 @@ module.exports = new PinguEvent('onready', null,
                         
                         //In .then function so it only logs if fetching is successful
                         return channel.messages.fetch(rr.messageID)
-                        .then(() => OnFulfilled('ReactionRole', value, rr.messageID, channel, guild))
-                        .catch(err => OnError('ReactionRole', value, rr.messageID, channel, guild, err.message));
+                            .then(() => OnFulfilled('ReactionRole', value, rr.messageID, channel, guild))
+                            .catch(err => OnError('ReactionRole', value, rr.messageID, channel, guild, err.message));
                     }
                     catch(err) {
-                        errorLog(client, `how is emoteName undefined?`, null, err, {
+                        client.log('error', `how is emoteName undefined?`, null, err, {
                             trycatch: { rr, emoteName: rr.emoteName, guild: guild.name, channel: channel.name }
                         });
                         return null;
@@ -169,7 +150,7 @@ module.exports = new PinguEvent('onready', null,
                 let configs = [pollConfig, giveawayConfig, suggestionConfig, themeConfig].filter(config => config.firstTimeExecuted === false);
                 let decidables = configs.map(config => config.polls || config.giveaways || config.suggestions || config.themes);
 
-                await Promise.all(decidables.map(d => {
+                await Promise.all(decidables.map(async d => {
                     if (!d.endsAt || new Date(d.endsAt).getTime() < Date.now() || d.approved != undefined) return null;
                     let channel = ToTextChannel(guild.channels.cache.get(d.channel._id));
 
@@ -202,19 +183,19 @@ module.exports = new PinguEvent('onready', null,
              * @param {Guild} guild*/
             function OnError(type, value, id, channel, guild, errMsg) {
                 if (errMsg == 'Missing Access') return;
-                return PinguLibrary.consoleLog(client, `Unable to cache ${type} "${value}" (${id}) from #${channel.name}, ${guild.name} -- ${errMsg}`, 'error')
+                return client.log('console', `Unable to cache ${type} "${value}" (${id}) from #${channel.name}, ${guild.name} -- ${errMsg}`, 'error')
             }
         }
         async function UpdateGuilds() {
-            const pUsers = await PinguUser.GetUsers();
+            const pUsers = client.pUsers.array();
 
             for (var [id, guild] of client.guilds.cache) {
                 const { name } = guild;
 
-                const pGuild = await PinguGuild.Get(guild);
+                const pGuild = client.pGuilds.get(guild);
                 if (pGuild.name != name) {
                     pGuild.name = name;
-                    await PinguGuild.Update(client, ['name'], pGuild, module.exports.name, "Name was not up to date.");
+                    await client.pGuilds.update(pGuild, module.exports.name, "Name was not up to date.")
                 }
 
                 /**@returns {PinguGuildMember[]} */
@@ -231,8 +212,12 @@ module.exports = new PinguEvent('onready', null,
                     for (var member of filteredMembers) {
                         member.name = name;
                         pGuild.members.set(member._id, member);
+
+                        if (!client.pGuildMembers.get(guild).has(member)) {
+                            await client.pGuildMembers.get(guild).add(member, module.exports.name, `Member was not in client.pGuildMembers`);
+                        }
                     }
-                    PinguGuild.Update(client, ['members'], pGuild, module.exports.name, "members.guild.name was not up to date.");
+                    client.pGuilds.update(pGuild, module.exports.name, "members.guild.name was not up to date.");
                 }
 
                 //Filter out the users that share the current guild and the name is incorrect
@@ -244,10 +229,9 @@ module.exports = new PinguEvent('onready', null,
                     const pg = sharedServers.find(pg => pg._id == id);
                     const indexOfPG = sharedServers.indexOf(pg);
                     pUser.sharedServers[indexOfPG] = new PGuild(guild);
-                    PinguUser.Update(client, ['sharedServers'], pUser, module.exports.name, `Name of **${name}** was not updated`);
+                    client.pUsers.update(pUser, module.exports.name, `Name of **${name}** was not updated`);
                 }
             }
         }
     }
 )
-

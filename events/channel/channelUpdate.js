@@ -2,10 +2,10 @@ const { GuildChannel, MessageEmbed, PermissionOverwrites, Collection } = require
 const { PinguEvent } = require("PinguPackage");
 
 module.exports = new PinguEvent('channelUpdate',
-    async function setContent(preChannel, channel) {
+    async function setContent(client, preChannel, channel) {
         let description = GetDescription(channel.type);
 
-        return module.exports.content = description ? new MessageEmbed().setDescription(description) : null;
+        return module.exports.content = description ? new MessageEmbed({ description }) : null;
 
         function GetDescription(type) {
             return type == 'dm' ? PinguEvent.UnknownUpdate(preChannel, channel) : GetGuildChannel(preChannel, channel);

@@ -1,7 +1,7 @@
-const { PinguLibrary, PinguEvent } = require("PinguPackage");
+const { PinguEvent } = require("PinguPackage");
 
 module.exports = new PinguEvent('error', null,
     async function execute(client, err) {
-        return PinguLibrary.errorLog(client, `Client event`, null, err);
+        return client.log('error', `Error event`, null, err);
     }
 );

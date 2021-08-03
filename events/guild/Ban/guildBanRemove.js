@@ -1,10 +1,10 @@
 const { MessageEmbed } = require("discord.js");
-const { PinguEvent, PinguGuild, EmbedField, PinguClient } = require("PinguPackage");
+const { PinguEvent, EmbedField } = require("PinguPackage");
 
 module.exports = new PinguEvent('guildBanRemove',
-    async function setContent(guild, user) {
+    async function setContent(client, guild, user) {
         if (!guild.me.hasPermission('VIEW_AUDIT_LOG')) {
-            return module.exports.content = new MessageEmbed().setDescription(`${user} was unbanned`)
+            return module.exports.content = new MessageEmbed({ description: `${user} was unbanned` });
         }
 
         let banAudits = await guild.fetchAuditLogs({ type: 'MEMBER_BAN_ADD' });
@@ -13,27 +13,25 @@ module.exports = new PinguEvent('guildBanRemove',
         let unBanAudits = await guild.fetchAuditLogs({ type: 'MEMBER_BAN_REMOVE' });
         let unBanAudit = unBanAudits.entries.find(e => e.target.id == user.id);
 
-        let ban = {
-            by: banAudit.executor,
-            reason: banAudit.reason,
-            banSince: banAudit.createdAt,
-            unbannedBy: unBanAudit.executor,
-            unBanSince: unBanAudit.createdAt
-        }
+        const by = banAudit.executor;
+        const reason = banAudit.reason;
+        const banSince = banAudit.createdAt;
+        const unbannedBy = unBanAudit.executor;
+        const unbanSince = unBanAudit.createdAt;
 
-        let pGuild = await PinguGuild.Get(guild);
-        let client = PinguClient.ToPinguClient(guild.client);
+        let pGuild = client.pGuilds.get(guild);
         let pGuildClient = client.toPClient(pGuild);
 
-        return module.exports.content = new MessageEmbed()
-            .setDescription(`**${user.tag}** was unbanned.`)
-            .setColor(pGuildClient.embedColor || client.DefaultEmbedColor)
-            .addFields([
-                new EmbedField(`Banned Since`, ban.banSince, true),
-                new EmbedField(`Banned By`, ban.by, true),
-                new EmbedField(`Ban Reason`, ban.reason, true),
-                new EmbedField(`Unbanned At`, ban.unBanSince, true),
-                new EmbedField(`Unbanned By`, ban.unbannedBy, true)
-            ]);
+        return module.exports.content = new MessageEmbed({
+            description: `**${user}** was unbanned.`,
+            color: pGuildClient.embedColor || client.DefaultEmbedColor,
+            fields: [
+                new EmbedField(`Banned Since`, banSince, true),
+                new EmbedField(`Banned By`, by, true),
+                new EmbedField(`Ban Reason`, reason, true),
+                new EmbedField(`Unbanned At`, unbanSince, true),
+                new EmbedField(`Unbanned By`, unbannedBy, true)
+            ]
+        })
     }
 );

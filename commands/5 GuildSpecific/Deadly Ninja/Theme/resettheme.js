@@ -1,29 +1,30 @@
 ﻿const { Collection } = require('discord.js');
-const { PinguCommand, PinguLibrary } = require('PinguPackage');
+const { PinguCommand } = require('PinguPackage');
 
 module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme in Deadly Ninja`, {
     permissions: ["MANAGE_CHANNELS", "MANAGE_ROLES", "MANAGE_GUILD"],
     guildOnly: true,
     specificGuildID: '405763731079823380'
 }, async ({ client, message, args, pAuthor, pGuild, pGuildClient }) => {
-    if (!message.member.roles.cache.has('497439032138006530') || message.author.id == '361815289278627851')
-        return message.channel.send(`Only cool people have access to this command!`);
-    let adminCheck = PinguLibrary.PermissionCheck({
-        author: client.user,
-        channel: message.channel,
-        client,
-        content: message.content
-    }, 'ADMINISTRATOR');
-    if (adminCheck != PinguLibrary.PermissionGranted) return message.channel.send(`Gib me the **eye**`);
+    const { member, author, guild, channel } = message;
 
-    const channels = message.guild.channels.cache.sort((a, b) => a.position < b.position);
-    const roles = message.guild.roles.cache.sort((a, b) => a.position < b.position);
+    if (!member.roles.cache.has('497439032138006530') || author.id == '361815289278627851')
+        return channel.send(`Only cool people have access to this command!`);
+
+    let adminCheck = client.permissions.checkFor({
+        author: client.user,
+        channel
+    }, 'ADMINISTRATOR');
+    if (adminCheck != client.permissions.PermissionGranted) return message.channel.send(`Gib me the **eye**`);
+
+    const channels = guild.channels.cache.sort((a, b) => a.position < b.position);
+    const roles = guild.roles.cache.sort((a, b) => a.position < b.position);
     const deadlyNinja = {
-        iconURL: message.guild.iconURL(),
-        name: message.guild.name
+        iconURL: guild.iconURL(),
+        name: guild.name
     };
 
-    const reason = `Theme reset requested by ${message.author.tag}`;
+    const reason = `Theme reset requested by ${author.tag}`;
 
     await Promise.all([
         (async function setChannels() {

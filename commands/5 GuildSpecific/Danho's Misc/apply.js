@@ -1,5 +1,5 @@
 const { TextChannel, Message, MessageAttachment } = require('discord.js');
-const { PinguCommand, config, PinguLibrary, Error } = require('PinguPackage');
+const { PinguCommand, config, Error } = require('PinguPackage');
 
 const nodemailer = require('nodemailer');
 const { emailer, testingMode } = config, { google } = require('googleapis'), { OAuth2 } = google.auth,
@@ -12,7 +12,7 @@ module.exports = new PinguCommand('apply', 'GuildSpecific', `Filters through pre
     usage: '[amount of companies to select]',
     mustBeBeta: true
 }, async ({ client, message, args }) => {
-    if (message.author.id != PinguLibrary.Developers.get('Danho').id)
+    if (message.author.id != client.developers.get('Danho').id)
         return message.channel.send(`You are not authorized to run this command!`);
 
     if (message.channel.name != 'applications-cmd') {

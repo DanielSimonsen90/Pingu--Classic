@@ -1,7 +1,6 @@
 const { Message, MessageEmbed } = require('discord.js');
 const {
-    PinguCommand, PinguLibrary, EmbedField, Arguments,
-    PinguUser, PinguGuildMember, PinguGuild,
+    PinguCommand, EmbedField, Arguments,
     UserAchievement, GuildMemberAchievement, GuildAchievement
 } = require('PinguPackage');
 
@@ -14,8 +13,8 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
     usage: `<${toUsage(achievementCommands)}> <${toUsage(achievementTypes)}> [achievement id] [@User]`,
     examples: ["missing", "missing user 2", "missing member 5 @Danho", "info guild", "achieved guild 756383096646926376"]
 }, async ({ client, message, args, pAuthor, pGuildMember, pGuild, pGuildClient }) => {
-    const { granted, command, type, id, achievementID } = PermissionCheck(message, args);
-    if (granted != PinguLibrary.PermissionGranted) return message.channel.send(granted);
+    const { granted, command, type, id, achievementID } = PermissionCheck();
+    if (granted != client.permissions.PermissionGranted) return message.channel.send(granted);
 
     switch (type) {
         case 'user': return UserType();
@@ -23,9 +22,55 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
         case 'guild': return GuildType();
     }
 
+    function PermissionCheck() {
+        const [command, type, achievementID, id] = args.lowercase();
+        const result = {
+            granted: client.permissions.PermissionGranted,
+            command, type, achievementID, id
+        };
+    
+        //Arguments length are met & command & type are both valid arguments
+        if (!command || !type ||
+            !achievementCommands.includes(command) || !achievementTypes.includes(type)) {
+            result.granted = `You didn't provide me with the achievement ${!command ? "command" : "type"}! Use the following:\n` +
+                (!command ? achievementCommands : achievementTypes)
+                    .map(cmd => `- ${cmd}`)
+                    .join('\n');
+            return result;
+        }
+    
+        //achievementID exists and is a valid id for chosen achievement type
+        if (achievementID) {
+            const achievements = (function getAchievements() {
+                switch (type) {
+                    case 'user': return UserAchievement.Achievements;
+                    case 'member': return GuildMemberAchievement.Achievements;
+                    case 'guild': return GuildAchievement.Achievements;
+                    default: return null;
+                }
+            })();
+    
+        if (isNaN(achievementID) || parseInt(achievementID) <= 0 || parseInt(achievementID) > achievements.length)
+            if (!message.client.guilds.cache.has(achievementID) && !message.client.users.cache.has(achievementID))
+                result.granted = `The achievement id provided is not a valid id! Pick a number between 1 - ${achievements.length}`;
+            else {
+                result.id = achievementID;
+                result.achievementID = null;
+            }
+        }
+    
+        return result;
+    }
+    /**@param {{_id: string, name: string}[]} achievements*/
+    function FormatAchievements(achievements) {
+        return achievements
+            .map(a => `[${a._id}]: ${a.name}`)
+            .join('\n') || "None found!";
+    }
+
     async function UserType() {
         const user = id ? client.users.cache.get(id) : message.author;
-        const pUser = id ? await PinguUser.Get(user) : pAuthor;
+        const pUser = id ? client.pUsers.get(user) : pAuthor;
         const pUserAchievement = pUser.achievementConfig.achievements;
         const pUserAchievementIDs = pUserAchievement.map(a => a._id);
 
@@ -56,9 +101,10 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
                 );
             case 'info':
                 let achievement = UserAchievement.Achievements.find(a => a._id == achievementID);
-                let embed = new MessageEmbed()
-                    .setTitle(`Achievement Info ${(achievement ? `- ${achievement.name}` : ``)}`)
-                    .setColor(message.guild ? pGuildClient.embedColor : client.DefaultEmbedColor);
+                let embed = new MessageEmbed({
+                    title: `Achievement Info ${(achievement ? `- ${achievement.name}` : ``)}`,
+                    color: message.guild ? pGuildClient.embedColor : client.DefaultEmbedColor
+                });
                 return message.channel.send(
                     achievement ?
                         embed.setDescription(achievement.description)
@@ -83,7 +129,7 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
         const member = id ? message.guild.member(client.users.cache.get(id)) : message.member;
         if (!member) return message.channel.send(`<@${id}> is not a member of this guild!`);
 
-        const pMember = id ? await PinguGuildMember.Get(member, module.exports.name) : pGuildMember;
+        const pMember = id ? client.pGuildMembers.get(member.guild).get(id) : pGuildMember;
         const pMemberAchievement = pMember.achievementConfig.achievements;
         const pMemberAchievementIDs = pMemberAchievement.map(a => a._id);
 
@@ -113,9 +159,10 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
                 );
             case 'info':
                 let achievement = GuildMemberAchievement.Achievements.find(a => a._id == achievementID);
-                let embed = new MessageEmbed()
-                    .setTitle(`Achievement Info ${(achievement ? `- ${achievement.name}` : ``)}`)
-                    .setColor(message.guild ? pGuildClient.embedColor : client.DefaultEmbedColor);
+                let embed = new MessageEmbed({
+                    title: `Achievement Info ${(achievement ? `- ${achievement.name}` : ``)}`,
+                    color: message.guild ? pGuildClient.embedColor : client.DefaultEmbedColor
+                });
                 return message.channel.send(
                     achievement ?
                         embed.setDescription(achievement.description)
@@ -140,7 +187,7 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
         const guild = id ? client.guilds.cache.get(id) : message.guild;
         if (!guild) return message.channel.send("I'm not a part of that guild!");
 
-        const pg = id ? await PinguGuild.Get(guild) : pGuild;
+        const pg = client.pGuilds.get(guild);
         const pgAchievements = pg.settings.config.achievements.achievements;
         const pGuildAchievementIDs = pgAchievements.map(a => a._id);
 
@@ -168,9 +215,10 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
                 );
             case 'info':
                 let achievement = GuildAchievement.Achievements.find(a => a._id == achievementID);
-                let embed = new MessageEmbed()
-                    .setTitle(`Achievement Info ${(achievement ? `- ${achievement.name}` : ``)}`)
-                    .setColor(pGuildClient.embedColor || client.DefaultEmbedColor);
+                let embed = new MessageEmbed({
+                    title: `Achievement Info ${(achievement ? `- ${achievement.name}` : ``)}`,
+                    color: pGuildClient.embedColor || client.DefaultEmbedColor
+                });
                 return message.channel.send(
                     achievement ?
                         embed.setDescription(achievement.description)
@@ -188,6 +236,8 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
                 );
         }
     }
+
+
 });
 
 /**@param {Message} message
@@ -199,50 +249,3 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
  *  achievementID: string,
  *  id: string
  * }}*/
-function PermissionCheck(message, args) {
-    args.lowercase();
-    const [command, type, achievementID, id] = args;
-
-    const result = {
-        granted: PinguLibrary.PermissionGranted,
-        command, type, achievementID, id
-    };
-
-    //Arguments length are met & command & type are both valid arguments
-    if (!command || !type ||
-        !achievementCommands.includes(command) || !achievementTypes.includes(type)) {
-        result.granted = `You didn't provide me with the achievement ${!command ? "command" : "type"}! Use the following:\n` +
-            (!command ? achievementCommands : achievementTypes)
-                .map(cmd => `- ${cmd}`)
-                .join('\n');
-        return result;
-    }
-
-    //achievementID exists and is a valid id for chosen achievement type
-    if (achievementID) {
-        const achievements = (function getAchievements() {
-            switch (type) {
-                case 'user': return UserAchievement.Achievements;
-                case 'member': return GuildMemberAchievement.Achievements;
-                case 'guild': return GuildAchievement.Achievements;
-                default: return null;
-            }
-        })();
-
-    if (isNaN(achievementID) || parseInt(achievementID) <= 0 || parseInt(achievementID) > achievements.length)
-        if (!message.client.guilds.cache.has(achievementID) && !message.client.users.cache.has(achievementID))
-            result.granted = `The achievement id provided is not a valid id! Pick a number between 1 - ${achievements.length}`;
-        else {
-            result.id = achievementID;
-            result.achievementID = null;
-        }
-    }
-
-    return result;
-}
-/**@param {{_id: string, name: string}[]} achievements*/
-function FormatAchievements(achievements) {
-    return achievements
-        .map(a => `[${a._id}]: ${a.name}`)
-        .join('\n') || "None found!";
-}

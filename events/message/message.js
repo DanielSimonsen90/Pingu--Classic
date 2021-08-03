@@ -1,13 +1,10 @@
 ﻿const { MessageEmbed } = require("discord.js");
-const {
-    PinguGuild, PinguLibrary, PinguUser, PClient, PinguEvent, PinguGuildMember, PinguClient,
-    DiscordPermissions, Error, CommandCategories, Arguments
-} = require("PinguPackage");
+const { PClient, PinguEvent, DiscordPermissions, Error, Arguments } = require("PinguPackage");
 const { HandleTell, ExecuteTellReply } = require('../../commands/2 Fun/Pingu User/tell');
 const { CheckRoleChange } = require("../guild/role/roleUpdate");
 
 module.exports = new PinguEvent('message',
-    async function setContent({ content, id, url, channel, type, guild, attachments, tts, embeds, mentions }) {
+    async function setContent(client, { content, id, url, channel, type, guild, attachments, tts, embeds, mentions }) {
         const { EmbedField } = require('PinguPackage');
         try {
             let mentions = GetMentions();
@@ -15,22 +12,29 @@ module.exports = new PinguEvent('message',
                 new EmbedField(`ID`, id, true),
                 new EmbedField(`Channel`, channel, true),
                 new EmbedField(`Guild`, guild && guild.name || "DMs", true),
-                type != 'DEFAULT' ? new EmbedField(`Type`, type, true) : null,
-                attachments.first() ? new EmbedField(`Attachments`, attachments.first() != null, true) : null,
-                embeds[0] ? new EmbedField(`Embeds`, embeds[0] != null, true) : null,
-                tts ? new EmbedField(`TTS`, tts, true) : null,
-                mentions != 'No mentions' ? new EmbedField(`Mentions`, mentions, true) : null
+                type != 'DEFAULT' ? 
+                    new EmbedField(`Type`, type, true) : 
+                    null,
+                attachments.first() ? 
+                    new EmbedField(`Attachments`, attachments.first() != null, true) : 
+                    null,
+                embeds[0] ? 
+                    new EmbedField(`Embeds`, embeds[0] != null, true) : 
+                    null,
+                tts ? 
+                    new EmbedField(`TTS`, tts, true) : 
+                    null,
+                mentions != 'No mentions' ? 
+                    new EmbedField(`Mentions`, mentions, true) : 
+                    null
             ].filter(v => v);
 
             let emptyFieldsToAdd = Math.round(fields.length % 3);
             for (var i = 0; i < emptyFieldsToAdd; i++) fields.push(EmbedField.Blank(true));
 
-            return module.exports.content = new MessageEmbed()
-                .setURL(url)
-                .setDescription(content || "")
-                .addFields(fields);
+            return module.exports.content = new MessageEmbed({ url, description: content || "", fields })
         } catch (err) {
-            console.log();
+            console.log(err);
         }
 
         function GetMentions() {
@@ -56,7 +60,7 @@ module.exports = new PinguEvent('message',
         if (await fromEmotesChannel()) return;
 
         //Assign prefix
-        let prefix = guild ? await HandlePGuild() : client.DefaultPrefix;
+        let prefix = !author.bot && guild ? await HandlePGuild() : client.DefaultPrefix;
 
         //Split prefix from message content
         let args = new Arguments(...content.slice(prefix.length).split(/ +/));
@@ -72,11 +76,11 @@ module.exports = new PinguEvent('message',
         commandName = TestTagInteraction();
 
         var startsWithPrefix = content.startsWith(prefix) && !author.bot || content?.includes(client.id);
-        let pAuthor = await PinguUser.Get(author);
+        let pAuthor = client.pUsers.get(author);
 
         //If I'm not interacted with don't do anything
         if (channel.type == 'dm' && (author.bot || pAuthor?.replyPerson) && (!startsWithPrefix || commandName?.includes(prefix)))
-            return ExecuteTellReply(message).catch(err => PinguLibrary.errorLog(client, `Failed to execute tell reply`, content, err, {
+            return ExecuteTellReply(message).catch(err => client.log('error', `Failed to execute tell reply`, content, err, {
                 params: { message },
                 additional: { prefix, args, commandName, startsWithPrefix }
             }));
@@ -99,10 +103,10 @@ module.exports = new PinguEvent('message',
 
         async function fromEmotesChannel() {
             if (!guild || author.bot || (!channel.name.includes('emote') && !channel.name.includes('emoji'))) return false;
-            if (!client.isLive && guild.members.cache.has(PinguClient.Clients.PinguID)) return false;
+            if (!client.isLive && guild.members.cache.has(client.clients.get('Live').id)) return false;
 
-            let permCheck = PinguLibrary.PermissionCheck(message, 'MANAGE_EMOJIS', 'SEND_MESSAGES')
-            if (permCheck != PinguLibrary.PermissionGranted) {
+            let permCheck = client.permissions.checkFor(message, 'MANAGE_EMOJIS', 'SEND_MESSAGES')
+            if (permCheck != client.permissions.PermissionGranted) {
                 message.channel.send(permCheck);
                 return false;
             }
@@ -110,7 +114,7 @@ module.exports = new PinguEvent('message',
             for (var file of message.attachments.array()) {
                 
                 let emote = file?.attachment;
-                let name = content?.replace(' ', '_') || file?.name.split('.')[0];
+                let name = content?.replace(/ +/, '_') || file?.name.split('.')[0];
                 let errMsg = !file ? "No file attached!" : !emote ? "No suitable emote attachment!" : !name ? "No name provided!" : "";
                 
                 if (errMsg) {
@@ -135,18 +139,17 @@ module.exports = new PinguEvent('message',
                 if (!newEmote) continue;
 
                 channel.send(`${newEmote} was created!`);
-                PinguLibrary.consoleLog(client, `Created ${newEmote} for ${guild.name}`);
+                client.log('console', `Created ${newEmote} for ${guild.name}`);
             }
             return true;
         }
         async function HandlePGuild() {
-            //Get PinguGuild from MongolDB
-            let pGuild = await PinguGuild.Get(guild);
+            let pGuild = client.pGuilds.get(guild) || await client.pGuilds.fetch(guild, module.exports.name, `${guild.name} wasn't cached.`);
 
             //If pGuild wasn't found, create pGuild
             if (!pGuild) {
-                PinguLibrary.pGuildLog(client, module.exports.name, `Unable to find pGuild for **${guild.name}**! Creating one now...`)
-                await PinguGuild.Write(client, guild, module.exports.name, `**${guild.name}** did not have a PinguGuild.`)
+                client.log('pGuild', module.exports.name, `Unable to find pGuild for **${guild.name}**! Creating one now...`);
+                await client.pGuilds.add(guild, module.exports.name, `**${guild.name}** did not have a PinguGuild.`);
                 return client.DefaultPrefix;
             }
             else if (pGuild.name != guild.name) client.emit('guildUpdate', { name: pGuild.name, client, id: pGuild._id }, guild);
@@ -155,12 +158,12 @@ module.exports = new PinguEvent('message',
 
             if (!pGuildClient) {
                 pGuildClient = pGuild.clients[clientIndex] = new PClient(client, guild);
-                await PinguGuild.Update(client, ['clients'], pGuild, module.exports.name, `Added ${client.user.tag} to ${pGuild.name}'s PinguGuild`);
+                await client.pGuilds.update(pGuild, module.exports.name, `Added ${client.user.tag} to ${pGuild.name}'s PinguGuild`)
             }
 
             const botRole = guild.me.roles.cache.find(r => r.managed);
             if (botRole && pGuildClient.embedColor != botRole.color)
-                CheckRoleChange(guild, pGuild, module.exports.name);
+                CheckRoleChange(client, guild, pGuild, module.exports.name);
             return pGuildClient.prefix || client.DefaultPrefix
         }
         function TestTagInteraction() {
@@ -172,15 +175,7 @@ module.exports = new PinguEvent('message',
 
             let commands = client.commands.array();
             command = commands.find(cmd => cmd.aliases?.some(alias => alias == commandName))
-            if (command) {
-                //Music alias was used
-                if (command.name == 'music') {
-                    args.unshift(commandName);
-                    commandName = command.name;
-                }
-
-                return command;
-            }
+            if (command) return command;
 
             //If command assignment failed, assign command
             commandName = args[0]?.toLowerCase();
@@ -192,7 +187,7 @@ module.exports = new PinguEvent('message',
             let returnValue = {
                 type: message.channel.type,
                 value: false,
-                message: PinguLibrary.PermissionGranted,
+                message: client.permissions.PermissionGranted,
 
                 /**@param {string} message*/
                 setMessage(message) {
@@ -211,22 +206,22 @@ module.exports = new PinguEvent('message',
                 return returnValue.setMessage(`That command can only be executed in servers!`);
 
             //If GuildSpecific
-            if (command.category == CommandCategories.GuildSpecific) {
+            if (command.category == 'GuildSpecific') {
                 if (!guild) return returnValue.setMessage(`That command can only be used in a specific server!`);
                 if (command.specificGuildID != guild.id)
                     return returnValue.setMessage(`That command cannot be used in this server!`);
             }
 
             //If DevOnly
-            if (command.category == CommandCategories.DevOnly && !PinguLibrary.isPinguDev(author))
+            if (command.category == 'DevOnly' && !client.developers.isPinguDev(author))
                 return returnValue.setMessage(`Who do you think you are exactly?`);
             else if (command.mustBeBeta && client.isLive)
-                return returnValue.setMessage(`${client.DefaultPrefix}test should only be used on <@${PinguClient.Clients.BetaID}>.`);
+                return returnValue.setMessage(`${client.DefaultPrefix}test should only be used on ${client.clients.get('Beta')}.`);
 
             //Permission check for required permissions
             if (channel.type != 'dm' && command.permissions) {
-                let permCheck = PinguLibrary.PermissionCheck(message, ...(command.permissions.includes('SEND_MESSAGES') ? command.permissions : [...command.permissions, 'SEND_MESSAGES']));
-                if (permCheck != PinguLibrary.PermissionGranted)
+                let permCheck = client.permissions.checkFor(message, ...(command.permissions.includes('SEND_MESSAGES') ? command.permissions : [...command.permissions, 'SEND_MESSAGES']));
+                if (permCheck != client.permissions.PermissionGranted)
                     return returnValue.setMessage(permCheck);
             }
             return returnValue.setValue(true);
@@ -238,11 +233,9 @@ module.exports = new PinguEvent('message',
             try {
                 if (commandName == "tell") await HandleTell(message, args);
 
-                var [pGuild, pGuildMember] = await Promise.all([
-                    guild ? PinguGuild.Get(guild) : null,
-                    member ? PinguGuildMember.Get(member, module.exports.name) : null,
-                ]);
-                pAuthor = !pAuthor ? await PinguUser.Write(client, author, module.exports.name, `${message.author.tag} did not have a PinguUser entry`) : pAuthor;
+                const pGuild = client.pGuilds.get(guild);
+                const pGuildMember = client.pGuildMembers.get(guild).get(member);
+                pAuthor = !pAuthor ? await client.pUsers.add(author, module.exports.name, `${message.author.tag} did not have a PinguUser entry`) : pAuthor
 
                 var pGuildClient = guild && pGuild ? client.toPClient(pGuild) : null
                 var parameters = { client, message, args, pGuild, pAuthor, pGuildMember, pGuildClient }
@@ -252,41 +245,42 @@ module.exports = new PinguEvent('message',
 
                 const achieverClasses = { user: author, guildMember: member, guild };
 
-                PinguLibrary.AchievementCheck(client, achieverClasses, 'COMMAND', command.name, [achievementParams]).catch(err => {
-                    PinguLibrary.errorLog(client, `Handling COMMAND achievement check`, content, err, {
+                client.achievement(achieverClasses, 'COMMAND', command.name, [achievementParams]).catch(err => {
+                    client.log('error', `Handling COMMAND achievement check`, content, err, {
                         params: achievementParams,
                         additional: { achieverClasses }
                     })
                 })
             } catch (err) {
-                if (err.message == 'Missing Access' && guild.id == PinguLibrary.SavedServers.get('Pingu Emotes').id && await FindPermission())
+                if (err.message == 'Missing Access' && guild.id == client.savedServers.get('Pingu Emotes').id && await FindPermission())
                     return; //Error occured, but cycled through permissions to find missing permission
                 else if (err.message == 'Missing Access') return message.channel.send(`I'm missing a permission to execute ${commandName}!`);
 
                 ConsoleLog += `**failed!**\nError: ${err}`;
 
-                PinguLibrary.errorLog(client, `Trying to execute "${command.name}"!`, content, err, {
+                client.log('error', `Trying to execute "${command.name}"!`, content, err, {
                     params: { message: { 
                         channelID: channel.id, 
                         id: message.id,
-                        content: content,
+                        content,
                         guildID: guild?.id
                     } },
                     additional: { args, ConsoleLog, commandName, command },
                 });
             }
             console.log(" ");
-            PinguLibrary.consoleLog(client, ConsoleLog);
+            client.log('console', ConsoleLog);
+
             async function FindPermission() {
                 //Find Danho and make check variable, to bypass "You don't have that permission!" (gotta abuse that PinguDev power)
                 let check = {
-                    author: PinguLibrary.Developers.get('Danho'),
-                    channel, client, content
+                    author: client.developers.get('Danho'),
+                    channel,
                 };
 
                 //Check if client has permission to Manage Roles in Pingu Emote Server
-                let hasManageRoles = PinguLibrary.PermissionCheck(check, 'MANAGE_ROLES') == PinguLibrary.PermissionGranted;
-                if (hasManageRoles != PinguLibrary.PermissionGranted) return channel.send(hasManageRoles);
+                let hasManageRoles = client.permissions.checkFor(check, 'MANAGE_ROLES') == client.permissions.PermissionGranted;
+                if (hasManageRoles != client.permissions.PermissionGranted) return channel.send(hasManageRoles);
 
                 let roles = {
                     clientRole: guild.me.roles.cache.find(r => r.managed),
@@ -301,7 +295,7 @@ module.exports = new PinguEvent('message',
                 for (let i = 0; permissionInfo.permission != "Missing Permission" || i == permissionInfo.discordPermissions.length - 1; i++) {
                     //Find new permission and check if client already has that permission
                     let permission = permissionInfo.discordPermissions[i];
-                    let hasPermission = PinguLibrary.PermissionCheck(check, permission) == PinguLibrary.PermissionGranted;
+                    let hasPermission = client.permissions.checkFor(check, permission) == client.permissions.PermissionGranted;
                     if (hasPermission) continue;
 
                     //Give Administrator permission
@@ -321,7 +315,7 @@ module.exports = new PinguEvent('message',
                     catch (err) {
                         //Another error occured, but we found the missing permission
                         if (err.message != 'Missing Access') {
-                            PinguLibrary.errorLog(client, `Looked for missing permission, but ran into another error`, content, new Error(err), {
+                            client.log('error', `Looked for missing permission, but ran into another error`, content, new Error(err), {
                                 params: { message },
                                 additional: {
                                     command, params: parameters,
@@ -360,7 +354,7 @@ module.exports = new PinguEvent('message',
             const achievement = Achievements.find(a => content.includes(a.type) && a.callback((key == 'CHAT' ? [content, message] : [channel])));
             if (!achievement) return false;
 
-            return PinguLibrary.AchievementCheck(client, { user: author, guildMember: member, guild }, key, achievement.type, [content]);
+            return client.AchievementCheck({ user: author, guildMember: member, guild }, key, achievement.type, [content]);
         }
     }
 );

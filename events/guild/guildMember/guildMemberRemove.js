@@ -1,34 +1,35 @@
 const { MessageEmbed } = require("discord.js");
-const { PinguUser, PinguEvent, PinguClient } = require("PinguPackage");
+const { PinguEvent } = require("PinguPackage");
 
 module.exports = new PinguEvent('guildMemberRemove',
-    async function setContent(member) {
-        if (member.guild.me && !member.guild.me.hasPermission('VIEW_AUDIT_LOG'))
-            return module.exports.content = new MessageEmbed()
-                .setDescription(`${member.displayName} (${member.user.tag}, ${member.id}) is no longer a part of ${member.guild.name}`)
+    async function setContent(client, { guild, displayName, user, id }) {
+        if (guild.me && !guild.me.hasPermission('VIEW_AUDIT_LOG'))
+            return module.exports.content = new MessageEmbed({ description: `${displayName} (${user.tag}, ${id}) is no longer a part of ${guild}` });
 
-        let kicked = await PinguEvent.GetAuditLogs(member.guild, 'MEMBER_KICK');
-        let banned = await PinguEvent.GetAuditLogs(member.guild, 'MEMBER_BAN_ADD');
+        let kicked = await PinguEvent.GetAuditLogs(guild, 'MEMBER_KICK');
+        let banned = await PinguEvent.GetAuditLogs(guild, 'MEMBER_BAN_ADD');
 
-        return module.exports.content = new MessageEmbed()
-            .setDescription((kicked != PinguEvent.noAuditLog && banned != PinguEvent.noAuditLog ?
-                `${member.user.tag} left ${member.guild.name}` :
-                `${member.user.tag} was ${(kicked != PinguEvent.noAuditLog ? `kicked by ${kicked}` : `banned by ${banned}`)}`)
-            );
+        return module.exports.content = new MessageEmbed({
+            description: kicked != PinguEvent.noAuditLog && banned != PinguEvent.noAuditLog ?
+                `${user} left ${guild}` :
+                `${user} was ${(kicked != PinguEvent.noAuditLog ? `kicked by ${kicked}` : `banned by ${banned}`)}`
+        })
     },
-    async function execute(client, member) {
-        if (!client.isLive && member.guild.members.cache.has(PinguClient.Clients.PinguID)) return;
+    async function execute(client, { guild, displayName, user }) {
+        const pingu = client.clients.get('Live');
 
-        let welcomeChannel = await require('./guildMemberAdd').getWelcomeChannel(client, member.guild);
-        if (welcomeChannel) welcomeChannel.send(`**${member.displayName}** (${member.user}) has left ${member.guild.name}...`);
+        if (!client.isLive && member.guild.members.cache.has(pingu.id) && pingu.presence.status == 'online') return;
+
+        let welcomeChannel = await require('./guildMemberAdd').getWelcomeChannel(client, guild);
+        if (welcomeChannel) welcomeChannel.send(`**${displayName}** (${user}) has left ${guild}...`);
 
         (async function UpdateSharedServers() {
-            if (member.user.bot) return;
-            let pUser = await PinguUser.Get(member.user);
+            if (user.bot) return;
+            let pUser = client.pUsers.get(user);
             if (!pUser) return;
             pUser.sharedServers = pUser.sharedServers.filter(guild => guild._id != member.guild.id);
 
-            await PinguUser.Update(client, ['sharedServers'], pUser, module.exports.name, `Removed **${member.guild.name}** from **${pUser.tag}**'s SharedServers, after leaving the guild.`);
+            await client.pUsers.update(pUser, module.exports.name, `Removed **${guild}** from **${pUser.tag}**'s SharedServers, after leaving the guild.`)
         })();
     }
 );

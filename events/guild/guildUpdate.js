@@ -1,13 +1,13 @@
 const { MessageEmbed } = require("discord.js");
-const { PinguGuild, PinguEvent, PChannel, PGuildMember, PGuild, PinguUser } = require("PinguPackage");
+const { PinguEvent, PChannel, PGuild } = require("PinguPackage");
 
 module.exports = new PinguEvent('guildUpdate',
-    async function setContent(preGuild, guild) {
+    async function setContent(client, preGuild, guild) {
         let description = await GetDifference();
-        return module.exports.content = description ? new MessageEmbed().setDescription(description) : null;
+        return module.exports.content = description ? new MessageEmbed({ description }) : null;
 
         async function GetDifference() {
-            let now = new Date(Date.now());
+            let now = new Date();
             now.setSeconds(now.getSeconds() - 1);
 
             let lastBoostMessage = guild.systemChannel && guild.systemChannel.messages.cache.find(m => [
@@ -174,38 +174,66 @@ module.exports = new PinguEvent('guildUpdate',
         }
     },
     async function execute(client, preGuild, guild) {
-        let pGuild = await PinguGuild.Get(guild);
-        let updated = [];
+        const savedGuild = client.savedServers.find(g => g.id == guild);
+        if (savedGuild) {
+            const savedServerName = client.savedServers.findKey(g => g == savedGuild);
+            client.savedServers.set(savedServerName, guild);
+        }
 
-        if (preGuild.name != guild.name) {
-            pGuild.name = guild.name;
-            updated.push('name');
+        const relevant = {
+            name: guild.name,
+            guildOwner: {
+                _id: guild.ownerID,
+                name: guild.owner.user.tag
+            }
+        }
+        const pGuild = client.pGuilds.get(guild);
 
+        const updated = Object.keys(relevant).reduce((updated, prop) => {
+            if (typeof relevant[prop] != 'object' && pGuild[prop] != relevant[prop])
+                updated.push(prop);
+            else if (typeof relevant[prop] == 'object') {
+                const propUpdated = Object.keys(relevant[prop]).reduce((propUpdated, _prop) => {
+                    if (relevant[prop][_prop] != pGuild[prop][_prop])
+                        propUpdated.push(_prop);
+                    return propUpdated
+                }, [])
+                if (propUpdated.length) updated.push(prop);
+            }
+            return updated;
+        }, [])
+
+        if (updated.length) updated.forEach(prop => pGuild[prop] = updated[prop]);
+
+        if (updated.includes('name')) {
             (async function UpdateSharedServers() {
-                const pUsers = await PinguUser.GetUsers();
+                const pUsers = client.pUsers.array()
                 const pUsersWithPGuild = pUsers.filter(pu => pu.sharedServers.filter(pg => pg._id == guild.id));
                 pUsersWithPGuild.forEach(pUser => {
                     let { sharedServers } = pUser;
                     let pg = sharedServers.find(pg => pg._id == guild.id);
                     let indexOfPG = sharedServers.indexOf(pg);
                     pUser.sharedServers[indexOfPG] = new PGuild(guild);
-                    PinguUser.Update(client, ['sharedServers'], pUser, module.exports.name, "SharedServers updated with new Guild name");
+                    client.pUsers.update(pUser, module.exports.name, "SharedServers updated with new Guild name");
                 });
             })();
         }
-        let welcomePChannel = pGuild.settings.welcomeChannel;
-        let welcomeChannel = welcomePChannel && guild.channels.cache.find(c => c.id == welcomePChannel._id)
-        if (welcomeChannel && welcomeChannel.name != welcomePChannel.name) {
+
+        const welcomePChannel = pGuild.settings.welcomeChannel;
+        const welcomeChannel = welcomePChannel && guild.channels.cache.get(welcomePChannel._id);
+
+        if (welcomeChannel?.name != welcomePChannel.name) {
             pGuild.settings.welcomeChannel = new PChannel(welcomeChannel);
             updated.push('settings');
         }
+
         if (pGuild.settings.reactionRoles.length) {
             let rrPChannels = pGuild.settings.reactionRoles.map(rr => rr.channel._id);
-            let rrChannels = guild.channels.cache.filter(c => rrPChannels.includes(c.id));
+            let rrChannels = rrPChannels.map(id => guild.channels.cache.get(id));
             let newReactionRoles = pGuild.settings.reactionRoles;
 
             if (pGuild.reactionRoles[0]) {
-                rrChannels.array().forEach((c, i) => {
+                rrChannels.forEach((c, i) => {
                     if (c.name != pGuild.reactionRoles[i].channel.name)
                     pGuild.settings.reactionRoles[i].channel.name = c.name;
                 });
@@ -218,14 +246,7 @@ module.exports = new PinguEvent('guildUpdate',
             }
         }
 
-        if (guild.ownerID != pGuild.guildOwner._id) {
-            pGuild.guildOwner = new PGuildMember(guild.owner);
-            updated.push('guildOwner');
-        }
-
         //Event didn't update something that should be saved to MongolDB
-        if (!updated[0]) return;
-
-        await PinguGuild.Update(client, updated, pGuild, module.exports.name, updated.join(', '));
+        if (updated.length) await client.pGuilds.update(pGuild, module.exports.name, updated.join(', '));
     }
 );

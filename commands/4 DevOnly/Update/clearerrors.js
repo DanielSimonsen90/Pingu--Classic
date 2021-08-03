@@ -1,9 +1,9 @@
-const { PinguCommand, PinguLibrary } = require('PinguPackage');
+const { PinguCommand } = require('PinguPackage');
 const fs = require('fs');
 
 module.exports = new PinguCommand('clearerrors', 'DevOnly', `Clears all errors in folder`, {
     
-}, async ({ client, message, args, pAuthor, pGuild, pGuildClient }) => {
+}, async ({ message }) => {
     const errorPath = '../../../errors';
 
     const errorFolder = fs.readdirSync(errorPath);

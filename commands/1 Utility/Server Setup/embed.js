@@ -1,16 +1,16 @@
 ﻿const { Message, MessageEmbed, TextChannel, NewsChannel } = require('discord.js');
-const { PinguCommand, PinguLibrary, Error } = require('PinguPackage');
+const { PinguCommand, Error } = require('PinguPackage');
 
 module.exports = new PinguCommand('embed', 'Utility', 'Creates an embed', {
     usage: 'create | <message ID> <sub-command> <...value(s)> | send <channel>',
     guildOnly: true,
     examples: ["create", "795961520722935808 title My Embed Title", `795961520722935808 field "Does Danho smell?", "Yes, yes he does", "true"`],
     permissions: ['EMBED_LINKS']
-}, async ({ message, args }) => {
+}, async ({ client, message, args }) => {
     let messageID = args.shift();
     let command = args.shift();
-    let permCheck = await PermissionsCheck(message, args, command);
-    if (permCheck != PinguLibrary.PermissionGranted) return message.channel.send(permCheck);
+    let permCheck = await PermissionsCheck();
+    if (permCheck != client.permissions.PermissionGranted) return message.channel.send(permCheck);
 
     if (messageID == 'create') return EmbedCreate();
 
@@ -44,18 +44,16 @@ module.exports = new PinguCommand('embed', 'Utility', 'Creates an embed', {
     //#region Baisc functions
     async function PermissionsCheck() {
         if (messageID == 'create') {
-            const { author, client, content } = message;
-            let channel = getChannel(message, args);
-            let permCheck = PinguLibrary.PermissionCheck({ author, channel, client, content }, 'VIEW_CHANNEL', 'SEND_MESSAGES', 'EMBED_LINKS');
-            return permCheck;
+            const channel = getChannel(message, args);
+            return client.permissions.checkFor({ author: message.author, channel }, 'VIEW_CHANNEL', 'SEND_MESSAGES', 'EMBED_LINKS')
         }
         let getEmbedResult = await getEmbed();
         if (!getEmbedResult.embed) return getEmbedResult.returnMessage;
 
-        if (!getEmbedResult.embed.author.name == message.author.tag && !PinguLibrary.isPinguDev(message.author))
+        if (!getEmbedResult.embed.author.name == message.author.tag && !client.developers.isPinguDev(message.author))
             return `You're not the author of that embed! Please contact **${getEmbedResult.embed.author.name}**.`;
 
-        return PinguLibrary.PermissionGranted;
+        return client.permissions.PermissionGranted;
     }
     /**@returns {TextChannel | NewsChannel}*/
     function getChannel() {
@@ -70,7 +68,7 @@ module.exports = new PinguCommand('embed', 'Utility', 'Creates an embed', {
 
         return channel ? channel : message.channel;
     }
-    /**@returns {{embed: MessageEmbed, returnMessage: string, embedMessage : Message}}*/
+    /**@returns {Promise<{embed: MessageEmbed, returnMessage: string, embedMessage : Message}>}*/
     async function getEmbed() {
         let result = {
             embed: null,
@@ -98,26 +96,23 @@ module.exports = new PinguCommand('embed', 'Utility', 'Creates an embed', {
             let embedMessage = message.channel.messages.cache.find(msg => msg.author == message.client.user && msg.embeds[0])
             result.setValue(embedMessage.embeds[0]);
             if (!result.embed) {
-                const { client, content } = message;
-
-                let permCheck = PinguLibrary.PermissionCheck({
+                let permCheck = client.permissions.checkFor({
                     author: client.user,
                     channel: embedMessage.channel,
-                    client, content
                 }, 'READ_MESSAGE_HISTORY');
-                if (permCheck != PinguLibrary.PermissionGranted) return result.setReturnMessage(permCheck);
+                if (permCheck != client.permissions.PermissionGranted) return result.setReturnMessage(permCheck);
                 return result.setReturnMessage(`Unable to find an embed in ${embedMessage.channel}! Try giving me a message id`);
             }
-            return result.setMessage(embedMessage).setReturnMessage(PinguLibrary.PermissionGranted);
+            return result.setMessage(embedMessage).setReturnMessage(client.permissions.PermissionGranted);
         }
 
-        for (var channel of message.guild.channels.cache.array()) {
+        for (var [id, channel] of message.guild.channels.cache) {
             if (!channel.isText()) continue;
 
             try { var fetchedMessage = await channel.messages.fetch(messageID); }
             catch (err) {
                 continue;
-                PinguLibrary.errorLog(message.client, `Unable to fetch message from ${messageID}`, message.content, new Error(err), {
+                client.log('error', `Unable to fetch message from ${messageID}`, message.content, new Error(err), {
                     params: { message, args },
                     additional: { result, channel, messageID, command }
                 });
@@ -127,7 +122,7 @@ module.exports = new PinguCommand('embed', 'Utility', 'Creates an embed', {
             if (!fetchedMessage.embeds[0]) return result.setReturnMessage(`There are no embds in that message!\n(${fetchedMessage.url})`);
 
             return result
-                .setReturnMessage(PinguLibrary.PermissionGranted)
+                .setReturnMessage(client.permissions.PermissionGranted)
                 .setValue(fetchedMessage.embeds[0])
                 .setMessage(fetchedMessage);
         }
@@ -141,7 +136,7 @@ module.exports = new PinguCommand('embed', 'Utility', 'Creates an embed', {
         catch (err) {
             if (err.message == `Cannot read property 'user' of undefined`)
                 message.channel.send(`Please tag a valid user!`);
-            else PinguLibrary.errorLog(message.client, `Unable to set embed author`, message.content, new Error(err), {
+            else client.log('error', `Unable to set embed author`, message.content, new Error(err), {
                 params: { message, args },
                 additional: { messageID, command },
                 trycatch: { newAuthor }
@@ -153,18 +148,19 @@ module.exports = new PinguCommand('embed', 'Utility', 'Creates an embed', {
      * @param {string} logMessage
      * @returns {`[12.34.56] Author typed their embed: logMessage`}*/
     function LogChanges(type, logMessage) {
-        PinguLibrary.consoleLog(message.client, `${message.author.tag} ${type} their embed${(logMessage ? `: ${logMessage}` : "")}`);
+        return client.log('console', `${message.author.tag} ${type} their embed${(logMessage ? `: ${logMessage}` : "")}`);
     }
     //#endregion
 
     //#region Embed editing
     async function EmbedCreate() {
-        let embed = new MessageEmbed()
-            .setTitle(`${message.member.displayName}'s embed`)
-            .setColor(message.member.displayColor)
-            .setAuthor(message.author.tag, message.author.avatarURL())
-            .setFooter(`Last Updated`);
-
+        let embed = new MessageEmbed({
+            title: `${message.member.displayName}'s embed`,
+            color: message.member.displayColor,
+            author: { name: message.author.tag, url: message.author.avatarURL() },
+            footer: { text: 'Last Updated' }
+        });
+        
         let embedMessage = await message.channel.send(embed);
         embedMessage.edit(`Message ID: **${embedMessage.id}**`, embed);
 
@@ -179,6 +175,7 @@ module.exports = new PinguCommand('embed', 'Utility', 'Creates an embed', {
     function addField(args) {
         let splitArgs = args.includes('","') ? args.split('","') : args.split('", "');
         let title = splitArgs[0].substring(1, splitArgs[0].length);
+
         if (splitArgs.length == 2) {
             var value = splitArgs[splitArgs.length - 1].substring(0, splitArgs[splitArgs.length - 1].length - 1);
             var inline = false;
@@ -208,7 +205,7 @@ module.exports = new PinguCommand('embed', 'Utility', 'Creates an embed', {
             message.channel.send('Nothing provided!')
             return embed;
         }
-        if (args[0] && args[0].includes('.'))
+        if (args[0]?.includes('.'))
             try { return addToEmbed(args[0]); }
             catch { message.channel.send(`That is an invalid media!`); return embed; }
 
@@ -233,10 +230,10 @@ module.exports = new PinguCommand('embed', 'Utility', 'Creates an embed', {
     }
     async function sendEmbed() {
         let channel = getChannel(message, args);
-        const { client, content, author } = message;
+        const { author } = message;
 
-        let permCheck = PinguLibrary.PermissionCheck({ author, channel, client, content }, 'VIEW_CHANNEL', 'SEND_MESSAGES');
-        if (permCheck != PinguLibrary.PermissionGranted) return message.channel.send(permCheck);
+        let permCheck = client.permissions.checkFor({ author, channel }, 'VIEW_CHANNEL', 'SEND_MESSAGES');
+        if (permCheck != client.permissions.PermissionGranted) return message.channel.send(permCheck);
 
         let sent = await channel.send(embed);
         LogChanges('sent', '#' + channel.name);

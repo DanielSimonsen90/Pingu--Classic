@@ -1,6 +1,6 @@
 const { Message, MessageEmbed, Collection } = require('discord.js');
 const {
-    PinguCommand, PinguLibrary, PinguClient,
+    PinguCommand, PinguClient,
     PinguGuild, PinguGuildMember, PinguUser, PClient, PGuild,
     EmbedField, Queue, TimeLeftObject, Marry,
     UserAchievement, GuildMemberAchievement, GuildAchievement, PAchievement
@@ -12,12 +12,12 @@ module.exports = new PinguCommand('info', 'Utility', 'All da information you nee
     let userType = args.shift().toLowerCase();
     let type =
         ['server', 'guild'].includes(userType) ? 'guild' :
-            ['client', 'bot'].includes(userType) ? 'client' :
-                ['guildmember', 'member'].includes(userType) ? 'member' : 'user';
+        ['client', 'bot'].includes(userType) ? 'client' :
+        ['guildmember', 'member'].includes(userType) ? 'member' : 'user';
 
     let obj = type == 'guild' ? pGuild :
         type == 'user' ? pAuthor :
-            type == 'member' ? pGuildMember : pGuildClient;
+        type == 'member' ? pGuildMember : pGuildClient;
 
     if (!args[0]) args[0] = 'all';
     if (!obj[args[0]] && args[0] != 'all')
@@ -34,11 +34,6 @@ module.exports = new PinguCommand('info', 'Utility', 'All da information you nee
     return GetInfo(message, userType, type, obj, prop, pGuildClient);
 });
 
-
-//IMPORTANT INFORMATION
-//9 + 10 = 25
-//(credit to Spag for figuring that out)
-
 /**@param {Message} message
  * @param {'server' | 'guild' | 'user' | 'bot' | 'client' | 'guildmember' | 'member'} userType
  * @param {'guild' | 'user' | 'client'} type
@@ -50,7 +45,7 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
     let arr = [];
     let result = await (type == 'guild' ? SendPGuild(obj) :
         type == 'user' ? SendPUser(obj) :
-            type == 'member' ? SendPGuildMember(obj) : SendPClient(obj));
+        type == 'member' ? SendPGuildMember(obj) : SendPClient(obj));
 
     result.forEach(i => i && message.channel.send(i));
     return result[0];
@@ -97,112 +92,132 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
                 const configAchievements = config.achievements;
 
                 switch (item) {
-                    case 'musciQueue': return queue ? new MessageEmbed().addFields([
-                        new EmbedField('Log Channel', `<#${queue.logChannel._id}>`, true),
-                        new EmbedField('Voice Channel', `<#${queue.voiceChannel._id}>`, true),
-                        new EmbedField('Playing?', queue.playing ? 'Yes' : 'No', false),
-                        new EmbedField('Looping?', queue.loop ? 'Yes' : 'No', true),
-                        new EmbedField('Songs in Queue', queue.songs.filter((_, i) => i < 11).map(s => `**${s.title}** | ${s.requestedBy}`).join('\n'), false)
-                    ]) : null;
+                    case 'musciQueue': return queue ? 
+                        new MessageEmbed({
+                            fields: [
+                                new EmbedField('Log Channel', `<#${queue.logChannel._id}>`, true),
+                                new EmbedField('Voice Channel', `<#${queue.voiceChannel._id}>`, true),
+                                new EmbedField('Playing?', queue.playing ? 'Yes' : 'No', false),
+                                new EmbedField('Looping?', queue.loop ? 'Yes' : 'No', true),
+                                new EmbedField('Songs in Queue', queue.songs.filter((_, i) => i < 11).map(s => `**${s.title}** | ${s.requestedBy}`).join('\n'), false)
+                            ]
+                        }) 
+                        : null;
                     case 'giveawayConfig': return !configDecidables.giveawayConfig.firstTimeExecuted ?
-                        new MessageEmbed().addFields([
-                            new EmbedField('Giveaway Host Role',
+                        new MessageEmbed({
+                            fields: [
+                                new EmbedField('Giveaway Host Role',
+                                    configDecidables.giveawayConfig.hostRole ?
+                                        `<@&${configDecidables.giveawayConfig.hostRole._id}>` :
+                                        `None`,
+                                    true),
                                 configDecidables.giveawayConfig.hostRole ?
-                                    `<@&${configDecidables.giveawayConfig.hostRole._id}>` :
-                                    `None`,
-                                true),
-                            configDecidables.giveawayConfig.hostRole ?
-                                new EmbedField(`Giveaway Hosters`, message.guild.members.cache
-                                    .filter(gm => gm.roles.cache.has(configDecidables.giveawayConfig.hostRole._id)).size,
-                                    true)
-                                : null,
-                            configDecidables.giveawayConfig.hostRole ? EmbedField.Blank(true) : null,
-                            new EmbedField('Giveaway Winner Role',
+                                    new EmbedField(`Giveaway Hosters`, message.guild.members.cache
+                                        .filter(gm => gm.roles.cache.has(configDecidables.giveawayConfig.hostRole._id)).size,
+                                        true)
+                                    : null,
+                                configDecidables.giveawayConfig.hostRole ? EmbedField.Blank(true) : null,
+                                new EmbedField('Giveaway Winner Role',
+                                    configDecidables.giveawayConfig.winnerRole ?
+                                        `<@&${configDecidables.giveawayConfig.winnerRole._id}>` :
+                                        `None`,
+                                    true),
                                 configDecidables.giveawayConfig.winnerRole ?
-                                    `<@&${configDecidables.giveawayConfig.winnerRole._id}>` :
-                                    `None`,
-                                true),
-                            configDecidables.giveawayConfig.winnerRole ?
-                                new EmbedField(`Giveaway Winner${(message.guild.members.cache.filter(gm =>
-                                    gm.roles.cache.has(configDecidables.giveawayConfig.winnerRole._id)).size > 1 ? 's' : '')}`,
-                                    message.guild.members.cache.filter(gm =>
-                                        gm.roles.cache.has(configDecidables.giveawayConfig.winnerRole._id)
-                                    ).size, true)
-                                : null,
-                            configDecidables.giveawayConfig.winnerRole ? EmbedField.Blank(true) : null,
-                            new EmbedField(`Giveaways Hosted`, configDecidables.giveawayConfig.giveaways.length, true),
-                            new EmbedField(`The Lucky One (Most frequent winner)`, configDecidables.giveawayConfig.giveaways
-                                .filter(g => g) //Get new array so original .giveaways don't get modified
-                                .reduce((acc, cur) => {
-                                    cur.winners.forEach(pgm => acc.set(pgm._id, acc.get(pgm._id) ? acc.get(pgm._id) + 1 : 1));
-                                    return acc;
-                                }, new Collection()).first() || 'No giveaways hosted', true
-                            ),
-                            EmbedField.Blank(true),
-                            new EmbedField('Giveaway Channel', configDecidables.giveawayConfig.channel ? `<#${configDecidables.giveawayConfig.channel._id}>` : 'None', true),
-                            new EmbedField('Allow Same Winner?', configDecidables.giveawayConfig.allowSameWinner ? 'Yes' : 'No', true),
-                            EmbedField.Blank(true),
-                        ].filter(v => v)) :
-                        new MessageEmbed().setDescription('Giveaway Config is not yet configured');
+                                    new EmbedField(`Giveaway Winner${(message.guild.members.cache.filter(gm =>
+                                        gm.roles.cache.has(configDecidables.giveawayConfig.winnerRole._id)).size > 1 ? 's' : '')}`,
+                                        message.guild.members.cache.filter(gm =>
+                                            gm.roles.cache.has(configDecidables.giveawayConfig.winnerRole._id)
+                                        ).size, true)
+                                    : null,
+                                configDecidables.giveawayConfig.winnerRole ? EmbedField.Blank(true) : null,
+                                new EmbedField(`Giveaways Hosted`, configDecidables.giveawayConfig.giveaways.length, true),
+                                new EmbedField(`The Lucky One (Most frequent winner)`, configDecidables.giveawayConfig.giveaways
+                                    .reduce((acc, cur) => {
+                                        cur.winners.forEach(pgm => acc.set(pgm._id, acc.get(pgm._id) ? acc.get(pgm._id) + 1 : 1));
+                                        return acc;
+                                    }, new Collection()).first() || 'No giveaways hosted', true
+                                ),
+                                EmbedField.Blank(true),
+                                new EmbedField('Giveaway Channel', configDecidables.giveawayConfig.channel ? `<#${configDecidables.giveawayConfig.channel._id}>` : 'None', true),
+                                new EmbedField('Allow Same Winner?', configDecidables.giveawayConfig.allowSameWinner ? 'Yes' : 'No', true),
+                                EmbedField.Blank(true)
+                            ].filter(v => v)
+                        }) :
+                        new MessageEmbed({ description: 'Giveaway Config is not yet configured' });
                     case 'pollConfig': return !configDecidables.pollConfig.firstTimeExecuted ?
-                        new MessageEmbed().addFields([
-                            new EmbedField('Poll Host Role', configDecidables.pollConfig.pollRole ? `<@&${configDecidables.pollConfig.pollRole._id}>` : 'None', true),
-                            configDecidables.pollConfig.pollRole ? new EmbedField('Poll Hosters', message.guild.members.cache.filter(gm => gm.roles.cache.has(configDecidables.pollConfig.pollRole._id)).size, true) : null,
-                            configDecidables.pollConfig.pollRole ? EmbedField.Blank(true) : null,
-                            new EmbedField('Polls Hosted', configDecidables.pollConfig.polls.length, true),
-                            new EmbedField('Typical Poll Response', configDecidables.pollConfig.polls
-                                .filter(p => p) //Get new array, so .polls won't get modified
-                                .sort((a, b) => a.approved > b.approved ? -1 : 1) //Sort polls in alphabetical order, from .approved => [...No, ...Undecided, ...Yes]
-                                .reduce((acc, cur) =>
-                                    acc.set(cur.approved, acc.get(cur.approved) ? acc[cur.approved] + 1 : 1),
-                                    new Collection()
-                                ).first() || 'No polls hosted.', true
-                            ),
-                            new EmbedField('Polls Channel', configDecidables.pollConfig.channel ? `<#${configDecidables.pollConfig.channel._id}>` : 'None', true)
-                        ].filter(v => v)) :
-                        new MessageEmbed().setDescription(`Poll Config is not yet configured.`);
+                        new MessageEmbed({
+                            fields: [
+                                new EmbedField('Poll Host Role', configDecidables.pollConfig.pollRole ? `<@&${configDecidables.pollConfig.pollRole._id}>` : 'None', true),
+                                configDecidables.pollConfig.pollRole ? 
+                                    new EmbedField('Poll Hosters', message.guild.members.cache.filter(gm => gm.roles.cache.has(configDecidables.pollConfig.pollRole._id)).size, true) : 
+                                    null,
+                                configDecidables.pollConfig.pollRole ? 
+                                    EmbedField.Blank(true) : 
+                                    null,
+                                new EmbedField('Polls Hosted', configDecidables.pollConfig.polls.length, true),
+                                new EmbedField('Typical Poll Response', configDecidables.pollConfig.polls
+                                    .filter(p => p) //Get new array, so .polls won't get modified
+                                    .sort((a, b) => a.approved > b.approved ? -1 : 1) //Sort polls in alphabetical order, from .approved => [...No, ...Undecided, ...Yes]
+                                    .reduce((acc, cur) =>
+                                        acc.set(cur.approved, acc.get(cur.approved) ? acc[cur.approved] + 1 : 1),
+                                        new Collection()
+                                    ).first() || 'No polls hosted.', true
+                                ),
+                                new EmbedField('Polls Channel', configDecidables.pollConfig.channel ? `<#${configDecidables.pollConfig.channel._id}>` : 'None', true)
+                            ].filter(v => v)
+                        }) :
+                        new MessageEmbed({ description: `Poll Config is not yet configured.` });
                     case 'suggestionConfig': return !configDecidables.suggestionConfig.firstTimeExecuted ?
-                        new MessageEmbed().addFields([
-                            new EmbedField('Suggestion Manager Role', configDecidables.suggestionConfig.managerRole ? `<@&${configDecidables.suggestionConfig.managerRole._id}>` : `None`, true),
-                            configDecidables.suggestionConfig.managerRole ? new EmbedField(`Suggestion Managers`, message.guild.members.cache.filter(gm => gm.roles.cache.has(configDecidables.suggestionConfig.managerRole._id)).size, true) : null,
-                            configDecidables.suggestionConfig.managerRole ? EmbedField.Blank(true) : null,
-                            new EmbedField(`Suggestions suggested(?)`, configDecidables.suggestionConfig.suggestions.length, true),
-                            new EmbedField(`Typical Suggestion Response`, configDecidables.suggestionConfig.suggestions
-                                .filter(s => s)
-                                .sort((a, b) => a.approved[0] > b.approved[0])
-                                .reduce((acc, cur) =>
-                                    acc.set(cur.approved, acc.get(cur.approved) ? acc[cur.approved] + 1 : 1),
-                                    new Collection()
-                                ).first() || 'No suggestions suggested.', true
-                            ),
-                            new EmbedField(`Suggestion Channel`, configDecidables.suggestionConfig.channel ? `<#${configDecidables.suggestionConfig.channel._id}>` : `None`, true)
-                        ].filter(v => v)) :
-                        new MessageEmbed().setDescription('Suggestion Config is not yet configured!')
+                        new MessageEmbed({
+                            fields: [
+                                new EmbedField('Suggestion Manager Role', configDecidables.suggestionConfig.managerRole ? `<@&${configDecidables.suggestionConfig.managerRole._id}>` : `None`, true),
+                                configDecidables.suggestionConfig.managerRole ? 
+                                    new EmbedField(`Suggestion Managers`, message.guild.members.cache.filter(gm => gm.roles.cache.has(configDecidables.suggestionConfig.managerRole._id)).size, true) : 
+                                    null,
+                                configDecidables.suggestionConfig.managerRole ? 
+                                    EmbedField.Blank(true) : 
+                                    null,
+                                new EmbedField(`Suggestions suggested(?)`, configDecidables.suggestionConfig.suggestions.length, true),
+                                new EmbedField(`Typical Suggestion Response`, configDecidables.suggestionConfig.suggestions
+                                    .sort((a, b) => a.approved[0] > b.approved[0])
+                                    .reduce((acc, cur) =>
+                                        acc.set(cur.approved, acc.get(cur.approved) ? acc[cur.approved] + 1 : 1),
+                                        new Collection()
+                                    ).first() || 'No suggestions suggested.', true
+                                ),
+                                new EmbedField(`Suggestion Channel`, configDecidables.suggestionConfig.channel ? `<#${configDecidables.suggestionConfig.channel._id}>` : `None`, true)
+                            ].filter(v => v)
+                        }) : 
+                        new MessageEmbed({ description: 'Suggestion Config is not yet configured!' })
                     case 'themeConfig': return null //temp
-                    case 'welcomeChannel': case 'guildOwner': case 'name': return new MessageEmbed()
-                        .setTitle('General Information')
-                        .addFields([
+                    case 'welcomeChannel': case 'guildOwner': case 'name': return new MessageEmbed({
+                        title: 'General Information',
+                        fields: [
                             new EmbedField('Name', pg.name, true),
                             new EmbedField('Owner', `<@${pg.guildOwner._id}>`, true),
                             new EmbedField(`Welcome Channel`, pg.settings.welcomeChannel ? `<#${pg.settings.welcomeChannel._id}>` : 'None', true)
-                        ])
-                    case 'clients': return new MessageEmbed().setDescription(pg.clients.map(pc => pc ? getClientInfo(pc) : null).join('\n'));
-                    case 'reactionRoles': return new MessageEmbed().setDescription(
-                        pg.settings.reactionRoles[0] ?
+                        ]
+                    })
+                    case 'clients': return new MessageEmbed({ description: pg.clients.map(pc => pc ? getClientInfo(pc) : null).join('\n') });
+                    case 'reactionRoles': return new MessageEmbed({ 
+                        description: pg.settings.reactionRoles[0] ?
                             pg.settings.reactionRoles
-                                .map(rr => rr.pRole ? (() => {
-                                    let titles = ['Reaction Name', 'Role', 'Message ID', 'Channel'].map(v => `**${v}**`);
-                                    let values = [rr.emoteName, `<@&${rr.pRole._id}>`, "`" + rr.messageID + "`", `<#${rr.channel._id}>`];
-                                    return titles.map((v, i) => `${v}: ${values[i]}`).join('\n') + '\n';
-                                })() : null)
-                                .filter(v => v)
-                            : "No Reaction Roles saved."
-                    );
-                    case 'achievements': return new MessageEmbed().setDescription(
-                        configAchievements.enabled ?
+                                .map(rr => rr.pRole ? 
+                                    (() => {
+                                        let titles = ['Reaction Name', 'Role', 'Message ID', 'Channel'].map(v => `**${v}**`);
+                                        let values = [rr.emoteName, `<@&${rr.pRole._id}>`, "`" + rr.messageID + "`", `<#${rr.channel._id}>`];
+                                        return titles.map((v, i) => `${v}: ${values[i]}`).join('\n') + '\n';
+                                    })() : 
+                                    null
+                                )
+                                .filter(v => v) : 
+                            "No Reaction Roles saved."
+                    });
+                    case 'achievements': return new MessageEmbed({
+                        description: configAchievements.enabled ?
                             getAchievements(configAchievements.achievements, 'GUILD') :
                             `Pingu Achievements are not enabled in this server.`
-                    );
+                    });
                     default: return null;
                 }
             }
@@ -225,12 +240,12 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
 
             async function GetEmbed() {
                 switch (item) {
-                    case 'guild': return new MessageEmbed().setDescription(await getMemberSince(pgm.guild) || 'Unavailable to calcualte');
-                    case 'achievementsConfig': return new MessageEmbed().setDescription(
-                        pgm.achievementConfig.enabled ?
+                    case 'guild': return new MessageEmbed({ description: await getMemberSince(pgm.guild) || 'Unavailable to calcualte' })
+                    case 'achievementsConfig': return new MessageEmbed({
+                        description: pgm.achievementConfig.enabled ?
                             getAchievements(pgm.achievementConfig.achievements, 'GUILDMEMBER') :
                             "Pingu Achievements are disabled."
-                    );
+                    });
                     default: return null;
                 }
             }
@@ -251,24 +266,26 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
 
             async function GetEmbed() {
                 var partner = pu.marry.partner ? await message.client.users.fetch(pu.marry.partner._id) : null;
-                var dailyStreakValid = !(pu.daily.lastClaim && pu.daily.lastClaim.setHours(pu.daily.lastClaim.getHours() + 32) < Date.now());
+                var dailyStreakValid = !(pu.daily.lastClaim?.setHours(pu.daily.lastClaim.getHours() + 32) < Date.now());
                 let sharedServerInfo = (await Promise.all(pu.sharedServers.map(pg => getMemberSince(pg)))).filter(v => v).join('\n');
 
                 switch (item) {
-                    case 'marry': return new MessageEmbed()
-                        .setDescription(partner ? new Marry(await PinguUser.Get(partner), pu.marry.internalDate).marriedMessage() : `You've never been married rip`)
-                        .setThumbnail(partner ? partner.avatarURL() : pu.avatar)
-                    case 'daily': return new MessageEmbed()
-                        .setDescription(`Your current daily streak is at **${(!dailyStreakValid ? 0 : pu.daily.streak)}**`)
-                        .setTimestamp(dailyStreakValid ? pu.daily.nextClaim && pu.daily.nextClaim.endsAt : Date.now())
-                        .setFooter(`Viewing information for: ${userType} | Daily claimable at`);
-                    case 'sharedServers': return new MessageEmbed().setDescription(sharedServerInfo)
+                    case 'marry': return new MessageEmbed({
+                        description: partner ? new Marry(await PinguUser.Get(partner), pu.marry.internalDate).marriedMessage() : `You've never been married rip`,
+                        thumbnail: { url: partner ? partner.avatarURL() : pu.avatar }
+                    })
+                    case 'daily': return new MessageEmbed({
+                        description: `Your current daily streak is at **${(!dailyStreakValid ? 0 : pu.daily.streak)}**`,
+                        timestamp: dailyStreakValid ? pu.daily.nextClaim?.endsAt : Date.now(),
+                        footer: { text: `Viewing information for: ${userType} | Daily claimable at` }
+                    });
+                    case 'sharedServers': return new MessageEmbed({ description: sharedServerInfo })
                     case 'playlists': return null //Not implemented
-                    case 'achievementConfig': return new MessageEmbed().setDescription(
-                        pu.achievementConfig.enabled ?
+                    case 'achievementConfig': return new MessageEmbed({ 
+                        description: pu.achievementConfig.enabled ?
                             getAchievements(pu.achievementConfig.achievements || [], 'USER') :
                             `Pingu Achievements are disabled.`
-                    );
+                    })
                 }
             }
         }
@@ -309,11 +326,10 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
             item.substring(1);
 
 
-        let defaultEmbed = new MessageEmbed()
-            .setTitle(title)
-            .setColor(pGuildClient ? pGuildClient.embedColor : PinguClient.ToPinguClient(message.client).DefaultEmbedColor)
-            .setFooter(`Viewing information for: ${userType}`);
-
+        let defaultEmbed = new MessageEmbed({
+            title, color: pGuildClient ? pGuildClient.embedColor : PinguClient.ToPinguClient(message.client).DefaultEmbedColor,
+            footer: { text: `Viewing information for: ${userType}` }
+        })
         Object.keys(embed).forEach(k => embed[k] ? defaultEmbed[k] = embed[k] : defaultEmbed[k]);
         return defaultEmbed;
     }
@@ -366,7 +382,8 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
                     day: '2-digit'
                 };
 
-                const achievedAtString = unlocked ? `| ${new Date(pAchievement.achievedAt).toLocaleDateString('da-DK', format)}` : "";
+                // const achievedAtString = unlocked ? `| ${new Date(pAchievement.achievedAt).toLocaleDateString('da-DK', format)}` : "";
+                const achievedAtString = unlocked ? `| <t:${pAchievement.achievedAt / 1000}:R>` : "";
 
                 result += `[${achievement._id}]: ${achievement.name} ${achievedAtString}\n`;
             });

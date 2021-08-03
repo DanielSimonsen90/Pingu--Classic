@@ -10,7 +10,7 @@
         'VIEW_AUDIT_LOG', 'VIEW_CHANNEL'
     ], [
         'channelCreate', 'channelDelete', 'channelPinsUpdate', 'channelUpdate', 'typingStart', 'webhookUpdate',                                                                 //channel
-        'error', 'invalidated', 'onready',                                                                                                                                        //client
+        'error', 'invalidated', 'onready',                                                                                                                                      //client
         'emojiCreate', 'emojiDelete', 'emojiUpdate',                                                                                                                            //emoji
         'guildMemberAdd', 'guildMemberAvailable', 'guildMemberRemove', 'guildMemberUpdate',                                                                                     //guildMember
         'inviteCreate', 'inviteDelete',                                                                                                                                         //invite

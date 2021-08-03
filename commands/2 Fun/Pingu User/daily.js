@@ -1,18 +1,18 @@
 const { MessageEmbed } = require('discord.js');
-const { PinguCommand, PinguLibrary, PinguUser, TimeLeftObject } = require('PinguPackage');
+const { PinguCommand, TimeLeftObject } = require('PinguPackage');
 const timeBetweenClaims = 21;
 
 module.exports = new PinguCommand('daily', 'Fun', `Daily streams just like as if you were having a Snapchat streak with me ;)`, null,
     async ({ client, message, pAuthor, pGuildClient }) => {
         if (!pAuthor) {
-            PinguLibrary.errorLog(client, `Unable to find pAuthor in daily using **${message.author.tag}**!`, message.content, null, {
+            client.log('error', `Unable to find pAuthor in daily using **${message.author.tag}**!`, message.content, null, {
                 params: { client, message, pAuthor, pGuildClient }
             });
             return message.channel.send(`I couldn't find your Pingu User profile!`);
         }
 
-        let now = new Date(Date.now());
-        let daily = pAuthor.daily;
+        let now = new Date();
+        let { daily } = pAuthor;
         if (!daily.lastClaim) return ClaimDaily(1);
 
         let { lastClaim, nextClaim } = daily;
@@ -21,7 +21,7 @@ module.exports = new PinguCommand('daily', 'Fun', `Daily streams just like as if
 
         nextClaim = new TimeLeftObject(now, endsAt);
 
-        PinguUser.Update(client, ['daily'], pAuthor, module.exports.name, `**${message.author.tag}**'s daily endsAt.`);
+        await client.pUsers.update(pAuthor, module.exports.name, `**${message.author.tag}**'s daily endsAt.`);
 
         let hourDiff = (now.getDate() > lastClaimDate.getDate() ? 24 : 0) - now.getHours() - lastClaimDate.getHours();
         const format = {
@@ -39,20 +39,20 @@ module.exports = new PinguCommand('daily', 'Fun', `Daily streams just like as if
         function ClaimDaily(streak) {
             daily.streak = streak;
             daily.lastClaim = now;
-            daily.nextClaim = new TimeLeftObject(now, new Date(new Date(Date.now()).setHours(now.getHours() + timeBetweenClaims)));
+            daily.nextClaim = new TimeLeftObject(now, new Date(new Date().setHours(now.getHours() + timeBetweenClaims)));
 
-            setTimeout(async () => await PinguUser.Update(client, ['daily'], pAuthor, "daily",
+            setTimeout(async () => await client.pUsers.update(pAuthor, module.exports.name, 
                 `Updated **${message.author.tag}**'s daily streak to ${daily.streak}.`
             ), 5000);
 
-            return message.channel.send(new MessageEmbed()
-                .setThumbnail(pAuthor.avatar)
-                .setTitle(`Daily claimed!`)
-                .setDescription(`Your daily has been claimed!\n**Streak: ${daily.streak}**`)
-                .setColor(message.guild ? pGuildClient.embedColor : client.DefaultEmbedColor)
-                .setFooter(`Next daily claimable at`)
-                .setTimestamp(daily.nextClaim.endsAt)
-            );
+            return message.channel.send(new MessageEmbed({
+                title: 'Daily claimed!',
+                description: `Your daily has been claimed!\n**Streak: ${daily.streak}**`,
+                color: pGuildClient.embedColor || client.DefaultEmbedColor,
+                footer: { text: `Next daily claimable at` },
+                timestamp: daily.nextClaim.endsAt,
+                thumbnail: { url: pAuthor.avatar }
+            }));
         }
     }
 );

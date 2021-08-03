@@ -1,28 +1,27 @@
-const { PinguCommand, PinguLibrary } = require("PinguPackage");
+const { PinguCommand } = require("PinguPackage");
 
 module.exports = new PinguCommand('quote', 'Fun', 'Quotes your message', {
     usage: '<message> [@Quotee]',
     guildOnly: true,
     example: ["This is a quote by me!", "Idk why he wanna quote me?? @Danho#2105"],
     permissions: ['SEND_MESSAGES', 'MANAGE_MESSAGES'],
-}, async ({ message, args }) => {
-    let Quote = args.join(" "),
+}, async ({ client, message, args }) => {
+    let quote = args.join(" "),
         quotee = message.mentions.users.size != 0 ?
-            message.mentions.users.first().username :
+            message.mentions.users.first()?.username :
             message.author.username;
 
     if (message.mentions.users.size)
-        Quote = Quote.substring(0, Quote.length - args[args.length - 1].length - 1);
+        quote = quote.substring(0, quote.length - args[args.length - 1].length - 1);
 
-    if (!Quote.endsWith('.') && !Quote.endsWith('!') && !Quote.endsWith('?') && !Quote.endsWith(':') && !Quote.endsWith('"'))
-        Quote += '.';
+    if (!quote.endsWith('.') && !quote.endsWith('!') && !quote.endsWith('?') && !quote.endsWith(':') && !quote.endsWith('"'))
+        quote += '.';
 
     message.delete();
 
-    let messageContent = `\`"${Quote}"\`\n- ${quotee}`;
+    let messageContent = `\`"${quote}"\`\n- ${quotee}`;
 
-    if (PinguLibrary.PermissionCheck(message, 'SEND_TTS_MESSAGES') == PinguLibrary.PermissionGranted)
-        return message.channel.send(`\`"${Quote}"\`\Said by ${quotee}`, { tts: true })
-            .then(QuotedMessage => QuotedMessage.edit(messageContent));
+    if (client.permissions.checkFor(message, 'SEND_TTS_MESSAGES') == client.permissions.PermissionGranted)
+        return message.channel.send(`\`"${quote}"\`\Said by ${quotee}`, { tts: true }).then(sent => sent.edit(messageContent));
     return message.channel.send(messageContent)
 });

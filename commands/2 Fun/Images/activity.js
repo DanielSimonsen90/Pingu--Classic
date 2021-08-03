@@ -1,101 +1,93 @@
 ﻿const request = require('request');
 const { Message, MessageEmbed } = require('discord.js');
-const { PinguCommand, PinguLibrary, config } = require('PinguPackage');
+const { PinguCommand, config } = require('PinguPackage');
 
 module.exports = new PinguCommand('activity', 'Fun', 'You <activity> <person>!', {
     usage: '<activity> <@person>',
     guildOnly: true,
     example: ["hug @Danho#2105"],
     permissions: ['EMBED_LINKS']
-}, async ({ message, args, pGuildClient }) => {
+}, async ({ client, message, args, pGuildClient }) => {
     //Permission check
-    const PermCheck = PermissionCheck(message, args);
-    if (PermCheck != PinguLibrary.PermissionGranted) return message.channel.send(PermCheck);
+    if (args.length < 2) return message.channel.send(`You didn't provide me with enough arguments! What would you like to do to someone?`);
 
     //Create Person variables
-    const User = message.author.username,
-        Activity = DefineActivity(message, args),
-        Person = DefinePerson(message);
+    const user = message.author.username,
+        activity = DefineActivity(message, args),
+        person =  message.mentions.users.first()?.username || message.author.username;
 
     //ActivityLink Function
     if (!config || !config.api_key || !config.google_custom_search) {
-        PinguLibrary.errorLog(message.client, 'Unable to send gif\nImage search requires both a YouTube API key and a Google Custom Search key!', message.content, null, {
+        client.log('error', 'Unable to send gif\nImage search requires both a YouTube API key and a Google Custom Search key!', message.content, null, {
             params: { message, pGuildClient },
             additional: {
-                activity: { User, Activity, Person },
+                activity: { user, activity, person },
                 keys: {
                     api_key: config.api_key,
                     google_custom_search: config.google_custom_search
                 }
             }
-        }).then(() =>
-            message.channel.send(`I was unable to search for a gif! I have contacted my developers...`));
+        }).then(() => message.channel.send(`I was unable to search for a gif! I have contacted my developers...`));
     }
 
     //Gets us a random result in first 5 pages
     const page = 1 + Math.floor(Math.random() * 5) * 10;
+    const { body } = await requestImage();
+    
+    try { var data = JSON.parse(body); }
+    catch (err) {
+        client.log('error', `Getting data`, message.content, err, {
+            params: { message, pGuildClient },
+            additional: {
+                activity: { user, activity, person },
+                keys: { api_key: config.api_key, google_custom_search: config.google_custom_search }
+            }
+        });
+    }
 
-    //We request 10 items
-    request('https://www.googleapis.com/customsearch/v1?key=' + config.api_key + '&cx=' + config.google_custom_search + '&q=' + (`"anime" "${args[0]}" person "gif"`) + '&searchType=image&alt=json&num=10&start=' + page, function (err, res, body) {
-        try { var data = JSON.parse(body); }
-        catch (err) {
-            PinguLibrary.errorLog(message.client, `Getting data`, message.content, err, {
-                params: { message, pGuildClient },
-                additional: {
-                    activity: { User, Activity, Person },
-                    keys: {
-                        api_key: config.api_key,
-                        google_custom_search: config.google_custom_search
-                    }
-                }
-            });
-        }
+    if (!data) {
+        client.log('error', `Getting data in activity`, message.content, null, {
+            params: { message, pGuildClient },
+            additional: {
+                page, data,
+                activity: { user, activity, person }
+            }
+        }).then(() => message.channel.send(`I was unable to recieve a gif! I have contacted my developers...`));
+    }
+    else if (!data.items || !data.items.length) {
+        client.log('error', `I was unable to get data for activity`, message.content, null, {
+            params: { message, pGuildClient },
+            additional: {
+                page, data,
+                activity: { user, activity, person }
+            }
+        }).then(() => message.channel.send(`I was unable to find a gif! I have contacted my developers...`));
+    }
 
-        if (!data) {
-            PinguLibrary.errorLog(message.client, `Getting data in activity`, message.content, null, {
-                params: { message, pGuildClient },
-                additional: {
-                    page, data,
-                    activity: { User, Activity, Person }
-                }
-            }).then(() =>
-                message.channel.send(`I was unable to recieve a gif! I have contacted my developers...`));
-        }
-        else if (!data.items || !data.items.length) {
-            PinguLibrary.errorLog(message.client, `I was unable to get data for activity`, message.content, null, {
-                params: { message, pGuildClient },
-                additional: {
-                    page, data,
-                    activity: { User, Activity, Person }
-                }
-            }).then(() =>
-                message.channel.send(`I was unable to find a gif! I have contacted my developers...`));
-        }
+    const embed = new MessageEmbed({
+        title: `${user} ${activity} ${person}`,
+        image: { url: data.items[Math.floor(Math.random() * data.items.length)].link },
+        color: pGuildClient.embedColor || client.DefaultEmbedColor
+    })
 
-        const embed = new MessageEmbed()
-            .setTitle(`${User} ${Activity} ${Person}`)
-            .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
-            .setColor(pGuildClient.embedColor);
+    const sent = await message.channel.send(embed);
 
-        //Return the whole thing LuL
-        //React with F if the user uses *activity on themselves
-        return Person == User ? message.channel.send(embed).then(NewMessage => { NewMessage.react('🇫'); }) : message.channel.send(embed);
-    });
+    //React with F if the user uses *activity on themselves
+    if (person == user) await sent.react('🇫');
+
+    return sent;
+
+    /**@returns {Promise<{ res: Response, body: string }>}*/
+    function requestImage() {
+        return new Promise((resolve, reject) => {
+            request(`https://www.googleapis.com/customsearch/v1?key=${config.api_key}&cx=${config.google_custom_search}&q="anime ${args.first} person gif"&searcgType=image&alt=json&num=10&start=${page}`, (err, res, body) => {
+                if (err) reject(err);
+                else resolve({ res, body });
+            })
+        })
+    }
 });
 
-/**@param {Message} message 
- * @param {string[]} args*/
-function PermissionCheck(message, args) {
-    if (!args[0]) return `Provide me with proper arguments please UwU`;
-
-    return PinguLibrary.PermissionGranted;
-}
-/**@param {Message} message*/
-function DefinePerson(message) {
-    let Person = message.mentions.users.first() && message.mentions.users.first().username || message.author.username;
-
-    return Person.includes('!') ? Person.replace('!', '') : Person;
-}
 /**@param {Message} message 
  * @param {string[]} args*/
 function DefineActivity(message, args) {

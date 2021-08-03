@@ -1,5 +1,5 @@
 const ytdl = require('ytdl-core');
-const { PinguCommand, PinguLibrary } = require('PinguPackage');
+const { PinguCommand } = require('PinguPackage');
 
 module.exports = new PinguCommand('noice', 'Fun', 'Noice', {
     guildOnly: true
@@ -9,17 +9,14 @@ module.exports = new PinguCommand('noice', 'Fun', 'Noice', {
     const voiceChannel = message.member.voice.channel;
     if (!voiceChannel) return;
 
-    const { author, content, member, guild } = message;
-    let permCheck = PinguLibrary.PermissionCheck({
-        channel: voiceChannel,
-        author, client, content
-    }, 'CONNECT', 'SPEAK', 'VIEW_CHANNEL');
-    if (permCheck != PinguLibrary.PermissionGranted) return message.channel.send(permCheck);
+    const { author, member, guild } = message;
+    let permCheck = client.permissions.checkFor({ channel: voiceChannel, author }, 'CONNECT', 'SPEAK', 'VIEW_CHANNEL');
+    if (permCheck != client.permissions.PermissionGranted) return message.channel.send(permCheck);
 
-        var conn = await voiceChannel.join();
-        conn.play(ytdl('https://www.youtube.com/watch?v=Akwm2UZJ34o', { filter: 'audioonly' }))
-            .on('start', () => PinguLibrary.AchievementCheck(client, { user: author, guildMember: member, guild }, 'VOICE', 'Noice', [conn.voice]))
-        .on('error', err => PinguLibrary.errorLog(message.client, `Voice dispatcher error in *noice`, message.content, err, {
+    var conn = await voiceChannel.join();
+    conn.play(ytdl('https://www.youtube.com/watch?v=Akwm2UZJ34o', { filter: 'audioonly' }))
+        .on('start', () => client.AchievementCheck({ user: author, guildMember: member, guild }, 'VOICE', 'Noice', [conn.voice]))
+        .on('error', err => client.log('error', `Voice dispatcher error in *noice`, message.content, err, {
             params: { message },
             additional: { voiceChannel }
         }))

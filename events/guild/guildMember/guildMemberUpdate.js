@@ -2,9 +2,9 @@ const { MessageEmbed } = require("discord.js");
 const { PinguEvent } = require("PinguPackage");
 
 module.exports = new PinguEvent('guildMemberUpdate',
-    async function setContent(preMember, member) {
+    async function setContent(client, preMember, member) {
         let description = GetDescription();
-        return module.exports.content = description ? new MessageEmbed().setDescription(description) : null;
+        return module.exports.content = description ? new MessageEmbed({ description }) : null;
 
         function GetDescription() {
             if (member.nickname != preMember.nickname) return PinguEvent.SetRemove(
@@ -45,7 +45,7 @@ module.exports = new PinguEvent('guildMemberUpdate',
             );
             let unknown = PinguEvent.UnknownUpdate(preMember, member);
             if (unknown == `Unknown Update: Unable to find what updated`)
-                member.client.emit('userUpdate', preMember.user, member.user);
+                client.emit('userUpdate', preMember.user, member.user);
         }
     }
 );

@@ -1,13 +1,13 @@
-﻿const { PinguCommand, PinguUser, PinguUserSchema } = require('PinguPackage');
+﻿const { PinguCommand, PinguUserSchema } = require('PinguPackage');
 
 module.exports = new PinguCommand('updatepusers', 'DevOnly', `Updates all PinguUsers`, {
     mustBeBeta: true
 }, async ({ client, message, args, pAuthor, pGuild, pGuildClient }) => {
-    const PinguUsers = await PinguUser.GetUsers();
+    await client.pUsers.refresh(client);
 
-    //Promise.all(PinguGuilds.map(pGuild => {
-    await PinguUserSchema.updateMany({}, { $set: { joinedAt: new Date(Date.now()) } }).exec();
-    //}))
+    // await Promise.all(client.pUsers.array().map(async pUser => 
+    //     PinguUserSchema.updateMany({}, { $set: { joinedAt: new Date(Date.now()) } }).exec()
+    // ));
 
     if (message.content.includes(module.exports.name))
         message.react('👌');
