@@ -3,7 +3,7 @@ const { PinguEvent, PinguGuildMember, PGuild, DecidablesTypes } = require("Pingu
 const ms = require('ms');
 
 module.exports = new PinguEvent('onready', null,
-    async function execute(_, client) {
+    async function execute(client) {
         console.log('\n--== Client Info ==--');
         client.log('console', `Loaded ${client.commands.size} commands & ${client.events.size} events\n`)
 
