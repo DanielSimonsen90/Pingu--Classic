@@ -1,5 +1,7 @@
 import { Message, Guild, User, MessageEmbed, GuildAuditLogsAction, ClientEvents } from 'discord.js';
-import { PinguClient } from '../client/PinguClient';
+import PinguClient from '../client/PinguClient';
+import PinguGuild from '../guild/PinguGuild';
+import PinguUser from '../user/PinguUser';
 interface ChosenOnes {
     chosenGuild: [Guild, PinguGuild];
     chosenUser: [User, PinguUser];
@@ -10,8 +12,6 @@ interface PinguEvents extends ChosenOnes {
 }
 export interface PinguClientEvents extends ClientEvents, PinguEvents {
 }
-import PinguGuild from '../guild/PinguGuild';
-import PinguUser from '../user/PinguUser';
 export declare const Colors: {
     Create: string;
     Update: string;
@@ -31,7 +31,7 @@ export declare function SetDescriptionValuesLink(type: string, oldValue: any, ne
  * @param callback pre/new.find(i => callback(i, preItem/newItem))*/
 export declare function GoThroughArrays<T>(type: string, preArr: T[], newArr: T[], callback: (item: T, loopItem: T) => T): string;
 export declare function GoThroughObjectArray<T>(type: string, preArr: T[], newArr: T[]): string;
-export declare function HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: PinguClient, path: string, ...args: PinguClientEvents[EventType]): Promise<Message>;
+export declare function HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: PinguClient, ...args: PinguClientEvents[EventType]): Promise<void>;
 import PinguHandler from './PinguHandler';
 export declare class PinguEvent<Event extends keyof PinguClientEvents> extends PinguHandler {
     static Colors: {
@@ -49,7 +49,7 @@ export declare class PinguEvent<Event extends keyof PinguClientEvents> extends P
     static SetDescriptionValuesLink(type: string, oldValue: any, newValue: any): string;
     static GoThroughArrays<T>(type: string, preArr: T[], newArr: T[], callback: (item: T, loopItem: T) => T): string;
     static GoThroughObjectArray<T>(type: string, preArr: T[], newArr: T[]): string;
-    static HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: PinguClient, path: string, ...args: PinguClientEvents[EventType]): Promise<Message>;
+    static HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: PinguClient, ...args: PinguClientEvents[EventType]): Promise<void>;
     constructor(name: Event, setContent?: (client: PinguClient, ...args: PinguClientEvents[Event]) => Promise<MessageEmbed>, execute?: (client: PinguClient, ...args: PinguClientEvents[Event]) => Promise<Message>);
     name: Event;
     path: string;

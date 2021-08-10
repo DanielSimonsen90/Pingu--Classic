@@ -7,9 +7,8 @@ module.exports = new PinguCommand('whois', 'Utility', 'Gets the info of specifie
     example: ['245572699894710272', '@Danho#2105', 'John Smith']
 }, async ({ message, args }) => {
     //Permission check
-    if (args[0] != null) {
-        if (args[0].includes('_')) args[0] = args[0].replace('_', ' ',);
-        if (args[0].includes('!')) args[0] = args[0].replace('!', '');
+    if (args[0]) {
+        args[0] = args[0].replace(/!/, '').replace(/_+/, ' ');
     }
 
     let search = args.join(' ');
@@ -67,20 +66,36 @@ async function SendGuildMessage(message, gm, SharedServers) {
     const client = PinguClient.ToPinguClient(message.client);
     const badges = await client.getBadges(gm.user);
 
-    return message.channel.send(new MessageEmbed({
-        title: `${gm.displayName} ${(gm.displayName != gm.user.username ? `(${gm.user.username})` : ``)}`,
-        thumbnail: { url: gm.user.avatarURL() },
-        color: GetColor(null, gm.user.presence),
-        fields: [
+    // const embed = new MessageEmbed({
+    //     title: `${gm.displayName}${(gm.displayName != gm.user.username ? ` (${gm.user.username})` : ``)}`,
+    //     thumbnail: { url: gm.user.avatarURL() },
+    //     color: GetColor(null, gm.user.presence),
+    //     fields: [
+    //         new EmbedField(`Created at`, `<t:${Math.round(gm.user.createdTimestamp / 1000)}:R>`, true),
+    //         new EmbedField(`Joined at`, `<t:${Math.round(gm.joinedTimestamp / 1000)}:R>`, true),
+    //         EmbedField.Blank(true),
+    //         new EmbedField(`Shared Servers`, SharedServers, true),
+    //         badges?.size ? new EmbedField(`Badges`, badges.map(badge => badge.emoji).join(' '), true) : EmbedField.Blank(true),
+    //         EmbedField.Blank(true)
+    //     ],
+    //     footer: { text: `ID: ${gm.id}` }
+    // });
+
+    const embed = new MessageEmbed()
+        .setTitle(`${gm.displayName}${(gm.displayName != gm.user.username ? ` (${gm.user.username})` : ``)}`)
+        .setThumbnail(gm.user.avatarURL())
+        .setColor(GetColor(null, gm.user.presence))
+        .addFields([
             new EmbedField(`Created at`, `<t:${Math.round(gm.user.createdTimestamp / 1000)}:R>`, true),
             new EmbedField(`Joined at`, `<t:${Math.round(gm.joinedTimestamp / 1000)}:R>`, true),
             EmbedField.Blank(true),
             new EmbedField(`Shared Servers`, SharedServers, true),
             badges?.size ? new EmbedField(`Badges`, badges.map(badge => badge.emoji).join(' '), true) : EmbedField.Blank(true),
             EmbedField.Blank(true)
-        ],
-        footer: { text: `ID: ${gm.id}` }
-    }));
+        ])
+        .setFooter(`ID: ${gm.id}`)
+
+    return message.channel.send(embed);
 }
 /**@param {Message} message 
  * @param {User} user*/

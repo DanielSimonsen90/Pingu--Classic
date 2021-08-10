@@ -1,5 +1,4 @@
 import { Client, ClientEvents, ClientOptions, Collection, PermissionString, Snowflake, TextChannel } from "discord.js";
-import PinguClient from "./PinguClient";
 
 export function ToPinguMusicClient(client: Client): PinguMusicClient {
     return client as PinguMusicClient;
@@ -14,7 +13,7 @@ import BasePinguClient from "./BasePinguClient";
 
 interface VideoThing { url: string }
 
-import fs = require('fs');
+import * as fs from 'fs';
 import PinguHandler from "../handlers/PinguHandler";
 
 export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
@@ -22,8 +21,16 @@ export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
     public static ToPinguMusicClient(client: Client) { return ToPinguMusicClient(client); }
     //#endregion 
 
-    constructor(config: IConfigRequirements, permissions: PermissionString[], subscribedEvents: [keyof PinguMusicClientEvents], commandsPath?: string, eventsPath?: string, options?: ClientOptions) {
-        super(config, permissions, subscribedEvents as any, commandsPath, eventsPath, options);
+    constructor(
+        config: IConfigRequirements, 
+        permissions: PermissionString[], 
+        subscribedEvents: [keyof PinguMusicClientEvents], 
+        dirname?: string,
+        commandsPath?: string, 
+        eventsPath?: string, 
+        options?: ClientOptions
+    ) {
+        super(config, permissions, subscribedEvents as any, dirname, commandsPath, eventsPath, options);
     }
 
     public queues = new Collection<Snowflake, Queue>();
@@ -110,11 +117,13 @@ export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
     }
 
     protected handlePath(path: string, type: 'command' | 'event') {
+        if (!path) return;
+
         const files = fs.readdirSync(path);
         for (const file of files) {
             try {
                 if (file.endsWith('.js')) {
-                    let module = require(`../../../../../${path}/${file}`) as PinguHandler;
+                    let module = require(`${path}/${file}`) as PinguHandler;
                     module.path = `${path.substring(1, path.length)}/${file}`;
 
                     if (type == 'event') {

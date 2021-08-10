@@ -30,16 +30,26 @@ module.exports = new PinguCommand('fact', 'Fun', 'Pingu facts woah', {
         "Pingu has a girlfriend named \"Pingi\".What are you doing with your life?",
         "Pingu has a tomboy sister named Pinga.",
         "There are 157 episodes of Pingu, including the original series and the revived series.",
-        "Pingu was created by Otmar Gutmann from Switzerland."],
-        fact = Math.floor(Math.random() * (facts.length - 1)),
-        title = fact <= 8 ? "Penguin Facts" : fact <= 16 ? "Club Penguin Facts" : "Pingu (TV) Facts";
+        "Pingu was created by Otmar Gutmann from Switzerland."
+    ],
+    fact = Math.floor(Math.random() * (facts.length - 1)),
+    title = fact <= 8 ? "Penguin Facts" : fact <= 16 ? "Club Penguin Facts" : "Pingu (TV) Facts";
 
-    return message.channel.send(new MessageEmbed({
-        title, 
-        description: facts[fact], 
-        color: pGuildClient.embedColor || client.DefaultEmbedColor,
-        footer: { text: 'For more facts, use *fact again!' },
-    }).attachFiles([`./commands/4 DevOnly/pfps/Greeny_Boi.png`])
-      .setThumbnail(`attachment://Greeny_Boi.png`)
+    // return message.channel.send(new MessageEmbed({
+    //     title, 
+    //     description: facts[fact], 
+    //     color: pGuildClient.embedColor || client.DefaultEmbedColor,
+    //     footer: { text: 'For more facts, use *fact again!' },
+    // }).attachFiles([`./commands/4 DevOnly/pfps/Greeny_Boi.png`])
+    //   .setThumbnail(`attachment://Greeny_Boi.png`)
+    // );
+
+    return message.channel.send(new MessageEmbed()
+        .setTitle(title)
+        .setDescription(facts[fact])
+        .setColor(message.channel.type != 'dm' ? pGuildClient.embedColor : client.DefaultEmbedColor)
+        .attachFiles([`./commands/4 DevOnly/pfps/Greeny_Boi.png`])
+        .setThumbnail(`attachment://Greeny_Boi.png`)
+        .setFooter(`For more facts, use ${pGuildClient.prefix || client.DefaultPrefix}fact again!`)
     );
 });

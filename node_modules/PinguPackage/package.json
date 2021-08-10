@@ -1,6 +1,6 @@
 {
   "name": "pingupackage",
-  "type":"commonjs",
+  "type": "commonjs",
   "version": "1.0.0",
   "description": "Library used to develop Pingu the Discord bot",
   "main": "live/index.js",

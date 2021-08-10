@@ -22,8 +22,16 @@ export class PinguClient extends BasePinguClient<PinguClientEvents> {
     //Statics
     public static ToPinguClient(client: Client) { return ToPinguClient(client); }
 
-    constructor(config: IConfigRequirements, permissions: PermissionString[], subscribedEvents?: Array<keyof PinguClientEvents>, commandsPath?: string, eventsPath?: string, options?: ClientOptions) {
-        super(config, permissions, subscribedEvents as any, commandsPath, eventsPath, options);
+    constructor(
+        config: IConfigRequirements, 
+        permissions: PermissionString[], 
+        subscribedEvents?: Array<keyof PinguClientEvents>, 
+        dirname?: string,
+        commandsPath?: string, 
+        eventsPath?: string, 
+        options?: ClientOptions
+    ) {
+        super(config, permissions, subscribedEvents as any, dirname, commandsPath, eventsPath, options);
     }
 
     //#region Public Properties
@@ -126,12 +134,14 @@ export class PinguClient extends BasePinguClient<PinguClientEvents> {
 
     //#region Protected Methods
     protected handlePath(path: string, type: 'command' | 'event') {
+        if (!path) return;
+
         const files = fs.readdirSync(path);
         for (const file of files) {
             try {
                 if (file.endsWith(`.js`)) {
-                    let module = require(`../../../../../${path}/${file}`);
-                    module.path = `${path.substring(1, path.length)}/${file}`;
+                    let module = require(`${path}/${file}`);
+                    module.path = `${path}/${file}`;
 
                     if (type == 'event') {
                         if (!module.name || !this.subscribedEvents.find(e => module.name as keyof PinguClientEvents == e)) continue;
@@ -161,7 +171,7 @@ export class PinguClient extends BasePinguClient<PinguClientEvents> {
     //#region Private Methods
     private handleEvent<eventType extends keyof PinguClientEvents>(caller: eventType, ...args: PinguClientEvents[eventType]) {
         if (this.subscribedEvents.find(e => e == caller)) 
-            PinguEvent.HandleEvent(caller, this, this.events.get(caller).path, ...args as PinguClientEvents[eventType]);
+            PinguEvent.HandleEvent(caller, this, ...args as PinguClientEvents[eventType]);
         return this;
     }
     //#endregion

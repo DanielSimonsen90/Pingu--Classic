@@ -5,31 +5,21 @@ module.exports = new PinguCommand('update', 'DevOnly', 'Reloads a script', {
 }, async ({ client, message, args }) => {
     if (!args.length) return message.channel.send(`What am I supposed to update, ${message.author}?`);
 
-    let script = args[0],
-        command = client.commands.find(cmd => [cmd.name, ...(cmd.aliases || [])].includes(script));
-    if (!command) var event = client.events.get(script);
+    const script = args.first;
+    const command = client.commands.find(cmd => [cmd.name].includes(script));
+    const event = client.events.get(event);
 
-    if (!command && !event) return message.channel.send(`Unable to find file \`${script}.js\`!`);
+    if (!command && !event) return message.channel.send(`Unable to find \`${script}.js\`!`);
 
-    if (command) delete require.cache[require.resolve(`${getPath()}${command.path}`)];
-    else delete require.cache[require.resolve(`${getPath()}${event.path}`)];
+    delete require.cache[require.resolve(command?.path || event.path)]
 
     try {
-        if (command) {
-            const newCommand = require(`${getPath()}${command.path}`);
-            newCommand.path = command.path;
-            client.commands.set(newCommand.name, newCommand);
-        }
-        else {
-            const newEvent = require(`${getPath()}${event.path}`);
-            newEvent.path = event.path;
-            newEvent.name = event.name;
-            client.events.set(newEvent.name, newEvent);
-        }
+        const updated = require(command?.path || event.path);
+        (command ? client.commands : client.events).set(updated.name, {...updated, path: command?.path || event.path });
     } catch (error) {
         client.log('error', `Error creating updated version of ${script}`, message.content, error, {
             params: { message, args },
-            command, event, script, path: getPath(),
+            command, event, script,
         });
         return message.channel.send(`There was an error while updating \`${script}\`!\n\n\`${error.message}\``);
     }
@@ -39,13 +29,3 @@ module.exports = new PinguCommand('update', 'DevOnly', 'Reloads a script', {
     }
     return message.channel.send(`\`${script}\` was updated!`);
 });
-
-/**@returns {string} */
-function getPath() {
-    if (!module.exports.path) return "";
-
-    let split = module.exports.path.split('/');
-    split.shift();
-    split.pop();
-    return split.map(() => '../').join('');
-}

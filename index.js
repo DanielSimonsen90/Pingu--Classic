@@ -22,7 +22,7 @@
         'message', 'messageDelete', 'messageDeleteBulk', 'messageUpdate',                                                                                                       //message
         'userUpdate',                                                                                                                                                           //user
         'chosenUser', 'chosenGuild', 'mostKnownUser'                                                                                                                            //custom
-    ], './commands', './events');
+    ], __dirname, 'commands', 'events');
 
     try { var { token } = require('../PinguBetaToken.json'); /*throw null*/ }
     catch { token = config.token; }

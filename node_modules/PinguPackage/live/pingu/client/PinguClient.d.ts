@@ -11,7 +11,7 @@ import { PinguCommand, PinguEvent, PinguClientEvents } from '../handlers';
 import BasePinguClient from "./BasePinguClient";
 export declare class PinguClient extends BasePinguClient<PinguClientEvents> {
     static ToPinguClient(client: Client): PinguClient;
-    constructor(config: IConfigRequirements, permissions: PermissionString[], subscribedEvents?: Array<keyof PinguClientEvents>, commandsPath?: string, eventsPath?: string, options?: ClientOptions);
+    constructor(config: IConfigRequirements, permissions: PermissionString[], subscribedEvents?: Array<keyof PinguClientEvents>, dirname?: string, commandsPath?: string, eventsPath?: string, options?: ClientOptions);
     commands: Collection<string, PinguCommand>;
     events: Collection<keyof PinguClientEvents, PinguEvent<keyof PinguClientEvents>>;
     subscribedEvents: Array<keyof PinguClientEvents>;

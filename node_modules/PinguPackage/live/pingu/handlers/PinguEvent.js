@@ -13,30 +13,6 @@ exports.PinguEvent = exports.HandleEvent = exports.GoThroughObjectArray = export
 const discord_js_1 = require("discord.js");
 const achievements_1 = require("../achievements");
 const Error_1 = require("../../helpers/Error");
-// export interface PinguEventParams {
-//     client?: Client,
-//     messages?: Collection<string, Message>,
-//     reaction?: MessageReaction,
-//     invite?: Invite,
-//     channel?: GuildChannel | DMChannel,
-//     preChannel?: GuildChannel | DMChannel,
-//     guild?: Guild,
-//     preGuild?: Guild,
-//     message?: Message,
-//     preMessage?: Message,
-//     member?: GuildMember,
-//     preMember?: GuildMember,
-//     user?: User,
-//     preUser?: User,
-//     emote?: GuildEmoji,
-//     preEmote?: GuildEmoji,
-//     presence?: Presence,
-//     prePresence?: Presence,
-//     role?: Role,
-//     preRole?: Role,
-//     state?: VoiceState
-//     preState?: VoiceState
-// }
 //#region Statics
 exports.Colors = {
     Create: `#18f151`,
@@ -143,15 +119,9 @@ function GoThroughObjectArray(type, preArr, newArr) {
     return updateMessage;
 }
 exports.GoThroughObjectArray = GoThroughObjectArray;
-function HandleEvent(caller, client, path, ...args) {
+function HandleEvent(caller, client, ...args) {
     return __awaiter(this, void 0, void 0, function* () {
-        try {
-            var event = require(`../../../../..${path}`);
-        }
-        catch (err) {
-            console.log({ err, caller, path });
-            return client.log('error', `Unable to get event for ${caller}`, null, new Error_1.default(err));
-        }
+        const event = client.events.get(caller);
         if (!event || !event.execute && !event.setContent)
             return; //Event not found or doesn't have any callbacks assigned
         function execute() {
@@ -161,7 +131,7 @@ function HandleEvent(caller, client, path, ...args) {
                 }
                 catch (err) {
                     client.log('error', `${event.name}.execute`, null, new Error_1.default(err), {
-                        params: { caller, path, args: Object.assign({}, args) },
+                        params: { caller, args: Object.assign({}, args) },
                         additional: { event, args }
                     });
                 }
@@ -176,7 +146,7 @@ function HandleEvent(caller, client, path, ...args) {
                 }
                 catch (err) {
                     client.log('error', `${event.name}.setContent`, null, new Error_1.default(err), {
-                        params: { caller, path, args: Object.assign({}, args) },
+                        params: { caller, args: Object.assign({}, args) },
                         additional: { event, args }
                     });
                 }
@@ -192,7 +162,7 @@ function HandleEvent(caller, client, path, ...args) {
         }
         catch (err) {
             client.log('error', err.message, JSON.stringify(args, null, 2), err, {
-                params: { caller, path, args: Object.assign({}, args) },
+                params: { caller, args: Object.assign({}, args) },
                 additional: { event }
             });
         }
@@ -267,7 +237,7 @@ function HandleEvent(caller, client, path, ...args) {
                     'roleCreate', 'roleUpdate', 'roleDelete',
                     'messageBulkDelete'
                 ];
-                if (specialEvents.includes(event.name))
+                if (specialEvents.includes(caller))
                     emitAssociator = yield GetFromAuditLog();
                 if (emitAssociator == 'Unknown')
                     throw { message: `Event parameter for ${event.name} was not recognized!` };
@@ -279,7 +249,7 @@ function HandleEvent(caller, client, path, ...args) {
                 function GetFromAuditLog() {
                     return __awaiter(this, void 0, void 0, function* () {
                         const noAuditLog = PinguEvent.noAuditLog;
-                        switch (event.name) {
+                        switch (caller) {
                             case 'channelCreate': return !args[0].guild ? args[0].recipient.tag : yield GetInfo(args[0].guild, 'CHANNEL_CREATE');
                             case 'channelUpdate': return !args[0].guild ? args[0].recipient.tag : yield GetInfo(args[0].guild, 'CHANNEL_UPDATE');
                             case 'channelDelete': return !args[0].guild ? args[0].recipient.tag : yield GetInfo(args[0].guild, 'CHANNEL_DELETE');
@@ -407,8 +377,8 @@ class PinguEvent extends PinguHandler_1.default {
     static SetDescriptionValuesLink(type, oldValue, newValue) { return SetDescriptionValuesLink(type, oldValue, newValue); }
     static GoThroughArrays(type, preArr, newArr, callback) { return GoThroughArrays(type, preArr, newArr, callback); }
     static GoThroughObjectArray(type, preArr, newArr) { return GoThroughObjectArray(type, preArr, newArr); }
-    static HandleEvent(caller, client, path, ...args) {
-        return __awaiter(this, void 0, void 0, function* () { return HandleEvent(caller, client, path, ...args); });
+    static HandleEvent(caller, client, ...args) {
+        return __awaiter(this, void 0, void 0, function* () { return HandleEvent(caller, client, ...args); });
     }
     setContent(client, ...args) {
         return __awaiter(this, void 0, void 0, function* () { return null; });

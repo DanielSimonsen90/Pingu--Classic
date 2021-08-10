@@ -1,6 +1,6 @@
 const { PinguCommand } = require('PinguPackage');
 
-module.exports = new PinguCommand('ping', 'Utility', 'Tells you how much I lag', null,
+module.exports = new PinguCommand('ping', 'Utility', 'Tells you how much I lag', null, 
     async ({ client, message }) => {
         let sent = await message.channel.send(`Calculating...`);
         let latency = sent.createdTimestamp - message.createdTimestamp;

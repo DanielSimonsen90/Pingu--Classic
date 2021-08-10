@@ -245,7 +245,7 @@ module.exports = new PinguEvent('message',
 
                 const achieverClasses = { user: author, guildMember: member, guild };
 
-                client.achievement(achieverClasses, 'COMMAND', command.name, [achievementParams]).catch(err => {
+                client.AchievementCheck(achieverClasses, 'COMMAND', command.name, [achievementParams]).catch(err => {
                     client.log('error', `Handling COMMAND achievement check`, content, err, {
                         params: achievementParams,
                         additional: { achieverClasses }

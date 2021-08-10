@@ -22,8 +22,8 @@ const achievements_1 = require("../achievements");
 const handlers_1 = require("../handlers");
 const BasePinguClient_1 = require("./BasePinguClient");
 class PinguClient extends BasePinguClient_1.default {
-    constructor(config, permissions, subscribedEvents, commandsPath, eventsPath, options) {
-        super(config, permissions, subscribedEvents, commandsPath, eventsPath, options);
+    constructor(config, permissions, subscribedEvents, dirname, commandsPath, eventsPath, options) {
+        super(config, permissions, subscribedEvents, dirname, commandsPath, eventsPath, options);
     }
     //Statics
     static ToPinguClient(client) { return ToPinguClient(client); }
@@ -115,12 +115,14 @@ class PinguClient extends BasePinguClient_1.default {
     //#endregion
     //#region Protected Methods
     handlePath(path, type) {
+        if (!path)
+            return;
         const files = fs.readdirSync(path);
         for (const file of files) {
             try {
                 if (file.endsWith(`.js`)) {
-                    let module = require(`../../../../../${path}/${file}`);
-                    module.path = `${path.substring(1, path.length)}/${file}`;
+                    let module = require(`${path}/${file}`);
+                    module.path = `${path}/${file}`;
                     if (type == 'event') {
                         if (!module.name || !this.subscribedEvents.find(e => module.name == e))
                             continue;
@@ -151,7 +153,7 @@ class PinguClient extends BasePinguClient_1.default {
     //#region Private Methods
     handleEvent(caller, ...args) {
         if (this.subscribedEvents.find(e => e == caller))
-            handlers_1.PinguEvent.HandleEvent(caller, this, this.events.get(caller).path, ...args);
+            handlers_1.PinguEvent.HandleEvent(caller, this, ...args);
         return this;
     }
 }

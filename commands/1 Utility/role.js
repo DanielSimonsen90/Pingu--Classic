@@ -12,6 +12,8 @@ module.exports = new PinguCommand('role', 'Utility', 'Gives a role to author or 
         person = message.mentions.members.first() || message.member;
     const reason = `Requested by: ${message.author.tag}`;
 
+    if (!role) return message.channel.send(`Please provide a role id, name, or ping the role!`);
+
     try {
         switch (command) {
             case 'give': case 'add': return AddRole();
@@ -23,7 +25,7 @@ module.exports = new PinguCommand('role', 'Utility', 'Gives a role to author or 
             case 'set': case 'setpermission': return SetPermission();
             case 'unset': case 'removepermission': return RemovePermission();
             case 'check': case 'has': return CheckPermission(role || person);
-            default: return client.log('error', `Ran default case in *role`, message.content, null, {
+            default: return client.log('error', `Ran default case in ${client.DefaultPrefix}role`, message.content, null, {
                 params: { message, args },
                 additional: { command, person, role }
             }); 
@@ -51,7 +53,7 @@ module.exports = new PinguCommand('role', 'Utility', 'Gives a role to author or 
 
         const roleNames = message.guild.roles.cache.map(r => r.name.toLowerCase());
         const roleNameIndex = args.findIndex(arg => roleNames.includes(arg.toLowerCase()));
-        if (roleNameIndex == -1) return undefined;
+        if (roleNameIndex == -1) return null;
 
         const roleName = args.splice(roleNameIndex, 1);
         return message.guild.roles.cache.find(r => r.name == roleName);

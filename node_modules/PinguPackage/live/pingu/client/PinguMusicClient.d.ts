@@ -9,7 +9,7 @@ interface VideoThing {
 }
 export declare class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
     static ToPinguMusicClient(client: Client): PinguMusicClient;
-    constructor(config: IConfigRequirements, permissions: PermissionString[], subscribedEvents: [keyof PinguMusicClientEvents], commandsPath?: string, eventsPath?: string, options?: ClientOptions);
+    constructor(config: IConfigRequirements, permissions: PermissionString[], subscribedEvents: [keyof PinguMusicClientEvents], dirname?: string, commandsPath?: string, eventsPath?: string, options?: ClientOptions);
     queues: Collection<string, Queue>;
     events: Collection<keyof PinguMusicClientEvents, PinguMusicEvent<keyof PinguMusicClientEvents>>;
     commands: Collection<string, PinguMusicCommand>;
