@@ -49,9 +49,16 @@ export class PinguCommand extends PinguHandler {
             this.usage = usage || "";
             this.guildOnly = guildOnly || false;
             this.specificGuildID = specificGuildID;
-            this.examples = examples && examples.length ? examples : [""];
-            this.aliases = aliases && aliases.length ? aliases : undefined;
+            this.examples = examples?.length ? examples : [""];
+            this.aliases = aliases?.length ? aliases : new Array<string>();
             this.mustBeBeta = mustBeBeta || false;
+        }
+        else {
+            this.usage = "";
+            this.guildOnly = false;
+            this.examples = [""];
+            this.aliases = new Array<string>();
+            this.mustBeBeta = false;
         }
     }
     

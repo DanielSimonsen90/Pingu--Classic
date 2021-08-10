@@ -6,7 +6,10 @@ import {
     GuildAuditLogsEntry, ColorResolvable
 } from 'discord.js'
 
-import { PinguClient, ToPinguClient } from '../client/PinguClient'
+import PinguClient from '../client/PinguClient'
+import PinguGuild from '../guild/PinguGuild';
+import PinguUser from '../user/PinguUser';
+
 interface ChosenOnes {
     chosenGuild: [Guild, PinguGuild],
     chosenUser: [User, PinguUser]
@@ -18,45 +21,7 @@ interface PinguEvents extends ChosenOnes {
 export interface PinguClientEvents extends ClientEvents, PinguEvents {}
 
 import { AchievementCheck } from '../achievements';
-
-import PinguGuild from '../guild/PinguGuild';
 import Error from '../../helpers/Error';
-import PinguUser from '../user/PinguUser';
-
-// export interface PinguEventParams {
-//     client?: Client,
-
-//     messages?: Collection<string, Message>,
-//     reaction?: MessageReaction,
-//     invite?: Invite,
-    
-//     channel?: GuildChannel | DMChannel,
-//     preChannel?: GuildChannel | DMChannel,
-    
-//     guild?: Guild,
-//     preGuild?: Guild,
-
-//     message?: Message,
-//     preMessage?: Message,
-
-//     member?: GuildMember,
-//     preMember?: GuildMember,
-
-//     user?: User,
-//     preUser?: User,
-
-//     emote?: GuildEmoji,
-//     preEmote?: GuildEmoji,
-
-//     presence?: Presence,
-//     prePresence?: Presence,
-
-//     role?: Role,
-//     preRole?: Role,
-
-//     state?: VoiceState
-//     preState?: VoiceState
-// }
 
 //#region Statics
 export const Colors = {
@@ -152,19 +117,14 @@ export function GoThroughObjectArray<T>(type: string, preArr: T[], newArr: T[]) 
     changes.keyArray().forEach(key => updateMessage += `**${key}**: ${changes.get(key)}\n`)
     return updateMessage;
 }
-export async function HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: PinguClient, path: string, ...args: PinguClientEvents[EventType]) {
-    try { var event = require(`../../../../..${path}`) as PinguEvent<EventType>; }
-    catch (err) {
-        console.log({ err, caller, path });
-        return client.log('error', `Unable to get event for ${caller}`, null, new Error(err));
-    }
-    
+export async function HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: PinguClient, ...args: PinguClientEvents[EventType]) {
+    const event = client.events.get(caller);
     if (!event || !event.execute && !event.setContent) return; //Event not found or doesn't have any callbacks assigned
 
     async function execute() {
         try { return event.execute(client, ...args); } 
         catch (err) { client.log('error',`${event.name}.execute`, null, new Error(err), {
-                params: { caller, path, args: {...args} },
+                params: { caller, args: {...args} },
                 additional: { event, args }
             }); 
         }
@@ -174,7 +134,7 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
         try { return SendToLog(); } 
         catch (err) {
             client.log('error',`${event.name}.setContent`, null, new Error(err), {
-                params: { caller, path, args: {...args} },
+                params: { caller, args: {...args} },
                 additional: { event, args }
             });
         }
@@ -187,7 +147,7 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
     }
     catch (err) {
         client.log('error',err.message, JSON.stringify(args, null, 2), err, {
-            params: { caller, path, args: {...args} },
+            params: { caller, args: {...args} },
             additional: { event }
         });
     }
@@ -262,7 +222,7 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
             'roleCreate', 'roleUpdate', 'roleDelete',
             'messageBulkDelete'
         ] as EventType[];
-        if (specialEvents.includes(event.name)) emitAssociator = await GetFromAuditLog();
+        if (specialEvents.includes(caller)) emitAssociator = await GetFromAuditLog();
 
         if (emitAssociator == 'Unknown') throw { message: `Event parameter for ${event.name} was not recognized!` };
         if (caller.startsWith('message') && !caller.startsWith('messageReaction') && ['event-log-📹', 'ping-log-🏓', 'console-log-📝'].includes(args[0].channel && (args[0].channel as GuildChannel).name)) return;
@@ -273,7 +233,7 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
         async function GetFromAuditLog() {
             const noAuditLog = PinguEvent.noAuditLog;
 
-            switch (event.name) {
+            switch (caller) {
                 case 'channelCreate': return !args[0].guild ? args[0].recipient.tag : await GetInfo(args[0].guild, 'CHANNEL_CREATE');
                 case 'channelUpdate': return !args[0].guild ? args[0].recipient.tag : await GetInfo(args[0].guild, 'CHANNEL_UPDATE');
                 case 'channelDelete': return !args[0].guild ? args[0].recipient.tag : await GetInfo(args[0].guild, 'CHANNEL_DELETE');
@@ -392,8 +352,8 @@ export class PinguEvent<Event extends keyof PinguClientEvents> extends PinguHand
     public static GoThroughArrays<T>(type: string, preArr: T[], newArr: T[], callback: (item: T, loopItem: T) => T) { return GoThroughArrays(type, preArr, newArr, callback); }
     public static GoThroughObjectArray<T>(type: string, preArr: T[], newArr: T[]) { return GoThroughObjectArray(type, preArr, newArr); }
 
-    public static async HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: PinguClient, path: string, ...args: PinguClientEvents[EventType])
-    { return HandleEvent(caller, client, path, ...args); }
+    public static async HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: PinguClient, ...args: PinguClientEvents[EventType])
+    { return HandleEvent(caller, client, ...args); }
     //#endregion
 
     constructor(

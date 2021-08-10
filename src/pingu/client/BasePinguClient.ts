@@ -55,18 +55,29 @@ class SavedServer {
 export abstract class BasePinguClient<Events extends ClientEvents = any> extends Client {
     public static Clients = Clients;
 
-    constructor(config: IConfigRequirements,  permissions: PermissionString[], subscribedEvents: Array<keyof ClientEvents>, commandsPath?: string, eventsPath?: string, options?: ClientOptions) {
+    constructor(
+        config: IConfigRequirements,  
+        permissions: PermissionString[], 
+        subscribedEvents: Array<keyof ClientEvents>, 
+        dirname: string,
+        commandsPath?: string, 
+        eventsPath?: string, 
+        options?: ClientOptions
+    ) {
         super(options);
         this.config = config;
         this.subscribedEvents = subscribedEvents;
         this.permissions = new PermissionsManager(this, permissions);
         this.emotes = new EmojiCollection(this);
         this.pGuilds = new PinguCollection<Guild, PinguGuild>(this, 'pingu-guild-log', 'PinguGuild', g => new PinguGuild(g, g.owner), c => c.guilds);
-        this.pUsers = new PinguCollection<User, PinguUser>(this, 'pingu-user-log', 'PinguGuild', u => new PinguUser(u), c => c.users);
-
-        if (commandsPath) this.handlePath(commandsPath, 'command');
-        if (eventsPath) this.handlePath(eventsPath, 'event');
+        this.pUsers = new PinguCollection<User, PinguUser>(this, 'pingu-user-log', 'PinguUser', u => new PinguUser(u), c => c.users);
         this.once('ready', this.onceReady);
+
+        if (!dirname.toLowerCase().startsWith('c:')) throw new Error('Incorrect dirname; use __dirname!');
+
+        [commandsPath, eventsPath]
+            .map(path => path && `${dirname}\\${path.replace(/^.\//, '')}`)
+            .forEach((path, i) => this.handlePath(path, i == 0 ? 'command' : 'event'));
     }
 
     //#region Public properties
@@ -170,38 +181,6 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
         if (!Danho) return;
 
         return (await Danho.createDM()).send(message);
-    }
-    public async writeFile(name: string, content: object | string, src: string = './files') {
-        const isJson = typeof content == 'object';
-        const _content = isJson ? JSON.stringify(content) : content as string;
-        const fileName = `/${name}.${isJson ? '.json' : '.txt'}`;
-        const filePath = src.endsWith('/') ? fileName.slice(1) : fileName;
-
-        const filesFolderExists = fs.existsSync(src);
-        const fileExists = fs.existsSync(filePath);
-
-        if (!filesFolderExists) {
-            fs.mkdirSync(src, { recursive: true });
-        }
-
-        if (fileExists) {
-            fs.unlinkSync(filePath);
-        }
-
-        return new Promise<MessageAttachment>((resolve, reject) => {
-            fs.writeFile(fileName, _content, null, async err => {
-                if (err) {
-                    this.log('error', `Unable to create file \`${filePath}\`.`, null, err, {
-                        params: { name, content, src },
-                        additional: { isJson, _content, fileName, filePath, filesFolderExists, fileExists }
-                    });
-                    reject(err);
-                    return null;
-                }
-
-                resolve(new MessageAttachment(fs.readFileSync(filePath), fileName));
-            })
-        });
     }
     //#endregion
 

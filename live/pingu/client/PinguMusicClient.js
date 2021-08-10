@@ -22,8 +22,8 @@ const BasePinguClient_1 = require("./BasePinguClient");
 const fs = require("fs");
 class PinguMusicClient extends BasePinguClient_1.default {
     //#endregion 
-    constructor(config, permissions, subscribedEvents, commandsPath, eventsPath, options) {
-        super(config, permissions, subscribedEvents, commandsPath, eventsPath, options);
+    constructor(config, permissions, subscribedEvents, dirname, commandsPath, eventsPath, options) {
+        super(config, permissions, subscribedEvents, dirname, commandsPath, eventsPath, options);
         this.queues = new discord_js_1.Collection();
     }
     //#region Statics
@@ -93,11 +93,13 @@ class PinguMusicClient extends BasePinguClient_1.default {
         });
     }
     handlePath(path, type) {
+        if (!path)
+            return;
         const files = fs.readdirSync(path);
         for (const file of files) {
             try {
                 if (file.endsWith('.js')) {
-                    let module = require(`../../../../../${path}/${file}`);
+                    let module = require(`${path}/${file}`);
                     module.path = `${path.substring(1, path.length)}/${file}`;
                     if (type == 'event') {
                         if (!module.name || !this.subscribedEvents.find(e => module.name == e))

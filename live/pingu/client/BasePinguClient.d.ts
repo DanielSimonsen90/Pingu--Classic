@@ -1,4 +1,4 @@
-import { ActivityOptions, Client, ClientEvents, ClientOptions, Collection, Guild, Message, MessageAttachment, MessageEmbed, PermissionString, TextChannel, User } from "discord.js";
+import { ActivityOptions, Client, ClientEvents, ClientOptions, Collection, Guild, Message, MessageEmbed, PermissionString, TextChannel, User } from "discord.js";
 export declare const Clients: {
     PinguID: string;
     BetaID: string;
@@ -40,7 +40,7 @@ export declare abstract class BasePinguClient<Events extends ClientEvents = any>
         PinguID: string;
         BetaID: string;
     };
-    constructor(config: IConfigRequirements, permissions: PermissionString[], subscribedEvents: Array<keyof ClientEvents>, commandsPath?: string, eventsPath?: string, options?: ClientOptions);
+    constructor(config: IConfigRequirements, permissions: PermissionString[], subscribedEvents: Array<keyof ClientEvents>, dirname: string, commandsPath?: string, eventsPath?: string, options?: ClientOptions);
     get id(): string;
     get isLive(): boolean;
     readonly DefaultEmbedColor = 3447003;
@@ -65,7 +65,6 @@ export declare abstract class BasePinguClient<Events extends ClientEvents = any>
     log<Type extends LogChannels, LogMethod extends (channel: TextChannel, ...args: LogTypes[Type]) => Promise<Message>>(type: Type, ...args: LogTypes[Type]): Promise<Message>;
     DBExecute<T>(callback: (mongoose: typeof import('mongoose')) => Promise<T>): Promise<T>;
     DanhoDM(message: string): Promise<Message>;
-    writeFile(name: string, content: object | string, src?: string): Promise<MessageAttachment>;
     protected onceReady(): Promise<this>;
     protected abstract handlePath(path: string, type: 'command' | 'event'): void;
     private achievementLog;

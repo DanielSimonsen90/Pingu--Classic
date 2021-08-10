@@ -35,7 +35,7 @@ class SavedServer {
     }
 }
 class BasePinguClient extends discord_js_1.Client {
-    constructor(config, permissions, subscribedEvents, commandsPath, eventsPath, options) {
+    constructor(config, permissions, subscribedEvents, dirname, commandsPath, eventsPath, options) {
         super(options);
         this.DefaultEmbedColor = 3447003;
         this.invite = `https://discord.gg/gbxRV4Ekvh`;
@@ -49,12 +49,13 @@ class BasePinguClient extends discord_js_1.Client {
         this.permissions = new PermissionsManager_1.default(this, permissions);
         this.emotes = new EmojiCollection_1.default(this);
         this.pGuilds = new PinguCollection_1.default(this, 'pingu-guild-log', 'PinguGuild', g => new PinguGuild_1.default(g, g.owner), c => c.guilds);
-        this.pUsers = new PinguCollection_1.default(this, 'pingu-user-log', 'PinguGuild', u => new PinguUser_1.default(u), c => c.users);
-        if (commandsPath)
-            this.handlePath(commandsPath, 'command');
-        if (eventsPath)
-            this.handlePath(eventsPath, 'event');
+        this.pUsers = new PinguCollection_1.default(this, 'pingu-user-log', 'PinguUser', u => new PinguUser_1.default(u), c => c.users);
         this.once('ready', this.onceReady);
+        if (!dirname.toLowerCase().startsWith('c:'))
+            throw new Error('Incorrect dirname; use __dirname!');
+        [commandsPath, eventsPath]
+            .map(path => path && `${dirname}\\${path.replace(/^.\//, '')}`)
+            .forEach((path, i) => this.handlePath(path, i == 0 ? 'command' : 'event'));
     }
     //#region Public properties
     get id() {
@@ -133,35 +134,6 @@ class BasePinguClient extends discord_js_1.Client {
             return (yield Danho.createDM()).send(message);
         });
     }
-    writeFile(name, content, src = './files') {
-        return __awaiter(this, void 0, void 0, function* () {
-            const isJson = typeof content == 'object';
-            const _content = isJson ? JSON.stringify(content) : content;
-            const fileName = `/${name}.${isJson ? '.json' : '.txt'}`;
-            const filePath = src.endsWith('/') ? fileName.slice(1) : fileName;
-            const filesFolderExists = fs.existsSync(src);
-            const fileExists = fs.existsSync(filePath);
-            if (!filesFolderExists) {
-                fs.mkdirSync(src, { recursive: true });
-            }
-            if (fileExists) {
-                fs.unlinkSync(filePath);
-            }
-            return new Promise((resolve, reject) => {
-                fs.writeFile(fileName, _content, null, (err) => __awaiter(this, void 0, void 0, function* () {
-                    if (err) {
-                        this.log('error', `Unable to create file \`${filePath}\`.`, null, err, {
-                            params: { name, content, src },
-                            additional: { isJson, _content, fileName, filePath, filesFolderExists, fileExists }
-                        });
-                        reject(err);
-                        return null;
-                    }
-                    resolve(new discord_js_1.MessageAttachment(fs.readFileSync(filePath), fileName));
-                }));
-            });
-        });
-    }
     //#endregion
     //#region Protected methods
     onceReady() {
@@ -208,7 +180,8 @@ class BasePinguClient extends discord_js_1.Client {
             yield this.pUsers.refresh(this);
             this.pGuildMembers = new discord_js_1.Collection((yield Promise.all(this.guilds.cache.map((guild) => __awaiter(this, void 0, void 0, function* () {
                 return ({
-                    guild, collection: yield new PinguGuildMemberCollection_1.default(this, 'pingu-guild-log', guild).refresh()
+                    guild,
+                    collection: yield new PinguGuildMemberCollection_1.default(this, 'pingu-guild-log', guild).refresh()
                 });
             })))).map(({ guild, collection }) => [guild, collection]));
             this.emit('onready', this);
