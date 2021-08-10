@@ -9,7 +9,7 @@ class PClient {
         this._id = client.user.id;
         this.displayName = guild.me.displayName;
         const botRole = guild.me.roles.cache.find(r => r.managed);
-        this.embedColor = botRole && botRole.color || discord_js_1.Util.resolveColor(guild.me.displayHexColor) || pinguClient.DefaultEmbedColor;
+        this.embedColor = (botRole === null || botRole === void 0 ? void 0 : botRole.color) || discord_js_1.Util.resolveColor(guild.me.displayHexColor) || pinguClient.DefaultEmbedColor;
         this.prefix = pinguClient.DefaultPrefix;
     }
 }

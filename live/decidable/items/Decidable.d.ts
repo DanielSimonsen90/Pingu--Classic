@@ -8,4 +8,5 @@ export declare class Decidable {
     channel: PChannel;
     endsAt: Date;
 }
+export declare type ApproveTypes = 'Undecided' | 'Approved' | 'Denied';
 export default Decidable;

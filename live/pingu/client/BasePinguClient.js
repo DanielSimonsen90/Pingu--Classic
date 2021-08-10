@@ -9,33 +9,62 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BasePinguClient = exports.Clients = void 0;
+exports.BasePinguClient = exports.ToBasePinguClient = exports.Clients = void 0;
 const discord_js_1 = require("discord.js");
+const fs = require("fs");
 exports.Clients = {
     PinguID: '562176550674366464',
     BetaID: '778288722055659520'
 };
-const PinguLibrary_1 = require("../library/PinguLibrary");
+function ToBasePinguClient(client) { return client; }
+exports.ToBasePinguClient = ToBasePinguClient;
+const PinguCollection_1 = require("../collection/PinguCollection");
+const DeveloperCollection_1 = require("../collection/DeveloperCollection");
+const EmojiCollection_1 = require("../collection/EmojiCollection");
+const PinguGuildMemberCollection_1 = require("../collection/PinguGuildMemberCollection");
+const database_1 = require("../../database");
+const PermissionsManager_1 = require("../PermissionsManager");
+const PinguCacheManager_1 = require("../PinguCacheManager");
+const PinguBadge_1 = require("../badge/PinguBadge");
+const PinguUser_1 = require("../user/PinguUser");
+const PinguGuild_1 = require("../guild/PinguGuild");
+class SavedServer {
+    constructor(name, id) {
+        this.name = name;
+        this.id = id;
+    }
+}
 class BasePinguClient extends discord_js_1.Client {
-    constructor(config, subscribedEvents, commandsPath, eventsPath, options) {
+    constructor(config, permissions, subscribedEvents, commandsPath, eventsPath, options) {
         super(options);
+        this.DefaultEmbedColor = 3447003;
+        this.invite = `https://discord.gg/gbxRV4Ekvh`;
         this.commands = new discord_js_1.Collection();
         this.events = new discord_js_1.Collection();
         this.subscribedEvents = new Array();
-        this.DefaultEmbedColor = 3447003;
+        this.clients = new discord_js_1.Collection();
+        this.cache = new PinguCacheManager_1.default();
         this.config = config;
         this.subscribedEvents = subscribedEvents;
+        this.permissions = new PermissionsManager_1.default(this, permissions);
+        this.emotes = new EmojiCollection_1.default(this);
+        this.pGuilds = new PinguCollection_1.default(this, 'pingu-guild-log', 'PinguGuild', g => new PinguGuild_1.default(g, g.owner), c => c.guilds);
+        this.pUsers = new PinguCollection_1.default(this, 'pingu-user-log', 'PinguGuild', u => new PinguUser_1.default(u), c => c.users);
         if (commandsPath)
-            this.HandlePath(commandsPath, 'command');
+            this.handlePath(commandsPath, 'command');
         if (eventsPath)
-            this.HandlePath(eventsPath, 'event');
+            this.handlePath(eventsPath, 'event');
+        this.once('ready', this.onceReady);
     }
+    //#region Public properties
     get id() {
         return this.user.id;
     }
     get isLive() {
-        return this.user.id == exports.Clients.PinguID;
+        return this.id == exports.Clients.PinguID;
     }
+    //#endregion
+    //#region Publoic Overwritten methods
     setActivity(options) {
         if (options)
             return this.user.setActivity(options);
@@ -59,7 +88,7 @@ class BasePinguClient extends discord_js_1.Client {
             activity =
                 date.day == 3 ? new Activity(`Danho's birthday wishes`, 'LISTENING') :
                     date.day == 4 ? new Activity('Star Wars', 'WATCHING') : null;
-        let Danho = PinguLibrary_1.Developers.get('Danho');
+        let Danho = this.developers.get('Danho');
         let DanhoStream = Danho.presence.activities.find(a => a.type == 'STREAMING');
         if (DanhoStream)
             return this.user.setActivity({
@@ -74,16 +103,287 @@ class BasePinguClient extends discord_js_1.Client {
             type: activity.type
         });
     }
-    login(token) {
-        const _super = Object.create(null, {
-            login: { get: () => super.login }
-        });
+    //#endregion
+    //#region Public methods
+    log(type, ...args) {
         return __awaiter(this, void 0, void 0, function* () {
-            let result = yield _super.login.call(this, token);
+            const logChannel = this.logChannels.get(type);
+            return new discord_js_1.Collection([
+                ['achievement', this.achievementLog],
+                ['console', this.consoleLog],
+                ['error', this.errorLog],
+                ['event', this.eventLog],
+                ['pGuild', this.pGuildLog],
+                ['pUser', this.pUserLog],
+                ['ping', this.pingLog],
+                ['raspberry', this.raspberryLog],
+                ['tell', this.tellLog]
+            ]).get(type)(logChannel, ...args);
+        });
+    }
+    DBExecute(callback) {
+        return __awaiter(this, void 0, void 0, function* () { return database_1.DBExecute(this, callback); });
+    }
+    DanhoDM(message) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.error(message);
+            const Danho = this.developers.get('Danho');
+            if (!Danho)
+                return;
+            return (yield Danho.createDM()).send(message);
+        });
+    }
+    writeFile(name, content, src = './files') {
+        return __awaiter(this, void 0, void 0, function* () {
+            const isJson = typeof content == 'object';
+            const _content = isJson ? JSON.stringify(content) : content;
+            const fileName = `/${name}.${isJson ? '.json' : '.txt'}`;
+            const filePath = src.endsWith('/') ? fileName.slice(1) : fileName;
+            const filesFolderExists = fs.existsSync(src);
+            const fileExists = fs.existsSync(filePath);
+            if (!filesFolderExists) {
+                fs.mkdirSync(src, { recursive: true });
+            }
+            if (fileExists) {
+                fs.unlinkSync(filePath);
+            }
+            return new Promise((resolve, reject) => {
+                fs.writeFile(fileName, _content, null, (err) => __awaiter(this, void 0, void 0, function* () {
+                    if (err) {
+                        this.log('error', `Unable to create file \`${filePath}\`.`, null, err, {
+                            params: { name, content, src },
+                            additional: { isJson, _content, fileName, filePath, filesFolderExists, fileExists }
+                        });
+                        reject(err);
+                        return null;
+                    }
+                    resolve(new discord_js_1.MessageAttachment(fs.readFileSync(filePath), fileName));
+                }));
+            });
+        });
+    }
+    //#endregion
+    //#region Protected methods
+    onceReady() {
+        return __awaiter(this, void 0, void 0, function* () {
             this.DefaultPrefix = this.isLive || !this.config.BetaPrefix ? this.config.Prefix : this.config.BetaPrefix;
-            return result;
+            this.savedServers = (() => {
+                return new discord_js_1.Collection([
+                    new SavedServer('Danho Misc', '460926327269359626'),
+                    new SavedServer('Pingu Support', '756383096646926376'),
+                    new SavedServer('Pingu Emotes', '791312245555855401'),
+                    new SavedServer('Deadly Ninja', '405763731079823380')
+                ].map(({ name, id }) => [name, this.guilds.cache.get(id)]));
+            })();
+            this.logChannels = (() => {
+                return new discord_js_1.Collection(new discord_js_1.Collection([
+                    ['achievement', 'achievement-log-🏆'],
+                    ['console', 'console-log-📝'],
+                    ['error', 'error-log-⚠'],
+                    ['event', 'event-log-📹'],
+                    ['pGuild', 'pingu-guild-log-🏡'],
+                    ['pUser', 'pingu-user-log-🧍'],
+                    ['ping', 'ping-log-🏓'],
+                    ['raspberry', 'raspberry-log-🍇'],
+                    ['tell', 'tell-log-💬']
+                ]).map((channelName, key) => {
+                    const logChannels = this.savedServers.get('Pingu Support').channels.cache.find(c => c.name.includes('Pingu Logs'));
+                    const logChannel = logChannels.children.find(c => c.name == channelName);
+                    return [key, logChannel];
+                }));
+            })();
+            this.clients = new discord_js_1.Collection([
+                ['Live', this.isLive ? this.user : yield this.users.fetch(exports.Clients.PinguID)],
+                ['Beta', !this.isLive ? this.user : yield this.users.fetch(exports.Clients.BetaID)]
+            ]);
+            const devUsers = yield Promise.all(DeveloperCollection_1.developers.map(id => this.users.fetch(id)));
+            this.developers = devUsers.reduce((result, user) => result.set(DeveloperCollection_1.developers.findKey(id => id == user.id), user), new DeveloperCollection_1.default());
+            this.badges = new discord_js_1.Collection(PinguBadge_1.TempBadges.map((temp, name) => {
+                const guild = this.savedServers.get(temp.guild);
+                const emoji = guild.emojis.cache.find(e => e.name == temp.emojiName);
+                return [name, new PinguBadge_1.PinguBadge(name, emoji, temp.weight)];
+            }));
+            this.emotes.refresh(this);
+            yield this.pGuilds.refresh(this);
+            yield this.pUsers.refresh(this);
+            this.pGuildMembers = new discord_js_1.Collection((yield Promise.all(this.guilds.cache.map((guild) => __awaiter(this, void 0, void 0, function* () {
+                return ({
+                    guild, collection: yield new PinguGuildMemberCollection_1.default(this, 'pingu-guild-log', guild).refresh()
+                });
+            })))).map(({ guild, collection }) => [guild, collection]));
+            this.emit('onready', this);
+            return this;
+        });
+    }
+    //#endregion
+    //#region Log Methods
+    achievementLog(channel, achievementEmbed) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return channel.send(achievementEmbed);
+        });
+    }
+    consoleLog(channel, message, type = 'log') {
+        return __awaiter(this, void 0, void 0, function* () {
+            console[type](`[${new Date().toLocaleTimeString()}] ${message}`);
+            return channel.send(message);
+        });
+    }
+    errorLog(channel, message, messageContent, err, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const that = channel.client;
+            //Get #error-log
+            let errorPath = './errors';
+            if (!fs.existsSync(errorPath)) {
+                fs.mkdirSync(errorPath);
+                fs.writeFileSync(`${errorPath}/dont delete me pls.txt`, ``);
+            }
+            const errorID = fs.readdirSync(errorPath).filter(file => file.endsWith('.json')).length;
+            const consoleLogChannel = that.logChannels.get('console');
+            const fsCallback = (fileExtension) => that.consoleLog(consoleLogChannel, `Created ${fileExtension} file for error #${errorID}.`);
+            const jsonErrorContent = JSON.stringify({ err, params }, null, 2);
+            fs.writeFile(`${errorPath}/${errorID}.json`, jsonErrorContent, () => fsCallback('json'));
+            //Send and react
+            const sentCatcher = (e, fileExtension) => __awaiter(this, void 0, void 0, function* () {
+                console.error(`Caught error with:\n${e.message}\n\n`);
+                if (new RegExp(/Must be (2|4)000 or fewer in length\./).test(e.message)) {
+                    const filePath = `${errorPath}/${errorID}.${fileExtension}`;
+                    if (fileExtension == 'txt') {
+                        const fileContent = getErrorMessage(message, messageContent, err);
+                        fs.writeFile(filePath, fileContent, () => fsCallback(fileExtension));
+                    }
+                    return channel.send(new discord_js_1.MessageAttachment(filePath, `Error ${errorID}.${fileExtension}`));
+                }
+            });
+            let sent = yield sendMessage(getErrorMessage(message, messageContent, err)).catch(err => sentCatcher(err, 'txt'));
+            let paramsSent = yield sendMessage("```\n[Parameters]:\n" + jsonErrorContent + "\n```").catch(err => sentCatcher(err, 'json'));
+            //Add to errorCache
+            that.cache.errors.set(errorID, [sent, paramsSent]);
+            //Send original errror message
+            return sent;
+            function getErrorMessage(message, messageContent, err) {
+                let result = {
+                    errorID: `Error #${errorID}\n`,
+                    format: "```\n",
+                    providedMessage: `[Provided Message]\n${message}\n\n`,
+                    errorMessage: `[Error message]: \n${err && err.message}\n\n`,
+                    messageContent: `[Message content]\n${messageContent}\n\n`,
+                    stack: `[Stack]\n${err && err.stack}\n\n\n`,
+                };
+                let returnMessage = (result.errorID +
+                    result.format +
+                    result.providedMessage +
+                    (messageContent ? result.messageContent : "") +
+                    (err ? result.errorMessage + result.stack : "") +
+                    result.format);
+                that.consoleLog(consoleLogChannel, returnMessage);
+                return returnMessage;
+            }
+            function sendMessage(content) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    console.error(content.includes('`') ? content.replace('`', ' ') : content);
+                    let sent = yield channel.send(content);
+                    yield sent.react(that.emotes.get('Checkmark')[0]);
+                    yield sent.react('📄'); //Get error file
+                    //Create reaction handler
+                    sent.createReactionCollector(() => true).on('collect', (reaction, user) => __awaiter(this, void 0, void 0, function* () {
+                        if (!that.developers.isPinguDev(user) || !reaction.users.cache.has(that.id))
+                            return reaction.remove();
+                        if (reaction.emoji.name == '📄') {
+                            let fileMessage = yield reaction.message.channel.send(new discord_js_1.MessageAttachment(`${errorPath}/${errorID}.json`, `Error ${errorID}.json`));
+                            return that.cache.errors.set(errorID, [...that.cache.errors.get(errorID), fileMessage]);
+                        }
+                        that.cache.errors.get(errorID).forEach(m => m.delete({ reason: `Error #${errorID}, was marked as solved by ${user.tag}` }));
+                        const errorFiles = fs.readdirSync(errorPath).filter(file => file.startsWith(errorID.toString()));
+                        errorFiles.forEach(file => fs.unlink(`${errorPath}/${file}`, () => that.log('console', `Deleted error #${errorID}.`)));
+                    }));
+                    return sent;
+                });
+            }
+        });
+    }
+    eventLog(channel, content) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.isLive)
+                return null;
+            const lastCache = this.cache.events[0];
+            if (lastCache && (lastCache.description && lastCache.description == content.description ||
+                lastCache.fields[0] && content.fields[0] && lastCache.fields[0].value == content.fields[0].value))
+                return;
+            this.cache.events.unshift(content);
+            return channel.send(content);
+        });
+    }
+    pingLog(channel, timestamp) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const pingChannelSent = yield channel.send(`Calculating ping`);
+            const latency = pingChannelSent.createdTimestamp - timestamp;
+            return pingChannelSent.edit(latency + 'ms');
+        });
+    }
+    pGuildLog(channel, script, message, err) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (err) {
+                var errorLink = (yield this.log('error', `PinguGuild Error: "${message}"`, null, err)).url;
+                return channel.send(`[**Failed**] [**${script}**]: ${message}\n${err.message}\n\n${errorLink}\n\n<@&756383446871310399>`);
+            }
+            return channel.send(`[**Success**] [**${script}**]: ${message}`);
+        });
+    }
+    pUserLog(channel, script, message, err) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (err) {
+                var errorLink = (yield this.log('error', `PinguUser Error (**${script}**): "${message}"`, null, err)).url;
+                return channel.send(`[**Failed**] [**${script}**]: ${message}\n${err.message}\n\n${errorLink}\n\n<@&756383446871310399>`);
+            }
+            return channel.send(`[**Success**] [**${script}**]: ${message}`);
+        });
+    }
+    raspberryLog(channel) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const client = ToBasePinguClient(channel.client);
+            if (!client.isLive)
+                return null;
+            return channel.send(`Booted on version **${client.config.version}**.`);
+        });
+    }
+    tellLog(channel, sender, reciever, message) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.isLive)
+                return null;
+            if (message.constructor.name == "Message") {
+                var messageAsMessage = message;
+                var consoleLogValue = messageAsMessage.content ? `${sender.username} sent a message to ${reciever.username} saying ` :
+                    messageAsMessage.attachments.size == 1 ? `${sender.username} sent a file to ${reciever.username}` :
+                        messageAsMessage.attachments.size > 1 ? `${sender.username} sent ${messageAsMessage.attachments.size} files to ${reciever.username}` :
+                            `${sender.username} sent something unknown to ${reciever.username}!`;
+                if (messageAsMessage.content)
+                    consoleLogValue += messageAsMessage.content;
+                if (messageAsMessage.attachments)
+                    consoleLogValue += messageAsMessage.attachments.map(a => `\n${a.url}`);
+                this.log('console', consoleLogValue);
+                var format = (ping) => `${new Date().toLocaleTimeString()} [${(ping ? sender : sender.username)} ➡️ ${(ping ? reciever : reciever.username)}]`;
+                if (messageAsMessage.content && messageAsMessage.attachments)
+                    channel.send(format(false) + `: ||${messageAsMessage.content}||`, messageAsMessage.attachments.array())
+                        .then(sent => sent.edit(format(true) + `: ||${messageAsMessage.content}||`));
+                else if (messageAsMessage.content)
+                    channel.send(format(false) + `: ||${messageAsMessage.content}||`)
+                        .then(sent => sent.edit(format(true) + `: ||${messageAsMessage.content}||`));
+                else if (messageAsMessage.attachments)
+                    channel.send(format(false), messageAsMessage.attachments.array())
+                        .then(sent => sent.edit(format(true)));
+                else
+                    this.log('error', `${sender} ➡️ ${reciever} sent something that didn't have content or attachments`, message.constructor.name == 'Message' ? message.content : message.description, null, {
+                        params: { sender, reciever, message },
+                        additional: { tellLogChannel: channel, consoleLogValue }
+                    }).then(() => channel.send(`Ran else statement - I've contacted my developers!`));
+            }
+            else if (message.constructor.name == "MessageEmbed") {
+                this.log('console', `The link between ${sender.username} & ${reciever.username} was unset.`);
+                channel.send(message);
+            }
         });
     }
 }
 exports.BasePinguClient = BasePinguClient;
+BasePinguClient.Clients = exports.Clients;
 exports.default = BasePinguClient;

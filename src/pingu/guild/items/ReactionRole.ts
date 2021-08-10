@@ -1,15 +1,17 @@
-import { Message, Role, GuildChannel, MessageReaction, Client, User, MessageEmbed } from "discord.js";
-import { GetPGuild, UpdatePGuild, PinguGuild } from "../PinguGuild";
-import { PRole, PChannel } from "../../../database/json";
-import { PermissionCheck, PermissionGranted, errorLog, consoleLog } from "../../library/PinguLibrary";
-import { ToPinguClient } from '../../client/PinguClient'
+import { Message, Role, GuildChannel, MessageReaction, Client, User, MessageEmbed, Collection } from "discord.js";
+import PinguGuild from '../PinguGuild';
+import { PRole, PChannel } from '../../../database/json';
+import { Clients } from '../../client/BasePinguClient';
+import { ToPinguClient } from '../../client/PinguClient';
 
-export async function GetReactionRole(client: Client, reaction: MessageReaction, user: User) {
-    let guild = reaction.message.guild;
+export async function GetReactionRole(reaction: MessageReaction, user: User) {
+    let { guild } = reaction.message;
     if (!guild) return;
 
-    let pGuild = await GetPGuild(guild);
-    var rr = pGuild.settings.reactionRoles.find(rr =>
+    const client = ToPinguClient(reaction.client);
+
+    let pGuild = client.pGuilds.get(guild);
+    const rr = pGuild.settings.reactionRoles.find(rr =>
         rr.messageID == reaction.message.id &&
         (rr.emoteName == reaction.emoji.name) &&
         rr.channel._id == reaction.message.channel.id
@@ -19,143 +21,160 @@ export async function GetReactionRole(client: Client, reaction: MessageReaction,
     let { pRole } = rr;
     let member = guild.member(user);
 
-    let permCheck = PermissionCheck({
+    let permCheck = client.permissions.checkFor({
         author: client.user,
-        client,
         channel: reaction.message.channel as GuildChannel,
-        content: "No content provided"
     }, 'MANAGE_ROLES');
-    if (permCheck != PermissionGranted) {
-        guild.owner.send(`I tried to give ${member.displayName} the ${pRole.name}, as ${permCheck}`);
-        user.send(`I'm unable to give you the reactionrole at the moment! I've contacted ${user.username} about this.`);
+    if (permCheck != client.permissions.PermissionGranted) {
+        guild.owner.send(`I tried to give ${member.displayName} "${pRole.name}", as ${permCheck}`);
+        user.send(`I'm unable to give you the reactionrole at the moment! I've contacted ${guild.owner} about this.`);
         return null;
     }
 
     return guild.roles.fetch(pRole._id);
 }
 export async function OnReactionAdd(reaction: MessageReaction, user: User) {
-    const { client } = user;
+    const client = ToPinguClient(reaction.client);
+
     try {
-        var role = await GetReactionRole(client, reaction, user);
+        const role = await GetReactionRole(reaction, user);
         if (!role) return;
 
-        var member = reaction.message.guild.member(user);
+        const member = reaction.message.guild.member(user);
 
         member.roles.add(role, `ReactionRole in ${(reaction.message.channel as GuildChannel).name}.`)
-            .catch(err => errorLog(client, `Unable to give ${user.username} the ${role.name} role for reacting!`, null, err, {
+            .catch(err => client.log('error', `Unable to give **${user.tag}** "${role.name}" role for reacting!`, null, err, {
                 params: { client, reaction, user },
                 trycatch: { role, member }
             }))
-            .then(() => consoleLog(client, `Gave ${user.username} ${role.name} for ReactionRole`));
+            .then(() => client.log('console', `Gave **${user.tag}** "${role.name}" for ReactionRole`));
 
     } catch (err) {
-        errorLog(client, `${module.exports.name} error`, null, err, {
-            params: { client, reaction, user },
-            trycatch: { role, member }
-        });
+        client.log('error', `${module.exports.name} error`, null, err, { params: { reaction, user } });
     }
 }
 export async function OnReactionRemove(reaction: MessageReaction, user: User) {
-    const { client } = reaction.message;
+    const client = ToPinguClient(reaction.client);
+
+    if (client.id == user.id) {
+        const pGuild = client.pGuilds.get(reaction.message.guild);
+        const rr = pGuild.settings.reactionRoles.find(rr => rr.messageID == reaction.message.id && rr.emoteName == reaction.emoji.name);
+
+        return RemoveReactionRole(rr, pGuild.settings.reactionRoles, pGuild, client);
+    }
+
     try {
-        var role = await GetReactionRole(client, reaction, user);
+        const role = await GetReactionRole(reaction, user);
         if (!role) return;
 
-        var member = reaction.message.guild.member(user);
+        const member = reaction.message.guild.member(user);
 
         member.roles.remove(role, `ReactionRole in ${(reaction.message.channel as GuildChannel).name}.`)
-            .catch(err => errorLog(client, `Unable to remove ${user.username}'s ${role.name} role for unreacting!`, null, err, {
+            .catch(err => client.log('error', `Unable to remove ${user.username}'s ${role.name} role for unreacting!`, null, err, {
                 params: { client, reaction, user },
                 trycatch: { role, member }
             }));
-        consoleLog(client, `Removed ${user.username}'s ${role.name} role for ReactionRole`);
+        client.log('error', `Removed ${user.tag}'s "${role.name}" role for ReactionRole`);
     } catch (err) {
-        errorLog(client, `ReactionRole.OnReactionRemove error`, null, err, {
-            params: { client, reaction, user },
-            trycatch: { role, member }
-        });
+        client.log('error', `ReactionRole.OnReactionRemove error`, null, err, { params: { client, reaction, user } });
     }
 }
-export async function OnReactionRemoveAll(message: Message, client?: Client) {
-    if (!client) client = message.client;
+export async function OnReactionRemoveAll(message: Message) {
+    const { guild, id, client: _client } = message;
+    const client = ToPinguClient(_client);
 
-    let pGuild = await GetPGuild(message.guild);
+    let pGuild = client.pGuilds.get(guild);
     if (!pGuild.settings.reactionRoles[0]) return;
 
     for (var rr of pGuild.settings.reactionRoles) {
-        if (rr.messageID != message.id) continue;
+        if (rr.messageID != id) continue;
 
         let i = pGuild.settings.reactionRoles.indexOf(rr)
         pGuild.settings.reactionRoles.splice(i, 1);
 
-        consoleLog(message.client, `Removed ${rr.emoteName} => ${rr.pRole.name}`);
+        client.log('error', `Removed ${rr.emoteName} => ${rr.pRole.name}`);
     }
 
-    return UpdatePGuild(message.client, ['settings'], pGuild, module.exports.name, `Removed **${message.guild.name}**'s reactionroles for ${message.id}`)
+    return client.pGuilds.update(pGuild, 'ReactionRole.OnreactionRemoveAll()', `Removed **${guild.name}**'s reactionroles for ${id}`)
 }
-export async function RemoveReaction(reaction: MessageReaction): Promise<void> {
-    let guild = reaction.message.guild;
+export async function RemoveReaction(reaction: MessageReaction) {
+    const { guild, client: _client, id } = reaction.message;
     if (!guild) return;
-
-    let pGuild = await GetPGuild(guild);
+    
+    const client = ToPinguClient(_client);
+    let pGuild = client.pGuilds.get(guild);
     if (!pGuild) return;
 
     let { reactionRoles } = pGuild.settings;
     if (!reactionRoles) return;
 
-    let rr = reactionRoles.find(rr => rr.emoteName == reaction.emoji.name && rr.messageID == reaction.message.id);
+    let rr = reactionRoles.find(rr => rr.emoteName == reaction.emoji.name && rr.messageID == id);
     if (!rr) return;
 
-    return RemoveReactionRole(rr, reactionRoles, pGuild, reaction.client);
+    return RemoveReactionRole(rr, reactionRoles, pGuild, client);
 }
-export async function RemoveReactionRole(rr: ReactionRole, reactionRoles: ReactionRole[], pGuild: PinguGuild, client: Client): Promise<void> {
-    let index = reactionRoles.indexOf(rr);
-    reactionRoles[index] = null;
+export async function RemoveReactionRole(rr: ReactionRole, reactionRoles: ReactionRole[], pGuild: PinguGuild, _client: Client) {
+    let i = reactionRoles.indexOf(rr);
+    reactionRoles.splice(i);
+    pGuild.settings.reactionRoles = reactionRoles;
 
-    UpdatePGuild(client, ['settings'], pGuild, module.exports.name, `Removed ${rr.emoteName} from **${pGuild.name}**'s Pingu Guild.`)
-    return;
+    return ToPinguClient(_client).pGuilds.update(pGuild, `ReactionRole.RemoveReactionRole()`, `Removed ${rr.emoteName} from **${pGuild.name}**'s Pingu Guild.`)
 }
 export async function OnMessageDelete(message: Message) {
-    let client = ToPinguClient(message.client);
-
-    let { guild } = message;
+    const { guild, id, client: _client } = message;
     if (!guild) return;
 
-    let pGuild = await PinguGuild.Get(guild);
+    const client = ToPinguClient(_client);
+    const pGuild = client.pGuilds.get(guild);
     if (!pGuild) return;
 
-    let pGuildClient = client.toPClient(pGuild);
+    const pGuildClient = client.toPClient(pGuild);
 
-    let { reactionRoles } = pGuild.settings;
-    let rrFromMessage = reactionRoles.filter(rr => rr.messageID == message.id && rr.pRole)
+    const { reactionRoles } = pGuild.settings;
+    const rrFromMessage = reactionRoles.filter(rr => rr.messageID == id && rr.pRole)
 
     if (!rrFromMessage) return;
 
-    let rrEmotes = rrFromMessage.map(rr => rr.emoteName);
+    const rrEmotes = rrFromMessage.map(rr => rr.emoteName);
 
-    let warningMessageInfo = rrFromMessage.map(rr => `${guild.emojis.cache.find(e => e.name == rr.emoteName)}: ${guild.roles.cache.find(r => r.id == rr.pRole._id)}`);
+    const warningMessageInfo = await Promise.all(rrFromMessage.map(async rr => `${guild.emojis.cache.find(r => r.name == rr.emoteName) || rr.emoteName}: ${await guild.roles.fetch(rr.pRole._id) || rr.pRole.name}`));
     if (!warningMessageInfo[0]) return;
 
-    for (var reaction of message.reactions.cache.array()) {
+    for (var [_, reaction] of message.reactions.cache) {
         if (!rrEmotes.includes(reaction.emoji.name)) continue;
 
-        let gMembers = reaction.users.cache.array().map(u => guild.member(u));
+        let gMembers = reaction.users.cache.map(u => guild.member(u));
         let rr = reactionRoles.find(rr => rr.emoteName == reaction.emoji.name);
         let role = await guild.roles.fetch(rr.pRole._id);
 
         for (var gm of gMembers) await gm.roles.remove(role, `ReactionRole message deleted`);
     }
-
-    return message.author.send(new MessageEmbed()
-        .setTitle(`ReactionRole message deleted!`)
-        .setColor(pGuildClient.embedColor)
-        .setTimestamp(Date.now())
-        .setDescription(
-            `**Your reactionrole message in ${message.channel} was deleted!**\n` +
-            `It had these reactionroles assigned to it:\n` +
-            warningMessageInfo.join(`\n`)
+    
+    const bots = new Collection<string, User>(
+        ...message.reactions.cache.map(r => r.users.cache
+            .filter(u => u.bot && [Clients.BetaID, Clients.PinguID].includes(u.id))
+            .map((v, k) => [k, v] as readonly [string, User])
         )
-    )
+    );
+    
+    const PinguReacted = bots.get(Clients.PinguID) != null;
+    const PinguOnline = (await client.clients.get('Live').fetch(true)).presence.status == 'online';
+
+    if (PinguReacted && PinguOnline && !client.isLive) return; 
+
+    pGuild.settings.reactionRoles == pGuild.settings.reactionRoles.filter(rr => !rrFromMessage.includes(rr));
+    client.pGuilds.update(pGuild, `ReactionRole.OnMessageDelete()`, `Reaction Roles removed due to reaction role message being deleted.`)
+
+    return message.author.send(new MessageEmbed({
+        title: `ReactionRole message deleted!`,
+        color: pGuildClient.embedColor,
+        timestamp: Date.now(),
+        description: [
+            `**Your reactionrole message in ${message.channel} was deleted!**`,
+            `It had these reactionroles assigned to it:`,
+            warningMessageInfo.join(`\n`)
+        ].join('\n')
+    }))
 }
 
 export class ReactionRole {
@@ -171,10 +190,10 @@ export class ReactionRole {
     public emoteName: string
     public pRole: PRole
 
-    public static async GetReactionRole(client: Client, reaction: MessageReaction, user: User) { return GetReactionRole(client, reaction, user); }
+    public static async GetReactionRole(reaction: MessageReaction, user: User) { return GetReactionRole(reaction, user); }
     public static async OnReactionAdd(reaction: MessageReaction, user: User) { return OnReactionAdd(reaction, user); }
     public static async OnReactionRemove(reaction: MessageReaction, user: User) { return OnReactionRemove(reaction, user); }
-    public static async OnReactionRemoveAll(message: Message, client?: Client) { return OnReactionRemoveAll(message, client); }
+    public static async OnReactionRemoveAll(message: Message) { return OnReactionRemoveAll(message); }
     public static async RemoveReaction(reaction: MessageReaction) { return RemoveReaction(reaction); }
     public static async RemoveReactionRole(rr: ReactionRole, reactionRoles: ReactionRole[], pGuild: PinguGuild, client: Client) { return RemoveReactionRole(rr, reactionRoles, pGuild, client) }
     public static async OnMessageDelete(message: Message) { return OnMessageDelete(message); }

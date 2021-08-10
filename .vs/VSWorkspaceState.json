@@ -1,10 +1,13 @@
 {
   "ExpandedNodes": [
     "",
-    "\\bin",
-    "\\src",
-    "\\src\\pingu"
+    "\\live",
+    "\\live\\pingu",
+    "\\live\\pingu\\client",
+    "\\live\\pingu\\guild",
+    "\\live\\pingu\\guild\\items",
+    "\\src"
   ],
-  "SelectedNode": "\\src\\pingu",
+  "SelectedNode": "\\live\\pingu\\client\\BasePinguClient.d.ts",
   "PreviewInSolutionExplorer": false
 }

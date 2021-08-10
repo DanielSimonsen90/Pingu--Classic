@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GuildMemberAchievementConfig = void 0;
 const discord_js_1 = require("discord.js");
 const AchievementConfigBase_1 = require("./AchievementConfigBase");
-const PinguClient_1 = require("../../client/PinguClient");
 class GuildMemberAchievementConfig extends AchievementConfigBase_1.AchievementConfigBase {
     constructor(notificationType) {
         super();
@@ -23,13 +22,14 @@ class GuildMemberAchievementConfig extends AchievementConfigBase_1.AchievementCo
             _notify: { get: () => super._notify }
         });
         return __awaiter(this, void 0, void 0, function* () {
-            return _super._notify.call(this, client, achievement, percentage => new discord_js_1.MessageEmbed()
-                .setTitle(`🏆 Achievement Unlocked! 🏆\n${achievement.name}`)
-                .setDescription(achievement.description)
-                .setFooter(`${percentage.value}% of all members have achieved this!`)
-                .setTimestamp(Date.now())
-                .setThumbnail(achiever.user.avatarURL())
-                .setColor(PinguClient_1.ToPinguClient(client).DefaultEmbedColor), config.channel || { _id: (yield achiever.user.createDM()).id }, config.notificationType, achiever.guild);
+            return _super._notify.call(this, client, achievement, percentage => new discord_js_1.MessageEmbed({
+                title: `🏆 Achievement Unlocked! 🏆\n${achievement.name}`,
+                description: achievement.description,
+                footer: { text: `${percentage.value}% of all members have achieved this!` },
+                timestamp: Date.now(),
+                thumbnail: { url: achiever.user.avatarURL() },
+                color: client.DefaultEmbedColor
+            }), config.channel || { _id: (yield achiever.user.createDM()).id }, config.notificationType, achiever.guild);
         });
     }
 }

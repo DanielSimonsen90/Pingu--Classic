@@ -14,8 +14,6 @@ const AchievementBase_1 = require("./AchievementBase");
 const GuildAchievement_1 = require("./GuildAchievement");
 const Percentage_1 = require("../../../helpers/Percentage");
 const BasePinguClient_1 = require("../../client/BasePinguClient");
-const PinguGuild_1 = require("../../guild/PinguGuild");
-const PinguUser_1 = require("../../user/PinguUser");
 class GuildMemberAchievement extends AchievementBase_1.default {
     constructor(id, name, key, type, description) {
         super(id, name, description);
@@ -31,9 +29,9 @@ class GuildMemberAchievement extends AchievementBase_1.default {
             return true;
         });
     }
-    getPercentage(guild) {
+    getPercentage(client, guild) {
         return __awaiter(this, void 0, void 0, function* () {
-            let pGuildMembersMap = ((yield PinguGuild_1.GetPGuild(guild)).members);
+            const pGuildMembersMap = client.pGuilds.get(guild).members;
             let whole = pGuildMembersMap.size;
             let pGuildMembers = [];
             pGuildMembersMap.forEach(v => pGuildMembers.push(v));
@@ -45,7 +43,7 @@ class GuildMemberAchievement extends AchievementBase_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             if (!message.guild)
                 return false;
-            let pGuild = yield PinguGuild_1.GetPGuild(message.guild);
+            let pGuild = message.client.pGuilds.get(message.guild);
             return callback(pGuild.settings.config.decidables).find(d => d._id == message.id) != null;
         });
     }
@@ -67,10 +65,11 @@ GuildMemberAchievement.Achievements = [
     new GuildMemberAchievement(10, "I am inevitable", 'COMMAND', 'clear', GuildMemberAchievement.useCommand('clear', "\"snap\" messages in a chat")),
     new GuildMemberAchievement(11, "I see only what I want to see", 'EVENT', 'messageReactionAdd', "Use the server's ReactionRole feature")
         .setCallback('messageReactionAdd', ([reaction, user]) => __awaiter(void 0, void 0, void 0, function* () {
-        const { guild } = reaction.message;
+        const { guild, client: _client } = reaction.message;
         if (!guild)
             return false;
-        const pGuild = yield PinguGuild_1.GetPGuild(guild);
+        const client = _client;
+        const pGuild = client.pGuilds.get(guild);
         if (!pGuild)
             return false;
         const { reactionRoles } = pGuild.settings;
@@ -82,11 +81,12 @@ GuildMemberAchievement.Achievements = [
     new GuildMemberAchievement(13, "Proffesional DJ", 'COMMAND', 'music', GuildMemberAchievement.useCommand('music', "play some sick tunes in a voice channel")),
     new GuildMemberAchievement(14, "I said that?", 'COMMAND', 'quote', "Be quoted by someone that used the `quote` command")
         .setCallback('0', ([params]) => __awaiter(void 0, void 0, void 0, function* () {
-        const { message } = params;
+        const { message, client: _client } = params;
         const member = message.mentions.members.first();
         if (!member || message.member.id == member.id)
             return false;
-        const pMention = yield PinguUser_1.GetPUser(member.user);
+        const client = _client;
+        const pMention = client.pUsers.get(member.user);
         return pMention != null;
     })),
     new GuildMemberAchievement(15, "I'm vibin!", 'COMMAND', 'viberate', "Use the `viberate` command and be rated higher than 7")

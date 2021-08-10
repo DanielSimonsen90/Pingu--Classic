@@ -11,33 +11,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PinguMusicClient = exports.ToPinguMusicClient = void 0;
 const discord_js_1 = require("discord.js");
-const PinguClient_1 = require("./PinguClient");
 function ToPinguMusicClient(client) {
     return client;
 }
 exports.ToPinguMusicClient = ToPinguMusicClient;
 const handlers_1 = require("../handlers");
 const Queue_1 = require("../guild/items/music/Queue/Queue");
-const PinguLibrary_1 = require("../library/PinguLibrary");
 const Song_1 = require("../guild/items/music/Song");
 const BasePinguClient_1 = require("./BasePinguClient");
 const fs = require("fs");
 class PinguMusicClient extends BasePinguClient_1.default {
     //#endregion 
-    constructor(config, subscribedEvents, commandsPath, eventsPath, options) {
-        super(config, subscribedEvents, commandsPath, eventsPath, options);
+    constructor(config, permissions, subscribedEvents, commandsPath, eventsPath, options) {
+        super(config, permissions, subscribedEvents, commandsPath, eventsPath, options);
         this.queues = new discord_js_1.Collection();
     }
     //#region Statics
     static ToPinguMusicClient(client) { return ToPinguMusicClient(client); }
-    AsPinguClient() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const client = new PinguClient_1.default(this.config);
-            yield client.login(this.token);
-            return client;
-        });
-    }
     emit(key, ...args) {
+        console.log(typeof key);
         return super.emit(key, ...args);
     }
     getVideo(params, url, searchType, youTube, ytdl) {
@@ -49,7 +41,7 @@ class PinguMusicClient extends BasePinguClient_1.default {
             }
             catch (convErr) {
                 if (!convErr.message.includes(`No video ID found in URL:`))
-                    PinguLibrary_1.errorLog(client, `URL failed`, message.content, convErr, {
+                    client.log('error', `URL failed`, message.content, convErr, {
                         params: { message, args, voiceChannel, queue },
                         additional: { searchType, url },
                         trycatch: { video }
@@ -90,7 +82,7 @@ class PinguMusicClient extends BasePinguClient_1.default {
                         yield message.channel.send(`I couldn't find that!`);
                         return null;
                     }
-                    yield PinguLibrary_1.errorLog(client, `Search failed`, message.content, err, {
+                    yield client.log('error', `Search failed`, message.content, err, {
                         params: { message, args, voiceChannel, queue },
                         additional: { searchType, url },
                         trycatch: { searchResultVideos, video, playlist, playlistVideos, ytdlCoreVideos }
@@ -100,9 +92,9 @@ class PinguMusicClient extends BasePinguClient_1.default {
             }
         });
     }
-    HandlePath(path, type) {
-        let collection = fs.readdirSync(path);
-        for (const file of collection) {
+    handlePath(path, type) {
+        const files = fs.readdirSync(path);
+        for (const file of files) {
             try {
                 if (file.endsWith('.js')) {
                     let module = require(`../../../../../${path}/${file}`);
@@ -113,24 +105,22 @@ class PinguMusicClient extends BasePinguClient_1.default {
                         const type = module.name;
                         const event = module;
                         this.events.set(event.name, event);
-                        const { caller } = this.getEventParams(this, event.name);
-                        this.on(caller, (...params) => {
-                            let pinguEventStuff = this.getEventParams(this, event.name, ...params);
-                            this.handleEvent(event.name, ...pinguEventStuff.args);
+                        this.on(event.name, (...params) => {
+                            this.handleEvent(event.name, ...params);
                         });
                     }
                     else if (type == 'command')
                         this.commands.set(module.name, module);
                     else
-                        PinguLibrary_1.errorLog(this, `"${type}" was not recognized!`);
+                        this.log('error', `"${type}" was not recognized!`);
                 }
                 else if (file.endsWith('.png') || file.toLowerCase().includes('archived'))
                     continue;
                 else
-                    this.HandlePath(`${path}/${file}`, type);
+                    this.handlePath(`${path}/${file}`, type);
             }
             catch (err) {
-                PinguLibrary_1.DanhoDM(`"${file}" threw an exception:\n${err.message}\n${err.stack}\n`);
+                this.DanhoDM(`"${file}" threw an exception:\n${err.message}\n${err.stack}\n`);
             }
         }
     }
@@ -139,16 +129,6 @@ class PinguMusicClient extends BasePinguClient_1.default {
             handlers_1.HandleMusicEvent(caller, this, this.events.get(caller).path, ...args);
         return this;
     }
-    getEventParams(client, caller, ...args) {
-        switch (caller) {
-            case 'ready':
-            case 'onready': return { caller: (caller == 'onready' ? 'ready' : caller), args: [client] };
-            case 'debug':
-            case 'ondebug': return { caller: (caller == 'ondebug' ? 'debug' : caller), args: [client] };
-            default: return { caller: caller, args: args };
-        }
-    }
 }
 exports.PinguMusicClient = PinguMusicClient;
-PinguMusicClient.Clients = BasePinguClient_1.Clients;
 exports.default = PinguMusicClient;

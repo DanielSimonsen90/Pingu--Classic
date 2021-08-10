@@ -8,7 +8,7 @@ class Marry {
         this.internalDate = internalDate ? new Date(internalDate) : null;
     }
     marriedMessage() {
-        return `You have been ${(this.partner ? `married to <@${this.partner._id}> since` : `single since`)} **${this.internalDate.toLocaleTimeString()}, ${this.internalDate.toLocaleDateString().split('.').join('/')}**`;
+        return `You have been ${(this.partner ? `married to <@${this.partner._id}> for` : `single for`)} <t:${Math.round(this.internalDate.getTime() / 1000)}:R>`;
     }
     marry(partner) {
         this.internalDate = new Date(Date.now());

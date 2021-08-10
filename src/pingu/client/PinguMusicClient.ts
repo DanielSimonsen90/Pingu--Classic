@@ -1,4 +1,4 @@
-import { Client, ClientEvents, ClientOptions, Collection, Snowflake, TextChannel } from "discord.js";
+import { Client, ClientEvents, ClientOptions, Collection, PermissionString, Snowflake, TextChannel } from "discord.js";
 import PinguClient from "./PinguClient";
 
 export function ToPinguMusicClient(client: Client): PinguMusicClient {
@@ -9,9 +9,8 @@ import { PinguClientEvents, PinguMusicCommand, PinguMusicClientEvents, PinguMusi
 import IConfigRequirements from '../../helpers/Config';
 import Queue from "../guild/items/music/Queue/Queue";
 
-import { DanhoDM, errorLog } from "../library/PinguLibrary";
 import Song from "../guild/items/music/Song";
-import BasePinguClient, { Clients } from "./BasePinguClient";
+import BasePinguClient from "./BasePinguClient";
 
 interface VideoThing { url: string }
 
@@ -21,11 +20,10 @@ import PinguHandler from "../handlers/PinguHandler";
 export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
     //#region Statics
     public static ToPinguMusicClient(client: Client) { return ToPinguMusicClient(client); }
-    public static Clients = Clients;
     //#endregion 
 
-    constructor(config: IConfigRequirements, subscribedEvents?: Array<keyof PinguMusicClientEvents>, commandsPath?: string, eventsPath?: string, options?: ClientOptions) {
-        super(config, subscribedEvents as any, commandsPath, eventsPath, options);
+    constructor(config: IConfigRequirements, permissions: PermissionString[], subscribedEvents: [keyof PinguMusicClientEvents], commandsPath?: string, eventsPath?: string, options?: ClientOptions) {
+        super(config, permissions, subscribedEvents as any, commandsPath, eventsPath, options);
     }
 
     public queues = new Collection<Snowflake, Queue>();
@@ -33,13 +31,9 @@ export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
     public commands: Collection<string, PinguMusicCommand>;
     public subscribedEvents: Array<keyof PinguMusicClientEvents>;
 
-    public async AsPinguClient() {
-        const client = new PinguClient(this.config);
-        await client.login(this.token);
-        return client;
-    }
-
     public emit<PMCE extends keyof PinguMusicClientEvents, CE extends keyof ClientEvents>(key: PMCE, ...args: PinguMusicClientEvents[PMCE]) {
+        console.log(typeof key);
+
         return super.emit(
             key as unknown as CE, 
             ...args as unknown as PinguClientEvents[CE]
@@ -54,7 +48,7 @@ export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
             var video = await youTube.getVideo(url)
         } catch (convErr) {
             if (!convErr.message.includes(`No video ID found in URL:`))
-                errorLog(client, `URL failed`, message.content, convErr, {
+                client.log('error', `URL failed`, message.content, convErr, {
                     params: { message, args, voiceChannel, queue },
                     additional: { searchType, url },
                     trycatch: { video }
@@ -105,7 +99,7 @@ export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
                     return null;
                 }
 
-                await errorLog(client, `Search failed`, message.content, err, {
+                await client.log('error', `Search failed`, message.content, err, {
                     params: { message, args, voiceChannel, queue },
                     additional: { searchType, url },
                     trycatch: { searchResultVideos, video, playlist, playlistVideos, ytdlCoreVideos }
@@ -115,9 +109,9 @@ export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
         }
     }
 
-    protected HandlePath(path: string, type: 'command' | 'event') {
-        let collection = fs.readdirSync(path);
-        for (const file of collection) {
+    protected handlePath(path: string, type: 'command' | 'event') {
+        const files = fs.readdirSync(path);
+        for (const file of files) {
             try {
                 if (file.endsWith('.js')) {
                     let module = require(`../../../../../${path}/${file}`) as PinguHandler;
@@ -131,19 +125,17 @@ export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
 
                         this.events.set(event.name, event);
 
-                        const { caller } = this.getEventParams(this, event.name);
-                        this.on(caller as keyof ClientEvents, (...params) => {
-                            let pinguEventStuff = this.getEventParams(this, event.name, ...params);
-                            this.handleEvent(event.name, ...pinguEventStuff.args);
+                        this.on(event.name as keyof ClientEvents, (...params) => {
+                            this.handleEvent(event.name, ...params);
                         });
                     }
                     else if (type == 'command') this.commands.set(module.name, module as PinguMusicCommand);
-                    else errorLog(this, `"${type}" was not recognized!`);
+                    else this.log('error', `"${type}" was not recognized!`);
                 }
                 else if (file.endsWith('.png') || file.toLowerCase().includes('archived')) continue;
-                else this.HandlePath(`${path}/${file}`, type);
+                else this.handlePath(`${path}/${file}`, type);
             } catch (err) {
-                DanhoDM(`"${file}" threw an exception:\n${err.message}\n${err.stack}\n`);
+                this.DanhoDM(`"${file}" threw an exception:\n${err.message}\n${err.stack}\n`);
             }
         }
     }
@@ -151,13 +143,6 @@ export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
         if (this.subscribedEvents.find(e => e == caller))
             HandleMusicEvent(caller, this, this.events.get(caller).path, ...args);
         return this;
-    }
-    private getEventParams<EventType extends keyof PinguMusicClientEvents>(client: PinguMusicClient, caller: EventType, ...args: PinguMusicClientEvents[EventType]) {
-        switch (caller) {
-            case 'ready': case 'onready': return { caller: (caller == 'onready' ? 'ready' : caller) as EventType, args: [client] as unknown as PinguMusicClientEvents[EventType] }
-            case 'debug': case 'ondebug': return { caller: (caller == 'ondebug' ? 'debug' : caller) as EventType, args: [client] as unknown as PinguMusicClientEvents[EventType] }
-            default: return { caller: caller as EventType, args: args as PinguMusicClientEvents[EventType] };
-        }
     }
 }
 

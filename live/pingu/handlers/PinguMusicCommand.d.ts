@@ -4,12 +4,13 @@ import PinguGuild from "../guild/PinguGuild";
 import PinguMusicClient from "../client/PinguMusicClient";
 import PClient from "../../database/json/PClient";
 import Queue from "../guild/items/music/Queue/Queue";
+import Arguments from '../../helpers/Arguments';
 export interface PinguMusicCommandParams {
     client?: PinguMusicClient;
     message: Message;
     queue?: Queue;
     voiceChannel?: VoiceChannel;
-    args?: string[];
+    args?: Arguments;
     pGuild?: PinguGuild;
     pGuildClient: PClient;
 }

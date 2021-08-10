@@ -24,12 +24,11 @@ export interface PinguMusicEvents {
 }
 export interface PinguMusicClientEvents extends PinguMusicEvents, PinguClientEvents {}
 
-import { errorLog } from "../library/PinguLibrary";
 export async function HandleEvent<EventType extends keyof PinguMusicClientEvents>(caller: EventType, client: PinguMusicClient, path: string, ...args: PinguMusicClientEvents[EventType]) {
     try { var event = require(`../../../../..${path}`) as PinguMusicEvent<EventType>; }
     catch (err) {
-        console.log({ err, caller, path });
-        return errorLog(client, `Unable to get event for ${caller}`, null, err, {
+        console.error({ err, caller, path });
+        return client.log('error', `Unable to get event for ${caller}`, null, err, {
             params: { caller, path, args },
             additional: { event }
         });
@@ -39,7 +38,7 @@ export async function HandleEvent<EventType extends keyof PinguMusicClientEvents
 
     async function execute() {
         try { return event.execute(client, ...args); } 
-        catch (err) { errorLog(client, `${event.name}.execute`, null, err, {
+        catch (err) { client.log('error', `${event.name}.execute`, null, err, {
                 params: { caller, path, args },
                 additional: { event }
             });
@@ -47,7 +46,7 @@ export async function HandleEvent<EventType extends keyof PinguMusicClientEvents
     }
 
     await execute().catch(err => {
-        return errorLog(client, err.message, JSON.stringify(args, null, 2), err, {
+        return client.log('error', err.message, JSON.stringify(args, null, 2), err, {
             params: { caller, path, args },
             additional: { event }
         });

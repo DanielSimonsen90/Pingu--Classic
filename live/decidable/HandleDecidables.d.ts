@@ -1,22 +1,18 @@
 import { Message } from 'discord.js';
-import { PClient } from '../database/json';
+import { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from './config';
+import PClient from '../database/json/PClient';
 import PinguGuild from '../pingu/guild/PinguGuild';
-import { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from '../decidable/config';
-declare enum DecidablesEnum {
-    Giveaway = "Giveaway",
-    Poll = "Poll",
-    Suggestion = "Suggestion",
-    Theme = "Theme"
-}
-declare type DecidablesTypes = keyof typeof DecidablesEnum;
+import PinguClient from '../pingu/client/PinguClient';
+import Arguments from '../helpers/Arguments';
+export declare type DecidablesTypes = 'Giveaway' | 'Poll' | 'Suggestion' | 'Theme';
 interface DecidablesParams {
+    client: PinguClient;
     message: Message;
-    args: string[];
+    args: Arguments;
     pGuild: PinguGuild;
     pGuildClient: PClient;
     decidablesType: DecidablesTypes;
     reactionEmojis: string[];
-    listEmojis: string[];
     config: GiveawayConfig | PollConfig | SuggestionConfig | ThemeConfig;
 }
 export declare function HandleDecidables(params: DecidablesParams): Promise<void | Message>;

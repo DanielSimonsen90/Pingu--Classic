@@ -15,5 +15,6 @@ export class Decidable {
     public channel: PChannel
     public endsAt: Date
 }
+export type ApproveTypes = 'Undecided' | 'Approved' | 'Denied';
 
 export default Decidable;

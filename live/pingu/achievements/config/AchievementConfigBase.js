@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AchievementConfigBase = void 0;
-const PinguLibrary_1 = require("../../library/PinguLibrary");
 class AchievementConfigBase {
     constructor() {
         this.enabled = true;
@@ -18,15 +17,15 @@ class AchievementConfigBase {
     }
     static _notify(client, achievement, embedCB, channel, notificationType, guild) {
         return __awaiter(this, void 0, void 0, function* () {
-            const [announceChannel, percentage] = yield Promise.all([client.channels.fetch(channel._id), achievement.getPercentage(guild)]);
+            const [announceChannel, percentage] = yield Promise.all([client.channels.fetch(channel._id), achievement.getPercentage(client, guild)]);
             const embed = embedCB(percentage);
-            PinguLibrary_1.achievementLog(client, embed);
+            client.log('achievement', embed);
             if (notificationType == 'NONE')
                 return null;
-            PinguLibrary_1.DanhoDM(`Messaging ${(guild || announceChannel.guild ? guild.owner : announceChannel.recipient)} as their notificationtype = ${notificationType}`);
+            client.DanhoDM(`Messaging ${(guild || announceChannel.guild ? guild.owner : announceChannel.recipient)} as their notificationtype = ${notificationType}`);
             try {
                 let message = yield announceChannel.send(embed);
-                yield message.react(PinguLibrary_1.SavedServers.get('Pingu Support').emojis.cache.find(e => e.name == 'hypers'));
+                yield message.react(client.emotes.guild(client.savedServers.get('Pingu Support')).get('hypers'));
                 return message;
             }
             catch (_a) {

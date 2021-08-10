@@ -11,9 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserAchievement = void 0;
 const AchievementBase_1 = require("./AchievementBase");
-const PinguUser_1 = require("../../user/PinguUser");
 const Percentage_1 = require("../../../helpers/Percentage");
-const PinguLibrary_1 = require("../../library/PinguLibrary");
 class UserAchievement extends AchievementBase_1.AchievementBase {
     constructor(id, name, key, type, description) {
         super(id, name, description);
@@ -29,9 +27,9 @@ class UserAchievement extends AchievementBase_1.AchievementBase {
             return true;
         });
     }
-    getPercentage() {
+    getPercentage(client) {
         return __awaiter(this, void 0, void 0, function* () {
-            let pUsers = yield PinguUser_1.GetPinguUsers();
+            let pUsers = client.pUsers.array();
             let whole = pUsers.length;
             let part = pUsers.filter(pUser => pUser.achievementConfig.achievements.find(a => a._id == this._id)).length;
             return new Percentage_1.default(whole, part);
@@ -47,14 +45,15 @@ exports.UserAchievement = UserAchievement;
 UserAchievement.Achievements = [
     new UserAchievement(1, "Pingu? Yeah he's my best friend!", 'EVENT', 'mostKnownUser', "Of all Pingu Users, you share the most servers with Pingu")
         .setCallback('mostKnownUser', ([user]) => __awaiter(void 0, void 0, void 0, function* () {
-        const [pUser, pUsers] = yield Promise.all([PinguUser_1.GetPUser(user), PinguUser_1.GetPinguUsers()]);
+        const client = user.client;
+        const [pUser, pUsers] = [client.pUsers.get(user), client.pUsers.array()];
         const mKUser = pUsers.sort((a, b) => b.sharedServers.length - a.sharedServers.length)[0];
         return pUser._id == mKUser._id;
     })),
     new UserAchievement(2, 'Penguin Owner', 'EVENT', 'guildCreate', "Add Pingu to your server"),
     new UserAchievement(3, "Rest in Peace", 'EVENT', 'guildDelete', "Remove Pingu from your server"),
     new UserAchievement(4, "I'm trying something new...", 'EVENT', 'userUpdate', "Change your PinguUser information")
-        .setCallback('userUpdate', ([pre, cur]) => __awaiter(void 0, void 0, void 0, function* () { return Object.keys(PinguUser_1.GetUpdatedProperty(pre, cur))[0] != null; })),
+        .setCallback('userUpdate', ([pre, cur]) => __awaiter(void 0, void 0, void 0, function* () { return true; })),
     new UserAchievement(5, "OwO whots dis", 'COMMAND', 'help', "Use the `help` command, to see everything you can do with Pingu"),
     new UserAchievement(6, "Curious...", 'COMMAND', 'info', "Use the `info` command to display Pingu's internal information"),
     new UserAchievement(7, 'Pong!', 'COMMAND', 'ping', "Use the `ping` command to see Pingu's latency"),
@@ -70,8 +69,8 @@ UserAchievement.Achievements = [
     UserAchievement.DailyStreak(16, "Dedication", 100),
     UserAchievement.DailyStreak(17, "Blaze it!", 420),
     new UserAchievement(18, "King of the Streaks", 'COMMAND', 'daily', "Achieve the highest streak among all Pingu users")
-        .setCallback('0', ([params]) => __awaiter(void 0, void 0, void 0, function* () {
-        const [pUser, pUsers] = yield Promise.all([PinguUser_1.GetPUser(params.message.author), PinguUser_1.GetPinguUsers()]);
+        .setCallback('0', ([{ client, message, args, pGuild, pAuthor, pGuildMember, pGuildClient }]) => __awaiter(void 0, void 0, void 0, function* () {
+        const [pUser, pUsers] = [client.pUsers.get(message.author), client.pUsers.array()];
         const highestStreak = pUsers.sort((a, b) => b.daily.streak - a.daily.streak)[0];
         return pUser._id == highestStreak._id;
     })),
@@ -82,6 +81,6 @@ UserAchievement.Achievements = [
     new UserAchievement(23, "You! With me.", 'COMMAND', 'invite', "Use the `invite` command to invite Pingu to your server"),
     new UserAchievement(24, "Marry me!", 'COMMAND', 'marry', "Use the `marry` command to marry someone"),
     new UserAchievement(25, "I'm the chosen one!", 'EVENT', 'chosenUser', "Become the chosen user in Pingu Support")
-        .setCallback('chosenUser', ([user, pUser]) => __awaiter(void 0, void 0, void 0, function* () { return pUser && pUser.sharedServers.find(pg => pg._id == PinguLibrary_1.SavedServers.get('Pingu Support').id) != null; }))
+        .setCallback('chosenUser', ([user, pUser]) => __awaiter(void 0, void 0, void 0, function* () { return (pUser === null || pUser === void 0 ? void 0 : pUser.sharedServers.find(pg => pg._id == user.client.savedServers.get('Pingu Support').id)) != null; }))
 ];
 exports.default = UserAchievement;

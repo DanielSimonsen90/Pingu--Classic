@@ -12,13 +12,12 @@ interface ChosenOnes {
     chosenUser: [User, PinguUser]
 }
 interface PinguEvents extends ChosenOnes {
-    onready: [PinguClient],
-    ondebug: [PinguClient],
+    onready: [],
     mostKnownUser: [User]
 }
 export interface PinguClientEvents extends ClientEvents, PinguEvents {}
 
-import { errorLog, eventLog, SavedServers, AchievementCheck } from "../library/PinguLibrary";
+import { AchievementCheck } from '../achievements';
 
 import PinguGuild from '../guild/PinguGuild';
 import Error from '../../helpers/Error';
@@ -69,7 +68,7 @@ export const LoggedCache = new Array<MessageEmbed>();
 export const noAuditLog = `**No Audit Log Permissions**`;
 
 export async function GetAuditLogs(guild: Guild, type: GuildAuditLogsAction, key?: string, target: User = null, seconds: number = 1) {
-    if (!guild.me.hasPermission('VIEW_AUDIT_LOG'))
+    if (!guild.me || !guild.me.hasPermission('VIEW_AUDIT_LOG'))
         return noAuditLog;
 
     let now = new Date(Date.now());
@@ -153,27 +152,28 @@ export function GoThroughObjectArray<T>(type: string, preArr: T[], newArr: T[]) 
     changes.keyArray().forEach(key => updateMessage += `**${key}**: ${changes.get(key)}\n`)
     return updateMessage;
 }
-export async function HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: Client, path: string, ...args: PinguClientEvents[EventType]) {
+export async function HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: PinguClient, path: string, ...args: PinguClientEvents[EventType]) {
     try { var event = require(`../../../../..${path}`) as PinguEvent<EventType>; }
     catch (err) {
         console.log({ err, caller, path });
-        return errorLog(client, `Unable to get event for ${caller}`, null, new Error(err));
+        return client.log('error', `Unable to get event for ${caller}`, null, new Error(err));
     }
     
     if (!event || !event.execute && !event.setContent) return; //Event not found or doesn't have any callbacks assigned
 
     async function execute() {
-        try { return event.execute(ToPinguClient(client), ...args); } 
-        catch (err) { errorLog(client, `${event.name}.execute`, null, new Error(err), {
+        try { return event.execute(client, ...args); } 
+        catch (err) { client.log('error',`${event.name}.execute`, null, new Error(err), {
                 params: { caller, path, args: {...args} },
                 additional: { event, args }
             }); 
         }
     }
     async function setContent() {
+        if (!client.isLive) return;
         try { return SendToLog(); } 
         catch (err) {
-            errorLog(client, `${event.name}.setContent`, null, new Error(err), {
+            client.log('error',`${event.name}.setContent`, null, new Error(err), {
                 params: { caller, path, args: {...args} },
                 additional: { event, args }
             });
@@ -186,7 +186,7 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
         else if (event.setContent) await setContent();
     }
     catch (err) {
-        errorLog(client, err.message, JSON.stringify(args, null, 2), err, {
+        client.log('error',err.message, JSON.stringify(args, null, 2), err, {
             params: { caller, path, args: {...args} },
             additional: { event }
         });
@@ -248,7 +248,7 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
             var isPinguUser = false;
             let user = client.users.cache.find(u => u.tag == emitAssociator);
             if (user) { 
-                isPinguUser = !user.bot && await PinguUser.Get(user) != null;
+                isPinguUser = !user.bot && client.pUsers.get(user) != null;
             }
             // if (!isPinguUser) return null;
         }
@@ -268,7 +268,7 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
         if (caller.startsWith('message') && !caller.startsWith('messageReaction') && ['event-log-📹', 'ping-log-🏓', 'console-log-📝'].includes(args[0].channel && (args[0].channel as GuildChannel).name)) return;
         let embed = await CreateEmbed();
 
-        if (embed) return eventLog(client, embed);
+        if (embed) return client.log('event', embed);
 
         async function GetFromAuditLog() {
             const noAuditLog = PinguEvent.noAuditLog;
@@ -300,7 +300,7 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
                 case 'roleCreate': return await GetInfo(args[0].guild, 'ROLE_CREATE');
                 case 'roleUpdate': return await GetInfo(args[0].guild, 'ROLE_UPDATE');
                 case 'roleDelete': return await GetInfo(args[0].guild, 'ROLE_DELETE');
-                default: errorLog(client, `"${event.name}" was not recognized as an event name when searching from audit log`); return "Unknown";
+                default: client.log('error', `"${event.name}" was not recognized as an event name when searching from audit log`); return "Unknown";
             }
 
             async function GetInfo(guild: Guild, auditLogEvent: import('discord.js').GuildAuditLogsAction): Promise<string> {
@@ -308,34 +308,41 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
                 if (auditLogs == noAuditLog) return noAuditLog;
 
                 auditLogs = auditLogs as Collection<string, GuildAuditLogsEntry>;
-                return auditLogs.last() && auditLogs.last().executor.tag || PinguEvent.noAuditLog;
+                return auditLogs.last()?.executor.tag || PinguEvent.noAuditLog;
             }
             async function getAuditLogs(guild: Guild, type: import('discord.js').GuildAuditLogsAction) {
                 const me = guild.me || guild.member(guild.client.user);
-                if (!me.hasPermission('VIEW_AUDIT_LOG'))
+                if (!me || !me.hasPermission('VIEW_AUDIT_LOG'))
                     return noAuditLog;
 
-                return (await guild.fetchAuditLogs({ type })).entries.filter(e => new Date(Date.now()).getSeconds() - e.createdAt.getSeconds() <= 1);
+                return (await guild.fetchAuditLogs({ type })).entries.filter(e => new Date().getSeconds() - e.createdAt.getSeconds() <= 1);
             }
         }
         async function CreateEmbed() {
             let [user, guild, executed] = [
                 client.users.cache.find(u => u.tag == emitAssociator),
                 client.guilds.cache.find(g => g.name == emitAssociator),
-                new Date(Date.now())
+                new Date()
             ];
 
             const getDoubleDigit = (num: number) => num < 10 ? `0${num}` : `${num}`;
-            let defaultEmbed = new MessageEmbed()
-                .setTitle(event.name)
-                .setAuthor(emitAssociator, (!emitAssociator || emitAssociator == "Unknown" ? null :
+            let defaultEmbed = new MessageEmbed({
+                title: event.name,
+                author: {
+                    name: emitAssociator,
+                    iconURL: (!emitAssociator || emitAssociator == "Unknown" ? null :
                     emitAssociator.match(/#\d{4}$/g) ?
                         user && user.avatarURL() :
-                        guild && guild.iconURL()))
-                .setColor(await getColor())
-                .setFooter(`${getDoubleDigit(executed.getHours())}.${getDoubleDigit(executed.getMinutes())}.${getDoubleDigit(executed.getSeconds())}:${executed.getMilliseconds()}`);
+                        guild && guild.iconURL())
+                },
+                color: await getColor(),
+                footer: {
+                    text: `${getDoubleDigit(executed.getHours())}.${getDoubleDigit(executed.getMinutes())}.${getDoubleDigit(executed.getSeconds())}:${executed.getMilliseconds()}`
+                }
+            })
+
             if (event.setContent) {
-                await event.setContent(...args);
+                await event.setContent(client, ...args);
 
                 if (!event.content) return null;
                 defaultEmbed = (function CombineEmbeds() {
@@ -352,8 +359,8 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
                 if (event.name.includes('Create') || event.name.includes('Add')) return PinguEvent.Colors.Create;
                 else if (event.name.includes('Delete') || event.name.includes('Remove')) return PinguEvent.Colors.Delete;
                 else if (event.name.includes('Update')) return PinguEvent.Colors.Update;
-                try { return (await PinguGuild.Get(SavedServers.get('Pingu Support'))).clients.find(c => c._id == client.user.id).embedColor; }
-                catch { return ToPinguClient(client).DefaultEmbedColor; }
+                try { return client.pGuilds.get(client.savedServers.get('Pingu Support')).clients.find(c => c._id == client.id).embedColor }
+                catch { return client.DefaultEmbedColor; }
             }
         }
     }
@@ -361,7 +368,6 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
     function FindClass<ClassType>(type: string) {
         const objectsOfClass = args.filter(a => a && (a as object).constructor && (a as object).constructor.name == type);
         return objectsOfClass ? objectsOfClass[objectsOfClass.length - 1] as ClassType : null;
-
     }
 }
 //#endregion
@@ -386,13 +392,13 @@ export class PinguEvent<Event extends keyof PinguClientEvents> extends PinguHand
     public static GoThroughArrays<T>(type: string, preArr: T[], newArr: T[], callback: (item: T, loopItem: T) => T) { return GoThroughArrays(type, preArr, newArr, callback); }
     public static GoThroughObjectArray<T>(type: string, preArr: T[], newArr: T[]) { return GoThroughObjectArray(type, preArr, newArr); }
 
-    public static async HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: Client, path: string, ...args: PinguClientEvents[EventType])
+    public static async HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: PinguClient, path: string, ...args: PinguClientEvents[EventType])
     { return HandleEvent(caller, client, path, ...args); }
     //#endregion
 
     constructor(
         name: Event, 
-        setContent?: (...args: PinguClientEvents[Event]) => Promise<MessageEmbed>, 
+        setContent?: (client: PinguClient, ...args: PinguClientEvents[Event]) => Promise<MessageEmbed>, 
         execute?: (client: PinguClient, ...args: PinguClientEvents[Event]) => Promise<Message>
     ){
         super(name);
@@ -404,7 +410,7 @@ export class PinguEvent<Event extends keyof PinguClientEvents> extends PinguHand
     public path: string;
     public content: MessageEmbed;
 
-    public async setContent(...args: PinguClientEvents[Event]): Promise<MessageEmbed> { return null; }
+    public async setContent(client: PinguClient, ...args: PinguClientEvents[Event]): Promise<MessageEmbed> { return null; }
     public async execute(client: PinguClient, ...args: PinguClientEvents[Event]): Promise<Message> { return null; }
 }
 

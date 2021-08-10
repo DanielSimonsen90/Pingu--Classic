@@ -1,8 +1,8 @@
-import Decidable from './Decidable';
+import Decidable, { ApproveTypes } from './Decidable';
 export declare class Poll extends Decidable {
-    YesVotes: number;
-    NoVotes: number;
-    approved: string;
+    yesVotes: number;
+    noVotes: number;
+    approved: ApproveTypes;
     static Decide(poll: Poll, yesVotes: number, noVotes: number): Poll;
 }
 export default Poll;

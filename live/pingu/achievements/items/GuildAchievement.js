@@ -16,7 +16,6 @@ function useChannel(channel, extraInfo) {
 }
 exports.useChannel = useChannel;
 const Percentage_1 = require("../../../helpers/Percentage");
-const PinguGuild_1 = require("../../guild/PinguGuild");
 class GuildAchievement extends AchievementBase_1.AchievementBase {
     constructor(id, name, key, type, description) {
         super(id, name, description);
@@ -32,9 +31,9 @@ class GuildAchievement extends AchievementBase_1.AchievementBase {
             return true;
         });
     }
-    getPercentage() {
+    getPercentage(client) {
         return __awaiter(this, void 0, void 0, function* () {
-            let pGuilds = yield PinguGuild_1.GetPinguGuilds();
+            let pGuilds = client.pGuilds.array();
             let whole = pGuilds.length;
             let part = pGuilds.filter(pGuild => pGuild.settings.config.achievements.achievements.find(a => a._id == this._id)).length;
             return new Percentage_1.default(whole, part);

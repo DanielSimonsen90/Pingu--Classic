@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PinguMusicCommand = void 0;
-const PinguLibrary_1 = require("../library/PinguLibrary");
 const PinguHandler_1 = require("./PinguHandler");
 class PinguMusicCommand extends PinguHandler_1.default {
     constructor(name, description, data, execute) {
@@ -17,7 +16,7 @@ class PinguMusicCommand extends PinguHandler_1.default {
         this.queueRequired = queueRequired || false;
     }
     execute(params) {
-        return PinguLibrary_1.errorLog(params.message.client, `Execute for command **${this.name}**, was not defined!`);
+        return params.client.log('error', `Execute for command **${this.name}**, was not defined!`);
     }
 }
 exports.PinguMusicCommand = PinguMusicCommand;

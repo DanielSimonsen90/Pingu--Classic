@@ -1,16 +1,9 @@
 import { Message, MessageEmbed, TextChannel, VoiceChannel, VoiceConnection } from "discord.js";
-
-import { consoleLog, errorLog } from "../../../../library/PinguLibrary";
-
 import PinguClient from '../../../../client/PinguClient';
-import { GetPGuild } from '../../../PinguGuild';
 
 import IMuisc from "../IMusic";
 import Song from '../Song';
 import { get, set } from './statics';
-
-import { PinguMusicCommandParams } from "../../../../handlers/PinguMusicCommand";
-import { PClient } from "../../../../../database/json/PClient";
 
 export class Queue implements IMuisc {
     public static get(guildID: string) { return get(guildID); }
@@ -128,22 +121,22 @@ export class Queue implements IMuisc {
     public async Update(message: Message, commandName: string, succMsg: string) {
         Queue.set(message.guild.id, ['HandleStop', 'Play'].includes(commandName) ? null : this);
 
-        consoleLog(message.client,
-            `{**${commandName}**}: ${succMsg}`
-        );
+        (message.client as PinguClient).log('console', `{**${commandName}**}: ${succMsg}`);
     }
     public async NowPlayingEmbed(message: Message) {
         let { thumbnail, title, requestedBy, endsAt, author, link } = this.currentSong;
-        let pGuildClient = PinguClient.ToPinguClient(message.client).toPClient(await GetPGuild(message.guild));
+        const client = message.client as PinguClient;
+        const pGuildClient = client.toPClient(client.pGuilds.get(message.guild));
 
-        return new MessageEmbed()
-            .setTitle(`Now playing: ${title} | by ${author}`)
-            .setDescription(`Requested by <@${requestedBy._id}>`)
-            .setFooter(`Song finished at`)
-            .setThumbnail(thumbnail)
-            .setURL(link)
-            .setColor(pGuildClient.embedColor)
-            .setTimestamp(endsAt)
+        return new MessageEmbed({
+            title: `Now playing: ${title} | by ${author}`,
+            description: `Requested by <@${requestedBy._id}>`,
+            footer: { text: 'Song finished at' },
+            thumbnail: { url: thumbnail },
+            url: link,
+            color: pGuildClient.embedColor || client.DefaultEmbedColor,
+            timestamp: endsAt
+        });
     }
 }
 

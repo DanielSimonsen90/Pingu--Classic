@@ -11,11 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PinguEvent = exports.HandleEvent = exports.GoThroughObjectArray = exports.GoThroughArrays = exports.SetDescriptionValuesLink = exports.SetDescriptionValues = exports.SetRemove = exports.SetDescription = exports.UnknownUpdate = exports.GetAuditLogs = exports.noAuditLog = exports.LoggedCache = exports.Colors = void 0;
 const discord_js_1 = require("discord.js");
-const PinguClient_1 = require("../client/PinguClient");
-const PinguLibrary_1 = require("../library/PinguLibrary");
-const PinguGuild_1 = require("../guild/PinguGuild");
+const achievements_1 = require("../achievements");
 const Error_1 = require("../../helpers/Error");
-const PinguUser_1 = require("../user/PinguUser");
 // export interface PinguEventParams {
 //     client?: Client,
 //     messages?: Collection<string, Message>,
@@ -50,7 +47,7 @@ exports.LoggedCache = new Array();
 exports.noAuditLog = `**No Audit Log Permissions**`;
 function GetAuditLogs(guild, type, key, target = null, seconds = 1) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!guild.me.hasPermission('VIEW_AUDIT_LOG'))
+        if (!guild.me || !guild.me.hasPermission('VIEW_AUDIT_LOG'))
             return exports.noAuditLog;
         let now = new Date(Date.now());
         let logs = (yield guild.fetchAuditLogs({ type }));
@@ -153,17 +150,17 @@ function HandleEvent(caller, client, path, ...args) {
         }
         catch (err) {
             console.log({ err, caller, path });
-            return PinguLibrary_1.errorLog(client, `Unable to get event for ${caller}`, null, new Error_1.default(err));
+            return client.log('error', `Unable to get event for ${caller}`, null, new Error_1.default(err));
         }
         if (!event || !event.execute && !event.setContent)
             return; //Event not found or doesn't have any callbacks assigned
         function execute() {
             return __awaiter(this, void 0, void 0, function* () {
                 try {
-                    return event.execute(PinguClient_1.ToPinguClient(client), ...args);
+                    return event.execute(client, ...args);
                 }
                 catch (err) {
-                    PinguLibrary_1.errorLog(client, `${event.name}.execute`, null, new Error_1.default(err), {
+                    client.log('error', `${event.name}.execute`, null, new Error_1.default(err), {
                         params: { caller, path, args: Object.assign({}, args) },
                         additional: { event, args }
                     });
@@ -172,11 +169,13 @@ function HandleEvent(caller, client, path, ...args) {
         }
         function setContent() {
             return __awaiter(this, void 0, void 0, function* () {
+                if (!client.isLive)
+                    return;
                 try {
                     return SendToLog();
                 }
                 catch (err) {
-                    PinguLibrary_1.errorLog(client, `${event.name}.setContent`, null, new Error_1.default(err), {
+                    client.log('error', `${event.name}.setContent`, null, new Error_1.default(err), {
                         params: { caller, path, args: Object.assign({}, args) },
                         additional: { event, args }
                     });
@@ -192,7 +191,7 @@ function HandleEvent(caller, client, path, ...args) {
                 yield setContent();
         }
         catch (err) {
-            PinguLibrary_1.errorLog(client, err.message, JSON.stringify(args, null, 2), err, {
+            client.log('error', err.message, JSON.stringify(args, null, 2), err, {
                 params: { caller, path, args: Object.assign({}, args) },
                 additional: { event }
             });
@@ -223,7 +222,7 @@ function HandleEvent(caller, client, path, ...args) {
             getAchiever('GuildMember')
         ];
         user = !user && guildMember ? guildMember.user : null;
-        PinguLibrary_1.AchievementCheck(client, { user, guild, guildMember }, 'EVENT', caller, args);
+        achievements_1.AchievementCheck(client, { user, guild, guildMember }, 'EVENT', caller, args);
         function SendToLog() {
             return __awaiter(this, void 0, void 0, function* () {
                 const emitAssociatorOptions = (parameter = {}) => {
@@ -255,7 +254,7 @@ function HandleEvent(caller, client, path, ...args) {
                     var isPinguUser = false;
                     let user = client.users.cache.find(u => u.tag == emitAssociator);
                     if (user) {
-                        isPinguUser = !user.bot && (yield PinguUser_1.default.Get(user)) != null;
+                        isPinguUser = !user.bot && client.pUsers.get(user) != null;
                     }
                     // if (!isPinguUser) return null;
                 }
@@ -276,7 +275,7 @@ function HandleEvent(caller, client, path, ...args) {
                     return;
                 let embed = yield CreateEmbed();
                 if (embed)
-                    return PinguLibrary_1.eventLog(client, embed);
+                    return client.log('event', embed);
                 function GetFromAuditLog() {
                     return __awaiter(this, void 0, void 0, function* () {
                         const noAuditLog = PinguEvent.noAuditLog;
@@ -302,24 +301,25 @@ function HandleEvent(caller, client, path, ...args) {
                             case 'roleUpdate': return yield GetInfo(args[0].guild, 'ROLE_UPDATE');
                             case 'roleDelete': return yield GetInfo(args[0].guild, 'ROLE_DELETE');
                             default:
-                                PinguLibrary_1.errorLog(client, `"${event.name}" was not recognized as an event name when searching from audit log`);
+                                client.log('error', `"${event.name}" was not recognized as an event name when searching from audit log`);
                                 return "Unknown";
                         }
                         function GetInfo(guild, auditLogEvent) {
+                            var _a;
                             return __awaiter(this, void 0, void 0, function* () {
                                 let auditLogs = yield getAuditLogs(guild, auditLogEvent);
                                 if (auditLogs == noAuditLog)
                                     return noAuditLog;
                                 auditLogs = auditLogs;
-                                return auditLogs.last() && auditLogs.last().executor.tag || PinguEvent.noAuditLog;
+                                return ((_a = auditLogs.last()) === null || _a === void 0 ? void 0 : _a.executor.tag) || PinguEvent.noAuditLog;
                             });
                         }
                         function getAuditLogs(guild, type) {
                             return __awaiter(this, void 0, void 0, function* () {
                                 const me = guild.me || guild.member(guild.client.user);
-                                if (!me.hasPermission('VIEW_AUDIT_LOG'))
+                                if (!me || !me.hasPermission('VIEW_AUDIT_LOG'))
                                     return noAuditLog;
-                                return (yield guild.fetchAuditLogs({ type })).entries.filter(e => new Date(Date.now()).getSeconds() - e.createdAt.getSeconds() <= 1);
+                                return (yield guild.fetchAuditLogs({ type })).entries.filter(e => new Date().getSeconds() - e.createdAt.getSeconds() <= 1);
                             });
                         }
                     });
@@ -329,19 +329,25 @@ function HandleEvent(caller, client, path, ...args) {
                         let [user, guild, executed] = [
                             client.users.cache.find(u => u.tag == emitAssociator),
                             client.guilds.cache.find(g => g.name == emitAssociator),
-                            new Date(Date.now())
+                            new Date()
                         ];
                         const getDoubleDigit = (num) => num < 10 ? `0${num}` : `${num}`;
-                        let defaultEmbed = new discord_js_1.MessageEmbed()
-                            .setTitle(event.name)
-                            .setAuthor(emitAssociator, (!emitAssociator || emitAssociator == "Unknown" ? null :
-                            emitAssociator.match(/#\d{4}$/g) ?
-                                user && user.avatarURL() :
-                                guild && guild.iconURL()))
-                            .setColor(yield getColor())
-                            .setFooter(`${getDoubleDigit(executed.getHours())}.${getDoubleDigit(executed.getMinutes())}.${getDoubleDigit(executed.getSeconds())}:${executed.getMilliseconds()}`);
+                        let defaultEmbed = new discord_js_1.MessageEmbed({
+                            title: event.name,
+                            author: {
+                                name: emitAssociator,
+                                iconURL: (!emitAssociator || emitAssociator == "Unknown" ? null :
+                                    emitAssociator.match(/#\d{4}$/g) ?
+                                        user && user.avatarURL() :
+                                        guild && guild.iconURL())
+                            },
+                            color: yield getColor(),
+                            footer: {
+                                text: `${getDoubleDigit(executed.getHours())}.${getDoubleDigit(executed.getMinutes())}.${getDoubleDigit(executed.getSeconds())}:${executed.getMilliseconds()}`
+                            }
+                        });
                         if (event.setContent) {
-                            yield event.setContent(...args);
+                            yield event.setContent(client, ...args);
                             if (!event.content)
                                 return null;
                             defaultEmbed = (function CombineEmbeds() {
@@ -361,10 +367,10 @@ function HandleEvent(caller, client, path, ...args) {
                                 else if (event.name.includes('Update'))
                                     return PinguEvent.Colors.Update;
                                 try {
-                                    return (yield PinguGuild_1.default.Get(PinguLibrary_1.SavedServers.get('Pingu Support'))).clients.find(c => c._id == client.user.id).embedColor;
+                                    return client.pGuilds.get(client.savedServers.get('Pingu Support')).clients.find(c => c._id == client.id).embedColor;
                                 }
                                 catch (_a) {
-                                    return PinguClient_1.ToPinguClient(client).DefaultEmbedColor;
+                                    return client.DefaultEmbedColor;
                                 }
                             });
                         }
@@ -404,7 +410,7 @@ class PinguEvent extends PinguHandler_1.default {
     static HandleEvent(caller, client, path, ...args) {
         return __awaiter(this, void 0, void 0, function* () { return HandleEvent(caller, client, path, ...args); });
     }
-    setContent(...args) {
+    setContent(client, ...args) {
         return __awaiter(this, void 0, void 0, function* () { return null; });
     }
     execute(client, ...args) {

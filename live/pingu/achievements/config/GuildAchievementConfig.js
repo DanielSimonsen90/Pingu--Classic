@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GuildAchievementConfig = void 0;
 const discord_js_1 = require("discord.js");
 const AchievementConfigBase_1 = require("./AchievementConfigBase");
-const PinguClient_1 = require("../../client/PinguClient");
 class GuildAchievementConfig extends AchievementConfigBase_1.AchievementConfigBase {
     constructor(notificationTypes, guildID) {
         super();
@@ -24,7 +23,7 @@ class GuildAchievementConfig extends AchievementConfigBase_1.AchievementConfigBa
             _notify: { get: () => super._notify }
         });
         return __awaiter(this, void 0, void 0, function* () {
-            const color = PinguClient_1.ToPinguClient(client).DefaultEmbedColor;
+            const color = client.DefaultEmbedColor;
             switch (config.notificationTypes.guild) {
                 case 'CHANNEL': return _super._notify.call(this, client, achievement, percentage => new discord_js_1.MessageEmbed()
                     .setTitle(`🏆 Achievement Unlocked! 🏆\n${achievement.name}`)
