@@ -8,14 +8,14 @@ exports.developers = new discord_js_1.Collection([
     ['Slothman', '290131910091603968']
 ]);
 class DeveloperCollection extends discord_js_1.Collection {
-    isPinguDev(user) {
-        return this.get(exports.developers.findKey(id => id == user.id)) != null;
+    isPinguDev(member) {
+        return this.get(exports.developers.findKey(id => id == member.id)) != null;
     }
-    update(user) {
-        if (!this.some(u => u.id == user.id))
+    update(member) {
+        if (!this.some(u => u.id == member.id))
             return this;
-        const name = this.findKey(u => u.id == user.id);
-        return this.set(name, user);
+        const name = this.findKey(u => u.id == member.id);
+        return this.set(name, member);
     }
 }
 exports.DeveloperCollection = DeveloperCollection;

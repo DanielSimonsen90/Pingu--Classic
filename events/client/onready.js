@@ -1,4 +1,7 @@
 const { Collection, GuildChannel, TextChannel, Guild, VoiceChannel } = require("discord.js");
+const { REST } = require('@discordjs/rest');
+const { Routes } = require('discord-api-types/v9');
+
 const { PinguEvent, PinguGuildMember, PGuild, DecidablesTypes } = require("PinguPackage");
 const ms = require('ms');
 

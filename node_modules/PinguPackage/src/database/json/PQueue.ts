@@ -1,4 +1,5 @@
 import { Guild, TextChannel, VoiceChannel } from 'discord.js';
+import { joinVoiceChannel } from '@discordjs/voice'
 import { Song, Queue } from '../../pingu/guild/items';
 import PChannel from './PChannel';
 
@@ -29,7 +30,11 @@ export class PQueue {
             pQueue.playing
         );
 
-        queue.connection = await queue.voiceChannel.join();
+        queue.connection = joinVoiceChannel({ 
+            channelId: queue.voiceChannel.id, 
+            guildId: queue.voiceChannel.guildId, 
+            adapterCreator: queue.voiceChannel.guild.voiceAdapterCreator 
+        });
         queue.volume = pQueue.volume;
         queue.loop = pQueue.loop;
         queue.index = pQueue.index;

@@ -1,4 +1,5 @@
 import { Client, ClientEvents, ClientOptions, Collection, PermissionString, Snowflake, TextChannel } from "discord.js";
+import { joinVoiceChannel } from '@discordjs/voice'
 
 export function ToPinguMusicClient(client: Client): PinguMusicClient {
     return client as PinguMusicClient;
@@ -95,7 +96,11 @@ export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
                     }
                     else {
                         queue = new Queue(message.channel as TextChannel, voiceChannel, songs);
-                        queue.connection = await voiceChannel.join();
+                        queue.connection = joinVoiceChannel({
+                            guildId: message.guildId,
+                            channelId: queue.voiceChannel.id,
+                            adapterCreator: message.guild.voiceAdapterCreator
+                        });
                         client.emit('play', queue, message, queue.songs[0]);
                         return null;
                     }

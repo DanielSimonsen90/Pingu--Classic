@@ -69,7 +69,7 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
         this.subscribedEvents = subscribedEvents;
         this.permissions = new PermissionsManager(this, permissions);
         this.emotes = new EmojiCollection(this);
-        this.pGuilds = new PinguCollection<Guild, PinguGuild>(this, 'pingu-guild-log', 'PinguGuild', g => new PinguGuild(g, g.owner), c => c.guilds);
+        this.pGuilds = new PinguCollection<Guild, PinguGuild>(this, 'pingu-guild-log', 'PinguGuild', g => new PinguGuild(g, g.members.cache.get(g.ownerId)), c => c.guilds);
         this.pUsers = new PinguCollection<User, PinguUser>(this, 'pingu-user-log', 'PinguUser', u => new PinguUser(u), c => c.users);
         this.once('ready', this.onceReady);
 
@@ -222,8 +222,8 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
             ['Beta', !this.isLive ? this.user : await this.users.fetch(Clients.BetaID)]
         ]);
 
-        const devUsers = await Promise.all(developers.map(id => this.users.fetch(id)));
-        this.developers = devUsers.reduce((result, user) => result.set(developers.findKey(id => id == user.id), user), new DeveloperCollection());
+        const devUsers = await Promise.all(developers.map(id => this.savedServers.get('Pingu Support').members.cache.get(id)));
+        this.developers = devUsers.reduce((result, member) => result.set(developers.findKey(id => id == member.id), member), new DeveloperCollection());
 
         this.badges = new Collection(TempBadges.map((temp, name) => {
             const guild = this.savedServers.get(temp.guild);
@@ -241,15 +241,13 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
         })))).map(({ guild, collection }) => [guild, collection]));
 
         this.emit('onready', this);
-
-        return this;
     }
     protected abstract handlePath(path: string, type: 'command' | 'event'): void;
     //#endregion
 
     //#region Log Methods
     private async achievementLog(channel: TextChannel, achievementEmbed: MessageEmbed) {
-        return channel.send(achievementEmbed);
+        return channel.send({ embeds: [achievementEmbed] });
     }
     private async consoleLog(channel: TextChannel, message: string, type: ConsoleLogType = 'log') {
         console[type](`[${new Date().toLocaleTimeString()}] ${message}`);
@@ -285,7 +283,7 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
                     fs.writeFile(filePath, fileContent, () => fsCallback(fileExtension));
                 }
 
-                return channel.send(new MessageAttachment(filePath, `Error ${errorID}.${fileExtension}`));
+                return channel.send({ files: [new MessageAttachment(filePath, `Error ${errorID}.${fileExtension}`)] });
             }
         }
         let sent = await sendMessage(getErrorMessage(message, messageContent, err)).catch(err => sentCatcher(err, 'txt'));
@@ -327,15 +325,15 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
             await sent.react('📄'); //Get error file
             
             //Create reaction handler
-            sent.createReactionCollector(() => true).on('collect', async (reaction, user) => {
-                if (!that.developers.isPinguDev(user) || !reaction.users.cache.has(that.id)) return reaction.remove();
+            sent.createReactionCollector().on('collect', async (reaction, user) => {
+                if (that.developers.isPinguDev(user) || !reaction.users.cache.has(that.id)) return reaction.remove();
 
                 if (reaction.emoji.name == '📄') {
-                    let fileMessage = await reaction.message.channel.send(new MessageAttachment(`${errorPath}/${errorID}.json`, `Error ${errorID}.json`));
+                    let fileMessage = await reaction.message.channel.send({ files: [new MessageAttachment(`${errorPath}/${errorID}.json`, `Error ${errorID}.json`)] });
                     return that.cache.errors.set(errorID, [...that.cache.errors.get(errorID), fileMessage]);
                 }
 
-                that.cache.errors.get(errorID).forEach(m => m.delete({ reason: `Error #${errorID}, was marked as solved by ${user.tag}` }));
+                that.cache.errors.get(errorID).forEach(m => m.delete());
                 const errorFiles = fs.readdirSync(errorPath).filter(file => file.startsWith(errorID.toString()));
                 errorFiles.forEach(file => fs.unlink(`${errorPath}/${file}`, () => that.log('console', `Deleted error #${errorID}.`)))
             })
@@ -353,7 +351,7 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
         ) return;
     
         this.cache.events.unshift(content);
-        return channel.send(content);
+        return channel.send({ embeds: [content] });
     }
     private async pingLog(channel: TextChannel, timestamp: number) {
         const pingChannelSent = await channel.send(`Calculating ping`);
@@ -398,7 +396,7 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
             var format = (ping: boolean) => `${new Date().toLocaleTimeString()} [${(ping ? sender : sender.username)} ➡️ ${(ping ? reciever : reciever.username)}]`;
     
             if (messageAsMessage.content && messageAsMessage.attachments)
-                channel.send(format(false) + `: ||${messageAsMessage.content}||`, messageAsMessage.attachments.array())
+                channel.send({ content: format(false) + `: ||${messageAsMessage.content}||`, files: [...messageAsMessage.attachments.values()] })
                     .then(sent => sent.edit(format(true) + `: ||${messageAsMessage.content}||`));
     
             else if (messageAsMessage.content)
@@ -406,7 +404,7 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
                     .then(sent => sent.edit(format(true) + `: ||${messageAsMessage.content}||`));
     
             else if (messageAsMessage.attachments)
-                channel.send(format(false), messageAsMessage.attachments.array())
+                channel.send({ content: format(false), files: [...messageAsMessage.attachments.values()] })
                     .then(sent => sent.edit(format(true)));
     
             else this.log('error', 
@@ -419,7 +417,7 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
         }
         else if ((message as MessageEmbed).constructor.name == "MessageEmbed") {
             this.log('console', `The link between ${sender.username} & ${reciever.username} was unset.`);
-            channel.send(message as MessageEmbed)
+            channel.send({ embeds: [message as MessageEmbed] })
         }
     }
     //#endregion

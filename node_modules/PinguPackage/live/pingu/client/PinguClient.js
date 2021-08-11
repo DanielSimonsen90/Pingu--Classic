@@ -37,7 +37,7 @@ class PinguClient extends BasePinguClient_1.default {
     }
     //#region Gets
     getSharedServers(user) {
-        return this.guilds.cache.filter(g => g.members.cache.has(user.id)).array();
+        return [...this.guilds.cache.filter(g => g.members.cache.has(user.id)).values()];
     }
     getTextChannel(guildId, channelName) {
         const guild = this.guilds.cache.get(guildId);
@@ -101,9 +101,12 @@ class PinguClient extends BasePinguClient_1.default {
                         additional: { page, type, data }
                     }).then(() => message.channel.send(`I was unable to find a gif! I have contacted my developers...`));
                 }
-                return message.channel.send(new discord_js_1.MessageEmbed()
-                    .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
-                    .setColor(pGuildClient.embedColor || this.DefaultEmbedColor));
+                return message.channel.send({
+                    embeds: [new discord_js_1.MessageEmbed()
+                            .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
+                            .setColor(pGuildClient.embedColor || this.DefaultEmbedColor)
+                    ]
+                });
             }));
         });
     }

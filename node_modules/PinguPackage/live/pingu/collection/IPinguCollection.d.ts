@@ -10,7 +10,7 @@ export interface BasePT extends IName {
     _id: Snowflake;
 }
 export interface BaseManager<T> {
-    fetch(id: Snowflake, cache?: boolean, force?: boolean): Promise<T>;
+    fetch(id: Snowflake): Promise<T>;
     cache: Collection<Snowflake, T>;
 }
 export declare type SavedItems = 'PinguUser' | 'PinguGuildMember' | 'PinguGuild';

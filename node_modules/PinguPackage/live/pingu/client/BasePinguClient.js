@@ -48,7 +48,7 @@ class BasePinguClient extends discord_js_1.Client {
         this.subscribedEvents = subscribedEvents;
         this.permissions = new PermissionsManager_1.default(this, permissions);
         this.emotes = new EmojiCollection_1.default(this);
-        this.pGuilds = new PinguCollection_1.default(this, 'pingu-guild-log', 'PinguGuild', g => new PinguGuild_1.default(g, g.owner), c => c.guilds);
+        this.pGuilds = new PinguCollection_1.default(this, 'pingu-guild-log', 'PinguGuild', g => new PinguGuild_1.default(g, g.members.cache.get(g.ownerId)), c => c.guilds);
         this.pUsers = new PinguCollection_1.default(this, 'pingu-user-log', 'PinguUser', u => new PinguUser_1.default(u), c => c.users);
         this.once('ready', this.onceReady);
         if (!dirname.toLowerCase().startsWith('c:'))
@@ -168,8 +168,8 @@ class BasePinguClient extends discord_js_1.Client {
                 ['Live', this.isLive ? this.user : yield this.users.fetch(exports.Clients.PinguID)],
                 ['Beta', !this.isLive ? this.user : yield this.users.fetch(exports.Clients.BetaID)]
             ]);
-            const devUsers = yield Promise.all(DeveloperCollection_1.developers.map(id => this.users.fetch(id)));
-            this.developers = devUsers.reduce((result, user) => result.set(DeveloperCollection_1.developers.findKey(id => id == user.id), user), new DeveloperCollection_1.default());
+            const devUsers = yield Promise.all(DeveloperCollection_1.developers.map(id => this.savedServers.get('Pingu Support').members.cache.get(id)));
+            this.developers = devUsers.reduce((result, member) => result.set(DeveloperCollection_1.developers.findKey(id => id == member.id), member), new DeveloperCollection_1.default());
             this.badges = new discord_js_1.Collection(PinguBadge_1.TempBadges.map((temp, name) => {
                 const guild = this.savedServers.get(temp.guild);
                 const emoji = guild.emojis.cache.find(e => e.name == temp.emojiName);
@@ -180,19 +180,17 @@ class BasePinguClient extends discord_js_1.Client {
             yield this.pUsers.refresh(this);
             this.pGuildMembers = new discord_js_1.Collection((yield Promise.all(this.guilds.cache.map((guild) => __awaiter(this, void 0, void 0, function* () {
                 return ({
-                    guild,
-                    collection: yield new PinguGuildMemberCollection_1.default(this, 'pingu-guild-log', guild).refresh()
+                    guild, collection: yield new PinguGuildMemberCollection_1.default(this, 'pingu-guild-log', guild).refresh()
                 });
             })))).map(({ guild, collection }) => [guild, collection]));
             this.emit('onready', this);
-            return this;
         });
     }
     //#endregion
     //#region Log Methods
     achievementLog(channel, achievementEmbed) {
         return __awaiter(this, void 0, void 0, function* () {
-            return channel.send(achievementEmbed);
+            return channel.send({ embeds: [achievementEmbed] });
         });
     }
     consoleLog(channel, message, type = 'log') {
@@ -224,7 +222,7 @@ class BasePinguClient extends discord_js_1.Client {
                         const fileContent = getErrorMessage(message, messageContent, err);
                         fs.writeFile(filePath, fileContent, () => fsCallback(fileExtension));
                     }
-                    return channel.send(new discord_js_1.MessageAttachment(filePath, `Error ${errorID}.${fileExtension}`));
+                    return channel.send({ files: [new discord_js_1.MessageAttachment(filePath, `Error ${errorID}.${fileExtension}`)] });
                 }
             });
             let sent = yield sendMessage(getErrorMessage(message, messageContent, err)).catch(err => sentCatcher(err, 'txt'));
@@ -258,14 +256,14 @@ class BasePinguClient extends discord_js_1.Client {
                     yield sent.react(that.emotes.get('Checkmark')[0]);
                     yield sent.react('📄'); //Get error file
                     //Create reaction handler
-                    sent.createReactionCollector(() => true).on('collect', (reaction, user) => __awaiter(this, void 0, void 0, function* () {
-                        if (!that.developers.isPinguDev(user) || !reaction.users.cache.has(that.id))
+                    sent.createReactionCollector().on('collect', (reaction, user) => __awaiter(this, void 0, void 0, function* () {
+                        if (that.developers.isPinguDev(reaction.message.guild.members.cache.get(user.id)) || !reaction.users.cache.has(that.id))
                             return reaction.remove();
                         if (reaction.emoji.name == '📄') {
-                            let fileMessage = yield reaction.message.channel.send(new discord_js_1.MessageAttachment(`${errorPath}/${errorID}.json`, `Error ${errorID}.json`));
+                            let fileMessage = yield reaction.message.channel.send({ files: [new discord_js_1.MessageAttachment(`${errorPath}/${errorID}.json`, `Error ${errorID}.json`)] });
                             return that.cache.errors.set(errorID, [...that.cache.errors.get(errorID), fileMessage]);
                         }
-                        that.cache.errors.get(errorID).forEach(m => m.delete({ reason: `Error #${errorID}, was marked as solved by ${user.tag}` }));
+                        that.cache.errors.get(errorID).forEach(m => m.delete());
                         const errorFiles = fs.readdirSync(errorPath).filter(file => file.startsWith(errorID.toString()));
                         errorFiles.forEach(file => fs.unlink(`${errorPath}/${file}`, () => that.log('console', `Deleted error #${errorID}.`)));
                     }));
@@ -283,7 +281,7 @@ class BasePinguClient extends discord_js_1.Client {
                 lastCache.fields[0] && content.fields[0] && lastCache.fields[0].value == content.fields[0].value))
                 return;
             this.cache.events.unshift(content);
-            return channel.send(content);
+            return channel.send({ embeds: [content] });
         });
     }
     pingLog(channel, timestamp) {
@@ -336,13 +334,13 @@ class BasePinguClient extends discord_js_1.Client {
                 this.log('console', consoleLogValue);
                 var format = (ping) => `${new Date().toLocaleTimeString()} [${(ping ? sender : sender.username)} ➡️ ${(ping ? reciever : reciever.username)}]`;
                 if (messageAsMessage.content && messageAsMessage.attachments)
-                    channel.send(format(false) + `: ||${messageAsMessage.content}||`, messageAsMessage.attachments.array())
+                    channel.send({ content: format(false) + `: ||${messageAsMessage.content}||`, files: [...messageAsMessage.attachments.values()] })
                         .then(sent => sent.edit(format(true) + `: ||${messageAsMessage.content}||`));
                 else if (messageAsMessage.content)
                     channel.send(format(false) + `: ||${messageAsMessage.content}||`)
                         .then(sent => sent.edit(format(true) + `: ||${messageAsMessage.content}||`));
                 else if (messageAsMessage.attachments)
-                    channel.send(format(false), messageAsMessage.attachments.array())
+                    channel.send({ content: format(false), files: [...messageAsMessage.attachments.values()] })
                         .then(sent => sent.edit(format(true)));
                 else
                     this.log('error', `${sender} ➡️ ${reciever} sent something that didn't have content or attachments`, message.constructor.name == 'Message' ? message.content : message.description, null, {
@@ -352,7 +350,7 @@ class BasePinguClient extends discord_js_1.Client {
             }
             else if (message.constructor.name == "MessageEmbed") {
                 this.log('console', `The link between ${sender.username} & ${reciever.username} was unset.`);
-                channel.send(message);
+                channel.send({ embeds: [message] });
             }
         });
     }

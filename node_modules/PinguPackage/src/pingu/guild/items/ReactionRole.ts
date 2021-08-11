@@ -19,15 +19,15 @@ export async function GetReactionRole(reaction: MessageReaction, user: User) {
     if (!rr) return null;
 
     let { pRole } = rr;
-    let member = guild.member(user);
+    let member = guild.members.cache.get(user.id);
 
     let permCheck = client.permissions.checkFor({
         author: client.user,
         channel: reaction.message.channel as GuildChannel,
     }, 'MANAGE_ROLES');
     if (permCheck != client.permissions.PermissionGranted) {
-        guild.owner.send(`I tried to give ${member.displayName} "${pRole.name}", as ${permCheck}`);
-        user.send(`I'm unable to give you the reactionrole at the moment! I've contacted ${guild.owner} about this.`);
+        guild.members.cache.get(guild.ownerId).send(`I tried to give ${member.displayName} "${pRole.name}", as ${permCheck}`);
+        user.send(`I'm unable to give you the reactionrole at the moment! I've contacted ${guild.members.cache.get(guild.ownerId)} about this.`);
         return null;
     }
 
@@ -40,7 +40,7 @@ export async function OnReactionAdd(reaction: MessageReaction, user: User) {
         const role = await GetReactionRole(reaction, user);
         if (!role) return;
 
-        const member = reaction.message.guild.member(user);
+        const member = reaction.message.guild.members.cache.get(user.id);
 
         member.roles.add(role, `ReactionRole in ${(reaction.message.channel as GuildChannel).name}.`)
             .catch(err => client.log('error', `Unable to give **${user.tag}** "${role.name}" role for reacting!`, null, err, {
@@ -67,7 +67,7 @@ export async function OnReactionRemove(reaction: MessageReaction, user: User) {
         const role = await GetReactionRole(reaction, user);
         if (!role) return;
 
-        const member = reaction.message.guild.member(user);
+        const member = reaction.message.guild.members.cache.get(user.id);
 
         member.roles.remove(role, `ReactionRole in ${(reaction.message.channel as GuildChannel).name}.`)
             .catch(err => client.log('error', `Unable to remove ${user.username}'s ${role.name} role for unreacting!`, null, err, {
@@ -143,7 +143,7 @@ export async function OnMessageDelete(message: Message) {
     for (var [_, reaction] of message.reactions.cache) {
         if (!rrEmotes.includes(reaction.emoji.name)) continue;
 
-        let gMembers = reaction.users.cache.map(u => guild.member(u));
+        let gMembers = reaction.users.cache.map(u => guild.members.cache.get(u.id));
         let rr = reactionRoles.find(rr => rr.emoteName == reaction.emoji.name);
         let role = await guild.roles.fetch(rr.pRole._id);
 
@@ -158,23 +158,27 @@ export async function OnMessageDelete(message: Message) {
     );
     
     const PinguReacted = bots.get(Clients.PinguID) != null;
-    const PinguOnline = (await client.clients.get('Live').fetch(true)).presence.status == 'online';
+    const PinguOnline = client.savedServers.get('Pingu Support').members.cache.get(client.clients.get('Live').id).presence.status == 'online';
 
     if (PinguReacted && PinguOnline && !client.isLive) return; 
 
     pGuild.settings.reactionRoles == pGuild.settings.reactionRoles.filter(rr => !rrFromMessage.includes(rr));
     client.pGuilds.update(pGuild, `ReactionRole.OnMessageDelete()`, `Reaction Roles removed due to reaction role message being deleted.`)
 
-    return message.author.send(new MessageEmbed({
-        title: `ReactionRole message deleted!`,
-        color: pGuildClient.embedColor,
-        timestamp: Date.now(),
-        description: [
-            `**Your reactionrole message in ${message.channel} was deleted!**`,
-            `It had these reactionroles assigned to it:`,
-            warningMessageInfo.join(`\n`)
-        ].join('\n')
-    }))
+    return message.author.send({
+        embeds: [
+            new MessageEmbed({
+                title: `ReactionRole message deleted!`,
+                color: pGuildClient.embedColor,
+                timestamp: Date.now(),
+                description: [
+                    `**Your reactionrole message in ${message.channel} was deleted!**`,
+                    `It had these reactionroles assigned to it:`,
+                    warningMessageInfo.join(`\n`)
+                ].join('\n')
+            })
+        ]
+    })
 }
 
 export class ReactionRole {

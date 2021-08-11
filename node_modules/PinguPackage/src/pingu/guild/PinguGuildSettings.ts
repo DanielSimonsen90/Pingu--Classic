@@ -1,4 +1,4 @@
-import { Guild } from 'discord.js';
+import { Guild, TextChannel } from 'discord.js';
 
 import PChannel from '../../database/json/PChannel';
 import PinguGuildConfig from "./PinguGuildConfig";
@@ -7,8 +7,8 @@ import ReactionRole from './items/ReactionRole';
 
 export class PinguGuildSettings {
     constructor(guild: Guild) {
-        let welcomeChannel = guild.channels.cache.find(c => c.isText() && c.name.includes('welcome')) ||
-            guild.channels.cache.find(c => c.isText() && c.name == 'general');
+        let welcomeChannel = (guild.channels.cache.find(c => !c.isThread() && c.isText() && c.name.includes('welcome')) ||
+            guild.channels.cache.find(c => !c.isThread() && c.isText() && c.name == 'general')) as TextChannel;
 
         if (welcomeChannel) this.welcomeChannel = new PChannel(welcomeChannel);
 

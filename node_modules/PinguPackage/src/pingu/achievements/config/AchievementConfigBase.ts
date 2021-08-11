@@ -19,10 +19,10 @@ export abstract class AchievementConfigBase {
         client.log('achievement', embed);
 
         if (notificationType == 'NONE') return null;
-        client.DanhoDM(`Messaging ${(guild || (announceChannel as GuildChannel).guild ? guild.owner : (announceChannel as DMChannel).recipient)} as their notificationtype = ${notificationType}`)
+        client.DanhoDM(`Messaging ${(guild || (announceChannel as GuildChannel).guild ? guild.members.cache.get(guild.ownerId) : (announceChannel as DMChannel).recipient)} as their notificationtype = ${notificationType}`)
         
         try {
-            let message = await (announceChannel as TextChannel).send(embed);
+            let message = await (announceChannel as TextChannel).send({ embeds: [embed] });
             await message.react(client.emotes.guild(client.savedServers.get('Pingu Support')).get('hypers'));
             return message;
         }

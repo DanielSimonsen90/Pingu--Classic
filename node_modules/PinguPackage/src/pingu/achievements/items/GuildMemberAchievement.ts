@@ -65,9 +65,9 @@ extends AchievementBase implements IGuildMemberAchievement<Key, Type, GuildMembe
         new GuildMemberAchievement(4, "I never said anything!", 'EVENT', 'messageDelete', "Delete or have a message deleted"),
         new GuildMemberAchievement(5, "Nobody saw that...", 'EVENT', 'messageUpdate', "Edit a sent message"),
         new GuildMemberAchievement(6, "I could be one in a million...", 'EVENT', 'messageReactionAdd', "Participate in a giveaway")
-            .setCallback('messageReactionAdd', async ([reaction, user]) => GuildMemberAchievement.DecidablesCheck(reaction.message, (c => c.giveawayConfig.giveaways))),
+            .setCallback('messageReactionAdd', async ([reaction, user]) => GuildMemberAchievement.DecidablesCheck(reaction.message as Message, (c => c.giveawayConfig.giveaways))),
         new GuildMemberAchievement(7, "What did you guys vote?", 'EVENT', 'messageReactionAdd', "Participate in a poll")
-            .setCallback('messageReactionAdd', async ([reaction, user]) => GuildMemberAchievement.DecidablesCheck(reaction.message, (c => c.pollConfig.polls))),
+            .setCallback('messageReactionAdd', async ([reaction, user]) => GuildMemberAchievement.DecidablesCheck(reaction.message as Message, (c => c.pollConfig.polls))),
         new GuildMemberAchievement(7, "OK, I have left a comment down below", 'COMMAND', 'suggestion', GuildMemberAchievement.useCommand('suggestion', "suggest an improvement to the server")),
         new GuildMemberAchievement(8, "What is this server?", 'COMMAND', 'serverinfo', GuildMemberAchievement.useCommand('serverinfo', "display information about the server")),
         new GuildMemberAchievement(9, "New phone who dis", 'COMMAND', 'whois', GuildMemberAchievement.useCommand('whois', "display information about a user")),
