@@ -7,9 +7,13 @@ export var developers = new Collection<DeveloperNames, Snowflake>([
     ['Slothman', '290131910091603968']
 ]);
 
+export function isPinguDev(user: User): boolean {
+    return this.get(developers.findKey(id => id == user.id)) != null;
+}
+
 export class DeveloperCollection extends Collection<DeveloperNames, GuildMember> {
     isPinguDev(user: User): boolean {
-        return this.get(developers.findKey(id => id == user.id)) != null;
+        return isPinguDev(user);
     }
     update(member: GuildMember) {
         if (!this.some(u => u.id == member.id)) return this;
