@@ -50,6 +50,7 @@ export class PermissionsManager {
             const permString = permission.toLowerCase().replace(/_+/, ' ');
 
             const { author, channel } = check;
+            
             if (!checkPermission(channel, author, permission)) return `I don't have permission to **${permString}** in ${channel}!`;
             else if (!checkPermission(channel, author, permission) && 
                     (isPinguDev(author) && testingMode || !isPinguDev(author)))

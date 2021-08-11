@@ -1,4 +1,4 @@
-import { Collection, Snowflake, User } from "discord.js";
+import { Collection, GuildMember, Snowflake, User } from "discord.js";
 
 export type DeveloperNames = 'Danho' | 'SynthySytro' | 'Slothman';
 export var developers = new Collection<DeveloperNames, Snowflake>([
@@ -7,15 +7,15 @@ export var developers = new Collection<DeveloperNames, Snowflake>([
     ['Slothman', '290131910091603968']
 ]);
 
-export class DeveloperCollection extends Collection<DeveloperNames, User> {
+export class DeveloperCollection extends Collection<DeveloperNames, GuildMember> {
     isPinguDev(user: User): boolean {
         return this.get(developers.findKey(id => id == user.id)) != null;
     }
-    update(user: User) {
-        if (!this.some(u => u.id == user.id)) return this;
+    update(member: GuildMember) {
+        if (!this.some(u => u.id == member.id)) return this;
 
-        const name = this.findKey(u => u.id == user.id);
-        return this.set(name, user);
+        const name = this.findKey(u => u.id == member.id);
+        return this.set(name, member);
     }
 }
 

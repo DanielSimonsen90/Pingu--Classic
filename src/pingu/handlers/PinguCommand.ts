@@ -3,7 +3,7 @@ type CommandCategoriesType = keyof typeof CommandCategories;
 
 import PinguClient from "../client/PinguClient";
 import Arguments from "../../helpers/Arguments";
-import { Message, PermissionString, Snowflake, VoiceConnection } from 'discord.js';
+import { Message, PermissionString, Snowflake } from 'discord.js';
 import PinguUser from '../user/PinguUser';
 import PinguGuildMember from '../guildMember/PinguGuildMember';
 import PinguGuild from '../guild/PinguGuild';
@@ -19,7 +19,7 @@ export interface PinguCommandParams {
     pGuildClient?: PClient,
 }
 
-export type ExecuteReturns = void | Message | VoiceConnection;
+export type ExecuteReturns = void | Message;
 
 import PinguHandler from './PinguHandler'
 export class PinguCommand extends PinguHandler {

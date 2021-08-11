@@ -1,5 +1,10 @@
-import { Message, MessageEmbed, TextChannel, VoiceChannel, VoiceConnection } from "discord.js";
+import { Message, MessageEmbed, TextChannel, VoiceChannel } from "discord.js";
+import { VoiceConnection } from "@discordjs/voice";
 import PinguClient from '../../../../client/PinguClient';
+
+/*
+https://discordjs.guide/
+*/
 
 import IMuisc from "../IMusic";
 import Song from '../Song';
@@ -77,10 +82,10 @@ export class Queue implements IMuisc {
         if (!this.playing && pauseRequest) return message.channel.send(`Music is already paused!`)
         else if (this.playing && !pauseRequest) return message.channel.send(`Music is already resumed!`)
 
-        if (!this.connection.dispatcher) return message.channel.send(`I'm not playing anything!`);
+        // if (!this.connection.dispatcher) return message.channel.send(`I'm not playing anything!`);
 
-        if (pauseRequest) this.connection.dispatcher.pause();
-        else this.connection.dispatcher.resume();
+        // if (pauseRequest) this.connection.dispatcher.pause();
+        // else this.connection.dispatcher.resume();
 
         let lastMessage = (await message.channel.messages.fetch({ after: message.id })).first();
         let react = async (msg: Message) => {

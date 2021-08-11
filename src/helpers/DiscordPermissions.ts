@@ -31,7 +31,13 @@ export const DiscordPermissions = new class DiscordPermissions implements Record
     MANAGE_NICKNAMES = 'MANAGE_NICKNAMES' as PermissionString
     MANAGE_ROLES = 'MANAGE_ROLES' as PermissionString
     MANAGE_WEBHOOKS = 'MANAGE_WEBHOOKS' as PermissionString
-    MANAGE_EMOJIS = 'MANAGE_EMOJIS' as PermissionString
+    MANAGE_EMOJIS_AND_STICKERS = 'MANAGE_EMOJIS_AND_STICKERS' as PermissionString
+    REQUEST_TO_SPEAK = 'REQUEST_TO_SPEAK' as PermissionString
+    USE_APPLICATION_COMMANDS = 'USE_APPLICATION_COMMANDS' as PermissionString
+    MANAGE_THREADS = 'MANAGE_THREADS' as PermissionString
+    USE_PUBLIC_THREADS = 'USE_PUBLIC_THREADS' as PermissionString
+    USE_PRIVATE_THREADS = 'USE_PRIVATE_THREADS' as PermissionString
+    USE_EXTERNAL_STICKERS = 'USE_EXTERNAL_STICKERS' as PermissionString
 }
 
 export default DiscordPermissions;

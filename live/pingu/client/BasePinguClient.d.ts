@@ -61,11 +61,11 @@ export declare abstract class BasePinguClient<Events extends ClientEvents = any>
     pGuildMembers: Collection<Guild, PinguGuildMemberCollection>;
     pUsers: PinguCollection<User, PinguUser>;
     emotes: EmojiCollection;
-    setActivity(options?: ActivityOptions): Promise<import("discord.js").Presence>;
+    setActivity(options?: ActivityOptions): import("discord.js").Presence;
     log<Type extends LogChannels, LogMethod extends (channel: TextChannel, ...args: LogTypes[Type]) => Promise<Message>>(type: Type, ...args: LogTypes[Type]): Promise<Message>;
     DBExecute<T>(callback: (mongoose: typeof import('mongoose')) => Promise<T>): Promise<T>;
     DanhoDM(message: string): Promise<Message>;
-    protected onceReady(): Promise<this>;
+    protected onceReady(): Promise<void>;
     protected abstract handlePath(path: string, type: 'command' | 'event'): void;
     private achievementLog;
     private consoleLog;

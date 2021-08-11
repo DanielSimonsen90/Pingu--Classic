@@ -22,17 +22,17 @@ class IPinguCollection {
     }
     get logChannel() {
         const guild = this._client.guilds.cache.get(this._client.savedServers.get('Pingu Support').id);
-        const logChannelCategory = guild.channels.cache.find(c => c.type == 'category' && c.name.includes('Pingu Logs'));
+        const logChannelCategory = guild.channels.cache.find(c => c.type == 'GUILD_CATEGORY' && c.name.includes('Pingu Logs'));
         return logChannelCategory.children.find(c => c.name.includes(this._logChannelName));
     }
     get(item) {
         return this._inner.get(item.id);
     }
     array() {
-        return this._inner.array();
+        return [...this._inner.values()];
     }
     find(predicate) {
-        const entries = this._inner.array();
+        const entries = [...this._inner.values()];
         for (let i = 0; i < entries.length; i++) {
             const entry = entries[i];
             const item = this._typeManager(this._client, entry).cache.get(entry._id);

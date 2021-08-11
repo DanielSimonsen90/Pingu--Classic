@@ -31,7 +31,7 @@ export class EmojiCollection {
         if (client) this._client = client;
 
         this._cached = this._client.guilds.cache.reduce((result, guild) => {
-            result.push(...guild.emojis.cache.array())
+            result.push(...guild.emojis.cache.values())
             return result;
         }, new Array<GuildEmoji>());
 

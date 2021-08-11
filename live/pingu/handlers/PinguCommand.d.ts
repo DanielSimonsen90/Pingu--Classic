@@ -8,7 +8,7 @@ export declare enum CommandCategories {
 declare type CommandCategoriesType = keyof typeof CommandCategories;
 import PinguClient from "../client/PinguClient";
 import Arguments from "../../helpers/Arguments";
-import { Message, PermissionString, Snowflake, VoiceConnection } from 'discord.js';
+import { Message, PermissionString, Snowflake } from 'discord.js';
 import PinguUser from '../user/PinguUser';
 import PinguGuildMember from '../guildMember/PinguGuildMember';
 import PinguGuild from '../guild/PinguGuild';
@@ -22,7 +22,7 @@ export interface PinguCommandParams {
     pGuild?: PinguGuild;
     pGuildClient?: PClient;
 }
-export declare type ExecuteReturns = void | Message | VoiceConnection;
+export declare type ExecuteReturns = void | Message;
 import PinguHandler from './PinguHandler';
 export declare class PinguCommand extends PinguHandler {
     constructor(name: string, category: CommandCategoriesType, description: string, data: {

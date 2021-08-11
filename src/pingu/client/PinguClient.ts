@@ -53,7 +53,7 @@ export class PinguClient extends BasePinguClient<PinguClientEvents> {
 
     //#region Gets
     public getSharedServers(user: User): Guild[] {
-        return this.guilds.cache.filter(g => g.members.cache.has(user.id)).array();   
+        return [...this.guilds.cache.filter(g => g.members.cache.has(user.id)).values()];   
     }
     public getTextChannel(guildId: string, channelName: string) {
         const guild = this.guilds.cache.get(guildId);
@@ -118,10 +118,12 @@ export class PinguClient extends BasePinguClient<PinguClientEvents> {
                 }).then(() => message.channel.send(`I was unable to find a gif! I have contacted my developers...`));
             }
     
-            return message.channel.send(new MessageEmbed()
-                .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
-                .setColor(pGuildClient.embedColor || this.DefaultEmbedColor)
-            );
+            return message.channel.send({
+                embeds: [new MessageEmbed()
+                    .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
+                    .setColor(pGuildClient.embedColor || this.DefaultEmbedColor)
+                ]
+            });
         });
     }
     public async AchievementCheck
