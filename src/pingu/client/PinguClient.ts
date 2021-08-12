@@ -2,10 +2,6 @@ import { Client, ClientEvents, ClientOptions, Collection, TextChannel, User, Gui
 import * as fs from 'fs';   
 import * as request from 'request';
 
-export function ToPinguClient(client: Client): PinguClient {
-    return client as PinguClient;
-}
-
 import PinguGuild from '../guild/PinguGuild';
 import PClient from '../../database/json/PClient';
 import { getBadges } from "../badge/PinguBadge";
@@ -19,9 +15,6 @@ import IConfigRequirements from '../../helpers/Config';
 import { PinguCommand, PinguEvent, PinguClientEvents } from '../handlers';
 import BasePinguClient from "./BasePinguClient";
 export class PinguClient extends BasePinguClient<PinguClientEvents> {
-    //Statics
-    public static ToPinguClient(client: Client) { return ToPinguClient(client); }
-
     constructor(
         config: IConfigRequirements, 
         permissions: PermissionString[], 

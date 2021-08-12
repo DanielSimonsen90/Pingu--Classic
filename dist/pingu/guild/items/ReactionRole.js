@@ -4,12 +4,11 @@ exports.ReactionRole = exports.OnMessageDelete = exports.RemoveReactionRole = ex
 const discord_js_1 = require("discord.js");
 const json_1 = require("../../../database/json");
 const BasePinguClient_1 = require("../../client/BasePinguClient");
-const PinguClient_1 = require("../../client/PinguClient");
 async function GetReactionRole(reaction, user) {
     let { guild } = reaction.message;
     if (!guild)
         return;
-    const client = PinguClient_1.ToPinguClient(reaction.client);
+    const { client } = reaction.message;
     let pGuild = client.pGuilds.get(guild);
     const rr = pGuild.settings.reactionRoles.find(rr => rr.messageID == reaction.message.id &&
         (rr.emoteName == reaction.emoji.name) &&
@@ -31,7 +30,7 @@ async function GetReactionRole(reaction, user) {
 }
 exports.GetReactionRole = GetReactionRole;
 async function OnReactionAdd(reaction, user) {
-    const client = PinguClient_1.ToPinguClient(reaction.client);
+    const { client } = reaction.message;
     try {
         const role = await GetReactionRole(reaction, user);
         if (!role)
@@ -50,7 +49,7 @@ async function OnReactionAdd(reaction, user) {
 }
 exports.OnReactionAdd = OnReactionAdd;
 async function OnReactionRemove(reaction, user) {
-    const client = PinguClient_1.ToPinguClient(reaction.client);
+    const { client } = reaction.message;
     if (client.id == user.id) {
         const pGuild = client.pGuilds.get(reaction.message.guild);
         const rr = pGuild.settings.reactionRoles.find(rr => rr.messageID == reaction.message.id && rr.emoteName == reaction.emoji.name);
@@ -74,8 +73,7 @@ async function OnReactionRemove(reaction, user) {
 }
 exports.OnReactionRemove = OnReactionRemove;
 async function OnReactionRemoveAll(message) {
-    const { guild, id, client: _client } = message;
-    const client = PinguClient_1.ToPinguClient(_client);
+    const { guild, id, client } = message;
     let pGuild = client.pGuilds.get(guild);
     if (!pGuild.settings.reactionRoles[0])
         return;
@@ -90,10 +88,9 @@ async function OnReactionRemoveAll(message) {
 }
 exports.OnReactionRemoveAll = OnReactionRemoveAll;
 async function RemoveReaction(reaction) {
-    const { guild, client: _client, id } = reaction.message;
+    const { guild, client, id } = reaction.message;
     if (!guild)
         return;
-    const client = PinguClient_1.ToPinguClient(_client);
     let pGuild = client.pGuilds.get(guild);
     if (!pGuild)
         return;
@@ -106,18 +103,18 @@ async function RemoveReaction(reaction) {
     return RemoveReactionRole(rr, reactionRoles, pGuild, client);
 }
 exports.RemoveReaction = RemoveReaction;
-async function RemoveReactionRole(rr, reactionRoles, pGuild, _client) {
+async function RemoveReactionRole(rr, reactionRoles, pGuild, client) {
     let i = reactionRoles.indexOf(rr);
     reactionRoles.splice(i);
     pGuild.settings.reactionRoles = reactionRoles;
-    return PinguClient_1.ToPinguClient(_client).pGuilds.update(pGuild, `ReactionRole.RemoveReactionRole()`, `Removed ${rr.emoteName} from **${pGuild.name}**'s Pingu Guild.`);
+    return client.pGuilds.update(pGuild, `ReactionRole.RemoveReactionRole()`, `Removed ${rr.emoteName} from **${pGuild.name}**'s Pingu Guild.`);
 }
 exports.RemoveReactionRole = RemoveReactionRole;
 async function OnMessageDelete(message) {
     const { guild, id, client: _client } = message;
     if (!guild)
         return;
-    const client = PinguClient_1.ToPinguClient(_client);
+    const client = _client;
     const pGuild = client.pGuilds.get(guild);
     if (!pGuild)
         return;

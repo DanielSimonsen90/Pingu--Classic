@@ -1,3 +1,16 @@
+type StyleDateTime = 'DATE' | 'TIME';
+type StyleLongShort = 'LONG' | 'SHORT';
+export type TimestampStyle = `${StyleLongShort}_${StyleDateTime}` | `${StyleLongShort}_DATE/TIME` | 'RELATIVE';
+export const TimestampStyles = new Map<TimestampStyle, string>([
+    ['SHORT_TIME', 't'],
+    ['LONG_TIME', 'T'],
+    ['SHORT_DATE', 'd'],
+    ['LONG_DATE', 'D'],
+    ['SHORT_DATE/TIME', 'f'],
+    ['LONG_DATE/TIME', 'F'],
+    ['RELATIVE', 'R']
+]);
+
 export class TimeLeftObject {
     constructor(Now: Date, EndsAt: Date) {
         //General properties

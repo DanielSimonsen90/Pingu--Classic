@@ -1,9 +1,4 @@
-import { Client, ClientEvents, ClientOptions, Collection, PermissionString, Snowflake, TextChannel } from "discord.js";
-import { joinVoiceChannel } from '@discordjs/voice'
-
-export function ToPinguMusicClient(client: Client): PinguMusicClient {
-    return client as PinguMusicClient;
-}
+import { ClientEvents, ClientOptions, Collection, PermissionString, Snowflake, TextChannel } from "discord.js";
 
 import { PinguClientEvents, PinguMusicCommand, PinguMusicClientEvents, PinguMusicEvent, PinguMusicCommandParams, HandleMusicEvent } from '../handlers';
 import IConfigRequirements from '../../helpers/Config';
@@ -18,10 +13,6 @@ import * as fs from 'fs';
 import PinguHandler from "../handlers/PinguHandler";
 
 export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
-    //#region Statics
-    public static ToPinguMusicClient(client: Client) { return ToPinguMusicClient(client); }
-    //#endregion 
-
     constructor(
         config: IConfigRequirements, 
         permissions: PermissionString[], 

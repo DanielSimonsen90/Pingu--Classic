@@ -1,6 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TimeLeftObject = void 0;
+exports.TimeLeftObject = exports.TimestampStyles = void 0;
+exports.TimestampStyles = new Map([
+    ['SHORT_TIME', 't'],
+    ['LONG_TIME', 'T'],
+    ['SHORT_DATE', 'd'],
+    ['LONG_DATE', 'D'],
+    ['SHORT_DATE/TIME', 'f'],
+    ['LONG_DATE/TIME', 'F'],
+    ['RELATIVE', 'R']
+]);
 class TimeLeftObject {
     constructor(Now, EndsAt) {
         //General properties

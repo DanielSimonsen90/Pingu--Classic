@@ -11,12 +11,12 @@ import PinguGuild from '../guild/PinguGuild';
 import PinguUser from '../user/PinguUser';
 
 interface ChosenOnes {
-    chosenGuild: [Guild, PinguGuild],
-    chosenUser: [User, PinguUser]
+    chosenGuild: [guild: Guild, pGuild: PinguGuild],
+    chosenUser: [user: User, pUser: PinguUser]
 }
 interface PinguEvents extends ChosenOnes {
     onready: [],
-    mostKnownUser: [User]
+    mostKnownUser: [user: User]
 }
 export interface PinguClientEvents extends ClientEvents, PinguEvents {}
 
@@ -44,8 +44,8 @@ export async function GetAuditLogs(guild: Guild, type: GuildAuditLogsAction, key
     try { return key ? filteredLogs.find(e => e.changes.find(change => change.key == key) && (target ? e.target == target : true)).executor.tag : filteredLogs.first().executor.tag; }
     catch (err) { if (err.message == `Cannot read property 'executor' of undefined`) return noAuditLog; }
 }
-export function UnknownUpdate(old: object, current: object) {
-    let oldArr = Object.keys(old);
+export function UnknownUpdate(previous: object, current: object) {
+    let oldArr = Object.keys(previous);
     let currentArr = Object.keys(current);
 
     for (var i = 0; i < currentArr.length || i < oldArr.length; i++) {
@@ -59,24 +59,24 @@ export function UnknownUpdate(old: object, current: object) {
 export function SetDescription(type: string, description: string) {
     return `[**${type}**]\n\n${description}`;
 }
-export function SetRemove(type: string, oldValue: object, newValue: object, SetString: string, RemoveString: string, descriptionMethod: (type: string, oldValue: object, newValue: object) => string) {
-    return newValue && !oldValue ? SetDescription(type, SetString) :
-        !newValue && oldValue ? SetDescription(type, RemoveString) : descriptionMethod(type, oldValue, newValue);
+export function SetRemove(type: string, previousValue: object, currentValue: object, SetString: string, RemoveString: string, descriptionMethod: (type: string, previousValue: object, currentValue: object) => string) {
+    return currentValue && !previousValue ? SetDescription(type, SetString) :
+        !currentValue && previousValue ? SetDescription(type, RemoveString) : descriptionMethod(type, previousValue, currentValue);
 }
-export function SetDescriptionValues(type: string, oldValue: any, newValue: any) {
-    return SetDescription(type, `Old: ${oldValue}\n\nNew: ${newValue}`)
+export function SetDescriptionValues(type: string, previousValue: any, currentValue: any) {
+    return SetDescription(type, `Old: ${previousValue}\n\nNew: ${currentValue}`)
 }
-export function SetDescriptionValuesLink(type: string, oldValue: any, newValue: any) {
-    return SetDescription(type, `[Old](${oldValue})\n[New](${newValue})`)
+export function SetDescriptionValuesLink(type: string, previousValue: any, currentValue: any) {
+    return SetDescription(type, `[Old](${previousValue})\n[New](${currentValue})`)
 }
 /**@param type [**${type}**]
  * @param preArr Previous array
- * @param newArr Current array
+ * @param curArr Current array
  * @param callback pre/new.find(i => callback(i, preItem/newItem))*/
-export function GoThroughArrays<T>(type: string, preArr: T[], newArr: T[], callback: (item: T, loopItem: T) => T) {
+export function GoThroughArrays<T>(type: string, preArr: T[], curArr: T[], callback: (item: T, loopItem: T) => T) {
     let updateMessage = `[**${type}**] `;
-    let added = GoThroguhArray(newArr, preArr);
-    let removed = GoThroguhArray(preArr, newArr);
+    let added = GoThroguhArray(curArr, preArr);
+    let removed = GoThroguhArray(preArr, curArr);
 
     if (!added.length && removed.length) return updateMessage += removed.join(`, `).substring(removed.join(', ').length - 2);
     else if (!removed.length && added.length) return updateMessage += added.join(`, `).substring(added.join(', ').length - 2);
@@ -92,25 +92,25 @@ export function GoThroughArrays<T>(type: string, preArr: T[], newArr: T[], callb
         return result;
     }
 }
-export function GoThroughObjectArray<T>(type: string, preArr: T[], newArr: T[]) {
+export function GoThroughObjectArray<T>(type: string, preArr: T[], curArr: T[]) {
     let updateMessage = `[**${type}**]\n`;
     let changes = new Collection<string, string>();
 
-    if (preArr.length > newArr.length) return updateMessage += `Removed ${type.toLowerCase()}`;
-    else if (newArr.length > preArr.length) return updateMessage += `Added new ${type.toLowerCase()}`;
+    if (preArr.length > curArr.length) return updateMessage += `Removed ${type.toLowerCase()}`;
+    else if (curArr.length > preArr.length) return updateMessage += `Added new ${type.toLowerCase()}`;
 
-    for (var i = 0; i < newArr.length; i++) {
-        let newKeys = Object.keys(newArr[i]);
+    for (var i = 0; i < curArr.length; i++) {
+        let newKeys = Object.keys(curArr[i]);
         let preKeys = Object.keys(preArr[i]);
 
         newKeys.forEach(key => {
-            if (newArr[key] == preArr[key]) return;
-            else if (!preArr[key]) changes.set(key, `__Added__: ${newArr[key]}`);
-            else changes.set(key, `__Changed__: **${preArr[key]}** => **${newArr[key]}**`)
+            if (curArr[key] == preArr[key]) return;
+            else if (!preArr[key]) changes.set(key, `__Added__: ${curArr[key]}`);
+            else changes.set(key, `__Changed__: **${preArr[key]}** => **${curArr[key]}**`)
         });
         preKeys.forEach(key => {
             if (changes.get(key) || preKeys[key] == newKeys[key]) return
-            else if (!newArr[key]) changes.set(key, `__Removed__: ${preArr[key]}`);
+            else if (!curArr[key]) changes.set(key, `__Removed__: ${preArr[key]}`);
         });
     }
 
@@ -305,7 +305,7 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
             })
 
             if (event.setContent) {
-                await event.setContent(client, ...args);
+                await event.setContent(client, new MessageEmbed(), ...args);
 
                 if (!event.content) return null;
                 defaultEmbed = (function CombineEmbeds() {
@@ -361,7 +361,7 @@ export class PinguEvent<Event extends keyof PinguClientEvents> extends PinguHand
 
     constructor(
         name: Event, 
-        setContent?: (client: PinguClient, ...args: PinguClientEvents[Event]) => Promise<MessageEmbed>, 
+        setContent?: (client: PinguClient, embed: MessageEmbed, ...args: PinguClientEvents[Event]) => Promise<MessageEmbed>, 
         execute?: (client: PinguClient, ...args: PinguClientEvents[Event]) => Promise<Message>
     ){
         super(name);
@@ -372,7 +372,7 @@ export class PinguEvent<Event extends keyof PinguClientEvents> extends PinguHand
     public declare name: Event;
     public content: MessageEmbed;
 
-    public async setContent(client: PinguClient, ...args: PinguClientEvents[Event]): Promise<MessageEmbed> { return null; }
+    public async setContent(client: PinguClient, embed: MessageEmbed, ...args: PinguClientEvents[Event]): Promise<MessageEmbed> { return null; }
     public async execute(client: PinguClient, ...args: PinguClientEvents[Event]): Promise<Message> { return null; }
 }
 

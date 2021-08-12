@@ -1,6 +1,6 @@
-import { Client, Guild } from 'discord.js';
+import { Guild } from 'discord.js';
 export declare class PClient {
-    constructor(client: Client, guild: Guild);
+    constructor(guild: Guild);
     displayName: string;
     embedColor: number;
     prefix: string;

@@ -1,3 +1,7 @@
+declare type StyleDateTime = 'DATE' | 'TIME';
+declare type StyleLongShort = 'LONG' | 'SHORT';
+export declare type TimestampStyle = `${StyleLongShort}_${StyleDateTime}` | `${StyleLongShort}_DATE/TIME` | 'RELATIVE';
+export declare const TimestampStyles: Map<TimestampStyle, string>;
 export declare class TimeLeftObject {
     constructor(Now: Date, EndsAt: Date);
     years: number;

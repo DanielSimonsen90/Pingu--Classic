@@ -42,7 +42,6 @@ class PinguMusicEvent extends PinguHandler_1.default {
         super(name);
         this.execute = execute;
     }
-    name;
     async execute(client, ...args) { return null; }
 }
 exports.PinguMusicEvent = PinguMusicEvent;

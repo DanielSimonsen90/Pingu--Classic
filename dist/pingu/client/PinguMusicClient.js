@@ -1,20 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PinguMusicClient = exports.ToPinguMusicClient = void 0;
+exports.PinguMusicClient = void 0;
 const discord_js_1 = require("discord.js");
-function ToPinguMusicClient(client) {
-    return client;
-}
-exports.ToPinguMusicClient = ToPinguMusicClient;
 const handlers_1 = require("../handlers");
 const Queue_1 = require("../guild/items/music/Queue/Queue");
 const Song_1 = require("../guild/items/music/Song");
 const BasePinguClient_1 = require("./BasePinguClient");
 const fs = require("fs");
 class PinguMusicClient extends BasePinguClient_1.default {
-    //#region Statics
-    static ToPinguMusicClient(client) { return ToPinguMusicClient(client); }
-    //#endregion 
     constructor(config, permissions, subscribedEvents, dirname, commandsPath, eventsPath, options) {
         super(config, permissions, subscribedEvents, dirname, commandsPath, eventsPath, options);
     }

@@ -1,5 +1,4 @@
-import { Client, ClientEvents, ClientOptions, Collection, PermissionString } from "discord.js";
-export declare function ToPinguMusicClient(client: Client): PinguMusicClient;
+import { ClientEvents, ClientOptions, Collection, PermissionString } from "discord.js";
 import { PinguClientEvents, PinguMusicCommand, PinguMusicClientEvents, PinguMusicEvent, PinguMusicCommandParams } from '../handlers';
 import IConfigRequirements from '../../helpers/Config';
 import Queue from "../guild/items/music/Queue/Queue";
@@ -8,7 +7,6 @@ interface VideoThing {
     url: string;
 }
 export declare class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
-    static ToPinguMusicClient(client: Client): PinguMusicClient;
     constructor(config: IConfigRequirements, permissions: PermissionString[], subscribedEvents: [keyof PinguMusicClientEvents], dirname?: string, commandsPath?: string, eventsPath?: string, options?: ClientOptions);
     queues: Collection<string, Queue>;
     events: Collection<keyof PinguMusicClientEvents, PinguMusicEvent<keyof PinguMusicClientEvents>>;

@@ -3,10 +3,10 @@ export declare const Clients: {
     PinguID: string;
     BetaID: string;
 };
-export declare function ToBasePinguClient(client: Client): BasePinguClient<any>;
 import PinguHandler from "../handlers/PinguHandler";
 import { PinguCommandParams } from "../handlers/PinguCommand";
 import IConfigRequirements from "../../helpers/Config";
+import { TimestampStyle } from '../../helpers/TimeLeftObject';
 import PinguCollection from '../collection/PinguCollection';
 import DeveloperCollection from '../collection/DeveloperCollection';
 import EmojiCollection from '../collection/EmojiCollection';
@@ -43,6 +43,7 @@ export declare abstract class BasePinguClient<Events extends ClientEvents = any>
     constructor(config: IConfigRequirements, permissions: PermissionString[], subscribedEvents: Array<keyof ClientEvents>, dirname: string, commandsPath?: string, eventsPath?: string, options?: ClientOptions);
     get id(): string;
     get isLive(): boolean;
+    get member(): import("discord.js").GuildMember;
     readonly DefaultEmbedColor = 3447003;
     readonly invite = "https://discord.gg/gbxRV4Ekvh";
     commands: Collection<string, PinguHandler>;
@@ -65,7 +66,7 @@ export declare abstract class BasePinguClient<Events extends ClientEvents = any>
     log<Type extends LogChannels, LogMethod extends (channel: TextChannel, ...args: LogTypes[Type]) => Promise<Message>>(type: Type, ...args: LogTypes[Type]): Promise<Message>;
     DBExecute<T>(callback: (mongoose: typeof import('mongoose')) => Promise<T>): Promise<T>;
     DanhoDM(message: string): Promise<Message>;
-    get member(): import("discord.js").GuildMember;
+    timeFormat(timestamp: number, format?: TimestampStyle): string;
     protected onceReady(): Promise<void>;
     protected abstract handlePath(path: string, type: 'command' | 'event'): void;
     private achievementLog;

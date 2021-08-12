@@ -28,8 +28,8 @@ async function GetAuditLogs(guild, type, key, target = null, seconds = 1) {
     }
 }
 exports.GetAuditLogs = GetAuditLogs;
-function UnknownUpdate(old, current) {
-    let oldArr = Object.keys(old);
+function UnknownUpdate(previous, current) {
+    let oldArr = Object.keys(previous);
     let currentArr = Object.keys(current);
     for (var i = 0; i < currentArr.length || i < oldArr.length; i++) {
         if (currentArr[i] != oldArr[i])
@@ -42,27 +42,27 @@ function SetDescription(type, description) {
     return `[**${type}**]\n\n${description}`;
 }
 exports.SetDescription = SetDescription;
-function SetRemove(type, oldValue, newValue, SetString, RemoveString, descriptionMethod) {
-    return newValue && !oldValue ? SetDescription(type, SetString) :
-        !newValue && oldValue ? SetDescription(type, RemoveString) : descriptionMethod(type, oldValue, newValue);
+function SetRemove(type, previousValue, currentValue, SetString, RemoveString, descriptionMethod) {
+    return currentValue && !previousValue ? SetDescription(type, SetString) :
+        !currentValue && previousValue ? SetDescription(type, RemoveString) : descriptionMethod(type, previousValue, currentValue);
 }
 exports.SetRemove = SetRemove;
-function SetDescriptionValues(type, oldValue, newValue) {
-    return SetDescription(type, `Old: ${oldValue}\n\nNew: ${newValue}`);
+function SetDescriptionValues(type, previousValue, currentValue) {
+    return SetDescription(type, `Old: ${previousValue}\n\nNew: ${currentValue}`);
 }
 exports.SetDescriptionValues = SetDescriptionValues;
-function SetDescriptionValuesLink(type, oldValue, newValue) {
-    return SetDescription(type, `[Old](${oldValue})\n[New](${newValue})`);
+function SetDescriptionValuesLink(type, previousValue, currentValue) {
+    return SetDescription(type, `[Old](${previousValue})\n[New](${currentValue})`);
 }
 exports.SetDescriptionValuesLink = SetDescriptionValuesLink;
 /**@param type [**${type}**]
  * @param preArr Previous array
- * @param newArr Current array
+ * @param curArr Current array
  * @param callback pre/new.find(i => callback(i, preItem/newItem))*/
-function GoThroughArrays(type, preArr, newArr, callback) {
+function GoThroughArrays(type, preArr, curArr, callback) {
     let updateMessage = `[**${type}**] `;
-    let added = GoThroguhArray(newArr, preArr);
-    let removed = GoThroguhArray(preArr, newArr);
+    let added = GoThroguhArray(curArr, preArr);
+    let removed = GoThroguhArray(preArr, curArr);
     if (!added.length && removed.length)
         return updateMessage += removed.join(`, `).substring(removed.join(', ').length - 2);
     else if (!removed.length && added.length)
@@ -79,28 +79,28 @@ function GoThroughArrays(type, preArr, newArr, callback) {
     }
 }
 exports.GoThroughArrays = GoThroughArrays;
-function GoThroughObjectArray(type, preArr, newArr) {
+function GoThroughObjectArray(type, preArr, curArr) {
     let updateMessage = `[**${type}**]\n`;
     let changes = new discord_js_1.Collection();
-    if (preArr.length > newArr.length)
+    if (preArr.length > curArr.length)
         return updateMessage += `Removed ${type.toLowerCase()}`;
-    else if (newArr.length > preArr.length)
+    else if (curArr.length > preArr.length)
         return updateMessage += `Added new ${type.toLowerCase()}`;
-    for (var i = 0; i < newArr.length; i++) {
-        let newKeys = Object.keys(newArr[i]);
+    for (var i = 0; i < curArr.length; i++) {
+        let newKeys = Object.keys(curArr[i]);
         let preKeys = Object.keys(preArr[i]);
         newKeys.forEach(key => {
-            if (newArr[key] == preArr[key])
+            if (curArr[key] == preArr[key])
                 return;
             else if (!preArr[key])
-                changes.set(key, `__Added__: ${newArr[key]}`);
+                changes.set(key, `__Added__: ${curArr[key]}`);
             else
-                changes.set(key, `__Changed__: **${preArr[key]}** => **${newArr[key]}**`);
+                changes.set(key, `__Changed__: **${preArr[key]}** => **${curArr[key]}**`);
         });
         preKeys.forEach(key => {
             if (changes.get(key) || preKeys[key] == newKeys[key])
                 return;
-            else if (!newArr[key])
+            else if (!curArr[key])
                 changes.set(key, `__Removed__: ${preArr[key]}`);
         });
     }
@@ -293,7 +293,7 @@ async function HandleEvent(caller, client, ...args) {
                 }
             });
             if (event.setContent) {
-                await event.setContent(client, ...args);
+                await event.setContent(client, new discord_js_1.MessageEmbed(), ...args);
                 if (!event.content)
                     return null;
                 defaultEmbed = (function CombineEmbeds() {
@@ -352,7 +352,7 @@ class PinguEvent extends PinguHandler_1.default {
         this.execute = execute;
     }
     content;
-    async setContent(client, ...args) { return null; }
+    async setContent(client, embed, ...args) { return null; }
     async execute(client, ...args) { return null; }
 }
 exports.PinguEvent = PinguEvent;

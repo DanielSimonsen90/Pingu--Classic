@@ -4,12 +4,12 @@ export const Clients = {
     PinguID: '562176550674366464',
     BetaID: '778288722055659520'
 }
-export function ToBasePinguClient(client: Client) { return client as BasePinguClient }
-
 import PinguHandler from "../handlers/PinguHandler";
 import { PinguCommandParams } from "../handlers/PinguCommand";
 
 import IConfigRequirements from "../../helpers/Config";
+import { TimestampStyles, TimestampStyle } from '../../helpers/TimeLeftObject';
+
 import PinguCollection from '../collection/PinguCollection'
 import DeveloperCollection, { developers } from '../collection/DeveloperCollection'
 import EmojiCollection from '../collection/EmojiCollection'
@@ -86,6 +86,9 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
     }
     public get isLive() { 
         return this.id == Clients.PinguID 
+    }
+    public get member() {
+        return this.savedServers.get('Pingu Support').me;
     }
     public readonly DefaultEmbedColor = 3447003;
     public readonly invite = `https://discord.gg/gbxRV4Ekvh`;
@@ -182,8 +185,8 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
 
         return (await Danho.createDM()).send(message);
     }
-    public get member() {
-        return this.savedServers.get('Pingu Support').me;
+    public timeFormat(timestamp: number, format?: TimestampStyle) {
+        return `<t:${timestamp}${format ? `:${TimestampStyles.get(format)}` : ''}>`;
     }
     //#endregion
 
@@ -376,7 +379,7 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
         return channel.send(`[**Success**] [**${script}**]: ${message}`);
     }
     private async raspberryLog(channel: TextChannel) {
-        const client = ToBasePinguClient(channel.client);
+        const { client } = channel;
 
         if (!client.isLive) return null;
         return channel.send(`Booted on version **${client.config.version}**.`);

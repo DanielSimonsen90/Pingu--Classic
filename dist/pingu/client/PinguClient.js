@@ -1,20 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PinguClient = exports.ToPinguClient = void 0;
+exports.PinguClient = void 0;
 const discord_js_1 = require("discord.js");
 const fs = require("fs");
 const request = require("request");
-function ToPinguClient(client) {
-    return client;
-}
-exports.ToPinguClient = ToPinguClient;
 const PinguBadge_1 = require("../badge/PinguBadge");
 const achievements_1 = require("../achievements");
 const handlers_1 = require("../handlers");
 const BasePinguClient_1 = require("./BasePinguClient");
 class PinguClient extends BasePinguClient_1.default {
-    //Statics
-    static ToPinguClient(client) { return ToPinguClient(client); }
     constructor(config, permissions, subscribedEvents, dirname, commandsPath, eventsPath, options) {
         super(config, permissions, subscribedEvents, dirname, commandsPath, eventsPath, options);
     }

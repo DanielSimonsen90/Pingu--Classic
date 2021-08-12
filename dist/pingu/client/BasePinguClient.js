@@ -1,14 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BasePinguClient = exports.ToBasePinguClient = exports.Clients = void 0;
+exports.BasePinguClient = exports.Clients = void 0;
 const discord_js_1 = require("discord.js");
 const fs = require("fs");
 exports.Clients = {
     PinguID: '562176550674366464',
     BetaID: '778288722055659520'
 };
-function ToBasePinguClient(client) { return client; }
-exports.ToBasePinguClient = ToBasePinguClient;
+const TimeLeftObject_1 = require("../../helpers/TimeLeftObject");
 const PinguCollection_1 = require("../collection/PinguCollection");
 const DeveloperCollection_1 = require("../collection/DeveloperCollection");
 const EmojiCollection_1 = require("../collection/EmojiCollection");
@@ -50,6 +49,9 @@ class BasePinguClient extends discord_js_1.Client {
     }
     get isLive() {
         return this.id == exports.Clients.PinguID;
+    }
+    get member() {
+        return this.savedServers.get('Pingu Support').me;
     }
     DefaultEmbedColor = 3447003;
     invite = `https://discord.gg/gbxRV4Ekvh`;
@@ -135,8 +137,8 @@ class BasePinguClient extends discord_js_1.Client {
             return;
         return (await Danho.createDM()).send(message);
     }
-    get member() {
-        return this.savedServers.get('Pingu Support').me;
+    timeFormat(timestamp, format) {
+        return `<t:${timestamp}${format ? `:${TimeLeftObject_1.TimestampStyles.get(format)}` : ''}>`;
     }
     //#endregion
     //#region Protected methods
@@ -294,7 +296,7 @@ class BasePinguClient extends discord_js_1.Client {
         return channel.send(`[**Success**] [**${script}**]: ${message}`);
     }
     async raspberryLog(channel) {
-        const client = ToBasePinguClient(channel.client);
+        const { client } = channel;
         if (!client.isLive)
             return null;
         return channel.send(`Booted on version **${client.config.version}**.`);
