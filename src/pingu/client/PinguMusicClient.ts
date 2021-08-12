@@ -35,9 +35,9 @@ export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
     }
 
     public queues = new Collection<Snowflake, Queue>();
-    public events: Collection<keyof PinguMusicClientEvents, PinguMusicEvent<keyof PinguMusicClientEvents>>;
-    public commands: Collection<string, PinguMusicCommand>;
-    public subscribedEvents: Array<keyof PinguMusicClientEvents>;
+    public declare events: Collection<keyof PinguMusicClientEvents, PinguMusicEvent<keyof PinguMusicClientEvents>>;
+    public declare commands: Collection<string, PinguMusicCommand>;
+    public declare subscribedEvents: Array<keyof PinguMusicClientEvents>;
 
     public emit<PMCE extends keyof PinguMusicClientEvents, CE extends keyof ClientEvents>(key: PMCE, ...args: PinguMusicClientEvents[PMCE]) {
         console.log(typeof key);
@@ -96,11 +96,7 @@ export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
                     }
                     else {
                         queue = new Queue(message.channel as TextChannel, voiceChannel, songs);
-                        queue.connection = joinVoiceChannel({
-                            guildId: message.guildId,
-                            channelId: queue.voiceChannel.id,
-                            adapterCreator: message.guild.voiceAdapterCreator
-                        });
+                        queue.connection = queue.voiceChannel.join();
                         client.emit('play', queue, message, queue.songs[0]);
                         return null;
                     }

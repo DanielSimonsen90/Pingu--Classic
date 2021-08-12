@@ -32,7 +32,7 @@ export class GuildAchievementConfig extends AchievementConfigBase {
                 .setColor(color)
             , config.channel, config.notificationTypes.guild as AchievementBaseNotificationType);
             case 'OWNER':
-                const owner = achiever.members.cache.get(achiever.ownerId);
+                const owner = achiever.owner()
                 return super._notify(client, achievement, (percentage) => new MessageEmbed()
                     .setTitle(`🏆 Achievement Unlocked! 🏆\n${achievement.name}`)
                     .setDescription(achievement.description)

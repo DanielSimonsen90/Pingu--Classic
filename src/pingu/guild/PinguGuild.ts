@@ -11,7 +11,7 @@ export class PinguGuild extends PItem {
         super(guild);
         const client = ToBasePinguClient(guild.client);
 
-        if (guild.owner()) this.guildOwner = new PGuildMember(guild.owner());
+        if (guild.owner) this.guildOwner = new PGuildMember(guild.owner());
         else if (owner) this.guildOwner = new PGuildMember(owner);
         else client.log('error', `Owner wasn't set when making Pingu Guild for "${guild.name}".`);
 

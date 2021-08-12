@@ -60,7 +60,7 @@ extends AchievementBase implements IGuildMemberAchievement<Key, Type, GuildMembe
 
     public static Achievements = [
         new GuildMemberAchievement(1, "Hello there", 'EVENT', 'guildMemberAdd', "Join a server that has Pingu in it is"),
-        new GuildMemberAchievement(2, "I have spoken.", 'EVENT', 'guildMemberSpeaking', "Say something in a voice channel"),
+        // new GuildMemberAchievement(2, "I have spoken.", 'EVENT', 'guildMemberSpeaking', "Say something in a voice channel"),
         new GuildMemberAchievement(3, "Mom? Can I have a friend over?", 'EVENT', 'inviteCreate', "Create an invite to the Discord"),
         new GuildMemberAchievement(4, "I never said anything!", 'EVENT', 'messageDelete', "Delete or have a message deleted"),
         new GuildMemberAchievement(5, "Nobody saw that...", 'EVENT', 'messageUpdate', "Edit a sent message"),
@@ -106,7 +106,7 @@ extends AchievementBase implements IGuildMemberAchievement<Key, Type, GuildMembe
         ),
         new GuildMemberAchievement(16, "Text-To-Image", 'CHANNEL', "Emotes", useChannel('Emotes', "create an emote")),
         
-        new GuildMemberAchievement(17, "I have spoken", 'EVENT', 'guildMemberSpeaking', "Say something in a voice channel"),
+        // new GuildMemberAchievement(17, "I have spoken", 'EVENT', 'guildMemberSpeaking', "Say something in a voice channel"),
         new GuildMemberAchievement(18, "Twitch might as well partner me now", 'VOICE', 'Streaming', "Livestream in a voice channel"),
         new GuildMemberAchievement(19, "Subscribe to my OnlyFans!", 'VOICE', 'Video', "Turn on your camera in a voice channel"),
         new GuildMemberAchievement(20, "Noice", 'VOICE', 'Noice', "Use the `noice` command in a voice channel"),

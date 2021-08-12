@@ -35,9 +35,10 @@ export class PinguClient extends BasePinguClient<PinguClientEvents> {
     }
 
     //#region Public Properties
-    public commands: Collection<string, PinguCommand>;
-    public events: Collection<keyof PinguClientEvents, PinguEvent<keyof PinguClientEvents>>;
-    public subscribedEvents: Array<keyof PinguClientEvents>;
+    
+    public declare commands: Collection<string, PinguCommand>;
+    public declare events: Collection<keyof PinguClientEvents, PinguEvent<keyof PinguClientEvents>>;
+    public declare subscribedEvents: Array<keyof PinguClientEvents>;
     //#endregion
     
     //#region Public Methods
@@ -53,7 +54,7 @@ export class PinguClient extends BasePinguClient<PinguClientEvents> {
 
     //#region Gets
     public getSharedServers(user: User): Guild[] {
-        return [...this.guilds.cache.filter(g => g.members.cache.has(user.id)).values()];   
+        return this.guilds.cache.filter(g => g.members.cache.has(user.id)).array();   
     }
     public getTextChannel(guildId: string, channelName: string) {
         const guild = this.guilds.cache.get(guildId);
@@ -118,12 +119,10 @@ export class PinguClient extends BasePinguClient<PinguClientEvents> {
                 }).then(() => message.channel.send(`I was unable to find a gif! I have contacted my developers...`));
             }
     
-            return message.channel.send({
-                embeds: [new MessageEmbed()
-                    .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
-                    .setColor(pGuildClient.embedColor || this.DefaultEmbedColor)
-                ]
-            });
+            return message.channel.sendEmbeds(new MessageEmbed()
+                .setImage(data.items[Math.floor(Math.random() * data.items.length)].link)
+                .setColor(pGuildClient.embedColor || this.DefaultEmbedColor)
+            );
         });
     }
     public async AchievementCheck

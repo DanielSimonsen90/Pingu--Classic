@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+require("./Base");
+require("./BaseGuildVoiceChannel");
+require("./Client");
+require("./Collection");
+require("./Guild");
+require("./GuildMember");
+require("./Message");
+require("./PartialTextBasedChannelFields");
+require("./TextChannel");
+require("./User");

@@ -3,7 +3,7 @@ import {
     Guild, GuildMember, User, 
     MessageEmbed, GuildChannel, 
     GuildAuditLogsAction, ClientEvents, 
-    GuildAuditLogsEntry, ColorResolvable
+    GuildAuditLogsEntry, ColorResolvable, DMChannel, GuildEmoji, Snowflake, Role, HexColorString
 } from 'discord.js'
 
 import PinguClient from '../client/PinguClient'
@@ -25,15 +25,15 @@ import Error from '../../helpers/Error';
 
 //#region Statics
 export const Colors = {
-    Create: `#18f151`,
-    Update: `#ddfa00`,
-    Delete: `#db1108`
+    Create: `#18f151` as HexColorString,
+    Update: `#ddfa00` as HexColorString,
+    Delete: `#db1108` as HexColorString
 };
 export const LoggedCache = new Array<MessageEmbed>();
 export const noAuditLog = `**No Audit Log Permissions**`;
 
 export async function GetAuditLogs(guild: Guild, type: GuildAuditLogsAction, key?: string, target: User = null, seconds: number = 1) {
-    if (!guild.me || !guild.me.hasPermission('VIEW_AUDIT_LOG'))
+    if (!guild.me || !guild.me.permissions.has('VIEW_AUDIT_LOG'))
         return noAuditLog;
 
     let now = new Date(Date.now());
@@ -225,7 +225,10 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
         if (specialEvents.includes(caller)) emitAssociator = await GetFromAuditLog();
 
         if (emitAssociator == 'Unknown') throw { message: `Event parameter for ${event.name} was not recognized!` };
-        if (caller.startsWith('message') && !caller.startsWith('messageReaction') && ['event-log-📹', 'ping-log-🏓', 'console-log-📝'].includes(args[0].channel && (args[0].channel as GuildChannel).name)) return;
+        if (caller.startsWith('message') && 
+            !caller.startsWith('messageReaction') && 
+            ['event-log-📹', 'ping-log-🏓', 'console-log-📝'].includes((args[0] as Message).channel && ((args[0] as Message).channel as GuildChannel).name)) return;
+        
         let embed = await CreateEmbed();
 
         if (embed) return client.log('event', embed);
@@ -234,32 +237,32 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
             const noAuditLog = PinguEvent.noAuditLog;
 
             switch (caller) {
-                case 'channelCreate': return !args[0].guild ? args[0].recipient.tag : await GetInfo(args[0].guild, 'CHANNEL_CREATE');
-                case 'channelUpdate': return !args[0].guild ? args[0].recipient.tag : await GetInfo(args[0].guild, 'CHANNEL_UPDATE');
-                case 'channelDelete': return !args[0].guild ? args[0].recipient.tag : await GetInfo(args[0].guild, 'CHANNEL_DELETE');
-                case 'channelPinsUpdate': return !args[0].guild ? args[0].recipient.tag :
-                    (await GetInfo(args[0].guild, 'MESSAGE_PIN') || await GetInfo(args[0].guild, 'MESSAGE_UNPIN'));
+                case 'channelCreate': return !(args[0] as GuildChannel).guild ? (args[0] as DMChannel).recipient.tag : await GetInfo((args[0] as GuildChannel).guild, 'CHANNEL_CREATE');
+                case 'channelUpdate': return !(args[0] as GuildChannel).guild ? (args[0] as DMChannel).recipient.tag : await GetInfo((args[0] as GuildChannel).guild, 'CHANNEL_UPDATE');
+                case 'channelDelete': return !(args[0] as GuildChannel).guild ? (args[0] as DMChannel).recipient.tag : await GetInfo((args[0] as GuildChannel).guild, 'CHANNEL_DELETE');
+                case 'channelPinsUpdate': return !(args[0] as GuildChannel).guild ? (args[0] as DMChannel).recipient.tag :
+                    (await GetInfo((args[0] as GuildChannel).guild, 'MESSAGE_PIN') || await GetInfo((args[0] as GuildChannel).guild, 'MESSAGE_UNPIN'));
 
-                case 'webhookCreate': return await GetInfo(args[0].guild, 'WEBHOOK_CREATE');
-                case 'webhookUpdate': return await GetInfo(args[0].guild, 'WEBHOOK_UPDATE');
-                case 'webhookDelete': return await GetInfo(args[0].guild, 'WEBHOOK_DELETE');
+                case 'webhookCreate': return await GetInfo((args[0] as GuildChannel).guild, 'WEBHOOK_CREATE');
+                case 'webhookUpdate': return await GetInfo((args[0] as GuildChannel).guild, 'WEBHOOK_UPDATE');
+                case 'webhookDelete': return await GetInfo((args[0] as GuildChannel).guild, 'WEBHOOK_DELETE');
 
-                case 'emojiCreate': return await GetInfo(args[0].guild, 'EMOJI_CREATE');
-                case 'emojiUpdate': return await GetInfo(args[0].guild, 'EMOJI_UPDATE');
-                case 'emojiDelete': return await GetInfo(args[0].guild, 'EMOJI_DELETE');
+                case 'emojiCreate': return await GetInfo((args[0] as GuildEmoji).guild, 'EMOJI_CREATE');
+                case 'emojiUpdate': return await GetInfo((args[0] as GuildEmoji).guild, 'EMOJI_UPDATE');
+                case 'emojiDelete': return await GetInfo((args[0] as GuildEmoji).guild, 'EMOJI_DELETE');
 
-                case 'guildBanAdd': return await GetInfo(args[0], 'MEMBER_BAN_ADD');
-                case 'guildMemberUpdate': return await GetInfo(args[0].guild, 'MEMBER_UPDATE');
-                case 'guildBanRemove': return await GetInfo(args[0], 'MEMBER_BAN_REMOVE');
+                case 'guildBanAdd': return await GetInfo((args[0] as Guild), 'MEMBER_BAN_ADD');
+                case 'guildMemberUpdate': return await GetInfo((args[0] as GuildMember).guild, 'MEMBER_UPDATE');
+                case 'guildBanRemove': return await GetInfo((args[0] as Guild), 'MEMBER_BAN_REMOVE');
 
-                case 'guildUpdate': return await GetInfo(args[0], 'GUILD_UPDATE');
-                case 'guildIntegrationsUpdate': return await GetInfo(args[0], 'INTEGRATION_UPDATE');
+                case 'guildUpdate': return await GetInfo((args[0] as Guild), 'GUILD_UPDATE');
+                case 'guildIntegrationsUpdate': return await GetInfo((args[0] as Guild), 'INTEGRATION_UPDATE');
 
-                case 'messageBulkDelete': return await GetInfo(args[0].last().guild, 'MESSAGE_BULK_DELETE');
+                case 'messageBulkDelete': return await GetInfo((args[0] as Collection<Snowflake, Message>).last().guild, 'MESSAGE_BULK_DELETE');
 
-                case 'roleCreate': return await GetInfo(args[0].guild, 'ROLE_CREATE');
-                case 'roleUpdate': return await GetInfo(args[0].guild, 'ROLE_UPDATE');
-                case 'roleDelete': return await GetInfo(args[0].guild, 'ROLE_DELETE');
+                case 'roleCreate': return await GetInfo((args[0] as Role).guild, 'ROLE_CREATE');
+                case 'roleUpdate': return await GetInfo((args[0] as Role).guild, 'ROLE_UPDATE');
+                case 'roleDelete': return await GetInfo((args[0] as Role).guild, 'ROLE_DELETE');
                 default: client.log('error', `"${event.name}" was not recognized as an event name when searching from audit log`); return "Unknown";
             }
 
@@ -272,7 +275,7 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
             }
             async function getAuditLogs(guild: Guild, type: import('discord.js').GuildAuditLogsAction) {
                 const me = guild.me || guild.member(guild.client.user);
-                if (!me || !me.hasPermission('VIEW_AUDIT_LOG'))
+                if (!me || !me.permissions.has('VIEW_AUDIT_LOG'))
                     return noAuditLog;
 
                 return (await guild.fetchAuditLogs({ type })).entries.filter(e => new Date().getSeconds() - e.createdAt.getSeconds() <= 1);
@@ -326,7 +329,7 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
     }
 
     function FindClass<ClassType>(type: string) {
-        const objectsOfClass = args.filter(a => a && (a as object).constructor && (a as object).constructor.name == type);
+        const objectsOfClass = args.filter(a => a && (a as object).constructor && (a as object).constructor.name == type) as any[];
         return objectsOfClass ? objectsOfClass[objectsOfClass.length - 1] as ClassType : null;
     }
 }
@@ -366,8 +369,7 @@ export class PinguEvent<Event extends keyof PinguClientEvents> extends PinguHand
         this.execute = execute;
     }
 
-    public name: Event;
-    public path: string;
+    public declare name: Event;
     public content: MessageEmbed;
 
     public async setContent(client: PinguClient, ...args: PinguClientEvents[Event]): Promise<MessageEmbed> { return null; }
