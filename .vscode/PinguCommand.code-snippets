@@ -1,0 +1,50 @@
+{
+	// Place your Pingu workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
+	// Placeholders with the same ids are connected.
+	// Example:
+	// "Print to console": {
+	// 	"scope": "javascript,typescript",
+	// 	"prefix": "log",
+	// 	"body": [
+	// 		"console.log('$1');",
+	// 		"$2"
+	// 	],
+	// 	"description": "Log output to console"
+	// }
+
+	"Pingu Command": {
+		"scope": "javascript",
+		"prefix": "pcmd",
+		"description": "Generate template code for Pingu Command",
+		"body": [
+			"const { PinguCommand } = require('PinguPackage');",
+			"",
+			"module.exports = new PinguCommand('${1:name}', '${2:DevOnly}', '${3:description}'. {",
+			"\t${4:data}",
+			"}, async ({ client, message, args, pAuthor, pGuildMember, pGuild, pGuildClient }) => {",
+			"\t$0",
+			"})"
+		]
+	},
+	"Pingu Event": {
+		"scope": "javascript",
+		"prefix": "pevent",
+		"description": "Generates template code for Pingu Event",
+		"body": [
+			"const { PinguEvent } = require('PinguPackage');",
+			"",
+			"module.exports = new PinguEvent(${1:name},",
+			"\tasync function setContent(client, embed, ${2:parameters}) {",
+			"\t\t",
+			"\t},",
+			"\tasync function execute(client, ${2:parameters}) {",
+			"\t\t$0",
+			"\t}",
+			");"
+		]
+	}
+}

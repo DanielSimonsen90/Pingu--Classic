@@ -1,3 +1,10 @@
+import './Base';
+import './BaseGuildVoiceChannel';
+import './Client';
 import './Collection';
 import './Guild';
+import './GuildMember';
+import './Message';
+import './PartialTextBasedChannelFields';
+import './TextChannel';
 import './User';

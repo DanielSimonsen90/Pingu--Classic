@@ -1,5 +1,5 @@
 ﻿const { MessageEmbed, Guild, User } = require("discord.js");
-const { PinguCommand, PinguLibrary, PinguClient, PinguUser, EmbedField, UserAchievementConfig, PinguUserSchema } = require('PinguPackage');
+const { PinguCommand, PinguUser, EmbedField } = require('PinguPackage');
 
 module.exports = new PinguCommand('updatepusers', 'DevOnly', `Creates new PinguUsers to MongoDB, if they weren't added already`, {
     usage: '<user tag | user id | show>',
@@ -16,9 +16,9 @@ module.exports = new PinguCommand('updatepusers', 'DevOnly', `Creates new PinguU
         let pUser = PinguUsersArr[i];
 
         if (arg && arg == "show")
-            await message.channel.send(new MessageEmbed()
+            await message.channel.sendEmbeds(new MessageEmbed()
                 .setTitle(pUser.tag)
-                .setColor(pGuildClient && pGuildClient.embedColor || PinguClient.ToPinguClient(message.client).DefaultEmbedColor)
+                .setColor(pGuildClient?.embedColor || message.client.DefaultEmbedColor)
                 .setThumbnail(pUser.avatar)
                 .setDescription(`ID: ${pUser._id}`)
                 .addFields([

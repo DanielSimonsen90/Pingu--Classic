@@ -1,4 +1,4 @@
-import { Collection } from "discord.js";
+import { Collection, Formatters } from "discord.js";
 
 type MentionType = 'USER' | 'NICKNAME' | 'CHANNEL' | 'ROLE' | 'EVERYONE' | 'HERE' | 'SNOWFLAKE' | 'EMOJI' | 'UNICODE_EMOJI' | 'CUSTOM_EMOJI' | 'CUSTOM_ANIMATED_EMOJI' | 'TIMESTAMP' | 'IMAGE';
 

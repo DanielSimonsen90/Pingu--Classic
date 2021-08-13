@@ -64,7 +64,7 @@ export class PinguMusicEvent<Event extends keyof PinguMusicClientEvents> extends
         this.execute = execute;
     }
 
-    name: Event;
+    declare name: Event;
 
     public async execute(client: PinguMusicClient, ...args: PinguMusicClientEvents[Event]): Promise<Message> { return null; }
 }

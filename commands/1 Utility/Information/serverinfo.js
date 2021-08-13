@@ -1,5 +1,5 @@
 ﻿const { MessageEmbed, Message, Guild } = require('discord.js');
-const { PinguCommand, EmbedField, PinguClient } = require('PinguPackage');
+const { PinguCommand, EmbedField } = require('PinguPackage');
 
 module.exports = new PinguCommand('serverinfo', 'Utility', 'Sends server information', {
     usage: '[BigBoiInfo: all] [emotes [emote name] | features]',
@@ -16,7 +16,7 @@ module.exports = new PinguCommand('serverinfo', 'Utility', 'Sends server informa
     else if (args.includes('emotes'))
         if (emote) {
             //const author = emote.author ? emote.author.username : 'null';
-            return message.channel.send(new MessageEmbed({
+            return message.channel.sendEmbeds(new MessageEmbed({
                 title: emote.name,
                 thumbnail: { url: emote.url },
                 color: GetPGuildColor(guild),
@@ -41,8 +41,7 @@ module.exports = new PinguCommand('serverinfo', 'Utility', 'Sends server informa
 /**@param {Message} message 
  * @param {boolean} bigboiinfo*/
 async function SendCallerInfo(message, bigboiinfo) {
-    let { guild, client: _client } = message;
-    const client = PinguClient.ToPinguClient(_client);
+    let { guild, client } = message;
 
     const thumbnailUrl = guild.iconURL(),
         description = guild.description ? guild.description : '',
@@ -55,6 +54,8 @@ async function SendCallerInfo(message, bigboiinfo) {
         verified: getEmote('verifiedServer'),
         wumpus: getEmote('wumpusLove'),
         channelAnnounce: getEmote('channelAnnounce'),
+        channelPublicThread: getEmote('channelPublicThread'),
+        channelPublicThread: getEmote('channelPrivateThread'),
         channelRules: getEmote('channelRules'),
         channelStore: getEmote('channelStore'),
         channelStage: getEmote('channelStage'),
@@ -126,9 +127,9 @@ async function SendCallerInfo(message, bigboiinfo) {
             thumbnail: { url: thumbnailUrl },
             footer: { text: `Server ID: ${guild.id}` },
             fields: [
-                new EmbedField(`${savedEmotes.ownerCrown} Owner`, guild.owner, true),
+                new EmbedField(`${savedEmotes.ownerCrown} Owner`, guild.owner(), true),
                 new EmbedField(getRegionEmoji(guild.region), guild.region.charAt(0).toUpperCase() + guild.region.substring(1, guild.region.length), true),
-                new EmbedField(`⏰ Creation Date`, `<t:${Math.round(guild.createdTimestamp / 1000)}:R>`, false),
+                new EmbedField(`⏰ Creation Date`, client.timeFormat(guild.createdTimestamp, 'RELATIVE'), false),
                 new EmbedField(`👥 Total members`, guild.memberCount, true),
                 new EmbedField(`🧍 Total users`, guild.members.cache.filter(gm => !gm.user.bot).size, true),
                 new EmbedField(`🤖 Total bots`, guild.members.cache.filter(gm => gm.user.bot).size, true),
@@ -165,8 +166,8 @@ async function SendCallerInfo(message, bigboiinfo) {
         })
         if (HasPermission('CREATE_INSTANT_INVITE')) embedArray[1].addField("\u200B", "\u200B", true);
 
-        embedArray[1] = await addField('MANAGE_GUILD', embedArray[1], `${savedEmotes.invite} Invites`, async () => (await guild.fetchInvites()).size, HasPermission('MANAGE_GUILD'));
-        embedArray[1] = await addField('BAN_MEMBERS', embedArray[1], `${savedEmotes.banHammer} Banned Members`, async () => (await guild.fetchBans()).size, HasPermission('BAN_MEMBERS'));
+        embedArray[1] = await addField('MANAGE_GUILD', embedArray[1], `${savedEmotes.invite} Invites`, async () => (await guild.invites.fetch()).size, HasPermission('MANAGE_GUILD'));
+        embedArray[1] = await addField('BAN_MEMBERS', embedArray[1], `${savedEmotes.banHammer} Banned Members`, async () => (await guild.bans.fetch()).size, HasPermission('BAN_MEMBERS'));
 
         if (HasPermission('BAN_MEMBERS')) embedArray[1].addField("\u200B", "\u200B", true);
 
@@ -186,6 +187,7 @@ async function SendCallerInfo(message, bigboiinfo) {
         //#endregion
 
         //#region Channel Information
+
         function GetChannelCount(type) {
             return guild.channels.cache.filter(c => c.type == type).size;
         }
@@ -196,13 +198,15 @@ async function SendCallerInfo(message, bigboiinfo) {
             color,
             fields: [
                 new EmbedField(`${savedEmotes.channelIcon} Channel count`, guild.channels.cache.size, true),
-                new EmbedField(`${savedEmotes.channelCategory} Categories`, GetChannelCount('category'), true),
+                new EmbedField(`${savedEmotes.channelCategory} Categories`, GetChannelCount('GUILD_CATEGORY'), true),
                 new EmbedField(`${savedEmotes.channelRules} Rules channel`, (guild.rulesChannel ? guild.rulesChannel : 'None'), true),
-                new EmbedField(`${savedEmotes.channelText} Text channels`, GetChannelCount('text'), true),
-                new EmbedField(`${savedEmotes.channelVoice} Voice channels`, GetChannelCount('voice'), true),
-                new EmbedField(`${savedEmotes.channelAnnounce} Announcement channels`, GetChannelCount('news'), true),
-                new EmbedField(`${savedEmotes.channelStage} Stage channels`, GetChannelCount('stage'), true),
-                new EmbedField(`${savedEmotes.channelStore} Store channels`, GetChannelCount('store'), true),
+                new EmbedField(`${savedEmotes.channelText} Text channels`, GetChannelCount('GUILD_TEXT'), true),
+                new EmbedField(`${savedEmotes.channelVoice} Voice channels`, GetChannelCount('GUILD_VOICE'), true),
+                new EmbedField(`${savedEmotes.channelAnnounce} Announcement channels`, GetChannelCount('GUILD_NEWS'), true),
+                new EmbedField(`${savedEmotes.channelStage} Stage channels`, GetChannelCount('GUILD_STAGE_VOICE'), true),
+                new EmbedField(`${savedEmotes.channelStore} Store channels`, GetChannelCount('GUILD_STORE'), true),
+                new EmbedField(`${savedEmotes.channelPublicThread} Public Thread channels`, ['GUILD_NEWS_THREAD', 'GUILD_PUBLIC_THREAD'].map(type => GetChannelCount(type)), true),
+                new EmbedField(`${savedEmotes.channelPrivateThred} Private Thread channels`, GetChannelCount('GUILD_PRIVATE_THREAD'), true),
                 new EmbedField(`${savedEmotes.channelAFK} AFK Channel`, (guild.afkChannel ? guild.afkChannel : 'None'), true),
                 new EmbedField(`${savedEmotes.channelAFK} AFK Timeout`, (guild.afkTimeout / 60).toString() + " minutes", true)
             ]
@@ -220,13 +224,13 @@ async function SendCallerInfo(message, bigboiinfo) {
  * @param {boolean} bigboiinfo*/
 async function SendEmbeds(message, bigboiinfo) {
     const embedArray = await SendCallerInfo(message, bigboiinfo);
-    const client = PinguClient.ToPinguClient(message.client);
+    const { client } = message;
 
     if (client.permissions.checkFor(message, 'SEND_MESSAGES') != client.permissions.PermissionGranted) {
         await message.author.send(`Hey! I don't have permission to **send messages** in #${message.channel.name}!\nBut here's your information:`)
-        embedArray.forEach(embed => message.author.send(embed));
+        embedArray.forEach(embed => message.author.sendEmbeds(embed));
     }
-    else embedArray.forEach(embed => message.channel.send(embed));
+    else embedArray.forEach(embed => message.channel.sendEmbeds(embed));
 }
 /**@param {Message} message 
  * @param {Guild} guild*/
@@ -252,7 +256,7 @@ function SendFeatures(message, guild) {
 
 /**@param {Guild} guild*/
 function GetPGuildColor(guild) {
-    const client = PinguClient.ToPinguClient(guild.client);
+    const { client } = guild;
     const pGuild = client.pGuilds.get(guild);
     return client.toPClient(pGuild).embedColor || client.DefaultEmbedColor;
 }

@@ -41,8 +41,7 @@ module.exports = new PinguCommand('clearerrors', 'DevOnly', `Clears all errors i
      * @returns {Promise<string>}*/
     async function createMessageCollector(promise) {
         const sent = await promise;
-        const filter = m => m.author.id == message.author.id;
-        const collector = sent.channel.createMessageCollector(filter, { time: ms('10s') });
+        const collector = sent.channel.createMessageCollector({ filter: m => m.author.id == message.author.id, time: ms('10s') });
 
         /**@param {string} response */
         function invalid(response) {

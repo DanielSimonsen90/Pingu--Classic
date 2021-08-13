@@ -50,7 +50,7 @@ async function GetUser(message, member, search) {
 /**@param {Message} message 
  * @param {GuildMember} member*/
 async function HandleGuildMember(message, member) {
-    const client = PinguClient.ToPinguClient(message.client);
+    const { client } = message;
     const sharedWithClient = client.getSharedServers(member.user);
     const sharedWithAuthor = sharedWithClient
         .filter(guild => guild.members.cache.has(message.author.id))
@@ -63,7 +63,7 @@ async function HandleGuildMember(message, member) {
  * @param {GuildMember} gm 
  * @param {string[]} SharedServers*/
 async function SendGuildMessage(message, gm, SharedServers) {
-    const client = PinguClient.ToPinguClient(message.client);
+    const { client } = message;
     const badges = await client.getBadges(gm.user);
 
     // const embed = new MessageEmbed({
@@ -95,18 +95,18 @@ async function SendGuildMessage(message, gm, SharedServers) {
         ])
         .setFooter(`ID: ${gm.id}`)
 
-    return message.channel.send(embed);
+    return message.channel.sendEmbeds(embed);
 }
 /**@param {Message} message 
  * @param {User} user*/
 async function SendNonGuildMessage(message, user) {
-    const client = PinguClient.ToPinguClient(message.client);
+    const { client } = message;
 
     if (!user.id && !isNaN(user))
         user = client.users.cache.get(user);
 
     const badges = client.getBadges(user);
-    return message.channel.send(new MessageEmbed({
+    return message.channel.sendEmbeds(new MessageEmbed({
         title: user.tag,
         thumbnail: { url: user.avatarURL() },
         color: GetColor(null, user.presence),

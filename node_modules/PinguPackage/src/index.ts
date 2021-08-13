@@ -4,6 +4,8 @@ export { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from './dec
 export { Giveaway, Poll, Suggestion, Theme, Decidable } from './decidable/items';
 export { HandleDecidables, DecidablesTypes } from './decidable/HandleDecidables';
 
+export * as Extentions from './extentions';
+
 export { Arguments, EmbedField, Error, TimeLeftObject, DiscordPermissions, Percentage } from './helpers';
 
 export { PinguGuildSchema, PinguUserSchema } from './MongoSchemas';

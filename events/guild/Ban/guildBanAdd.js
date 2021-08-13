@@ -1,26 +1,26 @@
-const { MessageEmbed } = require("discord.js");
 const { PinguEvent, EmbedField } = require("PinguPackage");
 
 module.exports = new PinguEvent('guildBanAdd',
-    async function setContent(client, guild, user) {
-        if (!guild.me.hasPermission('VIEW_AUDIT_LOG')) {
-            return module.exports.content = new MessageEmbed({ description: `${user} was unbanned` })
+    async function setContent(client, embed, ban) {
+        const { guild, user, reason } = ban;
+
+        if (!guild.me.permissions.has('VIEW_AUDIT_LOG')) {
+            return module.exports.content = embed.setDescription(`${user} was unbanned`);
         }
 
         let banAudits = await guild.fetchAuditLogs({ type: 'MEMBER_BAN_ADD' });
-        let { executor, reason, createdAt } = banAudits.entries.find(e => e.target.id == user.id);
+        let { executor, createdAt } = banAudits.entries.find(e => e.target.id == user.id && e.reason == reason);
 
-        let pGuild = client.pGuilds.get(guild);
+        let pGuild = client.pGuilds.get(ban);
         let pGuildClient = client.toPClient(pGuild);
 
-        return module.exports.content = new MessageEmbed({
-            description: `**${user}** was unbanned.`,
-            color: pGuildClient.embedColor || client.DefaultEmbedColor,
-            fields: [
+        return module.exports.content = embed
+            .setDescription(`**${user}** was unbanned.`)
+            .setColor(pGuildClient.embedColor || client.DefaultEmbedColor)
+            .addFields([
                 new EmbedField(`Banned Since`, createdAt, true),
                 new EmbedField(`Banned By`, executor, true),
                 new EmbedField(`Ban Reason`, reason, true)
-            ]
-        })
+            ])
     }
 );

@@ -13,7 +13,7 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
     usage: `<${toUsage(achievementCommands)}> <${toUsage(achievementTypes)}> [achievement id] [@User]`,
     examples: ["missing", "missing user 2", "missing member 5 @Danho", "info guild", "achieved guild 756383096646926376"]
 }, async ({ client, message, args, pAuthor, pGuildMember, pGuild, pGuildClient }) => {
-    const { granted, command, type, id, achievementID } = PermissionCheck();
+    const { granted, command, type, id, achievementId } = PermissionCheck();
     if (granted != client.permissions.PermissionGranted) return message.channel.send(granted);
 
     switch (type) {
@@ -23,10 +23,10 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
     }
 
     function PermissionCheck() {
-        const [command, type, achievementID, id] = args.lowercase();
+        const [command, type, achievementId, id] = args.lowercase();
         const result = {
             granted: client.permissions.PermissionGranted,
-            command, type, achievementID, id
+            command, type, achievementId, id
         };
     
         //Arguments length are met & command & type are both valid arguments
@@ -40,7 +40,7 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
         }
     
         //achievementID exists and is a valid id for chosen achievement type
-        if (achievementID) {
+        if (achievementId) {
             const achievements = (function getAchievements() {
                 switch (type) {
                     case 'user': return UserAchievement.Achievements;
@@ -50,12 +50,12 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
                 }
             })();
     
-        if (isNaN(achievementID) || parseInt(achievementID) <= 0 || parseInt(achievementID) > achievements.length)
-            if (!message.client.guilds.cache.has(achievementID) && !message.client.users.cache.has(achievementID))
+        if (isNaN(achievementId) || parseInt(achievementId) <= 0 || parseInt(achievementId) > achievements.length)
+            if (!message.client.guilds.cache.has(achievementId) && !message.client.users.cache.has(achievementId))
                 result.granted = `The achievement id provided is not a valid id! Pick a number between 1 - ${achievements.length}`;
             else {
-                result.id = achievementID;
-                result.achievementID = null;
+                result.id = achievementId;
+                result.achievementId = null;
             }
         }
     
@@ -76,31 +76,31 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
 
         switch (command) {
             case 'missing':
-                let missing = pUserAchievement.find(a => a._id == achievementID) == null;
+                let missing = pUserAchievement.find(a => a._id == achievementId) == null;
                 return message.channel.send(
-                    achievementID ?
+                    achievementId ?
                         `${(missing ? "Yes, " : "No, ")}` +
                         `${(id ? `${user.username} is ` : "you are ")}` +
                         `${(missing ? "" : "not ")}` +
-                        `missing the **${UserAchievement.Achievements.find(a => a._id == achievementID).name}** achievement.`
+                        `missing the **${UserAchievement.Achievements.find(a => a._id == achievementId).name}** achievement.`
                         :
                         `${(id ? `${user.username} is ` : `You are`)} missing the following:\n` +
                         FormatAchievements(UserAchievement.Achievements.filter(a => !pUserAchievementIDs.includes(a._id)))
                 );
             case 'achieved':
-                let achieved = pUserAchievement.find(a => a._id == achievementID) != null;
+                let achieved = pUserAchievement.find(a => a._id == achievementId) != null;
                 return message.channel.send(
-                    achievementID ?
+                    achievementId ?
                         `${(achieved ? "Yes, " : "No, ")}` +
                         `${(id ? `${user.username} has ` : "you are ")}` +
                         `${(achieved ? "" : "not ")}` +
-                        `achieved the **${UserAchievement.Achievements.find(a => a._id == achievementID).name}** achievement.`
+                        `achieved the **${UserAchievement.Achievements.find(a => a._id == achievementId).name}** achievement.`
                         :
                         `${(id ? `${user.username} has ` : `You have`)} achieved the following:\n` +
                         FormatAchievements(UserAchievement.Achievements.filter(a => pUserAchievementIDs.includes(a._id)))
                 );
             case 'info':
-                let achievement = UserAchievement.Achievements.find(a => a._id == achievementID);
+                let achievement = UserAchievement.Achievements.find(a => a._id == achievementId);
                 let embed = new MessageEmbed({
                     title: `Achievement Info ${(achievement ? `- ${achievement.name}` : ``)}`,
                     color: message.guild ? pGuildClient.embedColor : client.DefaultEmbedColor
@@ -135,35 +135,35 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
 
         switch (command) {
             case 'missing':
-                let missing = pMember.achievementConfig.achievements.find(a => a._id == achievementID) == null;
+                let missing = pMember.achievementConfig.achievements.find(a => a._id == achievementId) == null;
                 return message.channel.send(
-                    achievementID ?
+                    achievementId ?
                         `${(missing ? "Yes, " : "No, ")}` +
                         `${(id ? `${member.user.username} is ` : "you are ")}` +
                         `${(missing ? "" : "not ")}` +
-                        `missing the **${GuildMemberAchievement.Achievements.find(a => a._id == achievementID).name}** achievement.`
+                        `missing the **${GuildMemberAchievement.Achievements.find(a => a._id == achievementId).name}** achievement.`
                         :
                         `${(id ? `${member.user.username} is ` : `You are`)} missing the following:\n` +
                         FormatAchievements(GuildMemberAchievement.Achievements.filter(a => !pMemberAchievementIDs.includes(a._id))));
             case 'achieved':
-                let achieved = pMemberAchievement.find(a => a._id == achievementID) != null;
+                let achieved = pMemberAchievement.find(a => a._id == achievementId) != null;
                 return message.channel.send(
-                    achievementID ?
+                    achievementId ?
                         `${(achieved ? "Yes, " : "No, ")}` +
                         `${(id ? `${member.user.username} has ` : "you are ")}` +
                         `${(achieved ? "" : "not ")}` +
-                        `achieved the **${GuildMemberAchievement.Achievements.find(a => a._id == achievementID).name}** achievement.`
+                        `achieved the **${GuildMemberAchievement.Achievements.find(a => a._id == achievementId).name}** achievement.`
                         :
                         `${(id ? `${member.user.username} has ` : `You have`)} achieved the following:\n` +
                         FormatAchievements(GuildMemberAchievement.Achievements.filter(a => pMemberAchievementIDs.includes(a._id)))
                 );
             case 'info':
-                let achievement = GuildMemberAchievement.Achievements.find(a => a._id == achievementID);
+                let achievement = GuildMemberAchievement.Achievements.find(a => a._id == achievementId);
                 let embed = new MessageEmbed({
                     title: `Achievement Info ${(achievement ? `- ${achievement.name}` : ``)}`,
                     color: message.guild ? pGuildClient.embedColor : client.DefaultEmbedColor
                 });
-                return message.channel.send(
+                return message.channel.sendEmbeds(
                     achievement ?
                         embed.setDescription(achievement.description)
                             .addFields([
@@ -193,33 +193,33 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
 
         switch (command) {
             case 'missing':
-                let missing = pgAchievements.find(a => a._id == achievementID) == null;
+                let missing = pgAchievements.find(a => a._id == achievementId) == null;
                 return message.channel.send(
-                    achievementID ?
+                    achievementId ?
                         `${(missing ? "Yes, " : "No, ")}` +
                         `${guild.name} is ${(missing ? "" : "not ")}` +
-                        `missing the **${GuildAchievement.Achievements.find(a => a._id == achievementID).name}** achievement.`
+                        `missing the **${GuildAchievement.Achievements.find(a => a._id == achievementId).name}** achievement.`
                         :
                         `${guild.name} is missing the following:\n` +
                         FormatAchievements(GuildAchievement.Achievements.filter(a => !pGuildAchievementIDs.includes(a._id)))                );
             case 'achieved':
-                let achieved = pgAchievements.find(a => a._id == achievementID) != null;
+                let achieved = pgAchievements.find(a => a._id == achievementId) != null;
                 return message.channel.send(
-                    achievementID ?
+                    achievementId ?
                         `${(achieved ? "Yes, " : "No, ")}` +
                         `${guild.name} has ${(achieved ? "" : "not ")}` +
-                        `achieved the **${GuildAchievement.Achievements.find(a => a._id == achievementID).name}** achievement.`
+                        `achieved the **${GuildAchievement.Achievements.find(a => a._id == achievementId).name}** achievement.`
                         :
                         `${guild.name} has achieved the following:\n` +
                         FormatAchievements(GuildAchievement.Achievements.filter(a => pGuildAchievementIDs.includes(a._id)))
                 );
             case 'info':
-                let achievement = GuildAchievement.Achievements.find(a => a._id == achievementID);
+                let achievement = GuildAchievement.Achievements.find(a => a._id == achievementId);
                 let embed = new MessageEmbed({
                     title: `Achievement Info ${(achievement ? `- ${achievement.name}` : ``)}`,
                     color: pGuildClient.embedColor || client.DefaultEmbedColor
                 });
-                return message.channel.send(
+                return message.channel.sendEmbeds(
                     achievement ?
                         embed.setDescription(achievement.description)
                             .addFields([
@@ -239,13 +239,3 @@ module.exports = new PinguCommand('achievement', 'Utility', `All the information
 
 
 });
-
-/**@param {Message} message
- * @param {Arguments} args
- * @returns {{
- *  granted: string,
- *  command: "missing" | "achieved" | "info",
- *  type: "user" | "member" | "guild",
- *  achievementID: string,
- *  id: string
- * }}*/

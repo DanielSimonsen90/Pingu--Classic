@@ -9,5 +9,5 @@ module.exports = new PinguCommand('test', 'DevOnly', `Test command for Danho`, {
         .setDescription('I am test')
         .setTimestamp(Date.now())
         .setFooter('hello');
-    return message.channel.send({ embed });
+    return message.channel.sendEmbeds(embed);
 });

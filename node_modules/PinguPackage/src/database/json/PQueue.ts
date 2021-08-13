@@ -30,11 +30,7 @@ export class PQueue {
             pQueue.playing
         );
 
-        queue.connection = joinVoiceChannel({ 
-            channelId: queue.voiceChannel.id, 
-            guildId: queue.voiceChannel.guildId, 
-            adapterCreator: queue.voiceChannel.guild.voiceAdapterCreator 
-        });
+        queue.connection = queue.voiceChannel.join();
         queue.volume = pQueue.volume;
         queue.loop = pQueue.loop;
         queue.index = pQueue.index;

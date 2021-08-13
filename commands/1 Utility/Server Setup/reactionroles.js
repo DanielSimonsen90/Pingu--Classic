@@ -50,7 +50,7 @@ module.exports = new PinguCommand('reactionroles', 'Utility', 'Gives/Removes rol
 
     await rrMessage.react(emote);
 
-    return message.channel.send(new MessageEmbed({
+    return message.channel.sendEmbeds(new MessageEmbed({
         title: `ReactionRole Created!`,
         url: rrMessage.url,
         description: `Your reactionrole in ${channel} (${rrMessage.id}), giving ${role} for reacting with ${emote} is now ready!`,
@@ -124,9 +124,8 @@ async function GetRole(message, args) {
  * @param {GuildEmoji} emote
  * @param {Role} role*/
 async function SetReactionRoles(pGuild, rrMessage, emote, role) {
-    const client = PinguClient.ToPinguClient(rrMessage.client);
+    const { client } = rrMessage;
     const { PermissionGranted } = client.permissions
-
     let containsCheck = PermissionGranted;
     let { reactionRoles } = pGuild.settings;
 
@@ -155,7 +154,7 @@ async function SetReactionRoles(pGuild, rrMessage, emote, role) {
  * @param {Arguments} args*/
 async function Delete(message, channel, rrMessage, emote, args) {
     let removeFromUsers = args[0] && args.shift().toLowerCase() == `true`;
-    const client = PinguClient.ToPinguClient(message.client);
+    const { client } = message;
     const pGuild = client.pGuilds.get(rrMessage.guild);
     let { reactionRoles } = pGuild.settings;
     let rr = reactionRoles.find(rr => rr.channel._id == channel.id && rr.messageID == rrMessage.id && (rr.emoteName == emote.name || rr.emoteName == emote));

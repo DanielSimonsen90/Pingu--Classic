@@ -2,7 +2,7 @@ const { Message, User, GuildChannel } = require('discord.js');
 const { PinguCommand, PinguClient } = require('PinguPackage');
 
 module.exports = new PinguCommand('clear', 'Utility', 'Clears specified messages', {
-    usage: '<messages [from @User] | all [channelID]> ',
+    usage: '<messages [from @User] | all [channelId]> ',
     examples: ["5", "10 @Danho#2105", "all"],
     guildOnly: true,
     permissions: ['MANAGE_MESSAGES']
@@ -22,14 +22,17 @@ module.exports = new PinguCommand('clear', 'Utility', 'Clears specified messages
         message.delete(),
         ClearMessages(message, parseInt(firstArg))
     ])
-    return (await message.reply(`I've deleted ${firstArg} ${(firstArg != '1' ? "messages" : "message")} for you!`)).delete({ timeout: 1500 });
+
+    const result = await message.reply({ content: `I've deleted ${firstArg} ${(firstArg != '1' ? "messages" : "message")} for you!` });
+    result.doIn(() => result.delete(), 1500);
+    return result;
 });
 
 /**@param {Message} message 
  * @param {number} amount
  * @returns {Promise<Message>}*/
 async function ClearMessages(message, amount) {
-    const client = PinguClient.ToPinguClient(message.client);
+    const { client } = message;
     return message.channel.bulkDelete(amount).catch(err =>
         client.log('error', `Failed to remove message`, message.content, err)
             .then(() => message.channel.send(`I had an error trying to delete the messages! I've already notified my developers.`)));
@@ -37,7 +40,7 @@ async function ClearMessages(message, amount) {
 /**@param {Message} message
  @param {GuildChannel} channel*/
 async function ClearAll(message, channel) {
-    const client = PinguClient.ToPinguClient(message.client);
+    const { client } = message;
 
     var permCheck = client.permissions.checkFor(message, 'MANAGE_CHANNELS');
     if (permCheck != client.permissions.PermissionGranted) return permCheck;
@@ -45,7 +48,7 @@ async function ClearAll(message, channel) {
     if (!channel) channel = message.channel;
     else channel = message.guild.channels.cache.find(c => [c.id, c.name, c, `<#${c.id}>`].includes(channel));
 
-    if (message.guild.rulesChannelID == channel.id || !['text', 'voice', 'news'].includes(channel.type))
+    if (message.guild.rulesChannelId == channel.id || !['text', 'voice', 'news'].includes(channel.type))
         return `I cannot replace that channel!`;
 
     channel.delete(`Requested by ${message.author.username}`);
@@ -62,7 +65,7 @@ async function SpecificClear(message, args, SpecificUser) {
         messagesToRemove = parseInt(args[0]);
     let messageCache = (await message.channel.messages.fetch({ limit: messagesToRemove + 1 })).array();
     let cacheSize = messageCache.length - 1;
-    const client = PinguClient.ToPinguClient(message.client);
+    const { client } = message;
 
     return message.delete().then(async () => {
         while (messagesRemoved != messagesToRemove) {
@@ -73,7 +76,7 @@ async function SpecificClear(message, args, SpecificUser) {
             cacheSize--;
         }
         return message.channel.send(`Removed ${args[0]} messages from ${SpecificUser.username}`)
-            .then(sent => sent.delete({ timeout: 1500 }));
+            .then(sent => send.doIn(() => sent.delete(), 1500));
     }).catch(err => {
         client.log('error', `Tried to clear ${args[0]} messages from ${SpecificUser.username}`, message.content, err, {
             params: { message, args, SpecificUser },

@@ -1,5 +1,5 @@
 const { Message, TextChannel } = require('discord.js');
-const { PinguCommand, PinguLibrary, TimeLeftObject } = require('PinguPackage');
+const { PinguCommand, TimeLeftObject } = require('PinguPackage');
 const ms = require('ms');
 
 module.exports = new PinguCommand('slowmode', 'Utility', 'Sets the slowmode to specified argument in channel', {

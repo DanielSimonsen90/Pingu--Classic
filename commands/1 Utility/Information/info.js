@@ -204,7 +204,7 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
                             pg.settings.reactionRoles
                                 .map(rr => rr.pRole ? 
                                     (() => {
-                                        let titles = ['Reaction Name', 'Role', 'Message ID', 'Channel'].map(v => `**${v}**`);
+                                        let titles = ['Reaction Name', 'Role', 'Message Id', 'Channel'].map(v => `**${v}**`);
                                         let values = [rr.emoteName, `<@&${rr.pRole._id}>`, "`" + rr.messageID + "`", `<#${rr.channel._id}>`];
                                         return titles.map((v, i) => `${v}: ${values[i]}`).join('\n') + '\n';
                                     })() : 
@@ -327,7 +327,7 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
 
 
         let defaultEmbed = new MessageEmbed({
-            title, color: pGuildClient ? pGuildClient.embedColor : PinguClient.ToPinguClient(message.client).DefaultEmbedColor,
+            title, color: pGuildClient ? pGuildClient.embedColor : message.client.DefaultEmbedColor,
             footer: { text: `Viewing information for: ${userType}` }
         })
         Object.keys(embed).forEach(k => embed[k] ? defaultEmbed[k] = embed[k] : defaultEmbed[k]);

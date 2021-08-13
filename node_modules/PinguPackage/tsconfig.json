@@ -1,10 +1,11 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es2015",
+    "target": "esnext",
     "declaration": true,
-    "outDir": "./live",
-    "resolveJsonModule": true
+    "outDir": "./dist",
+    "resolveJsonModule": true,
+    "watch": true
   },
   "include": [
     "src/**/*"

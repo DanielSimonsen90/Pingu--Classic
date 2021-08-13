@@ -1,10 +1,9 @@
-const { MessageEmbed } = require("discord.js");
 const { PinguEvent } = require("PinguPackage");
 
 module.exports = new PinguEvent('emojiUpdate',
-    async function setContent(client, preEmote, emote) {
-        return preEmote.name != emote.name ?
-            module.exports.content = new MessageEmbed({ description: PinguEvent.SetDescriptionValues('Name', preEmote.name, emote.name) }) : 
+    async function setContent(client, embed, previous, current) {
+        return previous.name != current.name ?
+            module.exports.content = embed.setDescription(PinguEvent.SetDescriptionValues('Name', previous.name, current.name)) : 
             null;
     }
 );

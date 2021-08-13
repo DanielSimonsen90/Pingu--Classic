@@ -1,10 +1,10 @@
-const { MessageEmbed, Guild } = require("discord.js");
+const { Guild } = require("discord.js");
 const { PinguEvent } = require("PinguPackage");
 /**@param {Guild} guild*/
-const leftString = (guild) => `Left **${guild.name}**, owned by ${guild.owner}`;
+const leftString = (guild) => `Left **${guild.name}**, owned by ${guild.owner()}`;
 module.exports = new PinguEvent('guildDelete',
-    async function setContent(client, guild) {
-        return module.exports.content = new MessageEmbed({ description: leftString(guild) });
+    async function setContent(client, embed, guild) {
+        return module.exports.content = embed.setDescription(leftString(guild));
     },
     async function execute(client, guild) {
         let pGuild = client.pGuilds.get(guild);

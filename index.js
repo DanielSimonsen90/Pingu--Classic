@@ -22,7 +22,25 @@
         'message', 'messageDelete', 'messageDeleteBulk', 'messageUpdate',                                                                                                       //message
         'userUpdate',                                                                                                                                                           //user
         'chosenUser', 'chosenGuild', 'mostKnownUser'                                                                                                                            //custom
-    ], __dirname, 'commands', 'events');
+    ], __dirname, 'commands', 'events', { 
+        intents: [
+            'GUILDS', //guildCrud, roleCrud, channelCrud, channelPinsUpdate, threadCrud, threadListSync, threadMembersUpdate, threadMemberUpdate, stageCrud
+            'GUILD_MEMBERS', //guildMemberCrud, threadMembersUpdate
+            'GUILD_BANS', //guildBanAdd, guildBanRemove
+            'GUILD_EMOJIS_AND_STICKERS', //emojiUpdate, stickersUpdate
+            'GUILD_INTEGRATIONS', //guildIntergrationUpdate, intergationCrud
+            // 'GUILD_WEBHOOKS', //webhookUpdate
+            'GUILD_INVITES', //inviteCreate, inviteDelete
+            'GUILD_VOICE_STATES', //voiceStateUpdate
+            'GUILD_PRESENCES', //presenceUpdate
+            'GUILD_MESSAGES', //messageCrud, messageDeleteBulk
+            'GUILD_MESSAGE_REACTIONS', //messageReactionCreate, messageReactionRemove, messageReactionRemoveAll, messageReactionRemoveEmoji
+            'GUILD_MESSAGE_TYPING', //typingStart
+            'DIRECT_MESSAGES', //messageCrud, channelPinsUpdate
+            'DIRECT_MESSAGE_REACTIONS', //messageReactionAdd, messageReactionRemove, messageReactionRemoveAll, messageReactionRemoveEmoji,
+            // 'DIRECT_MESSAGE_TYPING' //typingStart
+        ] 
+    });
 
     try { var { token } = require('../PinguBetaToken.json'); /*throw null*/ }
     catch { token = config.token; }

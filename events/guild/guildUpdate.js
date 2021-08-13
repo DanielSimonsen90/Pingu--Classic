@@ -1,16 +1,15 @@
-const { MessageEmbed } = require("discord.js");
 const { PinguEvent, PChannel, PGuild } = require("PinguPackage");
 
 module.exports = new PinguEvent('guildUpdate',
-    async function setContent(client, preGuild, guild) {
+    async function setContent(client, embed, previous, current) {
         let description = await GetDifference();
-        return module.exports.content = description ? new MessageEmbed({ description }) : null;
+        return module.exports.content = description ? embed.setDescription(description) : null;
 
         async function GetDifference() {
             let now = new Date();
             now.setSeconds(now.getSeconds() - 1);
 
-            let lastBoostMessage = guild.systemChannel && guild.systemChannel.messages.cache.find(m => [
+            let lastBoostMessage = current.systemChannel && current.systemChannel.messages.cache.find(m => [
                 'USER_PREMIUM_GUILD_SUBSCRIPTION',
                 'USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_1',
                 'USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_2',
@@ -18,176 +17,176 @@ module.exports = new PinguEvent('guildUpdate',
             ].includes(m.type) && m.createdTimestamp < now.getTime());
             if (lastBoostMessage) var lastBooster = lastBoostMessage.author.tag;
 
-            if (!preGuild.region) return null;
-            if (guild.afkChannelID != preGuild.afkChannelID)
+            if (!previous.region) return null;
+            if (current.afkChannelId != previous.afkChannelId)
                 return PinguEvent.SetRemove(
                     'AFK Channel',
-                    preGuild.afkChannelID,
-                    guild.afkChannelID,
-                    `Set **#${guild.afkChannel.name}** as AFK Channel`,
-                    `Removed **#${guild.afkChannel.name}** as AFK Channel`,
+                    previous.afkChannelId,
+                    current.afkChannelId,
+                    `Set **#${current.afkChannel.name}** as AFK Channel`,
+                    `Removed **#${current.afkChannel.name}** as AFK Channel`,
                     PinguEvent.SetDescriptionValues
                 );
-            else if (guild.afkTimeout != preGuild.afkTimeout) return PinguEvent.SetDescription(`AFK Timeout`, preGuild.afkTimeout, guild.afkTimeout);
-            else if (guild.available != preGuild.available) return guild.available ?
-                PinguEvent.SetDescription('Available', `**${guild.name}** is now available again`) :
-                PinguEvent.SetDescription(`Unavailable`, `**${guild.name}** is now unavailable`);
-            else if (guild.bannerURL() != preGuild.bannerURL()) return PinguEvent.SetRemove(
+            else if (current.afkTimeout != previous.afkTimeout) return PinguEvent.SetDescription(`AFK Timeout`, previous.afkTimeout, current.afkTimeout);
+            else if (current.available != previous.available) return current.available ?
+                PinguEvent.SetDescription('Available', `**${current.name}** is now available again`) :
+                PinguEvent.SetDescription(`Unavailable`, `**${current.name}** is now unavailable`);
+            else if (current.bannerURL() != previous.bannerURL()) return PinguEvent.SetRemove(
                 'Banner',
-                preGuild.bannerURL(),
-                guild.bannerURL(),
-                `Set [banner](${guild.bannerURL()})`,
-                `Removed [banner](${preGuild.bannerURL()})`,
+                previous.bannerURL(),
+                current.bannerURL(),
+                `Set [banner](${current.bannerURL()})`,
+                `Removed [banner](${previous.bannerURL()})`,
                 PinguEvent.SetDescriptionValuesLink
             );
-            else if (guild.defaultMessageNotifications != preGuild.defaultMessageNotifications)
-                return PinguEvent.SetDescriptionValues(`Default Message Notifications`, preGuild.defaultMessageNotifications, guild.defaultMessageNotifications);
-            else if (guild.description != preGuild.description) return PinguEvent.SetRemove(
+            else if (current.defaultMessageNotifications != previous.defaultMessageNotifications)
+                return PinguEvent.SetDescriptionValues(`Default Message Notifications`, previous.defaultMessageNotifications, current.defaultMessageNotifications);
+            else if (current.description != previous.description) return PinguEvent.SetRemove(
                 'Description',
-                preGuild.description,
-                guild.description,
-                `Set description to "${guild.description}"`,
+                previous.description,
+                current.description,
+                `Set description to "${current.description}"`,
                 `Removed description`,
                 PinguEvent.SetDescriptionValues
             );
-            else if (guild.discoverySplashURL() != preGuild.discoverySplashURL()) return PinguEvent.SetRemove(
+            else if (current.discoverySplashURL() != previous.discoverySplashURL()) return PinguEvent.SetRemove(
                 'Discovery Splash',
-                preGuild.discoverySplashURL(),
-                guild.discoverySplashURL(),
-                `Set discovery splash to "${guild.discoverySplashURL()}"`,
+                previous.discoverySplashURL(),
+                current.discoverySplashURL(),
+                `Set discovery splash to "${current.discoverySplashURL()}"`,
                 `Removed discovery splash`,
                 PinguEvent.SetDescriptionValuesLink
             );
-            else if (guild.features.length != preGuild.features.length) return PinguEvent.SetRemove(
+            else if (current.features.length != previous.features.length) return PinguEvent.SetRemove(
                 'Features',
-                preGuild.features.join(', ').substring(0, preGuild.features.join(', ').length - 2),
-                guild.features.join(', ').substring(0, guild.features.join(', ').length - 2),
-                `Added features: ${guild.features.join(', ').substring(0, guild.features.join(', ').length - 2)}`,
-                `Removed features: ${preGuild.features.join(', ').substring(0, preGuild.features.join(', ').length - 2)}`,
+                previous.features.join(', ').substring(0, previous.features.join(', ').length - 2),
+                current.features.join(', ').substring(0, current.features.join(', ').length - 2),
+                `Added features: ${current.features.join(', ').substring(0, current.features.join(', ').length - 2)}`,
+                `Removed features: ${previous.features.join(', ').substring(0, previous.features.join(', ').length - 2)}`,
                 PinguEvent.SetDescriptionValues
             );
-            else if (guild.iconURL() != preGuild.iconURL()) return PinguEvent.SetRemove(
+            else if (current.iconURL() != previous.iconURL()) return PinguEvent.SetRemove(
                 'Icon',
-                preGuild.iconURL(),
-                guild.iconURL(),
-                `Set [icon](${guild.iconURL()})`,
-                `Removed [icon](${preGuild.iconURL()})`,
+                previous.iconURL(),
+                current.iconURL(),
+                `Set [icon](${current.iconURL()})`,
+                `Removed [icon](${previous.iconURL()})`,
                 PinguEvent.SetDescriptionValuesLink
             )
-            else if (guild.mfaLevel != preGuild.mfaLevel) return PinguEvent.SetDescriptionValues('MFA Level', preGuild.mfaLevel, guild.mfaLevel);
-            else if (guild.ownerID != preGuild.ownerID) return PinguEvent.SetDescriptionValues('Owner', preGuild.owner.user.tag, guild.owner.user.tag);
-            else if (guild.partnered != preGuild.partnered) return PinguEvent.SetRemove(
+            else if (current.mfaLevel != previous.mfaLevel) return PinguEvent.SetDescriptionValues('MFA Level', previous.mfaLevel, current.mfaLevel);
+            else if (current.ownerId != previous.ownerId) return PinguEvent.SetDescriptionValues('Owner', previous.owner.user.tag, current.owner.user.tag);
+            else if (current.partnered != previous.partnered) return PinguEvent.SetRemove(
                 'Partner',
-                preGuild.partnered,
-                guild.partnered,
-                `**${guild.name}** is now **__Partnered__**!`,
-                `**${guild.name}** is no longer Partnered`,
+                previous.partnered,
+                current.partnered,
+                `**${current.name}** is now **__Partnered__**!`,
+                `**${current.name}** is no longer Partnered`,
                 PinguEvent.SetDescriptionValues
             );
-            else if (guild.preferredLocale != preGuild.preferredLocale) return PinguEvent.SetDescriptionValues('Locale', preGuild.preferredLocale, guild.preferredLocale);
-            else if (guild.premiumSubscriptionCount != preGuild.premiumSubscriptionCount) {
+            else if (current.preferredLocale != previous.preferredLocale) return PinguEvent.SetDescriptionValues('Locale', previous.preferredLocale, current.preferredLocale);
+            else if (current.premiumSubscriptionCount != previous.premiumSubscriptionCount) {
                 return (
-                    guild.premiumSubscriptionCount > preGuild.premiumSubscriptionCount ?
-                        PinguEvent.SetDescription('Boost', `${(lastBooster ? `**${lastBooster}** boosted **${guild.name}**` : `**${guild.name}** was boosted`)}`) :
-                        PinguEvent.SetDescription('Boost', `**${guild.name}** lost a boost`)
+                    current.premiumSubscriptionCount > previous.premiumSubscriptionCount ?
+                        PinguEvent.SetDescription('Boost', `${(lastBooster ? `**${lastBooster}** boosted **${current.name}**` : `**${current.name}** was boosted`)}`) :
+                        PinguEvent.SetDescription('Boost', `**${current.name}** lost a boost`)
                 );
             }
-            else if (guild.premiumTier != preGuild.premiumTier) {
+            else if (current.premiumTier != previous.premiumTier) {
                 return (
-                    guild.premiumTier > preGuild.premiumTier ?
+                    current.premiumTier > previous.premiumTier ?
                         PinguEvent.SetDescription('Boost',
-                            `${(lastBooster ? `**${lastBooster}** boosted **${guild.name}** to level **${guild.premiumTier}**!` :
-                                `**${guild.name}** was boosted to level **${guild.premiumTier}**!`)}`
+                            `${(lastBooster ? `**${lastBooster}** boosted **${current.name}** to level **${current.premiumTier}**!` :
+                                `**${current.name}** was boosted to level **${current.premiumTier}**!`)}`
                         ) :
-                        PinguEvent.SetDescription('Boost', `**${guild.name}**'s boost level has dropped to ${guild.premiumTier}.`)
+                        PinguEvent.SetDescription('Boost', `**${current.name}**'s boost level has dropped to ${current.premiumTier}.`)
                 );
             }
-            else if (guild.publicUpdatesChannelID != preGuild.publicUpdatesChannelID) return PinguEvent.SetRemove(
+            else if (current.publicUpdatesChannelId != previous.publicUpdatesChannelId) return PinguEvent.SetRemove(
                 'Community Updates Channel',
-                preGuild.publicUpdatesChannelID,
-                guild.publicUpdatesChannelID,
-                `Set to ${guild.publicUpdatesChannel}`,
+                previous.publicUpdatesChannelId,
+                current.publicUpdatesChannelId,
+                `Set to ${current.publicUpdatesChannel}`,
                 `Removed Community Upadtes Channel`,
                 PinguEvent.SetDescriptionValues
             )
-            else if (guild.region != preGuild.region) return PinguEvent.SetDescriptionValues('Region', preGuild.region, guild.region);
-            else if (guild.rulesChannelID != preGuild.rulesChannelID) return PinguEvent.SetRemove(
+            else if (current.region != previous.region) return PinguEvent.SetDescriptionValues('Region', previous.region, current.region);
+            else if (current.rulesChannelId != previous.rulesChannelId) return PinguEvent.SetRemove(
                 'Rules Channel',
-                preGuild.rulesChannelID,
-                guild.rulesChannelID,
-                `Set to ${guild.rulesChannel}`,
+                previous.rulesChannelId,
+                current.rulesChannelId,
+                `Set to ${current.rulesChannel}`,
                 `Removed Rules Channel`,
                 PinguEvent.SetDescriptionValues
             );
-            else if (guild.shardID != preGuild.shardID) return PinguEvent.SetDescriptionValues('Shard', preGuild.shardID, guild.shardID);
-            else if (guild.splashURL() != preGuild.splashURL()) return PinguEvent.SetRemove(
+            else if (current.shardId != previous.shardId) return PinguEvent.SetDescriptionValues('Shard', previous.shardId, current.shardId);
+            else if (current.splashURL() != previous.splashURL()) return PinguEvent.SetRemove(
                 'Splash URL',
-                preGuild.splashURL(),
-                guild.splashURL(),
-                `Set [splash](${guild.splashURL()})`,
-                `Removed [splash](${preGuild.splashURL()})`,
+                previous.splashURL(),
+                current.splashURL(),
+                `Set [splash](${current.splashURL()})`,
+                `Removed [splash](${previous.splashURL()})`,
                 PinguEvent.SetDescriptionValues
             );
-            else if (guild.systemChannelID != preGuild.systemChannelID) return PinguEvent.SetRemove(
+            else if (current.systemChannelId != previous.systemChannelId) return PinguEvent.SetRemove(
                 'System Channel',
-                preGuild.systemChannel.name,
-                guild.systemChannel.name,
-                `Set to ${guild.systemChannel.name}`,
+                previous.systemChannel.name,
+                current.systemChannel.name,
+                `Set to ${current.systemChannel.name}`,
                 `Removed system channel`,
                 PinguEvent.SetDescriptionValues
             );
-            else if (guild.vanityURLCode != preGuild.vanityURLCode) return PinguEvent.SetRemove(
+            else if (current.vanityURLCode != previous.vanityURLCode) return PinguEvent.SetRemove(
                 'Vanity URL',
-                preGuild.vanityURLCode,
-                guild.vanityURLCode,
-                "Set to `" + guild.vanityURLCode + "`",
+                previous.vanityURLCode,
+                current.vanityURLCode,
+                "Set to `" + current.vanityURLCode + "`",
                 "Removed Vanity URL",
                 PinguEvent.SetDescriptionValues
             );
-            else if (guild.verificationLevel != preGuild.verificationLevel) PinguEvent.SetRemove(
+            else if (current.verificationLevel != previous.verificationLevel) PinguEvent.SetRemove(
                 'Verification Level',
-                preGuild.verificationLevel,
-                guild.verificationLevel,
-                `Set to \`${guild.verificationLevel}\``,
+                previous.verificationLevel,
+                current.verificationLevel,
+                `Set to \`${current.verificationLevel}\``,
                 `Set to \`None\``,
                 PinguEvent.SetDescriptionValues
             );
-            else if (guild.verified != preGuild.verified) return PinguEvent.SetRemove(
+            else if (current.verified != previous.verified) return PinguEvent.SetRemove(
                 'Verified',
-                preGuild.verified,
-                guild.verified,
-                `**${guild.name}** is now **__Verified__**!`,
-                `**${guild.name}** is no longer Verified`,
+                previous.verified,
+                current.verified,
+                `**${current.name}** is now **__Verified__**!`,
+                `**${current.name}** is no longer Verified`,
                 PinguEvent.SetDescriptionValues
             );
-            else if (guild.widgetChannelID != preGuild.widgetChannelID) return PinguEvent.SetRemove(
+            else if (current.widgetChannelId != previous.widgetChannelId) return PinguEvent.SetRemove(
                 'Widget Channel',
-                preGuild.widgetChannel.name,
-                guild.widgetChannel.name,
-                `Set to ${guild.widgetChannel.name}`,
+                previous.widgetChannel.name,
+                current.widgetChannel.name,
+                `Set to ${current.widgetChannel.name}`,
                 `Removed widget channel`,
                 PinguEvent.SetDescriptionValues
             );
-            else if (guild.widgetEnabled != preGuild.widgetEnabled) return PinguEvent.SetDescriptionValues('Widget Enabled', preGuild.widgetEnabled, guild.widgetEnabled);
+            else if (current.widgetEnabled != previous.widgetEnabled) return PinguEvent.SetDescriptionValues('Widget Enabled', previous.widgetEnabled, current.widgetEnabled);
 
-            return PinguEvent.UnknownUpdate(preGuild, guild);
+            return PinguEvent.UnknownUpdate(previous, current);
         }
     },
-    async function execute(client, preGuild, guild) {
-        const savedGuild = client.savedServers.find(g => g.id == guild);
+    async function execute(client, previous, current) {
+        const savedGuild = client.savedServers.find(g => g.id == current);
         if (savedGuild) {
             const savedServerName = client.savedServers.findKey(g => g == savedGuild);
-            client.savedServers.set(savedServerName, guild);
+            client.savedServers.set(savedServerName, current);
         }
 
         const relevant = {
-            name: guild.name,
+            name: current.name,
             guildOwner: {
-                _id: guild.ownerID,
-                name: guild.owner.user.tag
+                _id: current.ownerId,
+                name: current.owner.user.tag
             }
         }
-        const pGuild = client.pGuilds.get(guild);
+        const pGuild = client.pGuilds.get(current);
 
         const updated = Object.keys(relevant).reduce((updated, prop) => {
             if (typeof relevant[prop] != 'object' && pGuild[prop] != relevant[prop])
@@ -208,19 +207,19 @@ module.exports = new PinguEvent('guildUpdate',
         if (updated.includes('name')) {
             (async function UpdateSharedServers() {
                 const pUsers = client.pUsers.array()
-                const pUsersWithPGuild = pUsers.filter(pu => pu.sharedServers.filter(pg => pg._id == guild.id));
+                const pUsersWithPGuild = pUsers.filter(pu => pu.sharedServers.filter(pg => pg._id == current.id));
                 pUsersWithPGuild.forEach(pUser => {
                     let { sharedServers } = pUser;
-                    let pg = sharedServers.find(pg => pg._id == guild.id);
+                    let pg = sharedServers.find(pg => pg._id == current.id);
                     let indexOfPG = sharedServers.indexOf(pg);
-                    pUser.sharedServers[indexOfPG] = new PGuild(guild);
+                    pUser.sharedServers[indexOfPG] = new PGuild(current);
                     client.pUsers.update(pUser, module.exports.name, "SharedServers updated with new Guild name");
                 });
             })();
         }
 
         const welcomePChannel = pGuild.settings.welcomeChannel;
-        const welcomeChannel = welcomePChannel && guild.channels.cache.get(welcomePChannel._id);
+        const welcomeChannel = welcomePChannel && current.channels.cache.get(welcomePChannel._id);
 
         if (welcomeChannel?.name != welcomePChannel.name) {
             pGuild.settings.welcomeChannel = new PChannel(welcomeChannel);
@@ -229,7 +228,7 @@ module.exports = new PinguEvent('guildUpdate',
 
         if (pGuild.settings.reactionRoles.length) {
             let rrPChannels = pGuild.settings.reactionRoles.map(rr => rr.channel._id);
-            let rrChannels = rrPChannels.map(id => guild.channels.cache.get(id));
+            let rrChannels = rrPChannels.map(id => current.channels.cache.get(id));
             let newReactionRoles = pGuild.settings.reactionRoles;
 
             if (pGuild.reactionRoles[0]) {

@@ -7,6 +7,8 @@ const ms = require('ms');
 
 module.exports = new PinguEvent('onready', null,
     async function execute(client) {
+        
+
         console.log('\n--== Client Info ==--');
         client.log('console', `Loaded ${client.commands.size} commands & ${client.events.size} events\n`)
 
@@ -30,12 +32,12 @@ module.exports = new PinguEvent('onready', null,
 
         if (client.config.updateStats && client.isLive) {
             UpdateStats();
-            setInterval(() => UpdateStats, ms('24h'));
+            setInterval(() => UpdateStats(), ms('24h'));
 
             function UpdateStats() {
-                /**@param {string} channelID
+                /**@param {string} channelId
                  * @returns {VoiceChannel}*/
-                let getChannel = (channelID) => client.savedServers.get('Pingu Support').channels.cache.get(channelID);
+                let getChannel = (channelId) => client.savedServers.get('Pingu Support').channels.cache.get(channelId);
                 let channels = [
                     '799596588859129887', //Servers
                     '799597092107583528', //Users
@@ -106,7 +108,7 @@ module.exports = new PinguEvent('onready', null,
                     ]);
                     let channelName = channel.name.split(':')[0];
                     let info = await getInfo.get(channel.id)?.() || (function onNoKey() {
-                        client.log('error', `ID of ${channel.name} was not recognized!`)
+                        client.log('error', `Id of ${channel.name} was not recognized!`)
                         return "No Info";
                     })();
                     let newName = `${channelName}: ${info}`;

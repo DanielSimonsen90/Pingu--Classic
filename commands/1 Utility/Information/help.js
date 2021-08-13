@@ -93,7 +93,7 @@ module.exports = new PinguCommand('help', 'Utility', 'List all of my commands or
             .setFooter(`Developed by Simonsen Techs`);
 
         //Return embed
-        return message.channel.send(embed).catch(err => {
+        return message.channel.sendEmbeds(embed).catch(err => {
             client.log('error', `Unable to send help DM to ${message.author.tag}.`, message.content, err, {
                 params: { message, embed, prefix, path },
                 additional: { pathFolder, categories }
@@ -130,7 +130,7 @@ module.exports = new PinguCommand('help', 'Utility', 'List all of my commands or
             ).setFooter('Developed by Simonsen Techs');
 
         //Send embed
-        return message.channel.send(embed);
+        return message.channel.sendEmbeds(embed);
     }
 
     function getCommandsPath() {

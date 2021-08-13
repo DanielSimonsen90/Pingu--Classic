@@ -14,7 +14,7 @@ module.exports = new PinguCommand('updatepguilds', 'DevOnly', `Creates new Pingu
         PinguGuildsArr[i] = new PinguGuild(BotGuilds[i], owner);
 
         if (arg == "show")
-            await message.channel.send(new MessageEmbed()
+            await message.channel.sendEmbeds(new MessageEmbed()
                 .setTitle(PinguGuildsArr[i].name)
                 .setColor((PinguGuildsArr[i].clients[0] || PinguGuildsArr[i].clients[1]) &&
                     (PinguGuildsArr[i].clients[0].embedColor || PinguGuildsArr[i].clients[1].embedColor))

@@ -70,7 +70,7 @@ module.exports = new PinguCommand('activity', 'Fun', 'You <activity> <person>!',
         color: pGuildClient.embedColor || client.DefaultEmbedColor
     })
 
-    const sent = await message.channel.send(embed);
+    const sent = await message.channel.sendEmbeds(embed);
 
     //React with F if the user uses *activity on themselves
     if (person == user) await sent.react('🇫');

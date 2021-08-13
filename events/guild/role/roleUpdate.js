@@ -1,31 +1,32 @@
-const { Guild, MessageEmbed } = require("discord.js");
+const { Guild } = require("discord.js");
 const { PinguGuild, PinguEvent, PClient, PinguClient } = require("PinguPackage");
 
 module.exports = {
     ...new PinguEvent('roleUpdate',
-        async function setContent(client, preRole, role) {
+        async function setContent(client, embed, previous, current) {
             let description = GetDescription();
-            return module.exports.content = description ? new MessageEmbed({
-                description, title: module.exports.name + ` - ${role.name} ${(role.name != preRole.name ? `(${preRole.name})` : "")}`
-            }) : null;
+            return module.exports.content = description ? 
+                embed.setDescription(description)
+                    .setTitle(`${module.exports.name} - ${current.name} ${(current.name != previous.name ? `(${previous.name})` : "")}`) : 
+                null;
 
             function GetDescription() {
-                if (role.color != preRole.color) return PinguEvent.SetDescriptionValues('Color', preRole.color, role.color);
-                else if (role.hoist != preRole.hoist) return PinguEvent.SetDescriptionValues('Hoist', preRole.hoist, role.hoist);
-                else if (role.mentionable != preRole.mentionable) return PinguEvent.SetDescriptionValues('Mentionable', preRole.mentionable, role.mentionable);
-                else if (role.rawPosition != preRole.rawPosition) return PinguEvent.SetDescriptionValues('Position', preRole.rawPosition, role.rawPosition);
-                else if (role.permissions.toArray().length != preRole.permissions.toArray().length) return PinguEvent.GoThroughArrays(
+                if (current.color != previous.color) return PinguEvent.SetDescriptionValues('Color', previous.color, current.color);
+                else if (current.hoist != previous.hoist) return PinguEvent.SetDescriptionValues('Hoist', previous.hoist, current.hoist);
+                else if (current.mentionable != previous.mentionable) return PinguEvent.SetDescriptionValues('Mentionable', previous.mentionable, current.mentionable);
+                else if (current.rawPosition != previous.rawPosition) return PinguEvent.SetDescriptionValues('Position', previous.rawPosition, current.rawPosition);
+                else if (current.permissions.toArray().length != previous.permissions.toArray().length) return PinguEvent.GoThroughArrays(
                     'Permissions',
-                    preRole.permissions.toArray(),
-                    role.permissions.toArray(),
+                    previous.permissions.toArray(),
+                    current.permissions.toArray(),
                     PinguEvent.SetDescriptionValues
                 );
                 else if (ChangedPermissions()) return ChangedPermissions();
-                else return PinguEvent.UnknownUpdate(preRole, role);
+                else return PinguEvent.UnknownUpdate(previous, current);
             }
             function ChangedPermissions() {
-                let roleArr = role.permissions.toArray();
-                let preRoleArr = preRole.permissions.toArray();
+                let roleArr = current.permissions.toArray();
+                let preRoleArr = previous.permissions.toArray();
                 let added = [], removed = [];
 
                 for (let i = 0; i < roleArr.length; i++) {
@@ -46,7 +47,7 @@ module.exports = {
                 )}`);
             }
         },
-        async function execute(client, preRole, { guild }) {
+        async function execute(client, previous, { guild }) {
             let pGuild = client.pGuilds.get(guild);
             module.exports.CheckRoleChange(client, guild, pGuild, module.exports.name);
         },

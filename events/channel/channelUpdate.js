@@ -1,14 +1,14 @@
-const { GuildChannel, MessageEmbed, PermissionOverwrites, Collection } = require("discord.js");
+const { GuildChannel, PermissionOverwrites, Collection } = require("discord.js");
 const { PinguEvent } = require("PinguPackage");
 
 module.exports = new PinguEvent('channelUpdate',
-    async function setContent(client, preChannel, channel) {
-        let description = GetDescription(channel.type);
+    async function setContent(client, embed, previous, current) {
+        let description = GetDescription(current.type);
 
-        return module.exports.content = description ? new MessageEmbed({ description }) : null;
+        return module.exports.content = description ? embed.setDescription(description) : null;
 
         function GetDescription(type) {
-            return type == 'dm' ? PinguEvent.UnknownUpdate(preChannel, channel) : GetGuildChannel(preChannel, channel);
+            return type == 'dm' ? PinguEvent.UnknownUpdate(previous, current) : GetGuildChannel(previous, current);
 
             /**@param {GuildChannel} preGC
              * @param {GuildChannel} gC*/

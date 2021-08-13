@@ -35,7 +35,7 @@ module.exports = new PinguCommand('fact', 'Fun', 'Pingu facts woah', {
     fact = Math.floor(Math.random() * (facts.length - 1)),
     title = fact <= 8 ? "Penguin Facts" : fact <= 16 ? "Club Penguin Facts" : "Pingu (TV) Facts";
 
-    // return message.channel.send(new MessageEmbed({
+    // return message.channel.sendEmbeds(new MessageEmbed({
     //     title, 
     //     description: facts[fact], 
     //     color: pGuildClient.embedColor || client.DefaultEmbedColor,
@@ -44,7 +44,7 @@ module.exports = new PinguCommand('fact', 'Fun', 'Pingu facts woah', {
     //   .setThumbnail(`attachment://Greeny_Boi.png`)
     // );
 
-    return message.channel.send(new MessageEmbed()
+    return message.channel.sendEmbeds(new MessageEmbed()
         .setTitle(title)
         .setDescription(facts[fact])
         .setColor(message.channel.type != 'dm' ? pGuildClient.embedColor : client.DefaultEmbedColor)

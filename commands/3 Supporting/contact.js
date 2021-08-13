@@ -6,7 +6,7 @@ module.exports = new PinguCommand('contact', 'Supporting', 'Contact information 
 }, async ({ client, message, pGuildClient }) => {
     let Danho = client.developers.get('Danho');
 
-    return message.channel.send(new MessageEmbed({
+    return message.channel.sendEmbeds(new MessageEmbed({
         title: 'Support of Pingu',
         color: pGuildClient.embedColor || client.DefaultEmbedColor,
         thumbnail: { url: Danho.avatarURL() },

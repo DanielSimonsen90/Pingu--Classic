@@ -4,7 +4,7 @@ module.exports = new PinguCommand('fetch', 'Utility', 'Fetches provided message 
     usage: '<message id>',
     guildOnly: true
 }, async ({ client, message, args }) => {
-    if (!args[0]) return message.channel.send(`Message ID not provided!`);
+    if (!args[0]) return message.channel.send(`Message Id not provided!`);
     else if (isNaN(parseInt(args[0]))) {
         let id = args[0].split('/')[6];
         if (!id) return message.channel.send(`Please provide a proper message id!`);

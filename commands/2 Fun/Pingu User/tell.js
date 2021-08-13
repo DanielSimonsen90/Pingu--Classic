@@ -35,7 +35,7 @@ module.exports = {
             );
 
             let dmChannel = await message.author.createDM();
-            return dmChannel.send(tellInfoEmbed);
+            return dmChannel.sendEmbeds(tellInfoEmbed);
         }
         if (mention.id == message.author.id) return message.channel.send(`I have a feeling that not even *you* would want to talk to yourself...`);
 
@@ -55,7 +55,7 @@ module.exports = {
         try {
             const tellChannel = await mention.createDM();
             const sendMessage = args.join(' ');
-            const sent = await tellChannel.send(sendMessage, message.attachments.array());
+            const send = await tellChannel.send({ content: sendMessage, files: message.attachments.array() });
             message.react('✅');
 
             client.log('tell', message.author, mention, sentMessage);
@@ -81,8 +81,7 @@ module.exports = {
     }), ...{
         /**@param {Message} message*/
         async ExecuteTellReply(message) {
-            const { client: _client, author, content } = message;
-            const client = PinguClient.ToPinguClient(_client);
+            const { client, author, content } = message;
 
             //Pingu sent message in PM
             if (author.bot) return;
@@ -140,7 +139,7 @@ module.exports = {
             //message.content = `**Conversation with __${message.author.username}__**\n` + message.content;
 
             //Send author's reply to replyPerson
-            if (content && message.attachments.size > 0) var sent = replyPersonDM.send(content, message.attachments.array()).catch(async err => cantMessage(err)); //Message and files
+            if (content && message.attachments.size > 0) var sent = replyPersonDM.send({ content, files: message.attachments.array() }).catch(async err => cantMessage(err)); //Message and files
             else if (content) sent = replyPersonDM.send(content).catch(async err => cantMessage(err)); //Message only
             else sent = client.log('error', `${author} ➡️ ${replyPersonUser} used else statement from ExecuteTellReply`, content, {
                 params: { message },
@@ -156,7 +155,8 @@ module.exports = {
         },
         /**Returns Mention whether it's @Mentioned, username or nickname
         * @param {Message} message 
-        * @param {string} username*/
+        * @param {string} username
+        * @returns {User}*/
         GetMention(message, username) {
             const userMention = message.mentions.users.first();
             if (userMention) return userMention;
@@ -181,8 +181,7 @@ module.exports = {
         /**@param {Message} message
          * @param {Arguments} args*/
         async HandleTell(message, args) {
-            const { author, client: _client } = message;
-            const client = PinguClient.ToPinguClient(_client);
+            const { author, client } = message;
             const pAuthor = client.pUsers.get(author);
 
             if (args[0] == 'unset') {

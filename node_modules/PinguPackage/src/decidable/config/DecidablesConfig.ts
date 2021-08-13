@@ -1,10 +1,9 @@
 import { Guild } from "discord.js";
 import { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from './index';
-import { ToBasePinguClient } from '../../pingu/client/BasePinguClient'
 
 export class DecidablesConfig {
     constructor(guild: Guild) {
-        const client = ToBasePinguClient(guild.client);
+        const { client } = guild;
 
         this.giveawayConfig = new GiveawayConfig();
         this.pollConfig = new PollConfig();

@@ -48,7 +48,7 @@ module.exports = new PinguCommand('marry', 'Fun', 'Marries a user', {
     pPartner.marry = partnerMarry;
 
     await UpdatePUsers(message, pAuthor, pPartner);
-    return message.channel.send(new MessageEmbed({
+    return message.channel.sendEmbeds(new MessageEmbed({
         title: `${message.author.username} & ${partner.username} are now married!`,
         description: `Everyone give them gifts now and wish for them to have a *lovely* honeymoon 😏`,
         timestamp: Date.now(),

@@ -1,11 +1,14 @@
 {
   "ExpandedNodes": [
     "",
+    "\\commands",
     "\\commands\\1 Utility",
+    "\\commands\\1 Utility\\Information",
     "\\commands\\3 Supporting",
-    "\\commands\\4 DevOnly",
-    "\\commands\\4 DevOnly\\Update"
+    "\\events",
+    "\\events\\guild",
+    "\\events\\guild\\ban"
   ],
-  "SelectedNode": "\\eslintrc.json",
+  "SelectedNode": "\\commands\\1 Utility\\Information\\serverinfo.js",
   "PreviewInSolutionExplorer": false
 }

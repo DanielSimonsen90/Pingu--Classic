@@ -131,7 +131,7 @@ module.exports = new PinguCommand('role', 'Utility', 'Gives a role to author or 
         const permission = args.join('_').toUpperCase();
 
         if (role.permissions.has(permission)) return message.channel.send(`**${role.name}** already has the **${permission}** permission!`);
-        else if (!message.guild.me.hasPermission(permission)) return message.channel.send(`I can't set **${permission}** for **${role.name}**, because I don't have that permission myself!`);
+        else if (!message.guild.me.permissions.has(permission)) return message.channel.send(`I can't set **${permission}** for **${role.name}**, because I don't have that permission myself!`);
 
         try {
             await role.setPermissions(role.permissions.a(permission), reason);
@@ -150,7 +150,7 @@ module.exports = new PinguCommand('role', 'Utility', 'Gives a role to author or 
         const permission = args.join('_').toUpperCase();
 
         if (!role.permissions.has(permission)) return message.channel.send(`**${role.name}** does not have the **${permission}** permission.`);
-        else if (!message.guild.me.hasPermission(permission)) return message.channel.send(`I can't take **${permission}** from **${role.name}**, as I don't have that permission myself!`);
+        else if (!message.guild.me.permissions.has(permission)) return message.channel.send(`I can't take **${permission}** from **${role.name}**, as I don't have that permission myself!`);
 
         const newPermissions = role.permissions.remove(permission);
 

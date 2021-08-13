@@ -22,7 +22,7 @@ export abstract class AchievementConfigBase {
         client.DanhoDM(`Messaging ${(guild || (announceChannel as GuildChannel).guild ? guild.members.cache.get(guild.ownerId) : (announceChannel as DMChannel).recipient)} as their notificationtype = ${notificationType}`)
         
         try {
-            let message = await (announceChannel as TextChannel).send({ embeds: [embed] });
+            let message = await (announceChannel as TextChannel).sendEmbeds(embed);
             await message.react(client.emotes.guild(client.savedServers.get('Pingu Support')).get('hypers'));
             return message;
         }

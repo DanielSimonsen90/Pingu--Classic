@@ -45,7 +45,7 @@ module.exports = new PinguCommand('daily', 'Fun', `Daily streams just like as if
                 `Updated **${message.author.tag}**'s daily streak to ${daily.streak}.`
             ), 5000);
 
-            return message.channel.send(new MessageEmbed({
+            return message.channel.sendEmbeds(new MessageEmbed({
                 title: 'Daily claimed!',
                 description: `Your daily has been claimed!\n**Streak: ${daily.streak}**`,
                 color: pGuildClient.embedColor || client.DefaultEmbedColor,

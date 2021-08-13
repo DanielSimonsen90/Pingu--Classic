@@ -1,11 +1,10 @@
-import { Client, Guild, Util } from 'discord.js';
-import { ToPinguClient } from '../../pingu/client/PinguClient';
+import { Guild, Util } from 'discord.js';
 
 export class PClient {
-    constructor(client: Client, guild: Guild) {
-        const pinguClient = ToPinguClient(client);
+    constructor(guild: Guild) {
+        const pinguClient = guild.client;
 
-        this._id = client.user.id;
+        this._id = pinguClient.id
         this.displayName = guild.me.displayName;
 
         const botRole = guild.me.roles.cache.find(r => r.managed);

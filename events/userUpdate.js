@@ -1,17 +1,16 @@
-const { MessageEmbed } = require("discord.js");
 const { PinguEvent } = require("PinguPackage");
 
 module.exports = new PinguEvent('userUpdate', 
-    async function setContent(client, preUser, user) {
+    async function setContent(client, embed, previous, current) {
         const difference = GetDifference();
-        return module.exports.content = difference ? new MessageEmbed({ description: difference }) : null;
+        return module.exports.content = difference ? embed.setDescription(difference) : null;
 
         function GetDifference() {
-            if (user.avatarURL() != preUser.avatarURL() || user.avatar != preUser.avatar) return PinguEvent.SetDescriptionValuesLink('Avatar', preUser.avatarURL(), user.avatarURL());
-            else if (user.discriminator != preUser.discriminator) return PinguEvent.SetDescriptionValues('Discriminator', preUser.discriminator, user.discriminator);
-            else if (user.flags != preUser.flags) return `Flags Update: ${(() => {
-                const userFlags = user.flags?.toArray?.();
-                const preUserFlags = preUser.flags?.toArray?.();
+            if (current.avatarURL() != previous.avatarURL() || current.avatar != previous.avatar) return PinguEvent.SetDescriptionValuesLink('Avatar', previous.avatarURL(), current.avatarURL());
+            else if (current.discriminator != previous.discriminator) return PinguEvent.SetDescriptionValues('Discriminator', previous.discriminator, current.discriminator);
+            else if (current.flags != previous.flags) return `Flags Update: ${(() => {
+                const userFlags = current.flags?.toArray?.();
+                const preUserFlags = previous.flags?.toArray?.();
 
                 if (!userFlags && preUserFlags || userFlags.length > preUserFlags.length)
                     return `Removed flags: ${preUserFlags.join(', ')}`;
@@ -19,18 +18,18 @@ module.exports = new PinguEvent('userUpdate',
                     return `Added flags: ${userFlags.join(', ')}`;
                 return `Unknown`
             })()}`
-            else if (user.tag != preUser.tag) return PinguEvent.SetDescriptionValues('Tag', preUser.tag, user.tag);
+            else if (current.tag != previous.tag) return PinguEvent.SetDescriptionValues('Tag', previous.tag, current.tag);
             return null;
         }
     },
-    async function execute(client, preUser, user) {
-        client.developers.update(user);
+    async function execute(client, previous, current) {
+        client.developers.update(current);
 
         const relevant = {
-            avatar: user.avatarURL(),
-            tag: user.tag
+            avatar: current.avatarURL(),
+            tag: current.tag
         };
-        const pUser = client.pUsers.get(user);
+        const pUser = client.pUsers.get(current);
 
         const updated = Object.keys(relevant).reduce((updated, prop) => {
             if (pUser[prop] != relevant[prop])

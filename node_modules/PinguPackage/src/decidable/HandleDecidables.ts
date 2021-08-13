@@ -1,5 +1,5 @@
 import { Collection, Guild, GuildChannel, GuildChannelResolvable, GuildMember, Message, MessageEmbed, MessageReaction, PermissionString, Role, RoleResolvable, TextChannel, User } from 'discord.js';
-import * as ms from 'ms';
+import ms from 'ms';
 
 import { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from './config';
 import IDecidableConfigOptions from './interfaces/IDecidableConfigOptions';
@@ -139,7 +139,7 @@ export async function HandleDecidables(params: DecidablesParams) {
     let value = args.join(' ');
     const mention = mentions.users.first();
 
-    if (value.includes('<@')) value = value.replace(/<@!*\d{18}>/, guild.members.cache.has(mention.id) ? guild.members.cache.get(mention.id).displayName : mention.username);
+    if (value.includes('<@')) value = value.replace(/<@!*\d{18}>/, guild.member(mention) ? guild.member(mention).displayName : mention.username);
 
     if ('Suggestion' != decidablesType) var endsAt = new Date(Date.now() + ms(time) + ms('1s'));
 
@@ -169,11 +169,9 @@ export async function HandleDecidables(params: DecidablesParams) {
             'MANAGE_MESSAGES'
         ) == client.permissions.PermissionGranted)
         message.delete();
-    else message.channel.send(`Announcing the ${decidablesType.toLowerCase()} in ${decidablesChannel} now!`).then(s => {
-        setTimeout(() => s.delete(), ms('5s'));
-    });
+    else message.channel.send(`Announcing the ${decidablesType.toLowerCase()} in ${decidablesChannel} now!`).then(s => s.doIn(s => s.delete(), '5s'));
 
-    const sent = await message.channel.send({ embeds: [embed] });
+    const sent = await message.channel.sendEmbeds(embed);
     reactionEmojis.forEach(e => sent.react(e));
     sent.createReactionCollector({
         filter: (r: MessageReaction) => reactionEmojis.includes(r.emoji.name),
@@ -193,21 +191,19 @@ export async function HandleDecidables(params: DecidablesParams) {
     if (decidablesType == 'Suggestion') return sent;
 
     let interval = setInterval(function updateTimer() {
-        sent.edit({
-            embeds: [
-                sent.embeds[0].setDescription(
-                    isGiveawayType(decidablesType) ? (
-                        `**React with ${reactionEmojis[0]} to enter!**\n` +
-                        `Winners: **${winners}**\n` +
-                        `Ends in: ${new TimeLeftObject(new Date(), endsAt).toString()}.\n` +
-                        `Hosted by <@${decidable.author._id}>`
-                    ) : decidablesType == 'Poll' ? (
-                        `Brought to you by <@${decidable.author._id}>\n` +
-                        `Time left: ${new TimeLeftObject(new Date(), endsAt).toString()}.`
-                    ) : sent.embeds[0].description
-                )
-            ]
-        }).catch(err => {
+        sent.editEmbeds(sent.embeds[0]
+            .setDescription(
+                isGiveawayType(decidablesType) ? (
+                    `**React with ${reactionEmojis[0]} to enter!**\n` +
+                    `Winners: **${winners}**\n` +
+                    `Ends in: ${new TimeLeftObject(new Date(), endsAt).toString()}.\n` +
+                    `Hosted by <@${decidable.author._id}>`
+                ) : decidablesType == 'Poll' ? (
+                    `Brought to you by <@${decidable.author._id}>\n` +
+                    `Time left: ${new TimeLeftObject(new Date(), endsAt).toString()}.`
+                ) : sent.embeds[0].description
+            )
+        ).catch(err => {
             client.log('error', `Updating ${decidablesType.toLowerCase()} timer`, content, err);
             author.send(`I had an issue updating the ${decidablesType.toLowerCase()} message, so your ${decidablesType.toLowerCase()} might be broken!`);
         })
@@ -280,12 +276,13 @@ async function FirstTimeExecuted(params: DecidablesParams) {
     const hasAllArguments = await HasAllArguments();
     if (hasAllArguments) return;
 
-    const collector = message.channel.createMessageCollector({ filter: m => (m as Message).author.id == message.author.id });
+    const collector = message.channel.createMessageCollector({ filter: m => (m as Message).author.id == message.author.id })
     let decidablesChannelName = decidablesType.toLowerCase();
     const { staffRoleType } = Configs.get(config);
 
     message.channel.send(`Firstly, ${Find('Role', staffRoleType, 'Exists', message)}`);
 
+    /* Expects Promise<void> */
     // collector.on('collect', async function* onCollect(input) {
     //     const userInput = input as Message;
 
@@ -503,17 +500,14 @@ async function onTimeFinished(sent: Message, value: string, winnersAllowed: numb
         sent.channel.send(`The poll of **${poll.value}**, voted **${poll.approved}**!`);
         client.log('console', `Poll, "${poll.value}" (${poll._id}) by ${poll.author.name}, voted ${poll.approved}.`);
 
-        sent.edit({
-            embeds: [
-                embed
-                    .setTitle(`FINISHED! ${poll.value}`)
-                    .setDescription(
-                        `Voting done! Final answer: ${poll.approved}\n` +
-                        `**ID:** \`${poll._id}\``
-                    )
-                    .setFooter(`Poll ended.`)
-            ]
-        });
+        sent.editEmbeds(embed
+            .setTitle(`FINISHED! ${poll.value}`)
+            .setDescription(
+                `Voting done! Final answer: ${poll.approved}\n` +
+                `**ID:** \`${poll._id}\``
+            )
+            .setFooter(`Poll ended.`)
+        );
         return poll;
     }
     async function GetGiveawayWinner(decidable: Giveaway | Theme) {
@@ -529,7 +523,7 @@ async function onTimeFinished(sent: Message, value: string, winnersAllowed: numb
             return null as Promise<Collection<string, User>>;
         });
 
-        let members = await guild.members.fetch({ user: [...reactedUsers.values()] });
+        let members = await guild.members.fetch({ user: reactedUsers.array() });
         const winnerOrWinners = `Winner${winnersAllowed > 1 ? 's' : ''}`;
 
         reactedUsers = reactedUsers.filter(u => {
@@ -559,24 +553,17 @@ async function onTimeFinished(sent: Message, value: string, winnersAllowed: numb
                 else break;
             }
             
-            if (typeof winner == 'string') {
-                winner = 'no one';
-                winners[i] = winner;
-            }
-            else {
-                winners[i] = guild.members.cache.get(winner.id);
-                reactedUsers.delete(winner.id);
-            }
+            if (typeof winner == 'string') winner = 'no one';
+            else reactedUsers.delete(winner.id);
+
+            winners[i] = winner;
         }
         if (winner == 'no one' && !winners.length || !winners[0]) {
-            sent.edit({
-                embeds: [
-                    embed
-                        .setTitle(`Unable to find a winner for "${value}"!`)
-                        .setDescription(getGiveawayDescription(winnerOrWinners, `__Winner not found!__`, host, decidable))
-                        .setFooter(`${decidablesType} ended.`)
-                ]
-            });
+            sent.editEmbeds(embed
+                .setTitle(`Unable to find a winner for "${value}"!`)
+                .setDescription(getGiveawayDescription(winnerOrWinners, `__Winner not found!__`, host, decidable))
+                .setFooter(`${decidablesType} ended.`)
+            );
             sent.channel.send(`A winner to "**${value}**" couldn't be found!`);
             return decidable;
         }
@@ -595,7 +582,7 @@ async function onTimeFinished(sent: Message, value: string, winnersAllowed: numb
             RemovePreviousWinners([...guild.members.cache.filter(m => m.roles.cache.has(winnerRole._id)).values()])
             
             for (let i = 0; i < winners.length; i++) {
-                await guild.members.cache.get((winners[i] as GuildMember).id).roles.add(winnerRole._id)
+                await (winners[i] as GuildMember).roles.add(winnerRole._id)
                 .catch(err => {
                     client.log('error', `Unable to give ${winners[i]} a ${decidablesType} "${guild}"'s ${decidablesType} Winner role, ${winnerRole.name} (${winnerRole._id})`, sent.content, err);
                     host.user.send(`I couldn't give ${winners[i]} a ${decidablesType} Winner role!`)
@@ -603,14 +590,10 @@ async function onTimeFinished(sent: Message, value: string, winnersAllowed: numb
             }
         }
 
-        sent.edit({
-            embeds: [
-                embed
-                    .setTitle(`${winnerOrWinners} of "${value}"!`)
-                    .setDescription(getGiveawayDescription(winnerOrWinners, winnersString, host, decidable))
-                    .setFooter(`${decidablesType} ended.`)
-            ]
-        }
+        sent.editEmbeds(embed
+            .setTitle(`${winnerOrWinners} of "${value}"!`)
+            .setDescription(getGiveawayDescription(winnerOrWinners, winnersString, host, decidable))
+            .setFooter(`${decidablesType} ended.`)
         ).catch(err => {
             client.log('error', `Editing the ${decidablesType} Message`, sent.content, err);
             host.user.send(`I encountered an error while updating the ${decidablesType.toLowerCase()} embed...`)
@@ -624,8 +607,8 @@ async function onTimeFinished(sent: Message, value: string, winnersAllowed: numb
             let winner = (function selectWinner() {
                 if (!reactedUsers.size) return `A winner couldn't be found!`;
 
-                let user = [...reactedUsers.values()][Math.floor(Math.random() * reactedUsers.size)];
-                const member = guild.members.cache.get(user.id);
+                let user = reactedUsers.array()[Math.floor(Math.random() * reactedUsers.size)];
+                const member = guild.member(user);
 
                 if (!winnerRole) return member;
                 else if (member.roles.cache.has(winnerRole._id)) return allowSameWinner ? member : null;
@@ -664,7 +647,7 @@ async function ListDecidables(params: DecidablesParams, collection: Decidable[])
 
     if (!decidablesType.length || !embeds.length) return message.channel.send(`There are no ${decidablesType.toLowerCase()}s saved!`);
 
-    var sent = await message.channel.send({ embeds: [embeds[embedIndex]] });
+    var sent = await message.channel.sendEmbeds(embeds[embedIndex]);
     listEmojis.forEach(e => sent.react(e));
 
     const collector = sent.createReactionCollector({
@@ -675,9 +658,7 @@ async function ListDecidables(params: DecidablesParams, collection: Decidable[])
     collector.on('end', async collected => {
         if (!collected.map(r => r.emoji.name).includes('🛑')) {
             await sent.delete();
-            message.channel.send(`Stopped showing ${decidablesType.toLowerCase()}s.`).then(s => {
-                setTimeout(() => s.delete(), ms('5s'))
-            });
+            message.channel.send(`Stopped showing ${decidablesType.toLowerCase()}s.`).then(s => s.doIn(s => s.delete(), '5s'));
         }
     });
     collector.on('collect', async reaction => {
@@ -710,7 +691,7 @@ async function ListDecidables(params: DecidablesParams, collection: Decidable[])
             return onStop();
         }
 
-        sent.edit({ embeds: [embedToSend] });
+        sent.editEmbeds(embedToSend);
         sent.reactions.cache.get(reaction.emoji.name).users.remove(message.author);
 
         async function onVerdict(approved: boolean) {
@@ -752,7 +733,10 @@ async function ListDecidables(params: DecidablesParams, collection: Decidable[])
 
             async function ExpressDeletionSuccessful(emote: '✅' | '❌', index: 1 | -1) {
                 const reaction = await sent.react(emote);
-                await new Promise(resolve => setTimeout(() => resolve(sent.reactions.cache.get(reaction.emoji.id).remove()), 1500));
+                await new Promise((resolve, reject) => 
+                    sent.doIn(() => sent.reactions.cache.get(reaction.emoji.id).remove(), 1500)
+                    .then(r => resolve(r))
+                    .catch(err => reject(err)));
                 return direction(index);
             }
         }
