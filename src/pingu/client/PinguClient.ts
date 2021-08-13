@@ -1,4 +1,4 @@
-import { Client, ClientEvents, ClientOptions, Collection, TextChannel, User, Guild, PermissionString, MessageEmbed, Message } from "discord.js";
+import { ClientEvents, ClientOptions, Collection, TextChannel, User, Guild, PermissionString, MessageEmbed, Message } from "discord.js";
 import * as fs from 'fs';   
 import * as request from 'request';
 
@@ -71,7 +71,7 @@ export class PinguClient extends BasePinguClient<PinguClientEvents> {
 
     public async requestImage(message: Message, pGuildClient: PClient, caller: 'gif' | 'meme', types: string[], searchTerm?: (type: string) => string) {
         const { config } = this;
-    
+
         if (!config || !config.api_key || !config.google_custom_search) {
             return this.log('error', `Unable to send ${caller}\nImage search requires both a YouTube API key and a Google Custom Search key!`, message.content, null, {
                 params: { message, pGuildClient, caller, types },

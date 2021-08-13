@@ -186,7 +186,7 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
         return (await Danho.createDM()).send(message);
     }
     public timeFormat(timestamp: number, format?: TimestampStyle) {
-        return `<t:${timestamp}${format ? `:${TimestampStyles.get(format)}` : ''}>`;
+        return `<t:${Math.round(timestamp / 1000)}${format ? `:${TimestampStyles.get(format)}` : ''}>`;
     }
     //#endregion
 

@@ -138,7 +138,7 @@ class BasePinguClient extends discord_js_1.Client {
         return (await Danho.createDM()).send(message);
     }
     timeFormat(timestamp, format) {
-        return `<t:${timestamp}${format ? `:${TimeLeftObject_1.TimestampStyles.get(format)}` : ''}>`;
+        return `<t:${Math.round(timestamp / 1000)}${format ? `:${TimeLeftObject_1.TimestampStyles.get(format)}` : ''}>`;
     }
     //#endregion
     //#region Protected methods
