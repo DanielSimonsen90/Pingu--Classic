@@ -110,7 +110,6 @@ class PinguClient extends BasePinguClient_1.default {
                         const type = module.name;
                         const event = module;
                         this.events.set(event.name, event);
-                        // this.on(event.name as keyof ClientEvents, (...args) => this.handleEvent(event.name as keyof ClientEvents, ...args));
                         this.on(event.name, (...params) => {
                             this.handleEvent(event.name, ...params); //Handle as Pingu event
                         });

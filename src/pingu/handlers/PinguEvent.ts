@@ -119,6 +119,7 @@ export function GoThroughObjectArray<T>(type: string, preArr: T[], curArr: T[]) 
 }
 export async function HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: PinguClient, ...args: PinguClientEvents[EventType]) {
     const event = client.events.get(caller);
+    // console.log({ event, caller })
     if (!event || !event.execute && !event.setContent) return; //Event not found or doesn't have any callbacks assigned
 
     async function execute() {
