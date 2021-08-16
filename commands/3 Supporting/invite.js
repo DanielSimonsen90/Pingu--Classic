@@ -6,6 +6,6 @@ module.exports = new PinguCommand('invite', 'Supporting', 'Sends link to invite 
 
     return client.generateInvite({
         scopes: ['bot', 'applications.commands'],
-        permissions: client.permissions.granted.map(perm => perm.permString);
+        permissions: client.permissions.granted.map(perm => perm.permString)
     })
 });

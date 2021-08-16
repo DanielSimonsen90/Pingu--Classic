@@ -23,7 +23,7 @@
 		"body": [
 			"const { PinguCommand } = require('PinguPackage');",
 			"",
-			"module.exports = new PinguCommand('${1:name}', '${2:DevOnly}', '${3:description}'. {",
+			"module.exports = new PinguCommand(`${1:name}`, `${2:DevOnly}`, `${3:description}`, {",
 			"\t${4:data}",
 			"}, async ({ client, message, args, pAuthor, pGuildMember, pGuild, pGuildClient }) => {",
 			"\t$0",

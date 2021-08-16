@@ -1,4 +1,4 @@
-import { BaseGuildTextChannel, DMChannel, MessageEmbed, ThreadChannel, PartialTextBasedChannelFields, MessageAttachment } from "discord.js";
+import { TextChannel, NewsChannel, DMChannel, MessageEmbed, ThreadChannel, PartialTextBasedChannelFields, MessageAttachment } from "discord.js";
 
 declare module 'discord.js' {
     interface PartialTextBasedChannelFields {
@@ -11,7 +11,8 @@ declare module 'discord.js' {
 function sendEmbed(this: PartialTextBasedChannelFields, ...embeds: MessageEmbed[]) {
     return this.send({ embeds })
 }
-BaseGuildTextChannel.prototype.sendEmbeds = sendEmbed;
+TextChannel.prototype.sendEmbeds = sendEmbed;
+NewsChannel.prototype.sendEmbeds = sendEmbed;
 DMChannel.prototype.sendEmbeds = sendEmbed;
 ThreadChannel.prototype.sendEmbeds = sendEmbed;
 //#endregion
@@ -20,7 +21,8 @@ ThreadChannel.prototype.sendEmbeds = sendEmbed;
 function sendFiles(this: PartialTextBasedChannelFields, ...files: MessageAttachment[]) {
     return this.send({ files });
 }
-BaseGuildTextChannel.prototype.sendFiles = sendFiles;
+TextChannel.prototype.sendFiles = sendFiles;
+NewsChannel.prototype.sendFiles = sendFiles;
 DMChannel.prototype.sendFiles = sendFiles;
 ThreadChannel.prototype.sendFiles = sendFiles;
 //#endregion

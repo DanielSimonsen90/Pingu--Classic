@@ -19,7 +19,7 @@
         'guildCreate', 'guildUpdate', 'guildDelete',                                                                                                                            //guild Crud
         'guildIntegrationsUpdate', 'guildUnavailable', 'presenceUpdate', 'voiceStateUpdate', 'guildMemberSpeaking',                                                             //guild
         'messageReactionAdd', 'messageReactionRemove', 'messageReactionRemoveAll', 'messageReactionRemoveEmoji',                                                                //messageReaction
-        'message', 'messageDelete', 'messageDeleteBulk', 'messageUpdate',                                                                                                       //message
+        'messageCreate', 'messageDelete', 'messageDeleteBulk', 'messageUpdate',                                                                                                 //message
         'userUpdate',                                                                                                                                                           //user
         'chosenUser', 'chosenGuild', 'mostKnownUser'                                                                                                                            //custom
     ], __dirname, 'commands', 'events', { 
@@ -45,6 +45,8 @@
     try { var { token } = require('../PinguBetaToken.json'); /*throw null*/ }
     catch { token = config.token; }
     finally { client.login(token); }
-})().catch(err => {
+})().catch(({ message, stack}) => {
+    const err = { message, stack };
+    const myStack = stack.split('\n');
     require('fs').writeFile('./errors/startUpError.json', JSON.stringify(err, null, 2))
 });

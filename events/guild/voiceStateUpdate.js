@@ -5,7 +5,7 @@ module.exports = new PinguEvent('voiceStateUpdate',
     async function setContent(client, embed, previous, current) {
         const { SetDescription, Colors } = PinguEvent;
         const { Create, Update, Delete } = Colors;
-        let embed = await GetEmbed();
+        embed = await GetEmbed();
         module.exports.content = embed.description ? embed : null;
 
         async function GetEmbed() {
