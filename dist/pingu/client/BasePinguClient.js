@@ -89,7 +89,7 @@ class BasePinguClient extends discord_js_1.Client {
             month: new Date(Date.now()).getMonth() + 1,
             year: new Date(Date.now()).getFullYear()
         };
-        var activity = this.isLive ? new Activity('your screams for', 'LISTENING') : new Activity('Danho cry over bad code', 'WATCHING');
+        var activity = this.isLive ? new Activity('your screams for', 'LISTENING') : new Activity(`Danho cry over bad code whilst running on version ${this.config.version}`, 'WATCHING');
         if (date.month == 12)
             activity = date.day < 26 ?
                 new Activity('Jingle Bells...', 'LISTENING') :

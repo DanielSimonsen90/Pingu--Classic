@@ -1,4 +1,8 @@
-import { ActivityOptions, ActivityType, CategoryChannel, Client, ClientEvents, ClientOptions, Collection, Guild, Message, MessageAttachment, MessageEmbed, PermissionString, Snowflake, TextChannel, User } from "discord.js";
+import { 
+    ActivityOptions, ActivityType, CategoryChannel, Client, ClientEvents, 
+    ClientOptions, Collection, Guild, Message, MessageAttachment, MessageEmbed, 
+    PermissionString, Snowflake, TextChannel, User 
+} from "discord.js";
 import * as fs from 'fs';
 export const Clients = {
     PinguID: '562176550674366464',
@@ -133,7 +137,7 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
             year: new Date(Date.now()).getFullYear()
         };
 
-        var activity = this.isLive ? new Activity('your screams for', 'LISTENING') : new Activity('Danho cry over bad code', 'WATCHING');
+        var activity = this.isLive ? new Activity('your screams for', 'LISTENING') : new Activity(`Danho cry over bad code whilst running on version ${this.config.version}`, 'WATCHING');
 
         if (date.month == 12)
             activity = date.day < 26 ?

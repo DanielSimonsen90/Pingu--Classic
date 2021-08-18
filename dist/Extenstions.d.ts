@@ -1,15 +1,10 @@
-import './GuildMember';
-import './Message';
-import './PartialTextBasedChannelFields';
-import './TextChannel';
-import './User';
 import { VoiceConnection } from "@discordjs/voice";
-import ReactionRole from "../pingu/guild/items/ReactionRole";
-import BasePinguClient from "../pingu/client/BasePinguClient";
-import PinguGuild from '../pingu/guild/PinguGuild';
-import PinguGuildMemberCollection from '../pingu/collection/PinguGuildMemberCollection';
-import PinguGuildMember from "../pingu/guildMember/PinguGuildMember";
-import PinguUser from '../pingu/user/PinguUser';
+import BasePinguClient from './pingu/client/BasePinguClient';
+import PinguGuildMemberCollection from "./pingu/collection/PinguGuildMemberCollection";
+import PinguGuild from "./pingu/guild/PinguGuild";
+import PinguGuildMember from "./pingu/guildMember/PinguGuildMember";
+import ReactionRole from "./pingu/guild/items/ReactionRole";
+import PinguUser from "./pingu/user/PinguUser";
 declare type Pingu = BasePinguClient;
 declare module 'discord.js' {
     interface Base {

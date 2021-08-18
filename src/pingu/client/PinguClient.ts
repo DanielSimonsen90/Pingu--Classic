@@ -163,7 +163,12 @@ export class PinguClient extends BasePinguClient<PinguClientEvents> {
     //#region Private Methods
     private handleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, ...args: PinguClientEvents[EventType]) {
         if (this.subscribedEvents.find(e => e == caller)) 
+        try {
             PinguEvent.HandleEvent(caller, this, ...args as PinguClientEvents[EventType]);
+        }
+        catch (err) {
+            this.log('error', `Event error`, null, err, { params: { caller, args } })
+        }
         return this;
     }
     //#endregion
