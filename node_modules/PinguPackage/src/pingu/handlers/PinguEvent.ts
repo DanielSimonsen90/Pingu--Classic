@@ -1,9 +1,7 @@
 import { 
-    Client, Collection, Message, 
-    Guild, GuildMember, User, 
-    MessageEmbed, GuildChannel, 
-    GuildAuditLogsAction, ClientEvents, 
-    GuildAuditLogsEntry, ColorResolvable, DMChannel, GuildEmoji, Snowflake, Role, HexColorString
+    Collection, Message, Guild, GuildMember, User, MessageEmbed, 
+    GuildChannel, GuildAuditLogsAction, ClientEvents, GuildAuditLogsEntry, 
+    ColorResolvable, DMChannel, GuildEmoji, Snowflake, Role, HexColorString
 } from 'discord.js'
 
 import PinguClient from '../client/PinguClient'
@@ -36,8 +34,8 @@ export async function GetAuditLogs(guild: Guild, type: GuildAuditLogsAction, key
     if (!guild.me || !guild.me.permissions.has('VIEW_AUDIT_LOG'))
         return noAuditLog;
 
-    let now = new Date(Date.now());
-    let logs = (await guild.fetchAuditLogs({ type }));
+    let now = new Date();
+    let logs = await guild.fetchAuditLogs({ type });
     now.setSeconds(now.getSeconds() - seconds);
     let filteredLogs = logs.entries.filter(e => e.createdTimestamp > now.getTime());
 
@@ -119,7 +117,7 @@ export function GoThroughObjectArray<T>(type: string, preArr: T[], curArr: T[]) 
 }
 export async function HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: PinguClient, ...args: PinguClientEvents[EventType]) {
     const event = client.events.get(caller);
-    // console.log({ event, caller })
+    console.log(caller)
     if (!event || !event.execute && !event.setContent) return; //Event not found or doesn't have any callbacks assigned
 
     async function execute() {
@@ -235,7 +233,7 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
         if (embed) return client.log('event', embed);
 
         async function GetFromAuditLog() {
-            const noAuditLog = PinguEvent.noAuditLog;
+            const { noAuditLog } = PinguEvent;
 
             switch (caller) {
                 case 'channelCreate': return !(args[0] as GuildChannel).guild ? (args[0] as DMChannel).recipient.tag : await GetInfo((args[0] as GuildChannel).guild, 'CHANNEL_CREATE');
@@ -284,42 +282,32 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
         }
         async function CreateEmbed() {
             let [user, guild, executed] = [
-                client.users.cache.find(u => u.tag == emitAssociator),
-                client.guilds.cache.find(g => g.name == emitAssociator),
+                client.users.cache.findByDisplayName(emitAssociator),
+                client.guilds.cache.findByDisplayName(emitAssociator),
                 new Date()
             ];
 
             const getDoubleDigit = (num: number) => num < 10 ? `0${num}` : `${num}`;
-            let defaultEmbed = new MessageEmbed({
+            let embed = new MessageEmbed({
                 title: event.name,
                 author: {
                     name: emitAssociator,
-                    iconURL: (!emitAssociator || emitAssociator == "Unknown" ? null :
-                    emitAssociator.match(/#\d{4}$/g) ?
-                        user && user.avatarURL() :
-                        guild && guild.iconURL())
+                    iconURL: (!emitAssociator || emitAssociator == "Unknown" ? null : user?.avatarURL() || guild?.iconURL())
                 },
-                color: await getColor(),
-                footer: {
-                    text: `${getDoubleDigit(executed.getHours())}.${getDoubleDigit(executed.getMinutes())}.${getDoubleDigit(executed.getSeconds())}:${executed.getMilliseconds()}`
-                }
-            })
+                color: getColor(),
+                footer: { text: `${getDoubleDigit(executed.getHours())}.${getDoubleDigit(executed.getMinutes())}.${getDoubleDigit(executed.getSeconds())}:${executed.getMilliseconds()}` }
+            });
 
             if (event.setContent) {
                 await event.setContent(client, new MessageEmbed(), ...args);
 
                 if (!event.content) return null;
-                defaultEmbed = (function CombineEmbeds() {
-                    for (var key in event.content)
-                        if (event.content[key])
-                            defaultEmbed[key] = event.content[key];
-                    return defaultEmbed;
-                })();
+                embed = {...embed, ...event.content} as MessageEmbed;
             }
 
-            return !defaultEmbed.description && (defaultEmbed.fields && defaultEmbed.fields[0] || true) ? null : defaultEmbed;
+            return !embed.description && (embed.fields?.[0] || true) ? null : embed;
 
-            async function getColor(): Promise<ColorResolvable> {
+            function getColor(): ColorResolvable {
                 if (event.name.includes('Create') || event.name.includes('Add')) return PinguEvent.Colors.Create;
                 else if (event.name.includes('Delete') || event.name.includes('Remove')) return PinguEvent.Colors.Delete;
                 else if (event.name.includes('Update')) return PinguEvent.Colors.Update;

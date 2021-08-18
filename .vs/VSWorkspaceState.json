@@ -1,14 +1,16 @@
 {
   "ExpandedNodes": [
     "",
-    "\\commands",
-    "\\commands\\1 Utility",
-    "\\commands\\1 Utility\\Information",
-    "\\commands\\3 Supporting",
     "\\events",
+    "\\events\\channel",
+    "\\events\\client",
+    "\\events\\client\\interaction",
+    "\\events\\client\\shard",
     "\\events\\guild",
-    "\\events\\guild\\ban"
+    "\\events\\guild\\applicationCommand",
+    "\\events\\pingu",
+    "\\events\\pingu\\chosen"
   ],
-  "SelectedNode": "\\commands\\1 Utility\\Information\\serverinfo.js",
+  "SelectedNode": "\\events\\userUpdate.js",
   "PreviewInSolutionExplorer": false
 }

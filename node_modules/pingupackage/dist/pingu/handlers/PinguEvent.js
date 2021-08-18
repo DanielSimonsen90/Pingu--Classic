@@ -15,8 +15,8 @@ exports.noAuditLog = `**No Audit Log Permissions**`;
 async function GetAuditLogs(guild, type, key, target = null, seconds = 1) {
     if (!guild.me || !guild.me.permissions.has('VIEW_AUDIT_LOG'))
         return exports.noAuditLog;
-    let now = new Date(Date.now());
-    let logs = (await guild.fetchAuditLogs({ type }));
+    let now = new Date();
+    let logs = await guild.fetchAuditLogs({ type });
     now.setSeconds(now.getSeconds() - seconds);
     let filteredLogs = logs.entries.filter(e => e.createdTimestamp > now.getTime());
     try {
@@ -110,7 +110,7 @@ function GoThroughObjectArray(type, preArr, curArr) {
 exports.GoThroughObjectArray = GoThroughObjectArray;
 async function HandleEvent(caller, client, ...args) {
     const event = client.events.get(caller);
-    // console.log({ event, caller })
+    console.log(caller);
     if (!event || !event.execute && !event.setContent)
         return; //Event not found or doesn't have any callbacks assigned
     async function execute() {
@@ -232,7 +232,7 @@ async function HandleEvent(caller, client, ...args) {
         if (embed)
             return client.log('event', embed);
         async function GetFromAuditLog() {
-            const noAuditLog = PinguEvent.noAuditLog;
+            const { noAuditLog } = PinguEvent;
             switch (caller) {
                 case 'channelCreate': return !args[0].guild ? args[0].recipient.tag : await GetInfo(args[0].guild, 'CHANNEL_CREATE');
                 case 'channelUpdate': return !args[0].guild ? args[0].recipient.tag : await GetInfo(args[0].guild, 'CHANNEL_UPDATE');
@@ -274,38 +274,28 @@ async function HandleEvent(caller, client, ...args) {
         }
         async function CreateEmbed() {
             let [user, guild, executed] = [
-                client.users.cache.find(u => u.tag == emitAssociator),
-                client.guilds.cache.find(g => g.name == emitAssociator),
+                client.users.cache.findByDisplayName(emitAssociator),
+                client.guilds.cache.findByDisplayName(emitAssociator),
                 new Date()
             ];
             const getDoubleDigit = (num) => num < 10 ? `0${num}` : `${num}`;
-            let defaultEmbed = new discord_js_1.MessageEmbed({
+            let embed = new discord_js_1.MessageEmbed({
                 title: event.name,
                 author: {
                     name: emitAssociator,
-                    iconURL: (!emitAssociator || emitAssociator == "Unknown" ? null :
-                        emitAssociator.match(/#\d{4}$/g) ?
-                            user && user.avatarURL() :
-                            guild && guild.iconURL())
+                    iconURL: (!emitAssociator || emitAssociator == "Unknown" ? null : user?.avatarURL() || guild?.iconURL())
                 },
-                color: await getColor(),
-                footer: {
-                    text: `${getDoubleDigit(executed.getHours())}.${getDoubleDigit(executed.getMinutes())}.${getDoubleDigit(executed.getSeconds())}:${executed.getMilliseconds()}`
-                }
+                color: getColor(),
+                footer: { text: `${getDoubleDigit(executed.getHours())}.${getDoubleDigit(executed.getMinutes())}.${getDoubleDigit(executed.getSeconds())}:${executed.getMilliseconds()}` }
             });
             if (event.setContent) {
                 await event.setContent(client, new discord_js_1.MessageEmbed(), ...args);
                 if (!event.content)
                     return null;
-                defaultEmbed = (function CombineEmbeds() {
-                    for (var key in event.content)
-                        if (event.content[key])
-                            defaultEmbed[key] = event.content[key];
-                    return defaultEmbed;
-                })();
+                embed = { ...embed, ...event.content };
             }
-            return !defaultEmbed.description && (defaultEmbed.fields && defaultEmbed.fields[0] || true) ? null : defaultEmbed;
-            async function getColor() {
+            return !embed.description && (embed.fields?.[0] || true) ? null : embed;
+            function getColor() {
                 if (event.name.includes('Create') || event.name.includes('Add'))
                     return PinguEvent.Colors.Create;
                 else if (event.name.includes('Delete') || event.name.includes('Remove'))

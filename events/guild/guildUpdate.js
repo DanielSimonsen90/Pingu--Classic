@@ -183,7 +183,7 @@ module.exports = new PinguEvent('guildUpdate',
             name: current.name,
             guildOwner: {
                 _id: current.ownerId,
-                name: current.owner.user.tag
+                name: current.owner().user.tag
             }
         }
         const pGuild = client.pGuilds.get(current);

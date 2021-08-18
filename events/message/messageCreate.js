@@ -123,14 +123,14 @@ module.exports = new PinguEvent('messageCreate',
                 var newEmote = await guild.emojis.create(emote, name).catch(err => {
                     if (err.message.endsWith('image: File cannot be larger than 256.0 kb.')) {
                         var issue = err.message.split(':')[0];
-                        var reply = issue.substring(0, issue.length - 1) + "\n";
-
                         let fileSplit = file.url.split('.');
                         let fileExtension = fileSplit[fileSplit.length - 1];
                         let compressOrDieUrl = 'https://compress-or-die.com/' +
                             (['jpeg', 'jpg'].includes(fileExtension) ? 'jpg' : fileExtension);
 
-                        reply += `Try compressing the file using: ${compressOrDieUrl}`;
+                        const reply = `${issue.substring(0, issue.length - 1)}\nTry compressing the file using: ${compressOrDieUrl}`;
+                        channel.send(reply);
+                        return null;
                     }
                     channel.send(err.message);
                     return null;
@@ -226,7 +226,7 @@ module.exports = new PinguEvent('messageCreate',
             return returnValue.setValue(true);
         }
         async function ExecuteAndLogCommand() {
-            let ConsoleLog = `User **${author.username}** executed command **${command.name}**, from ${(!guild ? `DMs and ` : `"${guild}", #${channel.name}, and `)}`;
+            let logMessage = `User **${author.username}** executed command **${command.name}**, from ${(!guild ? `DMs and ` : `"${guild}", #${channel.name}, and `)}`;
 
             //Attempt execution of command
             try {
@@ -240,7 +240,7 @@ module.exports = new PinguEvent('messageCreate',
                 var parameters = { client, message, args, pGuild, pAuthor, pGuildMember, pGuildClient }
 
                 let achievementParams = { ...parameters, response: await command.execute(parameters) };
-                ConsoleLog += `**succeeded!**`;
+                logMessage += `**succeeded!**`;
 
                 const achieverClasses = { user: author, guildMember: member, guild };
 
@@ -255,7 +255,7 @@ module.exports = new PinguEvent('messageCreate',
                     return; //Error occured, but cycled through permissions to find missing permission
                 else if (err.message == 'Missing Access') return message.channel.send(`I'm missing a permission to execute ${commandName}!`);
 
-                ConsoleLog += `**failed!**\nError: ${err}`;
+                logMessage += `**failed!**\nError: ${err}`;
 
                 client.log('error', `Trying to execute "${command.name}"!`, content, err, {
                     params: { message: { 
@@ -264,28 +264,28 @@ module.exports = new PinguEvent('messageCreate',
                         content,
                         guildId: guild?.id
                     } },
-                    additional: { args, ConsoleLog, commandName, command },
+                    additional: { args, ConsoleLog: logMessage, commandName, command },
                 });
             }
             console.log(" ");
-            client.log('console', ConsoleLog);
+            client.log('console', logMessage);
 
             async function FindPermission() {
                 //Find Danho and make check variable, to bypass "You don't have that permission!" (gotta abuse that PinguDev power)
-                let check = {
+                const check = { 
                     author: client.developers.get('Danho'),
                     channel,
                 };
 
                 //Check if client has permission to Manage Roles in Pingu Emote Server
-                let hasManageRoles = client.permissions.checkFor(check, 'MANAGE_ROLES') == client.permissions.PermissionGranted;
+                const hasManageRoles = client.permissions.checkFor(check, 'MANAGE_ROLES') == client.permissions.PermissionGranted;
                 if (hasManageRoles != client.permissions.PermissionGranted) return channel.send(hasManageRoles.toString());
 
-                let roles = {
+                const roles = {
                     clientRole: guild.me.roles.cache.find(r => r.managed),
                     adminRole: guild.roles.cache.find(r => r.name == `Pingu's Admin Permission`)
                 };
-                let permissionInfo = {
+                const permissionInfo = {
                     discordPermissions: Object.keys(DiscordPermissions).filter(permissionString => permissionString != DiscordPermissions.ADMINISTRATOR),
                     permission: "Missing Permission",
                     originalPermissions: roles.clientRole.permissions
@@ -293,15 +293,15 @@ module.exports = new PinguEvent('messageCreate',
 
                 for (let i = 0; permissionInfo.permission != "Missing Permission" || i == permissionInfo.discordPermissions.length - 1; i++) {
                     //Find new permission and check if client already has that permission
-                    let permission = permissionInfo.discordPermissions[i];
-                    let hasPermission = client.permissions.checkFor(check, permission) == client.permissions.PermissionGranted;
+                    const permission = permissionInfo.discordPermissions[i];
+                    const hasPermission = client.permissions.checkFor(check, permission) == client.permissions.PermissionGranted;
                     if (hasPermission) continue;
 
                     //Give Administrator permission
                     await guild.me.roles.add(roles.adminRole);
 
                     //Add the new permission onto original permissions
-                    let newPermissions = permissionInfo.originalPermissions.add(permission);
+                    const newPermissions = permissionInfo.originalPermissions.add(permission);
                     await roles.clientRole.setPermissions(newPermissions);
 
                     //Execute command again

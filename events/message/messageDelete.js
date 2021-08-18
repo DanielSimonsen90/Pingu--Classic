@@ -1,12 +1,12 @@
 const { ReactionRole, PinguEvent } = require("PinguPackage");
 
 module.exports = new PinguEvent('messageDelete',
-    async function setContent(client, embed, message) {
+    async function setContent(client, embed, { content, author, channel }) {
         return module.exports.content = embed.setDescription(
-            `${message.content ? 
-                `> ${message.content}\n- ${message.author}` : 
-                `Embed from ${message.author}`
-            }\n\n...was deleted from ${message.channel}.` 
+            `${content ? 
+                `> ${content}\n- ${author}` : 
+                `Embed from ${author}`
+            }\n\n...was deleted from ${channel}.` 
         )
     },
     async function execute(client, message) {

@@ -1,14 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-require("./GuildMember");
-require("./Message");
-require("./PartialTextBasedChannelFields");
-require("./TextChannel");
-require("./User");
 const discord_js_1 = require("discord.js");
 const voice_1 = require("@discordjs/voice");
 const ms_1 = require("ms");
-const PChannel_1 = require("../database/json/PChannel");
+const PChannel_1 = require("./database/json/PChannel");
 //#region Base
 discord_js_1.Base.prototype.doIn = function (callback, time) {
     const timeout = typeof time == 'number' ? time : ms_1.default(time);
