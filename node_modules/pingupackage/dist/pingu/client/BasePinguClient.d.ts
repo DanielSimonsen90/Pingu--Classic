@@ -1,83 +1,14 @@
-import { ActivityOptions, Client, ClientEvents, ClientOptions, Collection, Guild, Message, MessageEmbed, PermissionString, TextChannel, User } from "discord.js";
-export declare const Clients: {
-    PinguID: string;
-    BetaID: string;
-};
+import { ClientOptions, Collection, PermissionString } from "discord.js";
 import PinguHandler from "../handlers/PinguHandler";
-import { PinguCommandParams } from "../handlers/PinguCommand";
+import { DiscordIntentEvents, Events } from '../../helpers/IntentEvents';
 import IConfigRequirements from "../../helpers/Config";
-import { TimestampStyle } from '../../helpers/TimeLeftObject';
-import PinguCollection from '../collection/PinguCollection';
-import DeveloperCollection from '../collection/DeveloperCollection';
-import EmojiCollection from '../collection/EmojiCollection';
-import PinguGuildMemberCollection from '../collection/PinguGuildMemberCollection';
-import PermissionsManager from '../PermissionsManager';
-import PinguCacheManager from '../PinguCacheManager';
-import { IAmBadge, PinguBadge } from '../badge/PinguBadge';
-import PinguUser from '../user/PinguUser';
-import PinguGuild from '../guild/PinguGuild';
-declare type ConsoleLogType = 'log' | 'warn' | 'error';
-interface ErrorLogParams {
-    params?: PinguCommandParams | {};
-    trycatch?: {};
-    additional?: {};
-}
-interface LogTypes {
-    achievement: [content: MessageEmbed];
-    console: [message: string, type?: ConsoleLogType];
-    error: [message: string, messageContent?: string, err?: Error, params?: ErrorLogParams];
-    event: [content: MessageEmbed];
-    ping: [timestamp: number];
-    pGuild: [script: string, message: string, err?: Error];
-    pUser: [script: string, message: string, err?: Error];
-    raspberry: [];
-    tell: [sender: User, receiver: User, message: Message | MessageEmbed];
-}
-export declare type LogChannels = keyof LogTypes;
-export declare type SavedServerNames = 'Danho Misc' | 'Pingu Support' | 'Pingu Emotes' | 'Deadly Ninja';
-export declare abstract class BasePinguClient<Events extends ClientEvents = any> extends Client {
-    static Clients: {
-        PinguID: string;
-        BetaID: string;
-    };
-    constructor(config: IConfigRequirements, permissions: PermissionString[], subscribedEvents: Array<keyof ClientEvents>, dirname: string, commandsPath?: string, eventsPath?: string, options?: ClientOptions);
-    get id(): string;
-    get isLive(): boolean;
-    get member(): import("discord.js").GuildMember;
-    readonly DefaultEmbedColor = 3447003;
-    readonly invite = "https://discord.gg/gbxRV4Ekvh";
+import PinguClientShell from "./PinguClientShell";
+export declare abstract class BasePinguClient<Intents extends DiscordIntentEvents> extends PinguClientShell {
+    constructor(config: IConfigRequirements, permissions: Array<PermissionString>, intents: Array<keyof Intents>, subscribedEvents: Array<Events<Intents>>, dirname: string, commandsPath?: string, eventsPath?: string, options?: ClientOptions);
     commands: Collection<string, PinguHandler>;
-    events: Collection<string | keyof Events, PinguHandler>;
-    subscribedEvents: (string | keyof Events)[];
-    DefaultPrefix: string;
-    clients: Collection<"Live" | "Beta", User>;
-    permissions: PermissionsManager;
-    cache: PinguCacheManager;
-    config: IConfigRequirements;
-    logChannels: Collection<LogChannels, TextChannel>;
-    developers: DeveloperCollection;
-    savedServers: Collection<SavedServerNames, Guild>;
-    badges: Collection<IAmBadge, PinguBadge>;
-    pGuilds: PinguCollection<Guild, PinguGuild>;
-    pGuildMembers: Collection<Guild, PinguGuildMemberCollection>;
-    pUsers: PinguCollection<User, PinguUser>;
-    emotes: EmojiCollection;
-    private _logTypeHandlers;
-    setActivity(options?: ActivityOptions): import("discord.js").Presence;
-    log<Type extends LogChannels>(type: Type, ...args: LogTypes[Type]): Promise<Message>;
-    DBExecute<T>(callback: (mongoose: typeof import('mongoose')) => Promise<T>): Promise<T>;
-    DanhoDM(message: string): Promise<Message>;
-    timeFormat(timestamp: number, format?: TimestampStyle): string;
-    protected onceReady(): Promise<void>;
-    protected abstract handlePath(path: string, type: 'command' | 'event'): void;
-    private achievementLog;
-    private consoleLog;
-    private errorLog;
-    private eventLog;
-    private pingLog;
-    private pGuildLog;
-    private pUserLog;
-    private raspberryLog;
-    private tellLog;
+    events: Collection<keyof Intents, PinguHandler>;
+    subscribedEvents: Events<Intents>[];
+    get intents(): (keyof Intents)[];
+    private _intents;
 }
 export default BasePinguClient;

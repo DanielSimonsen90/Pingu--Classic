@@ -1,7 +1,7 @@
 import { UserAchievement, UserAchievementType } from "../items/UserAchievement";
 import { MessageEmbed, User } from "discord.js";
 import { AchievementConfigBase, AchievementBaseNotificationType } from "../config/AchievementConfigBase";
-import BasePinguClient from "../../client/BasePinguClient";
+import PinguClientShell from "../../client/PinguClientShell";
 
 export type UserAchievementNotificationType = AchievementBaseNotificationType | 'DM'
 export class UserAchievementConfig extends AchievementConfigBase {
@@ -12,7 +12,12 @@ export class UserAchievementConfig extends AchievementConfigBase {
 
     public notificationType: UserAchievementNotificationType;
 
-    public static async notify<Key extends keyof UserAchievementType>(client: BasePinguClient, achiever: User, achievement: UserAchievement<Key, UserAchievementType[Key]>, config: UserAchievementConfig) {
+    public static async notify<Key extends keyof UserAchievementType>(
+        client: PinguClientShell, 
+        achiever: User, 
+        achievement: UserAchievement<Key, UserAchievementType[Key]>, 
+        config: UserAchievementConfig
+    ) {
         return super._notify(client, achievement, percentage => new MessageEmbed({
             title: `🏆 Achievement Unlocked! 🏆\n${achievement.name}`,
             description: achievement.description,

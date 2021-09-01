@@ -1,5 +1,5 @@
-import { Client, Guild, Message, User, GuildMember } from 'discord.js';
-import BasePinguClient from '../client/BasePinguClient';
+import { Guild, Message, User, GuildMember } from 'discord.js';
+import PinguClientShell from '../client/PinguClientShell';
 
 import { AchieverTypes, AchievementBaseType } from "./items/AchievementBase";
 import { UserAchievement, UserAchievementType, UserAchievementTypeKey, UserAchievementCallbackParams } from "./items/UserAchievement";
@@ -11,6 +11,7 @@ import GuildMemberAchievementConfig from "./config/GuildMemberAchievementConfig"
 import GuildAchievementConfig from "./config/GuildAchievementConfig";
 
 import PAchievement from "../../database/json/PAchievement";
+import { DiscordIntentEvents } from '../../helpers/IntentEvents';
 
 interface Achievements {
     USER: UserAchievement<UserAchievementTypeKey, UserAchievementType[UserAchievementTypeKey]>,
@@ -37,14 +38,14 @@ interface AchievementCallbackParams {
     GUILDMEMBER: GuildMemberAchievementCallbackParams,
     GUILD: GuildAchievementCallbackParams
 }
-export async function AchievementCheckType
-    <AchieverType extends AchieverTypes,
-    AchievementType extends Achievements[AchieverType],
-    Key extends keyof AchievementTypes[AchieverType],
-    Type extends AchievementTypes[AchieverType][Key],
-    CallbackKey extends keyof AchievementCallbackParams[AchieverType]>
-    (
-        client: BasePinguClient,
+export async function AchievementCheckType<
+        AchieverType extends AchieverTypes,
+        AchievementType extends Achievements[AchieverType],
+        Key extends keyof AchievementTypes[AchieverType],
+        Type extends AchievementTypes[AchieverType][Key],
+        CallbackKey extends keyof AchievementCallbackParams[AchieverType],
+    >(
+        client: PinguClientShell,
         achieverType: AchieverType, 
         achiever: Achievers[AchieverType], 
         key: Key, 
@@ -166,10 +167,11 @@ export interface AchievementCheckData {
     guild?: Guild
 }
 
-export async function AchievementCheck
-<AchievementType extends GuildMemberAchievementType | GuildAchievementType | AchievementBaseType,
-Key extends keyof AchievementType, Type extends AchievementType[Key],>
-(client: BasePinguClient, data: AchievementCheckData, key: Key, type: Type, callback: any[]) {
+export async function AchievementCheck<
+    AchievementType extends GuildMemberAchievementType | GuildAchievementType | AchievementBaseType,
+    Key extends keyof AchievementType, 
+    Type extends AchievementType[Key],
+>(client: PinguClientShell, data: AchievementCheckData, key: Key, type: Type, callback: any[]) {
     if (data.user && !data.user.bot) {
         const pUser = client.pUsers.get(data.user);
         if (!pUser) return false;

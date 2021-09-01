@@ -14,21 +14,21 @@ export interface BaseManager<T> {
     cache: Collection<Snowflake, T>;
 }
 export declare type SavedItems = 'PinguUser' | 'PinguGuildMember' | 'PinguGuild';
-import BasePinguClient from '../client/BasePinguClient';
+import PinguClientShell from '../client/PinguClientShell';
 import Reason from '../../helpers/Reason';
 export declare abstract class IPinguCollection<T extends BaseT, PT extends BasePT> {
-    constructor(client: BasePinguClient, logChannelName: string, itemName: SavedItems, newPT: (item: T, client: BasePinguClient) => PT, typeManager: (client: BasePinguClient, pItem: PT) => BaseManager<T>);
-    protected _client: BasePinguClient;
+    constructor(client: PinguClientShell, logChannelName: string, itemName: SavedItems, newPT: (item: T, client: PinguClientShell) => PT, typeManager: (client: PinguClientShell, pItem: PT) => BaseManager<T>);
+    protected _client: PinguClientShell;
     protected _inner: Collection<Snowflake, PT>;
     protected _itemName: SavedItems;
     protected _logChannelName: string;
     get logChannel(): TextChannel;
-    protected _newPT: (item: T, client: BasePinguClient) => PT;
-    protected _typeManager: (client: BasePinguClient, pItem: PT) => BaseManager<T>;
+    protected _newPT: (item: T, client: PinguClientShell) => PT;
+    protected _typeManager: (client: PinguClientShell, pItem: PT) => BaseManager<T>;
     abstract add(item: T, scriptName: string, reason: string): Promise<PT>;
     abstract update(pItem: PT, scriptName: string, reason: string): Promise<PT>;
     abstract delete(item: T, scriptName: string, reason: string): Promise<this>;
-    abstract refresh(client?: BasePinguClient): Promise<this>;
+    abstract refresh(client?: PinguClientShell): Promise<this>;
     get(item: T): PT;
     array(): PT[];
     find(predicate: (pItem: PT, item: T, index: number, self: this) => boolean): PT;
