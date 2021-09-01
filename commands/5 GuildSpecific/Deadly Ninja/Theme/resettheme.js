@@ -74,6 +74,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('474129152065273866', 'bot-spam🤖');
                     collection.set('655020851216908289', 'music-bots📻');
                     collection.set('472484741023531012', 'memes😂');
+                    collection.set('855876897070252072', 'emotes🖼');
                     collection.set('752613661800923147', 'bot-updates🔔');
                     collection.set('801030503531806720', 'bot-status🔔');
                 })();
@@ -96,7 +97,6 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('405808852991475722', 'Under 4 ears');
                     collection.set('405809884265971723', 'Threesome');
                     collection.set('405846730005807110', 'Foursome');
-
                 })();
                 (function setGamingChannels() {
                     collection.set('473158504874508318', '🖥 Gaming Channels ⌨');
@@ -122,6 +122,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('753574175062491167', 'participants-chat💬');
                     collection.set('753574844284534845', 'participants-announcements📢');
                     collection.set('756845490716540938', 'Participant Voicechat');
+                    collection.set('826906019145187378', 'Karaoke');
                 })();
                 (function setManagement() {
                     collection.set('752613523858784264', '🔧 Management 🕵🏼');
@@ -132,6 +133,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                 (function setBigBoiGrouping() {
                     collection.set('752571680089702522', '🧍🏽 Big Boi Grouping 👫🏽');
                     collection.set('752571743016583350', 'owo-whots-dis');
+                    collection.set('866276469331329094', 'theme-grouping');
                     collection.set('752572242805653709', 'management-grouping');
                     collection.set('752572272778149908', 'personal-grouping');
                     collection.set('752572303983771770', 'group-grouping');
@@ -168,8 +170,6 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                 })();
                 (function setManagement() {
                     collection.set('549611213374488578', new Role("—=—=—= Managment Roles =—=—=—", 0));
-                    collection.set('762403363727736844', new Role("Creator", '#b99bf3'));
-                    collection.set('699870814421516301', new Role("Big Boi", '#fab54b'));
                     collection.set('497439032138006530', new Role("Slaves with Perms", 0));
                     collection.set('682547571721371679', new Role("All-Seeing Eye", 0));
                     collection.set('720894710092267550', new Role("HAdmins", 0));
@@ -180,16 +180,19 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                 (function setPersonal() {
                     collection.set('752520063679987732', new Role("—=—=—= Personal Roles =—=—=—", 0));
                     collection.set('719882559562973195', new Role("Giveaway Winner", '#d9a760'));
-                    collection.set('755766216701771776', new Role("Flyttemand m. speciale i IT", '#ffed00'));
-                    collection.set('778528112748396554', new Role("Mr. Nice Guy", '#000001'));
-                    collection.set('800995896048746506', new Role("OMNOM", '#b900ff'));
                     collection.set('765700083890257940', new Role("An Actual Demon", '#811919'));
-                    collection.set('761174118946701373', new Role("Brorzmandskabsleder", '#f3f3f3'));
                     collection.set('801837541945769985', new Role("Autism", '#e3a1ff'));
+                    collection.set('761174118946701373', new Role("Brorzmandskabsleder", '#f3f3f3'));
+                    collection.set('699870814421516301', new Role("Big Boi", '#fab54b'));
+                    collection.set('880024314114629672', new Role('Cat 🐈', '#9E1B55'))
+                    collection.set('762403363727736844', new Role("Creator", '#b99bf3'));
                     collection.set('716613307624062977', new Role("Dad", '#4671b5'));
                     collection.set('756406381904396288', new Role("Elektrikker pleb", '#ff00d9'));
-                    collection.set('800476348995993650', new Role("Member #69", '#ff00de'));
+                    collection.set('755766216701771776', new Role("Flyttemand m. speciale i IT", '#ffed00'));
                     collection.set('773524857001476096', new Role("Granddad", '#ff2700'));
+                    collection.set('800476348995993650', new Role("Member #69", '#ff00de'));
+                    collection.set('778528112748396554', new Role("Mr. Nice Guy", '#000001'));
+                    collection.set('800995896048746506', new Role("OMNOM", '#b900ff'));
                     collection.set('754454781178806422', new Role("Pin this BITCh", 0));
                     collection.set('754454781178806422', new Role("Professional Fortnite Gaymer", '#71368A'));
                     collection.set('737073804890734654', new Role("RobloxOwner", '#aefff4'));
@@ -197,6 +200,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('756562029271318530', new Role("Test Subject", '#F1C40F'));
                     collection.set('802955952361308211', new Role("The Best Little Sister", '#a2bcff'));
                     collection.set('804324247287496755', new Role("The Grinder", '#ff00ed'));
+                    collection.set('873935090806300733', new Role("Toxic", "965a96"));
                     collection.set('796692899970416640', new Role("Unrespectable Gamer", '#7359B6'));
                 })();
                 (function setGrouping() {
@@ -207,16 +211,10 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('639191645560111119', new Role("Booster Bois", '#00ffff'));
                     collection.set('761173928198012948', new Role("Brorzmandskabet", '#6273c2'));
                     collection.set('772804441203933194', new Role("Content Creator", '#9147ff'));
-                    collection.set('803247641035014175', new Role("Danhoe Family", '#ff5e00'));
                     collection.set('651046415161622528', new Role("Datatekniker m. Specialer", '#81553c'));
-                    collection.set('736608812307316868', new Role("Fuck-Off Boomer Gang", '#95A5A6'));
                     collection.set('796027540136656946', new Role("Kids", '#ffa7ef'));
-                    collection.set('720895938163376128', new Role("Krævende Lillesøster", '#ff00ca'));
-                    collection.set('641213873948590101', new Role("IT-Fattehoved", '#06b12c'));
                     collection.set('631563372428787735', new Role("Pornhub Premium paid by Mommy", '#F1C40F'));
-                    collection.set('707891197045112922', new Role("Red Circle", '#c90000'));
                     collection.set('760822983848755221', new Role("SKP Bois", '#F1C40F'));
-                    collection.set('773087069395484683', new Role("Still Sword Staff", 3447003));
                     collection.set('724517363281690686', new Role("Tweeka Family", '#8c00ff'));
                     collection.set('504717717731934229', new Role("Weebs", '#a641f7'));
                     collection.set('801101308887040032', new Role("woman ?", '#979C9F'));
@@ -229,8 +227,8 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                     collection.set('794951298062745620', new Role("Genshin Impact", '#AD1457'));
                     collection.set('476050602720231435', new Role("GTA", '#fc2727'));
                     collection.set('835124529621368843', new Role('League of Legends', '#ecdb3e'));
+                    collection.set('773087069395484683', new Role("Still Sword Staff", 3447003));
                     collection.set('711355295250513950', new Role("PixelSpark Bois", '#95A5A6'));
-                    collection.set('738470298709393468', new Role("HeartGolderz", '#e3b353'));
                     collection.set('494753197076905995', new Role("Minequafters", '#59ec88'));
                     collection.set('405790775188783107', new Role("Overwatchers", '#ffb20e'));
                     collection.set('768906510012383242', new Role("Phasmophobia", '#f0f0f0'));
@@ -294,7 +292,9 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                 if (!currentRole || currentRole.name == role.name && (typeof role.color == 'string' && currentRole.hexColor == role.color || currentRole.color == role.color)) continue;
 
                 if (currentRole.name != role.name) await currentRole.setName(role.name, reason);
-                if (typeof role.color == 'string' && currentRole.hexColor != role.color || currentRole.color != role.color) await currentRole.setColor(role.color, reason);
+                if (typeof role.color == 'string' && currentRole.hexColor != role.color || currentRole.color != role.color) await currentRole.setColor(role.color, reason).catch(err => {
+                    client.log('error', `Unable to change color of ${role.name}`, message.content, err, { role, currentRole })
+                });
             }
         })(),
         (async function setDefaults() {

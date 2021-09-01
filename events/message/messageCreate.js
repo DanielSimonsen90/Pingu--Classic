@@ -259,12 +259,13 @@ module.exports = new PinguEvent('messageCreate',
 
                 client.log('error', `Trying to execute "${command.name}"!`, content, err, {
                     params: { message: { 
+                        authorId: author.id,
                         channelId: channel.id, 
                         id: message.id,
+                        guildId: guild?.id,
                         content,
-                        guildId: guild?.id
                     } },
-                    additional: { args, ConsoleLog: logMessage, commandName, command },
+                    additional: { args, logMessage, commandName, command },
                 });
             }
             console.log(" ");

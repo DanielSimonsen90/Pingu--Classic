@@ -16,7 +16,8 @@ class TimeLeftObject {
         this.endsAt = EndsAt;
         let timeDifference = Math.round(EndsAt.getTime() - Now.getTime());
         //How long is each time module in ms
-        let second = 1000;
+        let millisecond = 1;
+        let second = millisecond * 1000;
         let minute = second * 60;
         let hour = minute * 60;
         let day = hour * 24;

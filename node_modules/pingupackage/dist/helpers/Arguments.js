@@ -3,14 +3,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Arguments = exports.Mention = void 0;
 const discord_js_1 = require("discord.js");
 class Mention {
-    constructor(prop, v, i, types) {
+    constructor(prop, v, i, types, args) {
         this.mentionType = prop.toUpperCase();
-        this.value = types[prop].test(v);
+        this.regex = types[prop];
+        this.value = this.regex.test(v);
         this.index = i;
+        this.argument = (remove = true) => args.get(this.regex, remove);
     }
     mentionType;
     value;
     index;
+    regex;
+    argument(remove = true) {
+        return null;
+    }
 }
 exports.Mention = Mention;
 class Arguments extends Array {
@@ -37,29 +43,46 @@ class Arguments extends Array {
             customEmojiAnimated: new RegExp(`<a:\\w{2,}:\\d{${snowflakeLength}}>` || /<a:\w{2,}:\d{18}>/),
             timestamp: new RegExp(`<t:\\d{${unixLength}}((:[tTdDfFR]{1})?)>` || /<t:\d{10}((:[tTdDfFR]{1})?)>/),
             image: new RegExp(`https://cdn.discordapp.com/` || /https:\/\/cdn.discordapp.com\//),
-            mentions(v, i) { return null; }
         };
-        types.mentions = (v, i) => Object.keys(types)
-            .filter(prop => prop != 'mentions')
-            .map(prop => new Mention(prop, v, i, types));
         types.emoji = types.unicodeEmoji || types.customEmoji || types.customEmojiAnimated;
-        const result = this.map(types.mentions).reduce((result, mentions) => {
+        const mentionTypes = Object.keys(types).filter(prop => prop != 'mentions');
+        return [...this, ...mentionTypes]
+            .map((v, i) => mentionTypes.map(prop => new Mention(prop, v, i, types, this)))
+            .reduce((result, mentions) => {
             for (const m of mentions) {
                 if (!result.has(m.mentionType) || !result.get(m.mentionType).value)
                     result.set(m.mentionType, m);
             }
             return result;
         }, new discord_js_1.Collection());
-        console.log(result);
-        return result;
     }
-    get(match) {
-        const i = typeof match == 'string' ? this.findIndex(v => v == match) : this.findIndexRegex(match.source);
-        return this.splice(i)[0];
+    /**
+     * Finds and cuts an element matching match
+     * @param match Comparer
+     * @param remove Default: true
+     * @returns Match
+     */
+    get(match, remove = true) {
+        const item = this.find(v => typeof match != 'string' && match.test(v) || match == v);
+        return remove ? this.remove(item) : item;
     }
-    findIndexRegex(regexValue) {
+    /**
+     * Finds and cuts all elements matching match
+     * @param match Comparer
+     * @param remove Default: true
+     * @returns Match
+     */
+    getAll(match, remove = true) {
+        const matches = this.filter(v => typeof match != 'string' && match.test(v) || match == v);
+        if (!remove)
+            return matches;
+        for (const item of matches) {
+            this.remove(item);
+        }
+    }
+    findIndexRegex(value) {
         for (const item of this) {
-            if (new RegExp(regexValue).test(item))
+            if (new RegExp(value).test(item))
                 return this.indexOf(item);
         }
     }
@@ -68,6 +91,11 @@ class Arguments extends Array {
             this[item] = item.toLowerCase();
         }
         return this;
+    }
+    remove(item) {
+        if (!item || this.indexOf(item) == -1)
+            return null;
+        return this.splice(this.indexOf(item), 1)[0];
     }
 }
 exports.Arguments = Arguments;

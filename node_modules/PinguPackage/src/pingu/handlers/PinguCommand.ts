@@ -18,21 +18,23 @@ export interface PinguCommandParams {
     pGuild?: PinguGuild,
     pGuildClient?: PClient,
 }
+export interface PinguCommandData {
+    usage: string;
+    guildOnly?: false;
+    specificGuildID?: Snowflake;
+    examples?: string[];
+    permissions: PermissionString[];
+    aliases?: string[];
+    mustBeBeta?: false;
+}
 
 export type ExecuteReturns = void | Message;
 
 import PinguHandler from './PinguHandler'
 export class PinguCommand extends PinguHandler {
-    constructor(name: string, category: CommandCategoriesType, description: string, data: {
-        usage: string, 
-        guildOnly?: false,
-        specificGuildID?: Snowflake,
-        examples?: string[],
-        permissions: PermissionString[],
-        aliases?: string[],
-        mustBeBeta?: false,
-    }, 
-    execute: (params: PinguCommandParams) => Promise<ExecuteReturns>) 
+    constructor(name: string, category: CommandCategoriesType, description: string, 
+        data: PinguCommandData, 
+        execute: (params: PinguCommandParams) => Promise<ExecuteReturns>) 
     { 
         //Must need these
         super(name);
@@ -59,6 +61,21 @@ export class PinguCommand extends PinguHandler {
             this.examples = [""];
             this.aliases = new Array<string>();
             this.mustBeBeta = false;
+        }
+
+        const throwError = function<Prop extends keyof PinguCommandData>(prop: Prop, type: 'array' | 'string' | 'boolean') {
+            throw new Error(`"${prop}" for ${name} is not typeof ${type}!`)
+        };
+
+        if (data) {
+            if (this.permissions && !this.permissions.push) throwError('permissions', 'array');
+
+            if (this.usage && typeof this.usage != 'string') throwError('usage', 'string');
+            if (this.specificGuildID && typeof this.specificGuildID != 'string') throwError('specificGuildID', 'string');
+            if (this.guildOnly && typeof this.guildOnly != 'boolean') throwError('guildOnly', 'boolean');
+            if (this.mustBeBeta && typeof this.mustBeBeta != 'boolean') throwError('mustBeBeta', 'boolean');
+            if (this.examples && !this.examples.push) throwError('examples', 'array');
+            if (this.aliases && !this.aliases.push) throwError('aliases', 'array');
         }
     }
     

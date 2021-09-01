@@ -3,7 +3,7 @@ const { PinguCommand, TimeLeftObject } = require('PinguPackage');
 const ms = require('ms');
 
 module.exports = new PinguCommand('slowmode', 'Utility', 'Sets the slowmode to specified argument in channel', {
-    usage: ['[#channel] <slowmode in seconds>'],
+    usage: '[#channel] <slowmode in seconds>',
     guildOnly: true,
     permissions: ['MANAGE_CHANNELS']
 }, async ({ client, message, args, pGuildClient }) => {

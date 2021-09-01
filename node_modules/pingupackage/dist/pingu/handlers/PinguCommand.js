@@ -37,6 +37,25 @@ class PinguCommand extends PinguHandler_1.default {
             this.aliases = new Array();
             this.mustBeBeta = false;
         }
+        const throwError = function (prop, type) {
+            throw new Error(`"${prop}" for ${name} is not typeof ${type}!`);
+        };
+        if (data) {
+            if (this.permissions && !this.permissions.push)
+                throwError('permissions', 'array');
+            if (this.usage && typeof this.usage != 'string')
+                throwError('usage', 'string');
+            if (this.specificGuildID && typeof this.specificGuildID != 'string')
+                throwError('specificGuildID', 'string');
+            if (this.guildOnly && typeof this.guildOnly != 'boolean')
+                throwError('guildOnly', 'boolean');
+            if (this.mustBeBeta && typeof this.mustBeBeta != 'boolean')
+                throwError('mustBeBeta', 'boolean');
+            if (this.examples && !this.examples.push)
+                throwError('examples', 'array');
+            if (this.aliases && !this.aliases.push)
+                throwError('aliases', 'array');
+        }
     }
     description;
     usage;

@@ -1,0 +1,39 @@
+{
+  "err": {},
+  "params": {
+    "params": {
+      "message": {
+        "authorId": "245572699894710272",
+        "channelId": "474129152065273866",
+        "id": "881901283668262972",
+        "guildId": "405763731079823380",
+        "content": "b*resettheme"
+      }
+    },
+    "additional": {
+      "args": [],
+      "logMessage": "User **Danho** executed command **resettheme**, from \"The Zoo\", #bot-spam🤖, and **failed!**\nError: TypeError [COLOR_CONVERT]: Unable to convert color to a number.",
+      "commandName": "resettheme",
+      "command": {
+        "name": "resettheme",
+        "path": "C:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Discord\\Bots\\Pingu\\Pingu\\commands/5 GuildSpecific/Deadly Ninja/Theme/resettheme.js",
+        "description": "Resets theme in Deadly Ninja",
+        "usage": "",
+        "guildOnly": true,
+        "category": "GuildSpecific",
+        "specificGuildID": "405763731079823380",
+        "examples": [
+          ""
+        ],
+        "permissions": [
+          "MANAGE_CHANNELS",
+          "MANAGE_ROLES",
+          "MANAGE_GUILD",
+          "SEND_MESSAGES"
+        ],
+        "aliases": [],
+        "mustBeBeta": false
+      }
+    }
+  }
+}

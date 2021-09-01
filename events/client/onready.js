@@ -7,8 +7,7 @@ const ms = require('ms');
 
 module.exports = new PinguEvent('onready', null,
     async function execute(client) {
-        
-
+        client.setActivity();
         console.log('\n--== Client Info ==--');
         client.log('console', `Loaded ${client.commands.size} commands & ${client.events.size} events\n`)
 
@@ -24,7 +23,6 @@ module.exports = new PinguEvent('onready', null,
         console.log(`Logged in as ${client.user.username}`);
         console.log(`--== | == - == | ==--\n`);
 
-        client.setActivity();
         setInterval(() => client.setActivity(), ms('24h'));
         
         //Log latency every minute

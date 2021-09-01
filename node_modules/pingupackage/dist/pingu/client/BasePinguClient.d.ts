@@ -62,8 +62,9 @@ export declare abstract class BasePinguClient<Events extends ClientEvents = any>
     pGuildMembers: Collection<Guild, PinguGuildMemberCollection>;
     pUsers: PinguCollection<User, PinguUser>;
     emotes: EmojiCollection;
+    private _logTypeHandlers;
     setActivity(options?: ActivityOptions): import("discord.js").Presence;
-    log<Type extends LogChannels, LogMethod extends (channel: TextChannel, ...args: LogTypes[Type]) => Promise<Message>>(type: Type, ...args: LogTypes[Type]): Promise<Message>;
+    log<Type extends LogChannels>(type: Type, ...args: LogTypes[Type]): Promise<Message>;
     DBExecute<T>(callback: (mongoose: typeof import('mongoose')) => Promise<T>): Promise<T>;
     DanhoDM(message: string): Promise<Message>;
     timeFormat(timestamp: number, format?: TimestampStyle): string;

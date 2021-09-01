@@ -1,7 +1,7 @@
 const { PinguCommand,  TimeLeftObject } = require('PinguPackage');
 
 module.exports = new PinguCommand('uptime', 'Utility', `Shows the uptime for Pingu`, {
-    aliases: "online",
+    aliases: ["online"],
 }, async ({ client, message, args, pAuthor, pGuild, pGuildClient }) => {
     const now = Date.now();
     const uptimestamp = now + client.uptime;

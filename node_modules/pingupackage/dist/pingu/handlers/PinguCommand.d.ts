@@ -22,18 +22,19 @@ export interface PinguCommandParams {
     pGuild?: PinguGuild;
     pGuildClient?: PClient;
 }
+export interface PinguCommandData {
+    usage: string;
+    guildOnly?: false;
+    specificGuildID?: Snowflake;
+    examples?: string[];
+    permissions: PermissionString[];
+    aliases?: string[];
+    mustBeBeta?: false;
+}
 export declare type ExecuteReturns = void | Message;
 import PinguHandler from './PinguHandler';
 export declare class PinguCommand extends PinguHandler {
-    constructor(name: string, category: CommandCategoriesType, description: string, data: {
-        usage: string;
-        guildOnly?: false;
-        specificGuildID?: Snowflake;
-        examples?: string[];
-        permissions: PermissionString[];
-        aliases?: string[];
-        mustBeBeta?: false;
-    }, execute: (params: PinguCommandParams) => Promise<ExecuteReturns>);
+    constructor(name: string, category: CommandCategoriesType, description: string, data: PinguCommandData, execute: (params: PinguCommandParams) => Promise<ExecuteReturns>);
     description: string;
     usage: string;
     guildOnly: boolean;

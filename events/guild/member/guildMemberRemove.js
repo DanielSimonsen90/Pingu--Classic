@@ -19,7 +19,7 @@ module.exports = new PinguEvent('guildMemberRemove',
 
         if (!client.isLive && member.guild.members.cache.has(pingu.id) && pingu.presence.status == 'online') return;
 
-        let welcomeChannel = await require('./guildMemberAdd').getWelcomeChannel(client, guild);
+        let welcomeChannel = guild.welcomeChannel()
         if (welcomeChannel) welcomeChannel.send(`**${displayName}** (${user}) has left ${guild}...`);
 
         (async function UpdateSharedServers() {

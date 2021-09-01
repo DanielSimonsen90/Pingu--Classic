@@ -9,7 +9,7 @@ export declare class PinguGuildMemberCollection extends IPinguCollection<GuildMe
     add(item: GuildMember, scriptName: string, reason?: string): Promise<PinguGuildMember>;
     update(pItem: PinguGuildMember, scriptName: string, reason: string): Promise<PinguGuildMember>;
     delete(item: GuildMember, scriptName: string, reason: string): Promise<this>;
-    refresh(client?: BasePinguClient): Promise<this>;
+    refresh(client?: BasePinguClient, startUp?: boolean): Promise<this>;
     get(item: GuildMember): PinguGuildMember;
 }
 export default PinguGuildMemberCollection;

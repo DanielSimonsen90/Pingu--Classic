@@ -53,7 +53,7 @@ export class PinguGuildMemberCollection extends IPinguCollection<GuildMember, Pi
         this._client.pGuilds.update(this.pGuild, 'guildMemberRemove', `**${this.pGuild.name}**'s members, after **${item.user.tag}** left the guild.`);
         return this;
     }
-    public async refresh(client?: BasePinguClient): Promise<this> {
+    public async refresh(client?: BasePinguClient, startUp?: boolean): Promise<this> {
         if (client) this._client = client;
         this._guild = this._client.guilds.cache.get(this._guild.id);
         
@@ -64,7 +64,7 @@ export class PinguGuildMemberCollection extends IPinguCollection<GuildMember, Pi
             this._inner.set(id, member);
         }
 
-        this._client.log('console', `Successfull refreshed entries for **PinguGuildMember**.`);
+        if (!startUp) this._client.log('console', `Successfull refreshed entries for **PinguGuildMember**.`);
         return this;
     }
 

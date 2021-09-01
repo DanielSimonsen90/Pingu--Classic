@@ -110,7 +110,7 @@ function GoThroughObjectArray(type, preArr, curArr) {
 exports.GoThroughObjectArray = GoThroughObjectArray;
 async function HandleEvent(caller, client, ...args) {
     const event = client.events.get(caller);
-    console.log(caller);
+    // console.log(caller)
     if (!event || !event.execute && !event.setContent)
         return; //Event not found or doesn't have any callbacks assigned
     async function execute() {
@@ -152,6 +152,8 @@ async function HandleEvent(caller, client, ...args) {
         });
     }
     const achievementOptions = (parameters = {}, type) => {
+        if (!parameters)
+            return null;
         switch (type) {
             case 'User': return [
                 parameters.author, parameters.user, parameters.inviter, FindClass("User"),

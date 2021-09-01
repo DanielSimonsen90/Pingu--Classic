@@ -24,12 +24,13 @@ module.exports = new PinguEvent('userUpdate',
     },
     async function execute(client, previous, current) {
         client.developers.update(current);
+        const pUser = client.pUsers.get(current);
+        if (!pUser) return;
 
         const relevant = {
             avatar: current.avatarURL(),
             tag: current.tag
         };
-        const pUser = client.pUsers.get(current);
 
         const updated = Object.keys(relevant).reduce((updated, prop) => {
             if (pUser[prop] != relevant[prop])

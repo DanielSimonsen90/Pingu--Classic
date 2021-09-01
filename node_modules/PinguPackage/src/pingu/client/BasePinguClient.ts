@@ -45,6 +45,7 @@ interface LogTypes {
     tell: [sender: User, receiver: User, message: Message | MessageEmbed]
 }
 export type LogChannels = keyof LogTypes;
+type LogMethod = (channel: TextChannel, ...args: LogTypes[LogChannels]) => Promise<Message>
 export type SavedServerNames = 'Danho Misc' | 'Pingu Support' | 'Pingu Emotes' | 'Deadly Ninja';
 class SavedServer {
     constructor(name: SavedServerNames, id: Snowflake) {
@@ -69,6 +70,24 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
         options?: ClientOptions
     ) {
         super(options);
+
+        this.log = this.log.bind(this);
+        // this.DBExecute = this.DBExecute.bind(this);
+        // this.DanhoDM = this.DanhoDM.bind(this);
+        // this.timeFormat = this.timeFormat.bind(this);
+        // this.onceReady = this.onceReady.bind(this);
+        // this.handlePath =  this.handlePath.bind(this);
+
+        // this.achievementLog = this.achievementLog.bind(this);
+        this.consoleLog = this.consoleLog.bind(this);
+        this.errorLog = this.errorLog.bind(this);
+        // this.eventLog = this.eventLog.bind(this);
+        // this.pingLog = this.pingLog.bind(this);
+        // this.pGuildLog = this.pGuildLog.bind(this);
+        // this.pUserLog = this.pUserLog.bind(this);
+        // this.raspberryLog = this.raspberryLog.bind(this);
+        // this.tellLog = this.tellLog.bind(this);
+
         this.config = config;
         this.subscribedEvents = subscribedEvents;
         this.permissions = new PermissionsManager(this, permissions);
@@ -116,6 +135,10 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
     public pGuildMembers: Collection<Guild, PinguGuildMemberCollection>;
     public pUsers: PinguCollection<User, PinguUser>;
     public emotes: EmojiCollection;
+    //#endregion
+
+    //#region Private properties
+    private _logTypeHandlers: Collection<LogChannels, LogMethod>;
     //#endregion
 
     //#region Public Overwritten methods
@@ -166,19 +189,9 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
     //#endregion
 
     //#region Public methods
-    public async log<Type extends LogChannels, LogMethod extends (channel: TextChannel, ...args: LogTypes[Type]) => Promise<Message>>(type: Type, ...args: LogTypes[Type]): Promise<Message> {
+    public async log<Type extends LogChannels>(type: Type, ...args: LogTypes[Type]): Promise<Message> {
         const logChannel = this.logChannels.get(type);
-        return new Collection<LogChannels, LogMethod>([
-            ['achievement', this.achievementLog as any],
-            ['console', this.consoleLog as any],
-            ['error', this.errorLog as any],
-            ['event', this.eventLog as any],
-            ['pGuild', this.pGuildLog as any],
-            ['pUser', this.pUserLog as any],
-            ['ping', this.pingLog as any],
-            ['raspberry', this.raspberryLog as any],
-            ['tell', this.tellLog as any]
-        ]).get(type)(logChannel, ...args);
+        return this._logTypeHandlers.get(type)(logChannel, ...args);
     }
     public async DBExecute<T>(callback: (mongoose: typeof import('mongoose')) => Promise<T>): Promise<T> { return DBExecute(this, callback); }
     public async DanhoDM(message: string) {
@@ -198,34 +211,42 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
     protected async onceReady() {
         this.DefaultPrefix = this.isLive || !this.config.BetaPrefix ? this.config.Prefix : this.config.BetaPrefix;
 
-        this.savedServers = (() => { 
-            return new Collection<SavedServerNames, Guild>([
-                new SavedServer('Danho Misc', '460926327269359626'),
-                new SavedServer('Pingu Support', '756383096646926376'),
-                new SavedServer('Pingu Emotes', '791312245555855401'),
-                new SavedServer('Deadly Ninja', '405763731079823380')
-            ].map(({ name, id }) => [name, this.guilds.cache.get(id)]))
-        })();
+        this.savedServers = new Collection<SavedServerNames, Guild>([
+            new SavedServer('Danho Misc', '460926327269359626'),
+            new SavedServer('Pingu Support', '756383096646926376'),
+            new SavedServer('Pingu Emotes', '791312245555855401'),
+            new SavedServer('Deadly Ninja', '405763731079823380')
+        ].map(({ name, id }) => [name, this.guilds.cache.get(id)]))
 
-        this.logChannels = (() => { 
-            return new Collection<LogChannels, TextChannel>(
-                new Collection<LogChannels, string>([
-                    ['achievement', 'achievement-log-🏆'],
-                    ['console', 'console-log-📝'],
-                    ['error', 'error-log-⚠'],
-                    ['event', 'event-log-📹'],
-                    ['pGuild', 'pingu-guild-log-🏡'],
-                    ['pUser', 'pingu-user-log-🧍'],
-                    ['ping', 'ping-log-🏓'],
-                    ['raspberry', 'raspberry-log-🍇'],
-                    ['tell', 'tell-log-💬']
-                ]).map((channelName, key) => {
-                    const logChannels = this.savedServers.get('Pingu Support').channels.cache.find(c => c.name.includes('Pingu Logs')) as CategoryChannel;
-                    const logChannel = logChannels.children.find(c => c.name == channelName) as TextChannel;
-                    return [key, logChannel];
-                })
-            );
-        })();
+        this.logChannels = new Collection<LogChannels, TextChannel>(
+            new Collection<LogChannels, string>([
+                ['achievement', 'achievement-log-🏆'],
+                ['console', 'console-log-📝'],
+                ['error', 'error-log-⚠'],
+                ['event', 'event-log-📹'],
+                ['pGuild', 'pingu-guild-log-🏡'],
+                ['pUser', 'pingu-user-log-🧍'],
+                ['ping', 'ping-log-🏓'],
+                ['raspberry', 'raspberry-log-🍇'],
+                ['tell', 'tell-log-💬']
+            ]).map((channelName, key) => {
+                const logChannels = this.savedServers.get('Pingu Support').channels.cache.find(c => c.name.includes('Pingu Logs')) as CategoryChannel;
+                const logChannel = logChannels.children.find(c => c.name == channelName) as TextChannel;
+                return [key, logChannel];
+            })
+        );
+        this._logTypeHandlers = new Collection<LogChannels, LogMethod>(([
+            ['achievement', this.achievementLog as LogMethod],
+            ['console', this.consoleLog as LogMethod],
+            ['error', this.errorLog as LogMethod],
+            ['event', this.eventLog as LogMethod],
+            ['pGuild', this.pGuildLog as LogMethod],
+            ['pUser', this.pUserLog as LogMethod],
+            ['ping', this.pingLog as LogMethod],
+            ['raspberry', this.raspberryLog as any as LogMethod],
+            ['tell', this.tellLog as LogMethod]
+        ] as [LogChannels, LogMethod][])
+        .map(([type, logMethod]) => [type, logMethod.bind(this)]));
 
         this.clients = new Collection([
             ['Live', this.isLive ? this.user : await this.users.fetch(Clients.PinguID)],
@@ -242,20 +263,19 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
         }))
 
         this.emotes.refresh(this);
-        
         await this.pGuilds.refresh(this);
-        await this.pUsers.refresh(this);
-
         this.pGuildMembers = new Collection((await Promise.all(this.guilds.cache.map(async guild => ({
-            guild, collection: await new PinguGuildMemberCollection(this, 'pingu-guild-log', guild).refresh()
+            guild, collection: await new PinguGuildMemberCollection(this, 'pingu-guild-log', guild).refresh(this, true)
         })))).map(({ guild, collection }) => [guild, collection]));
-
+        this.log('console', `Successfull refreshed all entries for **PinguGuildMember**.`)
+        await this.pUsers.refresh(this);
+        
         this.emit('onready', this);
     }
     protected abstract handlePath(path: string, type: 'command' | 'event'): void;
     //#endregion
 
-    //#region Log Methods
+    //#region Private Log Methods
     private async achievementLog(channel: TextChannel, achievementEmbed: MessageEmbed) {
         return channel.sendEmbeds(achievementEmbed);
     }
@@ -265,8 +285,6 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
         return channel.send(message);
     }
     private async errorLog(channel: TextChannel, message: string, messageContent?: string, err?: Error, params?: ErrorLogParams): Promise<Message> {
-        const that = channel.client as BasePinguClient;
-
         //Get #error-log
         let errorPath = './errors'; 
         if (!fs.existsSync(errorPath)) {
@@ -275,10 +293,10 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
         }
         
         const errorID = fs.readdirSync(errorPath).filter(file => file.endsWith('.json')).length;
-        const consoleLogChannel = that.logChannels.get('console');
+        const consoleLogChannel = this.logChannels.get('console');
 
         type FileExtension = 'txt' | 'json';
-        const fsCallback = (fileExtension: FileExtension) => that.consoleLog(consoleLogChannel, `Created ${fileExtension} file for error #${errorID}.`)
+        const fsCallback = (fileExtension: FileExtension) => this.consoleLog(consoleLogChannel, `Created ${fileExtension} file for error #${errorID}.`)
         const jsonErrorContent = JSON.stringify({ err, params }, null, 2);
         fs.writeFile(`${errorPath}/${errorID}.json`, jsonErrorContent, () => fsCallback('json'));
         
@@ -296,16 +314,7 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
                 return channel.sendFiles(new MessageAttachment(filePath, `Error ${errorID}.${fileExtension}`));
             }
         }
-        let sent = await sendMessage(getErrorMessage(message, messageContent, err)).catch(err => sentCatcher(err, 'txt'));
-        let paramsSent = await sendMessage("```\n[Parameters]:\n" + jsonErrorContent + "\n```").catch(err => sentCatcher(err, 'json'));
-
-        //Add to errorCache
-        that.cache.errors.set(errorID, [sent, paramsSent]);
-
-        //Send original errror message
-        return sent;
-
-        function getErrorMessage(message: string, messageContent?: string, err?: Error) {
+        const getErrorMessage = (function (message: string, messageContent?: string, err?: Error) {
             let result = {
                 errorID: `Error #${errorID}\n`,
                 format: "```\n",
@@ -324,28 +333,38 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
                 result.format
             );
 
-            that.consoleLog(consoleLogChannel, returnMessage);
+            this.consoleLog(consoleLogChannel, returnMessage);
             return returnMessage
-        }
+        }).bind(this);
+
+        let sent = await sendMessage(getErrorMessage(message, messageContent, err)).catch(err => sentCatcher(err, 'txt'));
+        let paramsSent = await sendMessage("```\n[Parameters]:\n" + jsonErrorContent + "\n```").catch(err => sentCatcher(err, 'json'));
+
+        //Add to errorCache
+        this.cache.errors.set(errorID, [sent, paramsSent]);
+
+        //Send original errror message
+        return sent;
+
         async function sendMessage(content: string) {
             console.error(content.includes('`') ? content.replace('`', ' ') : content);
 
             let sent = await channel.send(content);
-            await sent.react(that.emotes.get('Checkmark')[0]);
+            await sent.react(this.emotes.get('Checkmark')[0]);
             await sent.react('📄'); //Get error file
             
             //Create reaction handler
             sent.createReactionCollector().on('collect', async (reaction, user) => {
-                if (user.isPinguDev() || !reaction.users.cache.has(that.id)) return reaction.remove();
+                if (user.isPinguDev() || !reaction.users.cache.has(this.id)) return reaction.remove();
 
                 if (reaction.emoji.name == '📄') {
                     let fileMessage = await reaction.message.channel.sendFiles(new MessageAttachment(`${errorPath}/${errorID}.json`, `Error ${errorID}.json`));
-                    return that.cache.errors.set(errorID, [...that.cache.errors.get(errorID), fileMessage]);
+                    return this.cache.errors.set(errorID, [...this.cache.errors.get(errorID), fileMessage]);
                 }
 
-                that.cache.errors.get(errorID).forEach(m => m.delete());
+                this.cache.errors.get(errorID).forEach(m => m.delete());
                 const errorFiles = fs.readdirSync(errorPath).filter(file => file.startsWith(errorID.toString()));
-                errorFiles.forEach(file => fs.unlink(`${errorPath}/${file}`, () => that.log('console', `Deleted error #${errorID}.`)))
+                errorFiles.forEach(file => fs.unlink(`${errorPath}/${file}`, () => this.log('console', `Deleted error #${errorID}.`)))
             })
             
             return sent;
