@@ -115,8 +115,9 @@ export function GoThroughObjectArray<T>(type: string, preArr: T[], curArr: T[]) 
     changes.keyArray().forEach(key => updateMessage += `**${key}**: ${changes.get(key)}\n`)
     return updateMessage;
 }
-export async function HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: PinguClient, ...args: PinguClientEvents[EventType]) {
-    const event = client.events.get(caller);
+export async function HandleEvent<EventType extends keyof PinguClientEvents>
+    (caller: EventType, client: PinguClient, ...args: PinguClientEvents[EventType]) {
+    const event = client.events.get(caller as keyof PinguIntentEvents);
     // console.log(caller)
     if (!event || !event.execute && !event.setContent) return; //Event not found or doesn't have any callbacks assigned
 
@@ -327,6 +328,8 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
 //#endregion
 
 import PinguHandler from './PinguHandler'
+import { PinguIntentEvents } from '../../helpers/IntentEvents';
+
 export class PinguEvent<Event extends keyof PinguClientEvents> extends PinguHandler {
     //#region Statics
     public static Colors = Colors;
@@ -355,7 +358,7 @@ export class PinguEvent<Event extends keyof PinguClientEvents> extends PinguHand
         setContent?: (client: PinguClient, embed: MessageEmbed, ...args: PinguClientEvents[Event]) => Promise<MessageEmbed>, 
         execute?: (client: PinguClient, ...args: PinguClientEvents[Event]) => Promise<Message>
     ){
-        super(name);
+        super(name as string);
         if (setContent) this.setContent = setContent;
         this.execute = execute;
     }

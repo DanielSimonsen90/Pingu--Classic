@@ -24,7 +24,12 @@ export interface PinguMusicEvents {
 }
 export interface PinguMusicClientEvents extends PinguMusicEvents, PinguClientEvents {}
 
-export async function HandleEvent<EventType extends keyof PinguMusicClientEvents>(caller: EventType, client: PinguMusicClient, path: string, ...args: PinguMusicClientEvents[EventType]) {
+export async function HandleEvent<EventType extends keyof PinguMusicClientEvents>(
+    caller: EventType, 
+    client: PinguMusicClient, 
+    path: string, 
+    ...args: PinguMusicClientEvents[EventType]
+) {
     try { var event = require(`../../../../..${path}`) as PinguMusicEvent<EventType>; }
     catch (err) {
         console.error({ err, caller, path });
@@ -54,18 +59,18 @@ export async function HandleEvent<EventType extends keyof PinguMusicClientEvents
 }
 
 import PinguHandler from "./PinguHandler";
+import { PinguMusicIntentEvents } from "../../helpers/IntentEvents";
 export class PinguMusicEvent<Event extends keyof PinguMusicClientEvents> extends PinguHandler {
     public static HandleEvent<EventType extends keyof PinguMusicClientEvents>(caller: EventType, client: PinguMusicClient, path: string, ...args: PinguMusicClientEvents[EventType]) {
         return HandleEvent(caller, client, path, ...args);
     }
 
     constructor(name: Event, execute?: (client: PinguMusicClient, ...args: PinguMusicClientEvents[Event]) => Promise<Message>) {
-        super(name);
+        super(name as string);
         this.execute = execute;
     }
 
-    declare name: Event;
-
+    public declare name: Event;
     public async execute(client: PinguMusicClient, ...args: PinguMusicClientEvents[Event]): Promise<Message> { return null; }
 }
 

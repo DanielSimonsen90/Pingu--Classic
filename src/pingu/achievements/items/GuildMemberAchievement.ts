@@ -11,9 +11,10 @@ import { useChannel } from "./GuildAchievement";
 import Percentage from "../../../helpers/Percentage";
 import DecidablesConfig from "../../../decidable/config/DecidablesConfig";
 import Decidable from "../../../decidable/items/Decidable";
-import BasePinguClient, { Clients } from "../../client/BasePinguClient";
+import PinguClientShell, { Clients } from "../../client/PinguClientShell";
 
 import PinguGuildMember from "../../guildMember/PinguGuildMember";
+import { DiscordIntentEvents } from "../../../helpers/IntentEvents";
 
 export class GuildMemberAchievement
 <Key extends keyof GuildMemberAchievementType,
@@ -40,7 +41,7 @@ extends AchievementBase implements IGuildMemberAchievement<Key, Type, GuildMembe
         return true
     }
 
-    public async getPercentage(client: BasePinguClient, guild: Guild) {
+    public async getPercentage(client: PinguClientShell, guild: Guild) {
         const pGuildMembersMap = client.pGuilds.get(guild).members;
         let whole = pGuildMembersMap.size;
         
@@ -54,7 +55,7 @@ extends AchievementBase implements IGuildMemberAchievement<Key, Type, GuildMembe
     private static async DecidablesCheck(message: Message, callback: (config: DecidablesConfig) => Decidable[]) {
         if (!message.guild) return false;
 
-        let pGuild = (message.client as BasePinguClient).pGuilds.get(message.guild);
+        let pGuild = message.client.pGuilds.get(message.guild);
         return callback(pGuild.settings.config.decidables).find(d => d._id == message.id) != null;
     }
 
@@ -77,7 +78,7 @@ extends AchievementBase implements IGuildMemberAchievement<Key, Type, GuildMembe
                 const { guild, client: _client } = reaction.message;
                 if (!guild) return false;
 
-                const client = _client as BasePinguClient;
+                const client = _client as PinguClientShell;
                 const pGuild = client.pGuilds.get(guild);
                 if (!pGuild) return false;
 
@@ -94,7 +95,7 @@ extends AchievementBase implements IGuildMemberAchievement<Key, Type, GuildMembe
             const member = message.mentions.members.first();
             if (!member || message.member.id == member.id) return false;
 
-            const client = _client as BasePinguClient;
+            const client = _client as PinguClientShell;
             const pMention = client.pUsers.get(member.user);
             return pMention != null;
         }),

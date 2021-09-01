@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReactionRole = exports.OnMessageDelete = exports.RemoveReactionRole = exports.RemoveReaction = exports.OnReactionRemoveAll = exports.OnReactionRemove = exports.OnReactionAdd = exports.GetReactionRole = void 0;
 const discord_js_1 = require("discord.js");
 const json_1 = require("../../../database/json");
-const BasePinguClient_1 = require("../../client/BasePinguClient");
+const PinguClientShell_1 = require("../../client/PinguClientShell");
 async function GetReactionRole(reaction, user) {
     let { guild } = reaction.message;
     if (!guild)
@@ -137,9 +137,9 @@ async function OnMessageDelete(message) {
             await gm.roles.remove(role, `ReactionRole message deleted`);
     }
     const bots = new discord_js_1.Collection(...message.reactions.cache.map(r => r.users.cache
-        .filter(u => u.bot && [BasePinguClient_1.Clients.BetaID, BasePinguClient_1.Clients.PinguID].includes(u.id))
+        .filter(u => u.bot && [PinguClientShell_1.Clients.BetaID, PinguClientShell_1.Clients.PinguID].includes(u.id))
         .map((v, k) => [k, v])));
-    const PinguReacted = bots.get(BasePinguClient_1.Clients.PinguID) != null;
+    const PinguReacted = bots.get(PinguClientShell_1.Clients.PinguID) != null;
     const PinguOnline = client.savedServers.get('Pingu Support').member(client.clients.get('Live')).presence.status == 'online';
     if (PinguReacted && PinguOnline && !client.isLive)
         return;

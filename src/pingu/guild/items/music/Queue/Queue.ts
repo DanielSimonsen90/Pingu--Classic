@@ -125,8 +125,7 @@ export class Queue implements IMuisc {
     }
     public async Update(message: Message, commandName: string, succMsg: string) {
         Queue.set(message.guild.id, ['HandleStop', 'Play'].includes(commandName) ? null : this);
-
-        (message.client as PinguClient).log('console', `{**${commandName}**}: ${succMsg}`);
+        message.client.log('console', `{**${commandName}**}: ${succMsg}`);
     }
     public async NowPlayingEmbed(message: Message) {
         let { thumbnail, title, requestedBy, endsAt, author, link } = this.currentSong;

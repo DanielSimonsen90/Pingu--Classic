@@ -1,7 +1,7 @@
 import { Collection } from 'discord.js';
 import { Model, Document, Query } from 'mongoose';
 
-import BasePinguClient from '../client/BasePinguClient';
+import PinguClientShell from '../client/PinguClientShell';
 import Reason from '../../helpers/Reason'
 import Error from '../..//helpers/Error';
 import IPinguCollection, { BaseT, BasePT, SavedItems, BaseManager } from './IPinguCollection'
@@ -10,8 +10,8 @@ type ModelType<PT> = Model<Document<PT>>
 
 export class PinguCollection<T extends BaseT, PT extends BasePT> extends IPinguCollection<T, PT> {
     constructor(
-        client: BasePinguClient, logChannelName: string, itemName: SavedItems, 
-        newPT: (item: T, client: BasePinguClient) => PT, typeManager: (client: BasePinguClient, pItem: PT) => BaseManager<T>
+        client: PinguClientShell, logChannelName: string, itemName: SavedItems, 
+        newPT: (item: T, client: PinguClientShell) => PT, typeManager: (client: PinguClientShell, pItem: PT) => BaseManager<T>
     ) {
         super(client, logChannelName, itemName, newPT, typeManager);
         this._model = require(`../../MongoSchemas/${itemName}`).default as ModelType<PT>;
@@ -70,7 +70,7 @@ export class PinguCollection<T extends BaseT, PT extends BasePT> extends IPinguC
         return this;
     }
 
-    public async refresh(client?: BasePinguClient): Promise<this> {
+    public async refresh(client?: PinguClientShell): Promise<this> {
         if (client) this._client = client;
 
         const collDocs = await this._client.DBExecute<Document<PT>[]>(async () => this._model.find({}))
