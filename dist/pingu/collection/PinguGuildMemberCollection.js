@@ -43,7 +43,7 @@ class PinguGuildMemberCollection extends IPinguCollection_1.default {
         this._client.pGuilds.update(this.pGuild, 'guildMemberRemove', `**${this.pGuild.name}**'s members, after **${item.user.tag}** left the guild.`);
         return this;
     }
-    async refresh(client) {
+    async refresh(client, startUp) {
         if (client)
             this._client = client;
         this._guild = this._client.guilds.cache.get(this._guild.id);
@@ -52,7 +52,8 @@ class PinguGuildMemberCollection extends IPinguCollection_1.default {
         for (const [id, member] of mapMembers) {
             this._inner.set(id, member);
         }
-        this._client.log('console', `Successfull refreshed entries for **PinguGuildMember**.`);
+        if (!startUp)
+            this._client.log('console', `Successfull refreshed entries for **PinguGuildMember**.`);
         return this;
     }
     get(item) {

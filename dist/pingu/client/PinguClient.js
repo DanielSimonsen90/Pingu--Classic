@@ -134,7 +134,7 @@ class PinguClient extends BasePinguClient_1.default {
     handleEvent(caller, ...args) {
         if (this.subscribedEvents.find(e => e == caller))
             try {
-                handlers_1.PinguEvent.HandleEvent(caller, this, ...args);
+                handlers_1.HandleEvent(caller, this, ...args);
             }
             catch (err) {
                 this.log('error', `Event error`, null, err, { params: { caller, args } });

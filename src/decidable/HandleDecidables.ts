@@ -1,5 +1,5 @@
 import { Collection, Guild, GuildChannel, GuildChannelResolvable, GuildMember, Message, MessageEmbed, MessageReaction, PermissionString, Role, RoleResolvable, TextChannel, User } from 'discord.js';
-import ms from 'ms';
+const ms = require('ms');
 
 import { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from './config';
 import IDecidableConfigOptions from './interfaces/IDecidableConfigOptions';
@@ -41,7 +41,6 @@ interface ConfigKeys extends IDecidableConfigOptions {
     allowSameWinner?: boolean,
     ignoreLastWins?: number,
 }
-
 function SetConfigObjects(config: DecidablesConfig) {
     const { giveawayConfig, pollConfig, suggestionConfig, themeConfig } = config;
     
@@ -92,11 +91,15 @@ function SetConfigObjects(config: DecidablesConfig) {
 }
 let Configs: Map<IDecidableConfigOptions, ConfigKeys>;
 
+const RegexUtil = {
+    validTime: /^\d{1,}[s|m|h|d]$/,
+    hasWinners: /^\d{1,}w$/
+}
+
 export async function HandleDecidables(params: DecidablesParams) {
     const { client, message, args, pGuild, pGuildClient, decidablesType, config, reactionEmojis } = params;
     const { guild, author, content, mentions, member } = message;
     const { firstTimeExecuted, channel } = config;
-    const reroll = ['Giveaway', 'Theme'].includes(decidablesType) && args[0] == 'reroll';
 
     //A decidables command must have a Pingu Guild registered
     if (!pGuild) {
@@ -114,21 +117,16 @@ export async function HandleDecidables(params: DecidablesParams) {
     if (firstTimeExecuted || args[0] == 'setup') return FirstTimeExecuted(params);
     else if (args[0] == 'list') return ListDecidables(params, Configs.get(config).collection);
 
-    if (decidablesType != 'Suggestion') {
-        var time = args[0];
-        var winners = 1;
+    const reroll = ['Giveaway', 'Theme'].includes(decidablesType) && args.get('reroll');
 
-        if (!reroll) args.shift();
-        if (isGiveawayType(decidablesType)) {
-            if (args[0].endsWith('w') && !isNaN(parseInt(args[0]))) {
-                winners = parseInt(args.shift());
-            }
-        }
+    if (decidablesType != 'Suggestion') {
+        var time = args.get(RegexUtil.validTime);
+        var winners = args.get(RegexUtil.hasWinners, false) && parseInt(args.get(RegexUtil.hasWinners))|| 1;
     }
 
     let decidablesChannel = guild.channels.cache.find(c => [c.id, c.name].includes(args[0]) || c == mentions.channels.first()) as TextChannel;
     if (decidablesChannel) args.shift();
-    else decidablesChannel = (args[0] != 'reroll' ? guild.channels.cache.get(channel?._id) || message.channel : message.channel) as TextChannel;
+    else decidablesChannel = (reroll ? guild.channels.cache.get(channel?._id) || message.channel : message.channel) as TextChannel;
 
     const users = new Map<User, Array<PermissionString>>([[author, ['VIEW_CHANNEL']], [client.user, ['SEND_MESSAGES', 'ADD_REACTIONS']]]);
     for (const [u, perms] of users) {
@@ -136,14 +134,17 @@ export async function HandleDecidables(params: DecidablesParams) {
         if (channelPerms != client.permissions.PermissionGranted) return message.channel.send(channelPerms);
     }
     
-    let value = args.join(' ');
     const mention = mentions.users.first();
+    let value = args.join(' ');
+    if (mention) value = value.replace(/<@!*\d{18}>/, guild.member(mention) ? guild.member(mention).displayName : mention.username);
 
-    if (value.includes('<@')) value = value.replace(/<@!*\d{18}>/, guild.member(mention) ? guild.member(mention).displayName : mention.username);
+    if (reroll) {
+        const sent = await message.channel.send(`Rerolling ${decidablesType.toLowerCase()}...`);
+        return Reroll(params, sent)
+    }
 
-    if ('Suggestion' != decidablesType) var endsAt = new Date(Date.now() + ms(time) + ms('1s'));
-
-    let embed = new MessageEmbed({
+    const endsAt = new Date(Date.now() + ms(time) + ms('1s'));
+    const embed = new MessageEmbed({
         title: 'Suggestion' == decidablesType ? 'Suggestion' : value,
         color: pGuildClient.embedColor,
         description: isGiveawayType(decidablesType) ? (
@@ -159,11 +160,7 @@ export async function HandleDecidables(params: DecidablesParams) {
         timestamp: decidablesType != 'Suggestion' ? endsAt : null 
     });
 
-    if (reroll) {
-        let sent = await message.channel.send(`Rerolling ${decidablesType.toLowerCase()}...`);
-        return Reroll(params, sent, Configs.get(config).collection.find(d => d._id == value.split(' ')[1]) as any)
-    }
-    else if (message.channel.id == decidablesChannel.id &&
+    if (message.channel.id == decidablesChannel.id &&
         client.permissions.checkFor(
             { author: client.user, channel: decidablesChannel },
             'MANAGE_MESSAGES'
@@ -174,8 +171,8 @@ export async function HandleDecidables(params: DecidablesParams) {
     const sent = await message.channel.sendEmbeds(embed);
     reactionEmojis.forEach(e => sent.react(e));
     sent.createReactionCollector({
-        filter: (r: MessageReaction) => reactionEmojis.includes(r.emoji.name),
-        time: endsAt.getTime()
+        filter: (r: MessageReaction, u: User) => reactionEmojis.includes(r.emoji.name) && !u.bot,
+        time: endsAt && new TimeLeftObject(new Date(), endsAt).milliseconds || 0
     }).on('collect', (r, u) => client.log('console', 
         `**${u.tag}** ${isGiveawayType(decidablesType) ? 
             `entered ${decidablesType.toLowerCase()}` : 
@@ -184,7 +181,7 @@ export async function HandleDecidables(params: DecidablesParams) {
 
     client.log('console', `**${author.tag}** (${author.id}) hosted ${decidablesType} in ${decidablesChannel} (${decidablesChannel.name}), ${guild}`);
 
-    let decidable = new (Configs.get(config).constructor)(value, sent.id, new PGuildMember(member), decidablesChannel, endsAt);
+    const decidable = new (Configs.get(config).constructor)(value, sent.id, new PGuildMember(member), decidablesChannel, endsAt);
 
     AddDecidableToPGuilds(params, decidable);
 
@@ -254,20 +251,17 @@ async function PermissionCheckDecidable(params: DecidablesParams) {
         return "You don't have `Administrator` permissions" + (hostRole ? ` or the \`${hostRole.name}\` role` : "" + "!");
     }
 
-    const arg0 = args[0];
-    const arg0Parsed = parseInt(arg0.substring(0, arg0.length - 1));
+    const time = args.get(RegexUtil.validTime, false) || args.get(/^\d$/, false);
+    if (!time) return `Please provide a valid time!`;
 
-    //Winner specified
-    if (decidablesType == 'Giveaway' && arg0.endsWith('w') && !isNaN(arg0Parsed)) {
-        args.shift();
-    }
+    const timeValue = parseInt(time.substring(0, time.length - 1));
 
-    else if (arg0.endsWith('s') && arg0Parsed < 30) return `Please specify a time higher than 29s!`;
-    else if (!ms(arg0)) return `Please provide a valid time!`;
-    else if (arg0.length == arg0Parsed.toString().length) args[0] += "m"; //No s/m/h provided, treat as minutes
+    if (time.endsWith('s') && timeValue < 30) return `Please specify a time higher than 29s!`;
+    else if (time.length == timeValue.toString().length) args[0] += "m"; //No s/m/h provided, treat as minutes
 
     return PermissionGranted;
 }
+
 async function FirstTimeExecuted(params: DecidablesParams) {
     const { client, args, message, decidablesType, pGuild, config } = params;
 
@@ -283,54 +277,9 @@ async function FirstTimeExecuted(params: DecidablesParams) {
     message.channel.send(`Firstly, ${Find('Role', staffRoleType, 'Exists', message)}`);
 
     /* Expects Promise<void> */
-    // collector.on('collect', async function* onCollect(input) {
-    //     const userInput = input as Message;
-
-    //     //hostRole Tag
-    //     yield message.channel.send(Find('Role', staffRoleType, 'Tag', userInput));
-
-    //     //hostRole Find
-    //     let staffRoleResult = Find('Role', staffRoleType, 'Find', userInput);
-    //     let staffRole = NullMakeValue<Role>('Role', staffRoleResult);
-
-    //     //winnerRole Exists
-    //     if (['Giveaway', 'Theme'].includes(decidablesType)) {
-    //         yield message.channel.send(Find('Role', `${decidablesType} Winner`, 'Exists', userInput));
-
-    //         //winnerRole Find
-    //         let winnerRoleResult = Find('Role', `${decidablesType} Winner`, 'Find', userInput);
-    //         var winnerRole = NullMakeValue<Role>('Role', winnerRoleResult);
-    //     }
-
-    //     //channel Tag
-    //     yield message.channel.send(Find('Channel', decidablesChannelName, 'Exists', userInput));
-
-    //     //channel Find
-    //     let channelResult = Find('Channel', decidablesChannelName, 'Find', userInput);
-    //     let channel = NullMakeValue<TextChannel>('Channel', channelResult);
-
-    //     //Poll & Suggestion finished
-    //     let goodToGo = { staffRole, channel } as any;
-    //     if (!['Giveaway', 'Theme'].includes(decidablesType)) return GoodToGo(goodToGo);
-        
-    //     //allowSameWinner Ask
-    //     yield message.channel.send(`Alright last thing, should I allow same winners? (A user winning a ${decidablesType.toLowerCase()} can't win the next one, if you say no!)`);
-        
-    //     //allowSameWinner Process
-    //     let allowSameWinner = userInput.content.toLowerCase() == 'yes';
-
-    //     //Giveaway finished
-    //     if ('Giveaway' == decidablesType) return GoodToGo(goodToGo = { ...goodToGo, winnerRole, allowSameWinner });
-
-    //     //ignoreLastWins ask
-    //     yield message.channel.send(
-    //         `Okay last thing I promise- how many previous ${decidablesType.toLowerCase()}s' winners should I ignore?` + 
-    //         `(If set to 2, the winners for the last 2 ${decidablesType.toLowerCase()}s will not be able to win the current one.) Default is 0`
-    //     );
-        
-    //     //Theme finished
-    //     return GoodToGo({ ...goodToGo, ignoreLastWins: parseInt(userInput.content.toLowerCase()) || 0 });
-    // });
+    collector.on('collect', async input => {
+        await onCollect(input).next();
+    });
     collector.on('end', async () => {
         message.channel.send(`Alright, you're all set!`);
         client.log('console', `"${message.guild.name}" successfully configured their ${decidablesType}Config.`);
@@ -338,6 +287,52 @@ async function FirstTimeExecuted(params: DecidablesParams) {
         if (args[0] != 'setup') HandleDecidables(params);
     });
 
+    async function* onCollect(input: Message) {
+        //hostRole Tag
+        yield message.channel.send(Find('Role', staffRoleType, 'Tag', input));
+
+        //hostRole Find
+        let staffRoleResult = Find('Role', staffRoleType, 'Find', input);
+        let staffRole = NullMakeValue<Role>('Role', staffRoleResult);
+
+        //winnerRole Exists
+        if (['Giveaway', 'Theme'].includes(decidablesType)) {
+            yield message.channel.send(Find('Role', `${decidablesType} Winner`, 'Exists', input));
+
+            //winnerRole Find
+            let winnerRoleResult = Find('Role', `${decidablesType} Winner`, 'Find', input);
+            var winnerRole = NullMakeValue<Role>('Role', winnerRoleResult);
+        }
+
+        //channel Tag
+        yield message.channel.send(Find('Channel', decidablesChannelName, 'Exists', input));
+
+        //channel Find
+        let channelResult = Find('Channel', decidablesChannelName, 'Find', input);
+        let channel = NullMakeValue<TextChannel>('Channel', channelResult);
+
+        //Poll & Suggestion finished
+        let goodToGo = { staffRole, channel } as any;
+        if (!['Giveaway', 'Theme'].includes(decidablesType)) return GoodToGo(goodToGo);
+        
+        //allowSameWinner Ask
+        yield message.channel.send(`Alright last thing, should I allow same winners? (A user winning a ${decidablesType.toLowerCase()} can't win the next one, if you say no!)`);
+        
+        //allowSameWinner Process
+        let allowSameWinner = input.content.toLowerCase() == 'yes';
+
+        //Giveaway finished
+        if ('Giveaway' == decidablesType) return GoodToGo(goodToGo = { ...goodToGo, winnerRole, allowSameWinner });
+
+        //ignoreLastWins ask
+        yield message.channel.send(
+            `Okay last thing I promise- how many previous ${decidablesType.toLowerCase()}s' winners should I ignore?` + 
+            `(If set to 2, the winners for the last 2 ${decidablesType.toLowerCase()}s will not be able to win the current one.) Default is 0`
+        );
+        
+        //Theme finished
+        return GoodToGo({ ...goodToGo, ignoreLastWins: parseInt(input.content.toLowerCase()) || 0 });
+    }
     async function HasAllArguments() {
         //   0        1         2            2        3        3       4         4         5           5
         //[setup, staffRole, channel || winnerRole, null || channel, null || sameWinner, null || ignoreLastWins]
@@ -547,7 +542,7 @@ async function onTimeFinished(sent: Message, value: string, winnersAllowed: numb
         const reactedUsersNoPreviousWinners = () => reactedUsers.filter((_, id) => previousWinnersIds.includes(id)).size > 0;
         for (let i = 0; i < winnersAllowed; i++) {
             var winner = getWinner();
-            while (!winner || typeof winner != 'string' && previousWinnersIds.includes(winner.id)) {
+            while (!winner || typeof winner != 'string' && previousWinnersIds.includes(winner.id) && reactedUsers.size > winnersAllowed) {
                 if (reactedUsersNoPreviousWinners())
                     winner = getWinner();
                 else break;
@@ -558,7 +553,7 @@ async function onTimeFinished(sent: Message, value: string, winnersAllowed: numb
 
             winners[i] = winner;
         }
-        if (winner == 'no one' && !winners.length || !winners[0]) {
+        if (winner == 'no one' && !winners.filter(w => w != 'no one').length || !winners[0]) {
             sent.editEmbeds(embed
                 .setTitle(`Unable to find a winner for "${value}"!`)
                 .setDescription(getGiveawayDescription(winnerOrWinners, `__Winner not found!__`, host, decidable))
@@ -838,21 +833,28 @@ async function RemoveDecidables(message: Message, pGuild: PinguGuild, type: Deci
 
     return Configs.get(decidableConfig).collection;
 }
-async function Reroll(params: DecidablesParams, sent: Message, decidable: Giveaway | Theme) {
-    const { message, args, decidablesType, client } = params;
+async function Reroll(params: DecidablesParams, sent: Message) {
+    const { message, args, decidablesType, client, config } = params;
     const { guild, channel } = message;
-    const id = args[1];
+    let id = args.mentions.get('SNOWFLAKE').argument();
 
-    if (!id) return sent.edit(`${decidablesType.toLowerCase()} message not found - please provide a message ID.`);
+    if (!id) {
+        const messages = channel.messages.cache.array();
+        const preDecidables = Configs.get(config).collection.filter(d => d.channel._id == channel.id);
+        id = messages.find(m => preDecidables.find(d => d._id == m.id))?.id;
+
+        if (!id) return sent.edit(`${decidablesType.toLowerCase()} message not found - please provide a message ID.`);
+    }
 
     let previousMessage = channel.messages.cache.get(id);
     if (!previousMessage) {
-        previousMessage = channel.messages.cache.get(id.split('/')[6]);
+        previousMessage = channel.messages.cache.get(id.split('/')[6]) || channel.messages.cache.filter(m => Configs.get(config).collection.some(d => d._id == m.id))?.[0];
         if (!previousMessage) return sent.edit(`Unable to parse ${id} as ID, or message can't be found!`);
         else if (!previousMessage.embeds[0]) return sent.edit(`There's no embed in that message!`);
         else if (previousMessage.author.id != client.id) return sent.edit(`That isn't my message!`);
     }
 
+    const decidable = Configs.get(config).collection.find(d => d._id == id) as Giveaway | Theme;
     const previousWinners = await Promise.all(decidable.winners.map(w => guild.members.fetch(w._id)));
     const embed = previousMessage.embeds[0];
     

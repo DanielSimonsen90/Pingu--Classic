@@ -12,8 +12,9 @@ import { GuildAchievementType } from '../achievements/items/GuildAchievement'
 import { AchievementBaseType } from '../achievements/items/AchievementBase'
 
 import IConfigRequirements from '../../helpers/Config';
-import { PinguCommand, PinguEvent, PinguClientEvents } from '../handlers';
+import { PinguCommand, PinguEvent, PinguClientEvents, HandleEvent } from '../handlers';
 import BasePinguClient from "./BasePinguClient";
+
 export class PinguClient extends BasePinguClient<PinguClientEvents> {
     constructor(
         config: IConfigRequirements, 
@@ -164,7 +165,7 @@ export class PinguClient extends BasePinguClient<PinguClientEvents> {
     private handleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, ...args: PinguClientEvents[EventType]) {
         if (this.subscribedEvents.find(e => e == caller)) 
         try {
-            PinguEvent.HandleEvent(caller, this, ...args as PinguClientEvents[EventType]);
+            HandleEvent(caller, this, ...args as PinguClientEvents[EventType]);
         }
         catch (err) {
             this.log('error', `Event error`, null, err, { params: { caller, args } })

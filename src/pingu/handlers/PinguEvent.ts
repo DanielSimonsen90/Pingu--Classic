@@ -117,7 +117,7 @@ export function GoThroughObjectArray<T>(type: string, preArr: T[], curArr: T[]) 
 }
 export async function HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: PinguClient, ...args: PinguClientEvents[EventType]) {
     const event = client.events.get(caller);
-    console.log(caller)
+    // console.log(caller)
     if (!event || !event.execute && !event.setContent) return; //Event not found or doesn't have any callbacks assigned
 
     async function execute() {
@@ -152,6 +152,8 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
     }
 
     const achievementOptions = (parameters: any = {}, type: 'User' | 'GuildMember' | 'Guild') => {
+        if (!parameters) return null;
+
         switch (type) {
             case 'User': return [
                     parameters.author, parameters.user, parameters.inviter, FindClass("User"), 

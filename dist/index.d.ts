@@ -2,6 +2,7 @@ export { PAchievement, PChannel, PClient, PGuild, PGuildMember, PItem, PMarry, P
 export { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from './decidable/config';
 export { Giveaway, Poll, Suggestion, Theme, Decidable } from './decidable/items';
 export { HandleDecidables, DecidablesTypes } from './decidable/HandleDecidables';
+export * as Extentions from './Extenstions';
 export { Arguments, EmbedField, Error, TimeLeftObject, DiscordPermissions, Percentage } from './helpers';
 export { PinguGuildSchema, PinguUserSchema } from './MongoSchemas';
 export { UserAchievementConfig, GuildAchievementConfig, GuildMemberAchievementConfig, UserAchievement, GuildAchievement, GuildMemberAchievement, PinguUser, Daily, Marry, PinguGuildMember, PinguGuild, Queue, Song, ReactionRole, PinguCommand, CommandCategories, PinguCommandParams, PinguEvent, PinguClientEvents, PinguMusicEvent, PinguMusicEvents, PinguMusicClientEvents, PinguMusicCommand, PinguMusicCommandParams, PinguClient, PinguMusicClient, PinguBadge } from './pingu';

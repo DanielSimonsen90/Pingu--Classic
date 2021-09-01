@@ -1,17 +1,24 @@
-import { Collection, Formatters } from "discord.js";
+import { Collection } from "discord.js";
 
 type MentionType = 'USER' | 'NICKNAME' | 'CHANNEL' | 'ROLE' | 'EVERYONE' | 'HERE' | 'SNOWFLAKE' | 'EMOJI' | 'UNICODE_EMOJI' | 'CUSTOM_EMOJI' | 'CUSTOM_ANIMATED_EMOJI' | 'TIMESTAMP' | 'IMAGE';
 
 export class Mention {
-    constructor(prop: string, v: string, i: number, types: {}) {
+    constructor(prop: string, v: string, i: number, types: {}, args: Arguments) {
         this.mentionType = prop.toUpperCase() as MentionType;
-        this.value = (types[prop] as RegExp).test(v);
+        this.regex = types[prop];
+        this.value = this.regex.test(v);
         this.index = i;
+        this.argument = (remove = true) => args.get(this.regex, remove);
     }
 
     public mentionType: MentionType;
     public value: boolean;
     public index: number;
+    public regex: RegExp;
+
+    public argument(remove = true): string {
+        return null;
+    }
 }
 
 export class Arguments extends Array<string> {
@@ -41,33 +48,50 @@ export class Arguments extends Array<string> {
             customEmojiAnimated: new RegExp(`<a:\\w{2,}:\\d{${snowflakeLength}}>` || /<a:\w{2,}:\d{18}>/),
             timestamp: new RegExp(`<t:\\d{${unixLength}}((:[tTdDfFR]{1})?)>` || /<t:\d{10}((:[tTdDfFR]{1})?)>/),
             image: new RegExp(`https://cdn.discordapp.com/` || /https:\/\/cdn.discordapp.com\//),
-
-            mentions(v: string, i: number): Array<Mention> { return null; }
         };
 
-        types.mentions = (v: string, i: number) => Object.keys(types)
-            .filter(prop => prop != 'mentions')
-            .map(prop => new Mention(prop, v, i, types));
         types.emoji = types.unicodeEmoji || types.customEmoji || types.customEmojiAnimated;
+        const mentionTypes = Object.keys(types).filter(prop => prop != 'mentions');
         
-        const result = this.map(types.mentions).reduce((result, mentions) => {
-            for (const m of mentions) {
-                if (!result.has(m.mentionType) || !result.get(m.mentionType).value) 
-                    result.set(m.mentionType, m);
-            }
-            return result;
-        }, new Collection<MentionType, Mention>());
-        console.log(result);
-        return result;
+        return [...this, ...mentionTypes]
+            .map((v, i) => mentionTypes.map(prop => new Mention(prop, v, i, types, this)))
+            .reduce((result, mentions) => {
+                for (const m of mentions) {
+                    if (!result.has(m.mentionType) || !result.get(m.mentionType).value)
+                        result.set(m.mentionType, m);
+                }
+                return result;
+            }, new Collection<MentionType, Mention>())
     }
 
-    public get(match: RegExp | string) {
-        const i = typeof match == 'string' ? this.findIndex(v => v == match) : this.findIndexRegex(match.source);
-        return this.splice(i)[0];        
+    /**
+     * Finds and cuts an element matching match
+     * @param match Comparer
+     * @param remove Default: true
+     * @returns Match
+     */
+    public get(match: RegExp | string, remove = true) {
+        const item = this.find(v => typeof match != 'string' && match.test(v) || match == v);
+        return remove ? this.remove(item) : item;
     }
-    public findIndexRegex(regexValue: string) {
+    /**
+     * Finds and cuts all elements matching match
+     * @param match Comparer
+     * @param remove Default: true
+     * @returns Match
+     */
+    public getAll(match: RegExp | string, remove = true) {
+        const matches = this.filter(v => typeof match != 'string' && match.test(v) || match == v);
+        
+        if (!remove) return matches;
+
+        for (const item of matches) {
+            this.remove(item);
+        }
+    }
+    public findIndexRegex(value: RegExp) {
         for (const item of this) {
-            if (new RegExp(regexValue).test(item))
+            if (new RegExp(value).test(item))
                 return this.indexOf(item);
         }
     }
@@ -76,6 +100,11 @@ export class Arguments extends Array<string> {
             this[item] = item.toLowerCase();
         }
         return this;
+    }
+
+    private remove(item: string) {
+        if (!item || this.indexOf(item) == -1) return null;
+        return this.splice(this.indexOf(item), 1)[0];
     }
 }
 
