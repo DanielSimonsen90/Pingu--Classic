@@ -8,8 +8,10 @@ const Queue_1 = require("../guild/items/music/Queue/Queue");
 const Song_1 = require("../guild/items/music/Song");
 const BasePinguClient_1 = require("./BasePinguClient");
 class PinguMusicClient extends BasePinguClient_1.default {
+    constructor(config, permissions, subscribedEvents, dirname, commandsPath, eventsPath, options) {
+        super(config, permissions, subscribedEvents, dirname, commandsPath, eventsPath, options);
+    }
     queues = new discord_js_1.Collection();
-    // public declare subscribedEvents: Array<PinguMusicCommand[keyof PinguMusicCommand]>;
     emit(key, ...args) {
         console.log(typeof key);
         return super.emit(key, ...args);

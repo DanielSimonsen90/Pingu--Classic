@@ -1,7 +1,7 @@
 import { Guild, GuildChannel, PermissionString, Snowflake, User } from 'discord.js'
 import DiscordPermissions from '../helpers/DiscordPermissions';
 import BitPermission from '../helpers/BitPermission';
-import PinguClientShell from './client/PinguClientShell';
+import BasePinguClient from './client/BasePinguClient';
 
 interface PermissionCheck {
     author: User,
@@ -9,7 +9,7 @@ interface PermissionCheck {
 }
 
 export class PermissionsManager {
-    constructor(client: PinguClientShell, given: PermissionString[]) {
+    constructor(client: BasePinguClient<any>, given: PermissionString[]) {
         this.given = given;
         this._client = client;
         this.all = Object.keys(DiscordPermissions)
@@ -20,7 +20,7 @@ export class PermissionsManager {
         this.missing = missing;
     }
 
-    private _client: PinguClientShell
+    private _client: BasePinguClient<any>
 
     public readonly PermissionGranted = 'Permission Granted';
 

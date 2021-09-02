@@ -14,7 +14,7 @@ class AchievementConfigBase {
         client.DanhoDM(`Messaging ${(guild || announceChannel.guild ? guild.members.cache.get(guild.ownerId) : announceChannel.recipient)} as their notificationtype = ${notificationType}`);
         try {
             let message = await announceChannel.sendEmbeds(embed);
-            await message.react(client.emotes.get('hypers', 1)[0]);
+            await message.react(client.emotes.guild(client.savedServers.get('Pingu Support')).get('hypers'));
             return message;
         }
         catch {

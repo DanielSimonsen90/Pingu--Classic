@@ -9,6 +9,9 @@ const achievements_1 = require("../achievements");
 const PinguEvent_1 = require("../handlers/PinguEvent");
 const BasePinguClient_1 = require("./BasePinguClient");
 class PinguClient extends BasePinguClient_1.default {
+    constructor(config, permissions, subscribedEvents, dirname, commandsPath, eventsPath, options) {
+        super(config, permissions, subscribedEvents, dirname, commandsPath, eventsPath, options);
+    }
     //#endregion
     //#region Public Methods
     toPClient(pGuild) {

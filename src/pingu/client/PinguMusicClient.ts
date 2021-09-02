@@ -11,13 +11,32 @@ import Song from "../guild/items/music/Song";
 
 import PinguClientBase from "./BasePinguClient";
 
+<<<<<<< HEAD
 interface VideoThing { url: string }
 
 export class PinguMusicClient extends PinguClientBase<PinguMusicIntentEvents> {
+=======
+import * as fs from 'fs';
+import PinguHandler from "../handlers/PinguHandler";
+
+export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
+    constructor(
+        config: IConfigRequirements, 
+        permissions: PermissionString[], 
+        subscribedEvents: [keyof PinguMusicClientEvents], 
+        dirname?: string,
+        commandsPath?: string, 
+        eventsPath?: string, 
+        options?: ClientOptions
+    ) {
+        super(config, permissions, subscribedEvents as any, dirname, commandsPath, eventsPath, options);
+    }
+
+>>>>>>> parent of 92c7bfa (Get events from intents)
     public queues = new Collection<Snowflake, Queue>();
-    public declare events: Collection<keyof PinguMusicIntentEvents, PinguMusicEvent<keyof PinguMusicClientEvents>>;
+    public declare events: Collection<keyof PinguMusicClientEvents, PinguMusicEvent<keyof PinguMusicClientEvents>>;
     public declare commands: Collection<string, PinguMusicCommand>;
-    // public declare subscribedEvents: Array<PinguMusicCommand[keyof PinguMusicCommand]>;
+    public declare subscribedEvents: Array<keyof PinguMusicClientEvents>;
 
     public emit<PMCE extends keyof PinguMusicClientEvents, CE extends keyof ClientEvents>(key: PMCE, ...args: PinguMusicClientEvents[PMCE]) {
         console.log(typeof key);
@@ -113,7 +132,7 @@ export class PinguMusicClient extends PinguClientBase<PinguMusicIntentEvents> {
                         const type = module.name as keyof PinguMusicClientEvents;
                         const event = module as PinguMusicEvent<typeof type>;
 
-                        this.events.set(event.name as keyof PinguMusicIntentEvents, event);
+                        this.events.set(event.name, event);
 
                         this.on(event.name as keyof ClientEvents, (...params) => {
                             this.handleEvent(event.name, ...params);
@@ -131,7 +150,7 @@ export class PinguMusicClient extends PinguClientBase<PinguMusicIntentEvents> {
     }
     protected handleEvent<EventType extends keyof PinguMusicClientEvents>(caller: EventType, ...args: PinguMusicClientEvents[EventType]) {
         if (this.subscribedEvents.find(e => e == caller))
-            HandleMusicEvent(caller, this, this.events.get(caller as keyof PinguMusicIntentEvents).path, ...args);
+            HandleMusicEvent(caller, this, this.events.get(caller).path, ...args);
         return this;
     }
 }

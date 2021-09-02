@@ -1,18 +1,26 @@
-import { ClientEvents, Collection, TextChannel, User, Guild, Message } from "discord.js";
+import { ClientEvents, ClientOptions, Collection, TextChannel, User, Guild, PermissionString, Message } from "discord.js";
 import PinguGuild from '../guild/PinguGuild';
 import PClient from '../../database/json/PClient';
 import { AchievementCheckData } from '../achievements';
 import { GuildMemberAchievementType } from '../achievements/items/GuildMemberAchievement';
 import { GuildAchievementType } from '../achievements/items/GuildAchievement';
 import { AchievementBaseType } from '../achievements/items/AchievementBase';
+<<<<<<< HEAD
 import PinguCommand from '../handlers/PinguCommand';
 import PinguEvent, { PinguClientEvents } from '../handlers/PinguEvent';
 import { PinguIntentEvents } from "../../helpers/IntentEvents";
 import PinguClientBase from "./BasePinguClient";
 export declare class PinguClient extends PinguClientBase<PinguIntentEvents> {
+=======
+import IConfigRequirements from '../../helpers/Config';
+import { PinguCommand, PinguEvent, PinguClientEvents } from '../handlers';
+import BasePinguClient from "./BasePinguClient";
+export declare class PinguClient extends BasePinguClient<PinguClientEvents> {
+    constructor(config: IConfigRequirements, permissions: PermissionString[], subscribedEvents?: Array<keyof PinguClientEvents>, dirname?: string, commandsPath?: string, eventsPath?: string, options?: ClientOptions);
+>>>>>>> parent of 92c7bfa (Get events from intents)
     commands: Collection<string, PinguCommand>;
-    events: Collection<keyof PinguIntentEvents, PinguEvent<keyof PinguClientEvents>>;
-    subscribedEvents: Array<PinguIntentEvents[keyof PinguIntentEvents]>;
+    events: Collection<keyof PinguClientEvents, PinguEvent<keyof PinguClientEvents>>;
+    subscribedEvents: Array<keyof PinguClientEvents>;
     toPClient(pGuild: PinguGuild): PClient;
     emit<PCE extends keyof PinguClientEvents, CE extends keyof ClientEvents>(key: PCE, ...args: PinguClientEvents[PCE]): boolean;
     getSharedServers(user: User): Guild[];

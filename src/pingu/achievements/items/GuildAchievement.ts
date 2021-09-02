@@ -23,13 +23,17 @@ export function useChannel(channel: Channels, extraInfo: string) {
 
 import { IGuildAchievement } from "./IAchievementBase";
 import Percentage from "../../../helpers/Percentage";
+<<<<<<< HEAD
 import PinguClientBase from '../../client/BasePinguClient'
 import { DiscordIntentEvents } from "../../../helpers/IntentEvents";
+=======
+import BasePinguClient from '../../client/BasePinguClient'
+>>>>>>> parent of 92c7bfa (Get events from intents)
 
-export class GuildAchievement<
-    Key extends keyof GuildAchievementType,
-    Type extends GuildAchievementType[Key]
-> extends AchievementBase implements IGuildAchievement<Key, Type, GuildAchievementCallbackParams> {
+export class GuildAchievement
+<Key extends keyof GuildAchievementType,
+Type extends GuildAchievementType[Key]> 
+extends AchievementBase implements IGuildAchievement<Key, Type, GuildAchievementCallbackParams> {
     constructor(id: number, name: string, key: Key, type: Type, description: string) {
         super(id, name, description);
         this.key = key;
@@ -51,7 +55,11 @@ export class GuildAchievement<
         return true
     }
 
+<<<<<<< HEAD
     public async getPercentage<Intents extends DiscordIntentEvents = DiscordIntentEvents>(client: PinguClientBase<Intents>) {
+=======
+    public async getPercentage(client: BasePinguClient) {
+>>>>>>> parent of 92c7bfa (Get events from intents)
         let pGuilds = client.pGuilds.array();
         let whole = pGuilds.length;
         let part = pGuilds.filter(pGuild => pGuild.settings.config.achievements.achievements.find(a => a._id == this._id)).length;

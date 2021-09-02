@@ -1,11 +1,11 @@
 import { Guild, GuildEmoji, Collection } from "discord.js";
-import PinguClientShell from "../client/PinguClientShell";
+import BasePinguClient from "../client/BasePinguClient";
 export declare class EmojiCollection {
-    constructor(client: PinguClientShell);
+    constructor(client: BasePinguClient<any>);
     private _cached;
     private _client;
     get(name: string, limit?: number): GuildEmoji[];
     guild(guild: Guild): Collection<string, GuildEmoji>;
-    refresh(client?: PinguClientShell): this;
+    refresh(client?: BasePinguClient<any>): this;
 }
 export default EmojiCollection;

@@ -14,22 +14,22 @@ class GuildAchievementConfig extends AchievementConfigBase_1.AchievementConfigBa
     static async notify(client, achiever, achievement, config) {
         const color = client.DefaultEmbedColor;
         switch (config.notificationTypes.guild) {
-            case 'CHANNEL': return super._notify(client, achievement, percentage => new discord_js_1.MessageEmbed({
-                title: `🏆 Achievement Unlocked! 🏆\n${achievement.name}`,
-                description: achievement.description,
-                footer: { text: `${achiever.name} is one of the ${percentage.value}% of servers, that have achieved this!` },
-                color, thumbnail: { url: achiever.iconURL() },
-                timestamp: Date.now()
-            }), config.channel, config.notificationTypes.guild);
+            case 'CHANNEL': return super._notify(client, achievement, percentage => new discord_js_1.MessageEmbed()
+                .setTitle(`🏆 Achievement Unlocked! 🏆\n${achievement.name}`)
+                .setDescription(achievement.description)
+                .setFooter(`${achiever.name} is one of the ${percentage.value}% of servers, that have achieved this!`)
+                .setTimestamp(Date.now())
+                .setThumbnail(achiever.iconURL())
+                .setColor(color), config.channel, config.notificationTypes.guild);
             case 'OWNER':
                 const owner = achiever.owner();
-                return super._notify(client, achievement, (percentage) => new discord_js_1.MessageEmbed({
-                    title: `🏆 Achievement Unlocked! 🏆\n${achievement.name}`,
-                    description: achievement.description,
-                    footer: { text: `${achiever.name} is one of the ${percentage.value}% of servers, that have achieved this!` },
-                    color, thumbnail: { url: achiever.iconURL() },
-                    timestamp: Date.now()
-                }), { _id: (await owner.createDM()).id }, config.notificationTypes.members);
+                return super._notify(client, achievement, (percentage) => new discord_js_1.MessageEmbed()
+                    .setTitle(`🏆 Achievement Unlocked! 🏆\n${achievement.name}`)
+                    .setDescription(achievement.description)
+                    .setFooter(`${achiever.name} is one of the ${percentage.value}% of servers, that have achieved this!`)
+                    .setTimestamp(Date.now())
+                    .setThumbnail(achiever.iconURL())
+                    .setColor(color), { _id: (await owner.createDM()).id }, config.notificationTypes.members);
             default: throw { message: `GuildNotificationType **${config.notificationTypes.guild}** was not recognized!` };
         }
     }

@@ -6,7 +6,7 @@ type PinguPartners = 'Partnered Developer' | 'Partnered Server Owner';
 export type IAmBadge = DeveloperBadge | StaffBadge | PinguSupporter | PinguPartners;
 
 import { GuildEmoji, Collection, User } from "discord.js";
-import PinguClientShell, { SavedServerNames } from "../client/PinguClientShell";
+import BasePinguClient, { SavedServerNames } from "../client/BasePinguClient";
 
 export class PinguBadge {
     constructor(name: IAmBadge, emoji: GuildEmoji, weight: number) {
@@ -47,7 +47,7 @@ export const TempBadges = new Collection<IAmBadge, TempBadge>([
 ])
 
 export async function getBadges(user: User) {
-    const client = user.client as PinguClientShell;
+    const client = user.client as BasePinguClient;
     const PinguSupportMembers = client.savedServers.get('Pingu Support').members;
 
     let badgeNames = new Array<IAmBadge>();
