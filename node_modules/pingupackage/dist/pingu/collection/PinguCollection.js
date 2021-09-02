@@ -14,7 +14,7 @@ class PinguCollection extends IPinguCollection_1.default {
     async add(item, scriptName, reason) {
         return this._client.DBExecute(async (mongoose) => {
             const pItem = this._newPT(item, this._client);
-            const created = await new this._model(pItem).save();
+            const created = await (new this._model(pItem)).save();
             const _reason = new Reason_1.default('create', this._itemName, pItem.name || pItem.tag, reason);
             this.log(scriptName, _reason, created ? null : new Error_1.default(`Unable to create ${this._itemName}`));
             this._inner.set(item.id, pItem);

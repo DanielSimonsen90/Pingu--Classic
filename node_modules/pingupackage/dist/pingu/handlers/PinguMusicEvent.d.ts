@@ -18,7 +18,7 @@ export interface PinguMusicEvents {
 }
 export interface PinguMusicClientEvents extends PinguMusicEvents, PinguClientEvents {
 }
-export declare function HandleMusicEvent<EventType extends keyof PinguMusicClientEvents>(caller: EventType, client: PinguMusicClient, path: string, ...args: PinguMusicClientEvents[EventType]): Promise<Message>;
+export declare function HandleMusicEvent<EventType extends keyof PinguMusicClientEvents>(caller: EventType, client: PinguMusicClient, ...args: PinguMusicClientEvents[EventType]): Promise<Message>;
 import PinguHandler from "./PinguHandler";
 export declare class PinguMusicEvent<Event extends keyof PinguMusicClientEvents> extends PinguHandler {
     static HandleEvent<EventType extends keyof PinguMusicClientEvents>(caller: EventType, client: PinguMusicClient, path: string, ...args: PinguMusicClientEvents[EventType]): Promise<Message>;

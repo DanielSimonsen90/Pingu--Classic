@@ -1,4 +1,5 @@
-import { ActivityOptions, Client, ClientEvents, ClientOptions, Collection, Guild, Message, MessageEmbed, PermissionString, TextChannel, User } from "discord.js";
+import { ClientOptions, Collection, PermissionString } from "discord.js";
+import { ActivityOptions, Client, ClientEvents, Guild, Message, MessageEmbed, TextChannel, User } from "discord.js";
 export declare const Clients: {
     PinguID: string;
     BetaID: string;
@@ -6,17 +7,6 @@ export declare const Clients: {
 import PinguHandler from "../handlers/PinguHandler";
 import { PinguCommandParams } from "../handlers/PinguCommand";
 import IConfigRequirements from "../../helpers/Config";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import PinguClientShell from "./PinguClientShell";
-export declare abstract class PinguClientBase<Intents extends DiscordIntentEvents> extends PinguClientShell {
-    constructor(config: IConfigRequirements, permissions: Array<PermissionString>, intents: Array<keyof Intents>, subscribedEvents: Array<Events<Intents>>, dirname: string, commandsPath?: string, eventsPath?: string, options?: ClientOptions);
-=======
-=======
->>>>>>> parent of 92c7bfa (Get events from intents)
-=======
->>>>>>> parent of 92c7bfa (Get events from intents)
 import { TimestampStyle } from '../../helpers/TimeLeftObject';
 import PinguCollection from '../collection/PinguCollection';
 import DeveloperCollection from '../collection/DeveloperCollection';
@@ -46,7 +36,7 @@ interface LogTypes {
 }
 export declare type LogChannels = keyof LogTypes;
 export declare type SavedServerNames = 'Danho Misc' | 'Pingu Support' | 'Pingu Emotes' | 'Deadly Ninja';
-export declare abstract class BasePinguClient<Events extends ClientEvents = any> extends Client {
+export declare abstract class PinguClientBase<Events extends ClientEvents = any> extends Client {
     static Clients: {
         PinguID: string;
         BetaID: string;
@@ -57,13 +47,6 @@ export declare abstract class BasePinguClient<Events extends ClientEvents = any>
     get member(): import("discord.js").GuildMember;
     readonly DefaultEmbedColor = 3447003;
     readonly invite = "https://discord.gg/gbxRV4Ekvh";
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> parent of 92c7bfa (Get events from intents)
-=======
->>>>>>> parent of 92c7bfa (Get events from intents)
-=======
->>>>>>> parent of 92c7bfa (Get events from intents)
     commands: Collection<string, PinguHandler>;
     events: Collection<string | keyof Events, PinguHandler>;
     subscribedEvents: (string | keyof Events)[];
