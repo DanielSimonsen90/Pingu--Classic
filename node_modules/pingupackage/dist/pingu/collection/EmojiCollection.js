@@ -9,10 +9,13 @@ class EmojiCollection {
     }
     _cached;
     _client;
+    /**
+     * @param name Name of the emoji (case sensitive)
+     * @param limit Limit results. Default: null
+     */
     get(name, limit) {
-        const result = this._cached
-            .filter(e => e.name == name)
-            .slice(0, limit).sort((a, b) => {
+        const matches = this._cached.filter(e => e.name == name);
+        const result = matches.slice(0, limit || matches.length).sort((a, b) => {
             const savedServersIncludes = this._client.savedServers.map(g => g.id).includes;
             return savedServersIncludes(a.guild.id) || savedServersIncludes(b.guild.id) ? -1 : 1;
         });
@@ -22,6 +25,13 @@ class EmojiCollection {
                 additional: { result }
             });
         return result;
+    }
+    /**
+     * @param name Name of emoji (case sensitive)
+     * @param fromIndex For whatever reason you'd be insane enough to require a specific index, instead of being sure you're getting the right emote... Default: 0
+     */
+    getOne(name, fromIndex = 0) {
+        return this.get(name)[fromIndex];
     }
     guild(guild) {
         return this._cached.filter(e => e.guild.id == guild.id).reduce((result, e) => result.set(e.name, e), new discord_js_1.Collection());

@@ -9,9 +9,6 @@ const achievements_1 = require("../achievements");
 const PinguEvent_1 = require("../handlers/PinguEvent");
 const PinguClientBase_1 = require("./PinguClientBase");
 class PinguClient extends PinguClientBase_1.default {
-    constructor(config, permissions, subscribedEvents, dirname, commandsPath, eventsPath, options) {
-        super(config, permissions, subscribedEvents, dirname, commandsPath, eventsPath, options);
-    }
     //#endregion
     //#region Public Methods
     toPClient(pGuild) {
@@ -63,7 +60,6 @@ class PinguClient extends PinguClientBase_1.default {
                     params: { message, pGuildClient, caller, types },
                     additional: { page, type, keys: { api_key: config.api_key, google_custom_search: config.google_custom_search } }
                 });
-            // "https://www.googleapis.com/customsearch/v1?key=AIzaSyAeAr2Dv1umzuLes_zhlY0lON4Pf_uAKeM&cx=013524999991164939702:z24cpkwx9nz&q=pinguh&searchType=image&alt=json&num=10&start=31"
             try {
                 var data = JSON.parse(body);
             }

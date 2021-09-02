@@ -4,37 +4,32 @@
     "params": {
       "message": {
         "authorId": "245572699894710272",
-        "channelId": "874132078843813928",
-        "id": "878615295235883029",
+        "channelId": "791312246063104033",
+        "id": "882938980734234634",
         "guildId": "791312245555855401",
-        "content": "b*ga reroll"
+        "content": "b*update role"
       }
     },
     "additional": {
-      "args": [],
-      "logMessage": "User **Danho** executed command **giveaway**, from \"Pingu Emote Server\", #beta-tests, and **failed!**\nError: TypeError: Cannot read property 'winners' of undefined",
-      "commandName": "ga",
+      "args": [
+        "role"
+      ],
+      "logMessage": "User **Danho** executed command **update**, from \"Pingu Emote Server\", #general🏡, and **failed!**\nError: ReferenceError: Cannot access 'event' before initialization",
+      "commandName": "update",
       "command": {
-        "name": "giveaway",
-        "path": "c:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Discord\\Bots\\Pingu\\Pingu\\commands/1 Utility/Decidable/giveaway.js",
-        "description": "Giveaway time!",
-        "usage": "setup | list | <time> [winners] [channel] <prize>",
-        "guildOnly": true,
-        "category": "Utility",
+        "name": "update",
+        "path": "c:\\Users\\DanielSimonsen\\source\\repos\\Discord\\Bots\\Pingu\\Pingu\\commands/4 DevOnly/Update/update.js",
+        "description": "Reloads a script",
+        "usage": "<script/command>",
+        "guildOnly": false,
+        "category": "DevOnly",
         "examples": [
-          "setup",
-          "list",
-          "10m Discord Nitro",
-          "24h 2w Movie tickets for 2!"
+          ""
         ],
         "permissions": [
-          "ADD_REACTIONS",
-          "MANAGE_MESSAGES",
           "SEND_MESSAGES"
         ],
-        "aliases": [
-          "ga"
-        ],
+        "aliases": [],
         "mustBeBeta": false
       }
     }

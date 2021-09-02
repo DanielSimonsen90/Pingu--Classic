@@ -48,7 +48,7 @@ module.exports = new PinguCommand('role', 'Utility', 'Gives a role to author or 
 
         let snowflakeMention = args.mentions.get('SNOWFLAKE');
         if (snowflakeMention.value) {
-            return message.guild.roles.fetch(args.splice(snowflakeMention.index, 1));
+            return message.guild.roles.fetch(args.get(args[snowflakeMention.index]));
         }
 
         const roleNames = message.guild.roles.cache.map(r => r.name.toLowerCase());
@@ -63,7 +63,7 @@ module.exports = new PinguCommand('role', 'Utility', 'Gives a role to author or 
         try {
             await person.roles.add(role, reason);
             var messagePerson = person.user == message.author ? "you" : person.displayName;
-            return message.channel.send(`I have given ${messagePerson} ${role.name}.`);
+            return message.channel.send(`I have given ${messagePerson} **${role.name}**.`);
         } catch (err) {
             client.log('error', `Unable to give ${person} a role`, message.content, err, { params: { message, role, person } });
             return message.author.send(`I was unable to give ${person} **${role.name}**!`);

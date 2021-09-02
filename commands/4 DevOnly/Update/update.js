@@ -7,7 +7,7 @@ module.exports = new PinguCommand('update', 'DevOnly', 'Reloads a script', {
 
     const script = args.first;
     const command = client.commands.find(cmd => [cmd.name].includes(script));
-    const event = client.events.get(event);
+    const event = client.events.get(script);
 
     if (!command && !event) return message.channel.send(`Unable to find \`${script}.js\`!`);
 

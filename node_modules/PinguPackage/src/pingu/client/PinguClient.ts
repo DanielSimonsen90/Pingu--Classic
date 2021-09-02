@@ -1,4 +1,4 @@
-import { ClientEvents, ClientOptions, Collection, TextChannel, User, Guild, PermissionString, MessageEmbed, Message } from "discord.js";
+import { ClientEvents, Collection, TextChannel, User, Guild, MessageEmbed, Message } from "discord.js";
 import * as fs from 'fs';   
 import * as request from 'request';
 
@@ -11,25 +11,11 @@ import { GuildMemberAchievementType } from '../achievements/items/GuildMemberAch
 import { GuildAchievementType } from '../achievements/items/GuildAchievement'
 import { AchievementBaseType } from '../achievements/items/AchievementBase'
 
-
 import PinguCommand from '../handlers/PinguCommand';
 import PinguEvent, { PinguClientEvents, HandleEvent } from '../handlers/PinguEvent';
 import PinguClientBase from "./PinguClientBase";
-import IConfigRequirements from '../../helpers/Config';
 
 export class PinguClient extends PinguClientBase<PinguClientEvents> {
-    constructor(
-        config: IConfigRequirements, 
-        permissions: PermissionString[], 
-        subscribedEvents?: Array<keyof PinguClientEvents>, 
-        dirname?: string,
-        commandsPath?: string, 
-        eventsPath?: string, 
-        options?: ClientOptions
-    ) {
-        super(config, permissions, subscribedEvents as any, dirname, commandsPath, eventsPath, options);
-    }
-
     //#region Public Properties
     public declare commands: Collection<string, PinguCommand>;
     public declare events: Collection<keyof PinguClientEvents, PinguEvent<keyof PinguClientEvents>>;
@@ -40,7 +26,10 @@ export class PinguClient extends PinguClientBase<PinguClientEvents> {
     public toPClient(pGuild: PinguGuild) {
         return pGuild.clients.find(c => c && c._id == this.user.id);
     }
-    public emit<PCE extends keyof PinguClientEvents, CE extends keyof ClientEvents>(key: PCE, ...args: PinguClientEvents[PCE]) {
+    public emit<
+        PCE extends keyof PinguClientEvents, 
+        CE extends keyof ClientEvents
+    >(key: PCE, ...args: PinguClientEvents[PCE]) {
         return super.emit(
             key as unknown as CE, 
             ...args as unknown as ClientEvents[CE]
@@ -94,7 +83,6 @@ export class PinguClient extends PinguClientBase<PinguClientEvents> {
                 additional: { page, type, keys: { api_key: config.api_key, google_custom_search: config.google_custom_search } }
             });
     
-            // "https://www.googleapis.com/customsearch/v1?key=AIzaSyAeAr2Dv1umzuLes_zhlY0lON4Pf_uAKeM&cx=013524999991164939702:z24cpkwx9nz&q=pinguh&searchType=image&alt=json&num=10&start=31"
             try { var data = JSON.parse(body); }
             catch (err) { this.log('error', `Getting data in ${caller}, PinguLibrary.RequestImage()`, message.content, new Error(err), {
                 params: { message, pGuildClient, caller, types },
@@ -166,12 +154,8 @@ export class PinguClient extends PinguClientBase<PinguClientEvents> {
     //#region Private Methods
     private handleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, ...args: PinguClientEvents[EventType]) {
         if (this.subscribedEvents.find(e => e == caller)) 
-        try {
-            HandleEvent(caller, this, ...args as PinguClientEvents[EventType]);
-        }
-        catch (err) {
-            this.log('error', `Event error`, null, err, { params: { caller, args } })
-        }
+        try { HandleEvent(caller, this, ...args as PinguClientEvents[EventType]) }
+        catch (err) { this.log('error', `Event error`, null, err, { params: { caller, args } }) }
         return this;
     }
     //#endregion

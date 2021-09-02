@@ -8,7 +8,7 @@ const GuildAchievementConfig_1 = require("../achievements/config/GuildAchievemen
 const achievements_1 = require("../achievements");
 class PinguGuildMemberCollection extends IPinguCollection_1.default {
     constructor(client, logChannelName, guild) {
-        super(client, logChannelName, 'PinguGuildMember', gm => new PinguGuildMember_1.default(gm, client.pGuilds.get(gm.guild).settings.config.achievements.notificationTypes.members), (c, pt) => c.guilds.cache.get(pt.guild._id).members);
+        super(client, logChannelName, 'PinguGuildMember', gm => new PinguGuildMember_1.default(gm, client.pGuilds.get(gm.guild).settings.config.achievements.notificationTypes.members), (c, pgm) => c.guilds.cache.get(pgm.guild._id).members);
         this._guild = guild;
     }
     _guild;

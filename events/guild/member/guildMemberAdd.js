@@ -1,5 +1,5 @@
-﻿const { TextChannel, MessageEmbed, Guild } = require("discord.js");
-const { PinguEvent, PChannel, PinguClient } = require("PinguPackage");
+﻿const {  MessageEmbed } = require("discord.js");
+const { PinguEvent } = require("PinguPackage");
 
 module.exports = new PinguEvent('guildMemberAdd',
     async function setContent(client, embed, member) {
@@ -9,7 +9,8 @@ module.exports = new PinguEvent('guildMemberAdd',
         const { guild, user, displayName } = member;
         const pingu = await client.users.fetch(client.clients.get('Live').id);
 
-        if (!client.isLive && guild.members.cache.has(pingu.id) && pingu.presence.status == 'online') return;
+
+        if (!client.isLive && guild.members.cache.has(pingu.id) && guild.member(pingu).presence.status == 'online') return;
 
         let pGuild = client.pGuilds.get(guild);
         let pGuildClient = client.toPClient(pGuild);

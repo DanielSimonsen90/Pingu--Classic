@@ -9,12 +9,6 @@
         'USE_EXTERNAL_EMOJIS', 'USE_VAD', 
         'VIEW_AUDIT_LOG', 'VIEW_CHANNEL'
     ], [
-        'CLIENT', 'MOST_KNOWN', 'ON',
-        'DIRECT_MESSAGES', 'DIRECT_MESSAGE_REACTIONS', 'DIRECT_MESSAGE_TYPING', 
-        'GUILDS', 'GUILD_BANS', 'GUILD_EMOJIS_AND_STICKERS', 'GUILD_INTEGRATIONS', 'GUILD_INVITES', 'GUILD_MEMBERS',
-        'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS', 'GUILD_MESSAGE_TYPING', 
-        'GUILD_PRESENCES', 'GUILD_VOICE_STATES', 'MOST_KNOWN'
-    ], [
         'channelCreate', 'channelDelete', 'channelPinsUpdate', 'channelUpdate', 'typingStart', 'webhookUpdate',
         'error', 'invalidated', 'onready',
         'emojiCreate', 'emojiUpdate', 'emojiDelete', 'stickerCreate', 'stickerUpdate', 'stickerDelete',

@@ -1,4 +1,8 @@
-import { Collection, Guild, GuildChannel, GuildChannelResolvable, GuildMember, Message, MessageEmbed, MessageReaction, PermissionString, Role, RoleResolvable, TextChannel, User } from 'discord.js';
+import { 
+    Collection, Guild, GuildChannel, GuildChannelResolvable, GuildMember, 
+    Message, MessageEmbed, MessageReaction, PermissionString, Role, 
+    RoleResolvable, TextChannel, User 
+} from 'discord.js';
 const ms = require('ms');
 
 import { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from './config';
