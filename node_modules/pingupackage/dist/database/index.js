@@ -13,18 +13,20 @@ Object.defineProperty(exports, "PQueue", { enumerable: true, get: function () { 
 Object.defineProperty(exports, "PRole", { enumerable: true, get: function () { return json_1.PRole; } });
 Object.defineProperty(exports, "PUser", { enumerable: true, get: function () { return json_1.PUser; } });
 async function DBExecute(client, callback) {
-    const mongoose = require('mongoose');
-    try {
-        await mongoose.connect(`mongodb+srv://Pingu:${client.config.mongoPass}@pingudb.kh2uq.mongodb.net/PinguDB?retryWrites=true&w=majority`, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        });
-        var returnValue = await callback(mongoose);
-    }
-    catch (err) {
-        client.log('error', 'Mongo error', null, new Error(err));
-    }
-    //finally { mongoose.connection.close(); }
-    return returnValue;
+    return new Promise(async (resolve, reject) => {
+        const mongoose = require('mongoose');
+        try {
+            await mongoose.connect(`mongodb+srv://Pingu:${client.config.mongoPass}@pingudb.kh2uq.mongodb.net/PinguDB?retryWrites=true&w=majority`, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true
+            });
+            resolve(callback(mongoose));
+        }
+        catch (err) {
+            client.log('error', 'Mongo error', null, new Error(err));
+            reject(err);
+        }
+        //finally { mongoose.connection.close(); }
+    });
 }
 exports.DBExecute = DBExecute;

@@ -8,15 +8,15 @@ import {
 import { joinVoiceChannel, VoiceConnection } from "@discordjs/voice";
 import ms from 'ms';
 
-import BasePinguClient from './pingu/client/BasePinguClient';
 import PinguGuildMemberCollection from "./pingu/collection/PinguGuildMemberCollection";
 import PinguGuild from "./pingu/guild/PinguGuild";
 import PinguGuildMember from "./pingu/guildMember/PinguGuildMember";
 import ReactionRole from "./pingu/guild/items/ReactionRole";
 import PChannel from "./database/json/PChannel";
 import PinguUser from "./pingu/user/PinguUser";
+import PinguClientShell from "./pingu/client/PinguClientShell";
 
-type Pingu = BasePinguClient;
+type Pingu = PinguClientShell;
 
 declare module 'discord.js' {
     interface Base {
@@ -117,7 +117,7 @@ Guild.prototype.owner = function(this: Guild) {
     return this.members.cache.get(this.ownerId);
 }
 Guild.prototype.pGuild = function(this: Guild) {
-    return (this.client as BasePinguClient).pGuilds.get(this);
+    return (this.client).pGuilds.get(this);
 }
 Guild.prototype.member = function(this: Guild, user: User) {
     return this.members.cache.get(user.id);

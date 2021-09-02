@@ -1,4 +1,4 @@
-import { ClientEvents, ClientOptions, Collection, TextChannel, User, Guild, PermissionString, MessageEmbed, Message } from "discord.js";
+import { ClientEvents, Collection, TextChannel, User, Guild, MessageEmbed, Message } from "discord.js";
 import * as fs from 'fs';   
 import * as request from 'request';
 
@@ -11,27 +11,15 @@ import { GuildMemberAchievementType } from '../achievements/items/GuildMemberAch
 import { GuildAchievementType } from '../achievements/items/GuildAchievement'
 import { AchievementBaseType } from '../achievements/items/AchievementBase'
 
-import IConfigRequirements from '../../helpers/Config';
 import { PinguCommand, PinguEvent, PinguClientEvents, HandleEvent } from '../handlers';
 import BasePinguClient from "./BasePinguClient";
+import { Events, PinguIntentEvents } from "../../helpers/IntentEvents";
 
-export class PinguClient extends BasePinguClient<PinguClientEvents> {
-    constructor(
-        config: IConfigRequirements, 
-        permissions: PermissionString[], 
-        subscribedEvents?: Array<keyof PinguClientEvents>, 
-        dirname?: string,
-        commandsPath?: string, 
-        eventsPath?: string, 
-        options?: ClientOptions
-    ) {
-        super(config, permissions, subscribedEvents as any, dirname, commandsPath, eventsPath, options);
-    }
-
+export class PinguClient extends BasePinguClient<PinguIntentEvents> {
     //#region Public Properties
     public declare commands: Collection<string, PinguCommand>;
-    public declare events: Collection<keyof PinguClientEvents, PinguEvent<keyof PinguClientEvents>>;
-    public declare subscribedEvents: Array<keyof PinguClientEvents>;
+    public declare events: Collection<keyof PinguIntentEvents, PinguEvent<keyof PinguClientEvents>>;
+    public declare subscribedEvents: Array<PinguIntentEvents[keyof PinguIntentEvents]>;
     //#endregion
     
     //#region Public Methods
@@ -39,10 +27,7 @@ export class PinguClient extends BasePinguClient<PinguClientEvents> {
         return pGuild.clients.find(c => c && c._id == this.user.id);
     }
     public emit<PCE extends keyof PinguClientEvents, CE extends keyof ClientEvents>(key: PCE, ...args: PinguClientEvents[PCE]) {
-        return super.emit(
-            key as unknown as CE, 
-            ...args as unknown as ClientEvents[CE]
-        );
+        return super.emit(key as unknown as CE, ...args as unknown as ClientEvents[CE]);
     }
 
     //#region Gets
@@ -118,10 +103,10 @@ export class PinguClient extends BasePinguClient<PinguClientEvents> {
             );
         });
     }
-    public async AchievementCheck
-        <AchievementType extends GuildMemberAchievementType | GuildAchievementType | AchievementBaseType,
-        Key extends keyof AchievementType, Type extends AchievementType[Key]>
-    (data: AchievementCheckData, key: Key, type: Type, callbackParams: any[]) {
+    public async AchievementCheck<
+        AchievementType extends GuildMemberAchievementType | GuildAchievementType | AchievementBaseType,
+        Key extends keyof AchievementType, Type extends AchievementType[Key]
+    >(data: AchievementCheckData, key: Key, type: Type, callbackParams: any[]) {
         return AchievementCheck<AchievementType, Key, Type>(this, data, key, type, callbackParams);
     }
     //#endregion
@@ -138,15 +123,15 @@ export class PinguClient extends BasePinguClient<PinguClientEvents> {
                     module.path = `${path}/${file}`;
 
                     if (type == 'event') {
-                        if (!module.name || !this.subscribedEvents.find(e => module.name as keyof PinguClientEvents == e)) continue;
+                        if (!module.name || !this.subscribedEvents.find(e => module.name == e)) continue;
 
-                        const type = module.name as keyof PinguClientEvents
+                        const type = module.name as keyof PinguClientEvents;
                         const event = module as PinguEvent<typeof type>;
 
-                        this.events.set(event.name, event);
+                        this.events.set(event.name as keyof PinguIntentEvents, event);
 
                         this.on(event.name as keyof ClientEvents, (...params) => { //On original event
-                            this.handleEvent(event.name, ...params) //Handle as Pingu event
+                            this.handleEvent(event.name as keyof PinguClientEvents, ...params) //Handle as Pingu event
                         })
                     }
                     else if (type == 'command') this.commands.set(module.name, module as PinguCommand);
@@ -163,7 +148,7 @@ export class PinguClient extends BasePinguClient<PinguClientEvents> {
 
     //#region Private Methods
     private handleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, ...args: PinguClientEvents[EventType]) {
-        if (this.subscribedEvents.find(e => e == caller)) 
+        if (this.subscribedEvents.find(e => e as unknown as string == caller)) 
         try {
             HandleEvent(caller, this, ...args as PinguClientEvents[EventType]);
         }

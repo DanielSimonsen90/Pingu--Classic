@@ -23,11 +23,11 @@ export interface AchievementCallbackParams {
 }
 import PItem from "../../../database/json/PItem";
 import Percentage from "../../../helpers/Percentage";
-import BasePinguClient from '../../client/BasePinguClient';
+import PinguClientShell from "../../client/PinguClientShell";
 export declare abstract class AchievementBase extends PItem {
     constructor(id: number, name: string, description: string);
     description: string;
-    abstract getPercentage(client: BasePinguClient, guild?: Guild): Promise<Percentage>;
+    abstract getPercentage(client: PinguClientShell, guild?: Guild): Promise<Percentage>;
     protected static useCommand(command: Commands, extraInfo: string): string;
 }
 export default AchievementBase;

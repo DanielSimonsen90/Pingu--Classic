@@ -50,7 +50,7 @@ discord_js_1.Guild.prototype.owner = function () {
     return this.members.cache.get(this.ownerId);
 };
 discord_js_1.Guild.prototype.pGuild = function () {
-    return this.client.pGuilds.get(this);
+    return (this.client).pGuilds.get(this);
 };
 discord_js_1.Guild.prototype.member = function (user) {
     return this.members.cache.get(user.id);

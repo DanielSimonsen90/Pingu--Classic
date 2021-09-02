@@ -1,11 +1,11 @@
 import { VoiceConnection } from "@discordjs/voice";
-import BasePinguClient from './pingu/client/BasePinguClient';
 import PinguGuildMemberCollection from "./pingu/collection/PinguGuildMemberCollection";
 import PinguGuild from "./pingu/guild/PinguGuild";
 import PinguGuildMember from "./pingu/guildMember/PinguGuildMember";
 import ReactionRole from "./pingu/guild/items/ReactionRole";
 import PinguUser from "./pingu/user/PinguUser";
-declare type Pingu = BasePinguClient;
+import PinguClientShell from "./pingu/client/PinguClientShell";
+declare type Pingu = PinguClientShell;
 declare module 'discord.js' {
     interface Base {
         doIn<T>(callback: (self?: this) => T | Promise<T>, time: number | string): Promise<T>;
