@@ -1,19 +1,19 @@
-import { ClientEvents, ClientOptions, Collection, PermissionString, Snowflake, TextChannel } from "discord.js";
+import { ClientEvents, Collection, Snowflake, TextChannel } from "discord.js";
+import * as fs from 'fs';
 
-import { PinguClientEvents, PinguMusicCommand, PinguMusicClientEvents, PinguMusicEvent, PinguMusicCommandParams, HandleMusicEvent } from '../handlers';
-import IConfigRequirements from '../../helpers/Config';
+import PinguHandler from "../handlers/PinguHandler";
+import PinguMusicCommand, { PinguMusicCommandParams } from '../handlers/PinguMusicCommand';
+import PinguMusicEvent, { PinguMusicClientEvents, HandleMusicEvent } from '../handlers/PinguMusicEvent';
+import { PinguMusicIntentEvents } from '../../helpers/IntentEvents';
+
 import Queue from "../guild/items/music/Queue/Queue";
-
 import Song from "../guild/items/music/Song";
-import BasePinguClient from "./BasePinguClient";
+
+import PinguClientBase from "./BasePinguClient";
 
 interface VideoThing { url: string }
 
-import * as fs from 'fs';
-import PinguHandler from "../handlers/PinguHandler";
-import { PinguMusicIntentEvents } from '../../helpers/IntentEvents';
-
-export class PinguMusicClient extends BasePinguClient<PinguMusicIntentEvents> {
+export class PinguMusicClient extends PinguClientBase<PinguMusicIntentEvents> {
     public queues = new Collection<Snowflake, Queue>();
     public declare events: Collection<keyof PinguMusicIntentEvents, PinguMusicEvent<keyof PinguMusicClientEvents>>;
     public declare commands: Collection<string, PinguMusicCommand>;
@@ -24,7 +24,7 @@ export class PinguMusicClient extends BasePinguClient<PinguMusicIntentEvents> {
 
         return super.emit(
             key as unknown as CE, 
-            ...args as unknown as PinguClientEvents[CE]
+            ...args as unknown as PinguMusicClientEvents[CE]
         );
     }
 

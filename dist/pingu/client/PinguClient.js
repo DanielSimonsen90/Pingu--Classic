@@ -6,7 +6,7 @@ const fs = require("fs");
 const request = require("request");
 const PinguBadge_1 = require("../badge/PinguBadge");
 const achievements_1 = require("../achievements");
-const handlers_1 = require("../handlers");
+const PinguEvent_1 = require("../handlers/PinguEvent");
 const BasePinguClient_1 = require("./BasePinguClient");
 class PinguClient extends BasePinguClient_1.default {
     //#endregion
@@ -131,7 +131,7 @@ class PinguClient extends BasePinguClient_1.default {
     handleEvent(caller, ...args) {
         if (this.subscribedEvents.find(e => e == caller))
             try {
-                handlers_1.HandleEvent(caller, this, ...args);
+                PinguEvent_1.HandleEvent(caller, this, ...args);
             }
             catch (err) {
                 this.log('error', `Event error`, null, err, { params: { caller, args } });

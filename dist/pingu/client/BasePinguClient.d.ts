@@ -3,7 +3,7 @@ import PinguHandler from "../handlers/PinguHandler";
 import { DiscordIntentEvents, Events } from '../../helpers/IntentEvents';
 import IConfigRequirements from "../../helpers/Config";
 import PinguClientShell from "./PinguClientShell";
-export declare abstract class BasePinguClient<Intents extends DiscordIntentEvents> extends PinguClientShell {
+export declare abstract class PinguClientBase<Intents extends DiscordIntentEvents> extends PinguClientShell {
     constructor(config: IConfigRequirements, permissions: Array<PermissionString>, intents: Array<keyof Intents>, subscribedEvents: Array<Events<Intents>>, dirname: string, commandsPath?: string, eventsPath?: string, options?: ClientOptions);
     commands: Collection<string, PinguHandler>;
     events: Collection<keyof Intents, PinguHandler>;
@@ -11,4 +11,4 @@ export declare abstract class BasePinguClient<Intents extends DiscordIntentEvent
     get intents(): (keyof Intents)[];
     private _intents;
 }
-export default BasePinguClient;
+export default PinguClientBase;

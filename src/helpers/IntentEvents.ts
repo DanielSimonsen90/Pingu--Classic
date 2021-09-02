@@ -5,9 +5,11 @@ type IUpdateable<T extends string> = `${T}Update`;
 type ICrud<T extends string> = ICreateable<T> | IUpdateable<T>;
 type IAddable<T extends string> = `${T}Add` | `${T}Remove`
 
-type GuildBanAddable = IAddable<"guildBan">
-type GuildCrud = ICrud<"guild">;
-type GuildMemberCrud = ICrud<"guildMember">;
+type EmojiCrud = ICrud<"emoji">;
+type StickerCrud = ICrud<"sticker">;
+type GuildBanAddable = IAddable<"guildBan">;
+type GuildCrud = ICrud<"guild"> | 'guildUnavailable';
+type GuildMemberCrud = IAddable<"guildMember"> | IUpdateable<"guildMember"> | 'guildMemberAvailable';
 type IntegrationCrud = ICrud<"integration">;
 type InviteCreateable = ICreateable<"invite">;
 type MessageCrud = ICrud<"message">;
@@ -22,7 +24,7 @@ type ThreadMemberUpdate = IUpdateable<"threadMember">;
 type ThreadMembersUpdate = IUpdateable<"threadMembers">;
 type VoiceStateUpdate = IUpdateable<"voiceState">;
 type EmojiUpdate = IUpdateable<"emoji">;
-type StickersUpdate = IUpdateable<"stickers">;
+type StickerUpdate = IUpdateable<"stickers">;
 type GuildIntegrationUpdate = IUpdateable<"guildIntegration">;
 type WebhookUpdate = IUpdateable<"webhook">;
 type PresenceUpdate = IUpdateable<"presence">;
@@ -38,7 +40,7 @@ export interface DiscordIntentEvents {
     GUILDS: GuildCrud | RoleCrud | ChannelCrud | ChannelPinsUpdate | ThreadCrud | 'threadListSync' | ThreadMembersUpdate | ThreadMemberUpdate | StageCrud;
     GUILD_MEMBERS: GuildMemberCrud | ThreadMembersUpdate;
     GUILD_BANS: GuildBanAddable;
-    GUILD_EMOJIS_AND_STICKERS: EmojiUpdate | StickersUpdate;
+    // GUILD_EMOJIS_AND_STICKERS: EmojiUpdate | StickerUpdate;
     GUILD_INTEGRATIONS: GuildIntegrationUpdate | IntegrationCrud;
     GUILD_WEBHOOKS: WebhookUpdate;
     GUILD_INVITES: InviteCreateable;
@@ -50,16 +52,20 @@ export interface DiscordIntentEvents {
     DIRECT_MESSAGES: MessageCrud | ChannelPinsUpdate;
     DIRECT_MESSAGE_REACTIONS: MessageReactionCrud;
     DIRECT_MESSAGE_TYPING: 'typingStart';
+    
+    GUILD_EMOJIS_AND_STICKERS: EmojiCrud | StickerCrud
     CLIENT: 'error' | 'debug' | 'warn' | 'ready' | 'invalidated' | 'rateLimit';
-    SHARD: ShardManagement
+    SHARD: ShardManagement;
+    USER: IUpdateable<"user">;
+    APPLICATION_COMMAND: ICrud<"applicationCommand">;
+    INTERACTION: 'interactionCreate' | 'interaction';
 }
+export type Events<Intents> = Intents[keyof Intents];
 
 type IChosenOnes<T extends string> = `chosen${T}`;
 type IOn<T extends keyof ClientEvents> = `on${T}`;
 
 type ChosenOnes = IChosenOnes<"Guild"> | IChosenOnes<"User">;
-
-export type Events<Intents> = Intents[keyof Intents];
 
 export interface PinguIntentEvents extends DiscordIntentEvents {
     CHOSEN_ONES: ChosenOnes;

@@ -5,10 +5,11 @@ import { AchievementCheckData } from '../achievements';
 import { GuildMemberAchievementType } from '../achievements/items/GuildMemberAchievement';
 import { GuildAchievementType } from '../achievements/items/GuildAchievement';
 import { AchievementBaseType } from '../achievements/items/AchievementBase';
-import { PinguCommand, PinguEvent, PinguClientEvents } from '../handlers';
-import BasePinguClient from "./BasePinguClient";
+import PinguCommand from '../handlers/PinguCommand';
+import PinguEvent, { PinguClientEvents } from '../handlers/PinguEvent';
 import { PinguIntentEvents } from "../../helpers/IntentEvents";
-export declare class PinguClient extends BasePinguClient<PinguIntentEvents> {
+import PinguClientBase from "./BasePinguClient";
+export declare class PinguClient extends PinguClientBase<PinguIntentEvents> {
     commands: Collection<string, PinguCommand>;
     events: Collection<keyof PinguIntentEvents, PinguEvent<keyof PinguClientEvents>>;
     subscribedEvents: Array<PinguIntentEvents[keyof PinguIntentEvents]>;

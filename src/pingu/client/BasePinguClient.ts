@@ -1,10 +1,10 @@
-import { ClientOptions, Collection, PermissionString } from "discord.js";
+import { ClientOptions, Collection, PermissionString, IntentsString } from "discord.js";
 import PinguHandler from "../handlers/PinguHandler";
 import { DiscordIntentEvents, Events } from '../../helpers/IntentEvents';
 import IConfigRequirements from "../../helpers/Config";
 import PinguClientShell from "./PinguClientShell";
 
-export abstract class BasePinguClient<Intents extends DiscordIntentEvents> extends PinguClientShell {
+export abstract class PinguClientBase<Intents extends DiscordIntentEvents> extends PinguClientShell {
     constructor(
         config: IConfigRequirements,  
         permissions: Array<PermissionString>,
@@ -15,7 +15,10 @@ export abstract class BasePinguClient<Intents extends DiscordIntentEvents> exten
         eventsPath?: string, 
         options?: ClientOptions
     ) {
-        super(config, permissions, options);
+        super(config, permissions, {
+            intents: intents as Array<IntentsString>,
+            ...options
+        });
 
         this.subscribedEvents = subscribedEvents;
         this._intents = intents;
@@ -38,4 +41,4 @@ export abstract class BasePinguClient<Intents extends DiscordIntentEvents> exten
     private _intents: Array<keyof Intents>
 }
 
-export default BasePinguClient;
+export default PinguClientBase;
