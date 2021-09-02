@@ -2,11 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PinguMusicClient = void 0;
 const discord_js_1 = require("discord.js");
-const handlers_1 = require("../handlers");
+const fs = require("fs");
+const PinguMusicEvent_1 = require("../handlers/PinguMusicEvent");
 const Queue_1 = require("../guild/items/music/Queue/Queue");
 const Song_1 = require("../guild/items/music/Song");
 const BasePinguClient_1 = require("./BasePinguClient");
-const fs = require("fs");
 class PinguMusicClient extends BasePinguClient_1.default {
     queues = new discord_js_1.Collection();
     // public declare subscribedEvents: Array<PinguMusicCommand[keyof PinguMusicCommand]>;
@@ -108,7 +108,7 @@ class PinguMusicClient extends BasePinguClient_1.default {
     }
     handleEvent(caller, ...args) {
         if (this.subscribedEvents.find(e => e == caller))
-            handlers_1.HandleMusicEvent(caller, this, this.events.get(caller).path, ...args);
+            PinguMusicEvent_1.HandleMusicEvent(caller, this, this.events.get(caller).path, ...args);
         return this;
     }
 }

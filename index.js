@@ -9,38 +9,28 @@
         'USE_EXTERNAL_EMOJIS', 'USE_VAD', 
         'VIEW_AUDIT_LOG', 'VIEW_CHANNEL'
     ], [
-        'channelCreate', 'channelDelete', 'channelPinsUpdate', 'channelUpdate', 'typingStart', 'webhookUpdate',                                                                 //channel
-        'error', 'invalidated', 'onready',                                                                                                                                      //client
-        'emojiCreate', 'emojiDelete', 'emojiUpdate',                                                                                                                            //emoji
-        'guildMemberAdd', 'guildMemberAvailable', 'guildMemberRemove', 'guildMemberUpdate',                                                                                     //guildMember
-        'inviteCreate', 'inviteDelete',                                                                                                                                         //invite
-        'roleCreate', 'roleDelete', 'roleUpdate',                                                                                                                               //role
-        'guildBanAdd', 'guildBanRemove',                                                                                                                                        //guild bans
-        'guildCreate', 'guildUpdate', 'guildDelete',                                                                                                                            //guild Crud
-        'guildIntegrationsUpdate', 'guildUnavailable', 'presenceUpdate', 'voiceStateUpdate', 'guildMemberSpeaking',                                                             //guild
-        'messageReactionAdd', 'messageReactionRemove', 'messageReactionRemoveAll', 'messageReactionRemoveEmoji',                                                                //messageReaction
-        'messageCreate', 'messageDelete', 'messageDeleteBulk', 'messageUpdate',                                                                                                 //message
-        'userUpdate',                                                                                                                                                           //user
-        'chosenUser', 'chosenGuild', 'mostKnownUser'                                                                                                                            //custom
-    ], __dirname, 'commands', 'events', { 
-        intents: [
-            'GUILDS', //guildCrud, roleCrud, channelCrud, channelPinsUpdate, threadCrud, threadListSync, threadMembersUpdate, threadMemberUpdate, stageCrud
-            'GUILD_MEMBERS', //guildMemberCrud, threadMembersUpdate
-            'GUILD_BANS', //guildBanAdd, guildBanRemove
-            'GUILD_EMOJIS_AND_STICKERS', //emojiUpdate, stickersUpdate
-            'GUILD_INTEGRATIONS', //guildIntergrationUpdate, intergationCrud
-            // 'GUILD_WEBHOOKS', //webhookUpdate
-            'GUILD_INVITES', //inviteCreate, inviteDelete
-            'GUILD_VOICE_STATES', //voiceStateUpdate
-            'GUILD_PRESENCES', //presenceUpdate
-            'GUILD_MESSAGES', //messageCrud, messageDeleteBulk
-            'GUILD_MESSAGE_REACTIONS', //messageReactionCreate, messageReactionRemove, messageReactionRemoveAll, messageReactionRemoveEmoji
-            'GUILD_MESSAGE_TYPING', //typingStart
-            'DIRECT_MESSAGES', //messageCrud, channelPinsUpdate
-            'DIRECT_MESSAGE_REACTIONS', //messageReactionAdd, messageReactionRemove, messageReactionRemoveAll, messageReactionRemoveEmoji,
-            // 'DIRECT_MESSAGE_TYPING' //typingStart
-        ] 
-    });
+        'CLIENT', 'MOST_KNOWN', 'ON',
+        'DIRECT_MESSAGES', 'DIRECT_MESSAGE_REACTIONS', 'DIRECT_MESSAGE_TYPING', 
+        'GUILDS', 'GUILD_BANS', 'GUILD_EMOJIS_AND_STICKERS', 'GUILD_INTEGRATIONS', 'GUILD_INVITES', 'GUILD_MEMBERS',
+        'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS', 'GUILD_MESSAGE_TYPING', 
+        'GUILD_PRESENCES', 'GUILD_VOICE_STATES', 'MOST_KNOWN'
+    ], [
+        'channelCreate', 'channelDelete', 'channelPinsUpdate', 'channelUpdate', 'typingStart', 'webhookUpdate',
+        'error', 'invalidated', 'onready',
+        'emojiCreate', 'emojiUpdate', 'emojiDelete', 'stickerCreate', 'stickerUpdate', 'stickerDelete',
+        'guildMemberAdd', 'guildMemberUpdate', 'guildMemberRemove', 'guildMemberAvailable',
+        'inviteCreate', 'inviteDelete',
+        'roleCreate', 'roleUpdate', 'roleDelete',
+        'guildBanAdd', 'guildBanRemove',
+        'guildCreate', 'guildUpdate', 'guildDelete',
+        'guildIntegrationUpdate', 'guildUnavailable', 'presenceUpdate', 'voiceStateUpdate',
+        'messageReactionAdd', 'messageReactionRemove', 'messageReactionRemoveAll', 'messageReactionRemoveEmoji',
+        'messageCreate', 'messageUpdate', 'messageDelete', 'messageDeleteBulk',
+        'userUpdate',
+        'applicationCommandCreate', 'applicationCommandDelete', 'applicationCommandUpdate',
+        'interactionCreate', 'interaction',
+        'chosenUser', 'chosenGuild', 'mostKnownUser'
+    ], __dirname, 'commands', 'events');
 
     try { var { token } = require('../PinguBetaToken.json'); /*throw null*/ }
     catch { token = config.token; }

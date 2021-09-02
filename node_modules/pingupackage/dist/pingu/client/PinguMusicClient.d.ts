@@ -1,12 +1,13 @@
 import { ClientEvents, Collection } from "discord.js";
-import { PinguMusicCommand, PinguMusicClientEvents, PinguMusicEvent, PinguMusicCommandParams } from '../handlers';
+import PinguMusicCommand, { PinguMusicCommandParams } from '../handlers/PinguMusicCommand';
+import PinguMusicEvent, { PinguMusicClientEvents } from '../handlers/PinguMusicEvent';
+import { PinguMusicIntentEvents } from '../../helpers/IntentEvents';
 import Queue from "../guild/items/music/Queue/Queue";
-import BasePinguClient from "./BasePinguClient";
+import PinguClientBase from "./BasePinguClient";
 interface VideoThing {
     url: string;
 }
-import { PinguMusicIntentEvents } from '../../helpers/IntentEvents';
-export declare class PinguMusicClient extends BasePinguClient<PinguMusicIntentEvents> {
+export declare class PinguMusicClient extends PinguClientBase<PinguMusicIntentEvents> {
     queues: Collection<string, Queue>;
     events: Collection<keyof PinguMusicIntentEvents, PinguMusicEvent<keyof PinguMusicClientEvents>>;
     commands: Collection<string, PinguMusicCommand>;

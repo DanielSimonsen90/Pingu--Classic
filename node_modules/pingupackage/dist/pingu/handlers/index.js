@@ -10,6 +10,6 @@ Object.defineProperty(exports, "LoggedCache", { enumerable: true, get: function 
 Object.defineProperty(exports, "HandleEvent", { enumerable: true, get: function () { return PinguEvent_1.HandleEvent; } });
 var PinguMusicEvent_1 = require("./PinguMusicEvent");
 Object.defineProperty(exports, "PinguMusicEvent", { enumerable: true, get: function () { return PinguMusicEvent_1.PinguMusicEvent; } });
-Object.defineProperty(exports, "HandleMusicEvent", { enumerable: true, get: function () { return PinguMusicEvent_1.HandleEvent; } });
+Object.defineProperty(exports, "HandleMusicEvent", { enumerable: true, get: function () { return PinguMusicEvent_1.HandleMusicEvent; } });
 var PinguMusicCommand_1 = require("./PinguMusicCommand");
 Object.defineProperty(exports, "PinguMusicCommand", { enumerable: true, get: function () { return PinguMusicCommand_1.PinguMusicCommand; } });

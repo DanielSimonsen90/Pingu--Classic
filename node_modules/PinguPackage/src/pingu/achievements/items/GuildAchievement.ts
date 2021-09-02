@@ -23,7 +23,7 @@ export function useChannel(channel: Channels, extraInfo: string) {
 
 import { IGuildAchievement } from "./IAchievementBase";
 import Percentage from "../../../helpers/Percentage";
-import BasePinguClient from '../../client/BasePinguClient'
+import PinguClientBase from '../../client/BasePinguClient'
 import { DiscordIntentEvents } from "../../../helpers/IntentEvents";
 
 export class GuildAchievement<
@@ -51,7 +51,7 @@ export class GuildAchievement<
         return true
     }
 
-    public async getPercentage<Intents extends DiscordIntentEvents = DiscordIntentEvents>(client: BasePinguClient<Intents>) {
+    public async getPercentage<Intents extends DiscordIntentEvents = DiscordIntentEvents>(client: PinguClientBase<Intents>) {
         let pGuilds = client.pGuilds.array();
         let whole = pGuilds.length;
         let part = pGuilds.filter(pGuild => pGuild.settings.config.achievements.achievements.find(a => a._id == this._id)).length;
