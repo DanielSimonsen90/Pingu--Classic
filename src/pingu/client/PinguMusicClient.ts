@@ -32,6 +32,9 @@ export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
         super(config, permissions, subscribedEvents as any, dirname, commandsPath, eventsPath, options);
     }
 
+<<<<<<< HEAD
+>>>>>>> parent of 92c7bfa (Get events from intents)
+=======
 >>>>>>> parent of 92c7bfa (Get events from intents)
     public queues = new Collection<Snowflake, Queue>();
     public declare events: Collection<keyof PinguMusicClientEvents, PinguMusicEvent<keyof PinguMusicClientEvents>>;

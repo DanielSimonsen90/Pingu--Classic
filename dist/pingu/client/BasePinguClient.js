@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 <<<<<<< HEAD
+<<<<<<< HEAD
 exports.PinguClientBase = void 0;
 const discord_js_1 = require("discord.js");
 const PinguClientShell_1 = require("./PinguClientShell");
@@ -13,6 +14,10 @@ class PinguClientBase extends PinguClientShell_1.default {
 =======
 exports.BasePinguClient = exports.Clients = void 0;
 const discord_js_1 = require("discord.js");
+=======
+exports.BasePinguClient = exports.Clients = void 0;
+const discord_js_1 = require("discord.js");
+>>>>>>> parent of 92c7bfa (Get events from intents)
 const fs = require("fs");
 exports.Clients = {
     PinguID: '562176550674366464',
@@ -57,6 +62,9 @@ class BasePinguClient extends discord_js_1.Client {
         // this.raspberryLog = this.raspberryLog.bind(this);
         // this.tellLog = this.tellLog.bind(this);
         this.config = config;
+<<<<<<< HEAD
+>>>>>>> parent of 92c7bfa (Get events from intents)
+=======
 >>>>>>> parent of 92c7bfa (Get events from intents)
         this.subscribedEvents = subscribedEvents;
         this.permissions = new PermissionsManager_1.default(this, permissions);

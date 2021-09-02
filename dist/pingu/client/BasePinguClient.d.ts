@@ -7,10 +7,13 @@ import PinguHandler from "../handlers/PinguHandler";
 import { PinguCommandParams } from "../handlers/PinguCommand";
 import IConfigRequirements from "../../helpers/Config";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import PinguClientShell from "./PinguClientShell";
 export declare abstract class PinguClientBase<Intents extends DiscordIntentEvents> extends PinguClientShell {
     constructor(config: IConfigRequirements, permissions: Array<PermissionString>, intents: Array<keyof Intents>, subscribedEvents: Array<Events<Intents>>, dirname: string, commandsPath?: string, eventsPath?: string, options?: ClientOptions);
 =======
+=======
+>>>>>>> parent of 92c7bfa (Get events from intents)
 import { TimestampStyle } from '../../helpers/TimeLeftObject';
 import PinguCollection from '../collection/PinguCollection';
 import DeveloperCollection from '../collection/DeveloperCollection';
@@ -51,6 +54,9 @@ export declare abstract class BasePinguClient<Events extends ClientEvents = any>
     get member(): import("discord.js").GuildMember;
     readonly DefaultEmbedColor = 3447003;
     readonly invite = "https://discord.gg/gbxRV4Ekvh";
+<<<<<<< HEAD
+>>>>>>> parent of 92c7bfa (Get events from intents)
+=======
 >>>>>>> parent of 92c7bfa (Get events from intents)
     commands: Collection<string, PinguHandler>;
     events: Collection<string | keyof Events, PinguHandler>;

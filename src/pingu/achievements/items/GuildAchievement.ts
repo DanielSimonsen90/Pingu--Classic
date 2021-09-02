@@ -24,8 +24,12 @@ export function useChannel(channel: Channels, extraInfo: string) {
 import { IGuildAchievement } from "./IAchievementBase";
 import Percentage from "../../../helpers/Percentage";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import PinguClientBase from '../../client/BasePinguClient'
 import { DiscordIntentEvents } from "../../../helpers/IntentEvents";
+=======
+import BasePinguClient from '../../client/BasePinguClient'
+>>>>>>> parent of 92c7bfa (Get events from intents)
 =======
 import BasePinguClient from '../../client/BasePinguClient'
 >>>>>>> parent of 92c7bfa (Get events from intents)
@@ -56,7 +60,11 @@ extends AchievementBase implements IGuildAchievement<Key, Type, GuildAchievement
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     public async getPercentage<Intents extends DiscordIntentEvents = DiscordIntentEvents>(client: PinguClientBase<Intents>) {
+=======
+    public async getPercentage(client: BasePinguClient) {
+>>>>>>> parent of 92c7bfa (Get events from intents)
 =======
     public async getPercentage(client: BasePinguClient) {
 >>>>>>> parent of 92c7bfa (Get events from intents)

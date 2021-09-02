@@ -25,12 +25,16 @@ export interface PinguMusicEvents {
 export interface PinguMusicClientEvents extends PinguMusicEvents, PinguClientEvents {}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export async function HandleMusicEvent<EventType extends keyof PinguMusicClientEvents>(
     caller: EventType, 
     client: PinguMusicClient, 
     path: string, 
     ...args: PinguMusicClientEvents[EventType]
 ) {
+=======
+export async function HandleEvent<EventType extends keyof PinguMusicClientEvents>(caller: EventType, client: PinguMusicClient, path: string, ...args: PinguMusicClientEvents[EventType]) {
+>>>>>>> parent of 92c7bfa (Get events from intents)
 =======
 export async function HandleEvent<EventType extends keyof PinguMusicClientEvents>(caller: EventType, client: PinguMusicClient, path: string, ...args: PinguMusicClientEvents[EventType]) {
 >>>>>>> parent of 92c7bfa (Get events from intents)

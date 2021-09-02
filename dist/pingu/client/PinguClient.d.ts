@@ -6,17 +6,23 @@ import { GuildMemberAchievementType } from '../achievements/items/GuildMemberAch
 import { GuildAchievementType } from '../achievements/items/GuildAchievement';
 import { AchievementBaseType } from '../achievements/items/AchievementBase';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import PinguCommand from '../handlers/PinguCommand';
 import PinguEvent, { PinguClientEvents } from '../handlers/PinguEvent';
 import { PinguIntentEvents } from "../../helpers/IntentEvents";
 import PinguClientBase from "./BasePinguClient";
 export declare class PinguClient extends PinguClientBase<PinguIntentEvents> {
 =======
+=======
+>>>>>>> parent of 92c7bfa (Get events from intents)
 import IConfigRequirements from '../../helpers/Config';
 import { PinguCommand, PinguEvent, PinguClientEvents } from '../handlers';
 import BasePinguClient from "./BasePinguClient";
 export declare class PinguClient extends BasePinguClient<PinguClientEvents> {
     constructor(config: IConfigRequirements, permissions: PermissionString[], subscribedEvents?: Array<keyof PinguClientEvents>, dirname?: string, commandsPath?: string, eventsPath?: string, options?: ClientOptions);
+<<<<<<< HEAD
+>>>>>>> parent of 92c7bfa (Get events from intents)
+=======
 >>>>>>> parent of 92c7bfa (Get events from intents)
     commands: Collection<string, PinguCommand>;
     events: Collection<keyof PinguClientEvents, PinguEvent<keyof PinguClientEvents>>;

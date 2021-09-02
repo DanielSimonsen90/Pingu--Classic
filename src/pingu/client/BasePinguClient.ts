@@ -1,6 +1,9 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ClientOptions, Collection, PermissionString, IntentsString } from "discord.js";
 =======
+=======
+>>>>>>> parent of 92c7bfa (Get events from intents)
 import { 
     ActivityOptions, ActivityType, CategoryChannel, Client, ClientEvents, 
     ClientOptions, Collection, Guild, Message, MessageAttachment, MessageEmbed, 
@@ -11,6 +14,9 @@ export const Clients = {
     PinguID: '562176550674366464',
     BetaID: '778288722055659520'
 }
+<<<<<<< HEAD
+>>>>>>> parent of 92c7bfa (Get events from intents)
+=======
 >>>>>>> parent of 92c7bfa (Get events from intents)
 import PinguHandler from "../handlers/PinguHandler";
 import { PinguCommandParams } from "../handlers/PinguCommand";
@@ -30,6 +36,7 @@ import PinguCacheManager from '../PinguCacheManager';
 import { IAmBadge, PinguBadge, TempBadges } from '../badge/PinguBadge'
 import PinguUser from '../user/PinguUser';
 import PinguGuild from '../guild/PinguGuild';
+<<<<<<< HEAD
 
 type ConsoleLogType = 'log' | 'warn' | 'error';
 interface ErrorLogParams { 
@@ -68,6 +75,42 @@ export abstract class BasePinguClient<Events extends ClientEvents = any> extends
 export abstract class PinguClientBase<Intents extends DiscordIntentEvents> extends PinguClientShell {
 =======
 >>>>>>> parent of 92c7bfa (Get events from intents)
+=======
+
+type ConsoleLogType = 'log' | 'warn' | 'error';
+interface ErrorLogParams { 
+    params?: PinguCommandParams | {}, 
+    trycatch?: {}
+    additional?: {}
+}
+interface LogTypes {
+    achievement: [content: MessageEmbed],
+    console: [message: string, type?: ConsoleLogType],
+    error: [message: string, messageContent?: string, err?: Error, params?: ErrorLogParams],
+    event: [content: MessageEmbed],
+    ping: [timestamp: number],
+    pGuild: [script: string, message: string, err?: Error],
+    pUser: [script: string, message: string, err?: Error],
+    raspberry: [],
+    tell: [sender: User, receiver: User, message: Message | MessageEmbed]
+}
+export type LogChannels = keyof LogTypes;
+type LogMethod = (channel: TextChannel, ...args: LogTypes[LogChannels]) => Promise<Message>
+export type SavedServerNames = 'Danho Misc' | 'Pingu Support' | 'Pingu Emotes' | 'Deadly Ninja';
+class SavedServer {
+    constructor(name: SavedServerNames, id: Snowflake) {
+        this.name = name;
+        this.id = id;
+    }
+
+    public name: SavedServerNames;
+    public id: Snowflake;
+}
+
+export abstract class BasePinguClient<Events extends ClientEvents = any> extends Client {
+    public static Clients = Clients;
+
+>>>>>>> parent of 92c7bfa (Get events from intents)
     constructor(
         config: IConfigRequirements,  
         permissions: PermissionString[], 
@@ -78,11 +121,14 @@ export abstract class PinguClientBase<Intents extends DiscordIntentEvents> exten
         options?: ClientOptions
     ) {
 <<<<<<< HEAD
+<<<<<<< HEAD
         super(config, permissions, {
             intents: intents as Array<IntentsString>,
             ...options
         });
 =======
+=======
+>>>>>>> parent of 92c7bfa (Get events from intents)
         super(options);
 
         this.log = this.log.bind(this);
@@ -91,6 +137,9 @@ export abstract class PinguClientBase<Intents extends DiscordIntentEvents> exten
         // this.timeFormat = this.timeFormat.bind(this);
         // this.onceReady = this.onceReady.bind(this);
         // this.handlePath =  this.handlePath.bind(this);
+<<<<<<< HEAD
+>>>>>>> parent of 92c7bfa (Get events from intents)
+=======
 >>>>>>> parent of 92c7bfa (Get events from intents)
 
         // this.achievementLog = this.achievementLog.bind(this);
