@@ -1,14 +1,15 @@
-import { ClientOptions, Collection, PermissionString, IntentsString } from "discord.js";
 import { 
     ActivityOptions, ActivityType, CategoryChannel, Client, ClientEvents, 
     ClientOptions, Collection, Guild, Message, MessageAttachment, MessageEmbed, 
     PermissionString, Snowflake, TextChannel, User 
 } from "discord.js";
 import * as fs from 'fs';
+
 export const Clients = {
     PinguID: '562176550674366464',
     BetaID: '778288722055659520'
 }
+
 import PinguHandler from "../handlers/PinguHandler";
 import { PinguCommandParams } from "../handlers/PinguCommand";
 
@@ -285,6 +286,8 @@ export abstract class PinguClientBase<Events extends ClientEvents = any> extends
         return channel.send(message);
     }
     private async errorLog(channel: TextChannel, message: string, messageContent?: string, err?: Error, params?: ErrorLogParams): Promise<Message> {
+        const that = this;
+
         //Get #error-log
         let errorPath = './errors'; 
         if (!fs.existsSync(errorPath)) {
@@ -292,31 +295,31 @@ export abstract class PinguClientBase<Events extends ClientEvents = any> extends
             fs.writeFileSync(`${errorPath}/dont delete me pls.txt`, ``);
         }
         
-        const errorID = fs.readdirSync(errorPath).filter(file => file.endsWith('.json')).length;
+        const errorId = fs.readdirSync(errorPath).filter(file => file.endsWith('.json')).length;
         const consoleLogChannel = this.logChannels.get('console');
 
         type FileExtension = 'txt' | 'json';
-        const fsCallback = (fileExtension: FileExtension) => this.consoleLog(consoleLogChannel, `Created ${fileExtension} file for error #${errorID}.`)
+        const fsCallback = (fileExtension: FileExtension) => this.consoleLog(consoleLogChannel, `Created ${fileExtension} file for error #${errorId}.`)
         const jsonErrorContent = JSON.stringify({ err, params }, null, 2);
-        fs.writeFile(`${errorPath}/${errorID}.json`, jsonErrorContent, () => fsCallback('json'));
+        fs.writeFile(`${errorPath}/${errorId}.json`, jsonErrorContent, () => fsCallback('json'));
         
         //Send and react
         const sentCatcher = async (e: Error, fileExtension: FileExtension) => {
             console.error(`Caught error with:\n${e.message}\n\n`)
             if (new RegExp(/Must be (2|4)000 or fewer in length\./).test(e.message)) {
-                const filePath = `${errorPath}/${errorID}.${fileExtension}`;
+                const filePath = `${errorPath}/${errorId}.${fileExtension}`;
 
                 if (fileExtension == 'txt') {
                     const fileContent = getErrorMessage(message, messageContent, err);
                     fs.writeFile(filePath, fileContent, () => fsCallback(fileExtension));
                 }
 
-                return channel.sendFiles(new MessageAttachment(filePath, `Error ${errorID}.${fileExtension}`));
+                return channel.sendFiles(new MessageAttachment(filePath, `Error ${errorId}.${fileExtension}`));
             }
         }
         const getErrorMessage = (function (message: string, messageContent?: string, err?: Error) {
             let result = {
-                errorID: `Error #${errorID}\n`,
+                errorID: `Error #${errorId}\n`,
                 format: "```\n",
                 providedMessage: `[Provided Message]\n${message}\n\n`,
                 errorMessage: `[Error message]: \n${err && err.message}\n\n`,
@@ -335,36 +338,36 @@ export abstract class PinguClientBase<Events extends ClientEvents = any> extends
 
             this.consoleLog(consoleLogChannel, returnMessage);
             return returnMessage
-        }).bind(this);
+        }).bind(this) as (message: string, messageContent?: string, err?: Error) => string;
 
-        let sent = await sendMessage(getErrorMessage(message, messageContent, err)).catch(err => sentCatcher(err, 'txt'));
-        let paramsSent = await sendMessage("```\n[Parameters]:\n" + jsonErrorContent + "\n```").catch(err => sentCatcher(err, 'json'));
+        const sent = await sendMessage(getErrorMessage(message, messageContent, err)).catch(err => sentCatcher(err, 'txt'));
+        const paramsSent = await sendMessage("```\n[Parameters]:\n" + jsonErrorContent + "\n```").catch(err => sentCatcher(err, 'json'));
 
         //Add to errorCache
-        this.cache.errors.set(errorID, [sent, paramsSent]);
+        this.cache.errors.set(errorId, [sent, paramsSent]);
 
         //Send original errror message
         return sent;
 
         async function sendMessage(content: string) {
-            console.error(content.includes('`') ? content.replace('`', ' ') : content);
+            console.error(content.replace(/`/, ''));
 
-            let sent = await channel.send(content);
-            await sent.react(this.emotes.get('Checkmark')[0]);
+            const sent = await channel.send(content);
+            await sent.react(that.emotes.get('Checkmark')[0]);
             await sent.react('📄'); //Get error file
             
             //Create reaction handler
             sent.createReactionCollector().on('collect', async (reaction, user) => {
-                if (user.isPinguDev() || !reaction.users.cache.has(this.id)) return reaction.remove();
+                if (user.isPinguDev() || !reaction.users.cache.has(that.id)) return reaction.remove();
 
                 if (reaction.emoji.name == '📄') {
-                    let fileMessage = await reaction.message.channel.sendFiles(new MessageAttachment(`${errorPath}/${errorID}.json`, `Error ${errorID}.json`));
-                    return this.cache.errors.set(errorID, [...this.cache.errors.get(errorID), fileMessage]);
+                    let fileMessage = await reaction.message.channel.sendFiles(new MessageAttachment(`${errorPath}/${errorId}.json`, `Error ${errorId}.json`));
+                    return that.cache.errors.set(errorId, [...that.cache.errors.get(errorId), fileMessage]);
                 }
 
-                this.cache.errors.get(errorID).forEach(m => m.delete());
-                const errorFiles = fs.readdirSync(errorPath).filter(file => file.startsWith(errorID.toString()));
-                errorFiles.forEach(file => fs.unlink(`${errorPath}/${file}`, () => this.log('console', `Deleted error #${errorID}.`)))
+                that.cache.errors.get(errorId).forEach(m => m.delete());
+                const errorFiles = fs.readdirSync(errorPath).filter(file => file.startsWith(errorId.toString()));
+                errorFiles.forEach(file => fs.unlink(`${errorPath}/${file}`, () => that.log('console', `Deleted error #${errorId}.`)))
             })
             
             return sent;

@@ -10,7 +10,7 @@ export class PinguGuildMemberCollection extends IPinguCollection<GuildMember, Pi
     constructor(client: PinguClientBase, logChannelName: string, guild: Guild) {
         super(client, logChannelName, 'PinguGuildMember', 
             gm => new PinguGuildMember(gm, client.pGuilds.get(gm.guild).settings.config.achievements.notificationTypes.members), 
-            (c, pt) => c.guilds.cache.get(pt.guild._id).members
+            (c, pgm) => c.guilds.cache.get(pgm.guild._id).members
         );
         
         this._guild = guild;

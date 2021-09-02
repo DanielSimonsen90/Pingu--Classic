@@ -1,5 +1,4 @@
-import { ClientOptions, Collection, PermissionString } from "discord.js";
-import { ActivityOptions, Client, ClientEvents, Guild, Message, MessageEmbed, TextChannel, User } from "discord.js";
+import { ActivityOptions, Client, ClientEvents, ClientOptions, Collection, Guild, Message, MessageEmbed, PermissionString, TextChannel, User } from "discord.js";
 export declare const Clients: {
     PinguID: string;
     BetaID: string;

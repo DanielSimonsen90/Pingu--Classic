@@ -1,4 +1,4 @@
-import { ClientEvents, ClientOptions, Collection, TextChannel, User, Guild, PermissionString, Message } from "discord.js";
+import { ClientEvents, Collection, TextChannel, User, Guild, Message } from "discord.js";
 import PinguGuild from '../guild/PinguGuild';
 import PClient from '../../database/json/PClient';
 import { AchievementCheckData } from '../achievements';
@@ -8,9 +8,7 @@ import { AchievementBaseType } from '../achievements/items/AchievementBase';
 import PinguCommand from '../handlers/PinguCommand';
 import PinguEvent, { PinguClientEvents } from '../handlers/PinguEvent';
 import PinguClientBase from "./PinguClientBase";
-import IConfigRequirements from '../../helpers/Config';
 export declare class PinguClient extends PinguClientBase<PinguClientEvents> {
-    constructor(config: IConfigRequirements, permissions: PermissionString[], subscribedEvents?: Array<keyof PinguClientEvents>, dirname?: string, commandsPath?: string, eventsPath?: string, options?: ClientOptions);
     commands: Collection<string, PinguCommand>;
     events: Collection<keyof PinguClientEvents, PinguEvent<keyof PinguClientEvents>>;
     subscribedEvents: Array<keyof PinguClientEvents>;
