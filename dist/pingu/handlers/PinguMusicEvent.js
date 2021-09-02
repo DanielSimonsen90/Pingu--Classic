@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PinguMusicEvent = exports.HandleEvent = void 0;
-async function HandleEvent(caller, client, path, ...args) {
+exports.PinguMusicEvent = exports.HandleMusicEvent = void 0;
+async function HandleMusicEvent(caller, client, path, ...args) {
     try {
         var event = require(`../../../../..${path}`);
     }
@@ -32,11 +32,11 @@ async function HandleEvent(caller, client, path, ...args) {
         });
     });
 }
-exports.HandleEvent = HandleEvent;
+exports.HandleMusicEvent = HandleMusicEvent;
 const PinguHandler_1 = require("./PinguHandler");
 class PinguMusicEvent extends PinguHandler_1.default {
     static HandleEvent(caller, client, path, ...args) {
-        return HandleEvent(caller, client, path, ...args);
+        return HandleMusicEvent(caller, client, path, ...args);
     }
     constructor(name, execute) {
         super(name);

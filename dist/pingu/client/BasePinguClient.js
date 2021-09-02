@@ -1,11 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BasePinguClient = void 0;
+exports.PinguClientBase = void 0;
 const discord_js_1 = require("discord.js");
 const PinguClientShell_1 = require("./PinguClientShell");
-class BasePinguClient extends PinguClientShell_1.default {
+class PinguClientBase extends PinguClientShell_1.default {
     constructor(config, permissions, intents, subscribedEvents, dirname, commandsPath, eventsPath, options) {
-        super(config, permissions, options);
+        super(config, permissions, {
+            intents: intents,
+            ...options
+        });
         this.subscribedEvents = subscribedEvents;
         this._intents = intents;
         if (!dirname.toLowerCase().startsWith('c:'))
@@ -22,5 +25,5 @@ class BasePinguClient extends PinguClientShell_1.default {
     }
     _intents;
 }
-exports.BasePinguClient = BasePinguClient;
-exports.default = BasePinguClient;
+exports.PinguClientBase = PinguClientBase;
+exports.default = PinguClientBase;

@@ -24,7 +24,7 @@ export interface PinguMusicEvents {
 }
 export interface PinguMusicClientEvents extends PinguMusicEvents, PinguClientEvents {}
 
-export async function HandleEvent<EventType extends keyof PinguMusicClientEvents>(
+export async function HandleMusicEvent<EventType extends keyof PinguMusicClientEvents>(
     caller: EventType, 
     client: PinguMusicClient, 
     path: string, 
@@ -62,7 +62,7 @@ import PinguHandler from "./PinguHandler";
 import { PinguMusicIntentEvents } from "../../helpers/IntentEvents";
 export class PinguMusicEvent<Event extends keyof PinguMusicClientEvents> extends PinguHandler {
     public static HandleEvent<EventType extends keyof PinguMusicClientEvents>(caller: EventType, client: PinguMusicClient, path: string, ...args: PinguMusicClientEvents[EventType]) {
-        return HandleEvent(caller, client, path, ...args);
+        return HandleMusicEvent(caller, client, path, ...args);
     }
 
     constructor(name: Event, execute?: (client: PinguMusicClient, ...args: PinguMusicClientEvents[Event]) => Promise<Message>) {
