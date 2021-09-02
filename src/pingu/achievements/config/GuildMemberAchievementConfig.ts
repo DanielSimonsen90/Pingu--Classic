@@ -1,8 +1,8 @@
-import { Client, GuildMember, MessageEmbed } from "discord.js";
+import { GuildMember, MessageEmbed } from "discord.js";
 import { AchievementConfigBase, AchievementBaseNotificationType } from "./AchievementConfigBase";
 import { UserAchievementNotificationType } from "./UserAchievementConfig";
 import { GuildMemberAchievement, GuildMemberAchievementType } from "../items/GuildMemberAchievement";
-import BasePinguClient from "../../client/BasePinguClient";
+import PinguClientBase from "../../client/PinguClientBase";
 
 export type GuildMemberAchievementNotificationType = UserAchievementNotificationType | 'GUILD'
 export class GuildMemberAchievementConfig extends AchievementConfigBase {
@@ -13,7 +13,7 @@ export class GuildMemberAchievementConfig extends AchievementConfigBase {
 
     public notificationType: GuildMemberAchievementNotificationType;
 
-    public static async notify<Key extends keyof GuildMemberAchievementType>(client: BasePinguClient, achiever: GuildMember, achievement: GuildMemberAchievement<Key, GuildMemberAchievementType[Key]>, config: GuildMemberAchievementConfig) {
+    public static async notify<Key extends keyof GuildMemberAchievementType>(client: PinguClientBase, achiever: GuildMember, achievement: GuildMemberAchievement<Key, GuildMemberAchievementType[Key]>, config: GuildMemberAchievementConfig) {
         return super._notify(client, achievement, percentage => new MessageEmbed({
             title: `🏆 Achievement Unlocked! 🏆\n${achievement.name}`,
             description: achievement.description,

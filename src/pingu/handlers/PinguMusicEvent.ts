@@ -3,7 +3,6 @@ import { PinguClientEvents } from "./PinguEvent";
 import Queue from "../guild/items/music/Queue/Queue";
 import Song from "../guild/items/music/Song";
 import PinguMusicClient from "../client/PinguMusicClient";
-import PinguClient from "../client/PinguClient";
 
 type QueueMessage = [Queue, Message];
 type QueueMessageSong = [...QueueMessage, Song]
@@ -24,25 +23,16 @@ export interface PinguMusicEvents {
 }
 export interface PinguMusicClientEvents extends PinguMusicEvents, PinguClientEvents {}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 export async function HandleMusicEvent<EventType extends keyof PinguMusicClientEvents>(
     caller: EventType, 
     client: PinguMusicClient, 
-    path: string, 
     ...args: PinguMusicClientEvents[EventType]
 ) {
-=======
-export async function HandleEvent<EventType extends keyof PinguMusicClientEvents>(caller: EventType, client: PinguMusicClient, path: string, ...args: PinguMusicClientEvents[EventType]) {
->>>>>>> parent of 92c7bfa (Get events from intents)
-=======
-export async function HandleEvent<EventType extends keyof PinguMusicClientEvents>(caller: EventType, client: PinguMusicClient, path: string, ...args: PinguMusicClientEvents[EventType]) {
->>>>>>> parent of 92c7bfa (Get events from intents)
-    try { var event = require(`../../../../..${path}`) as PinguMusicEvent<EventType>; }
+    try { var event = client.events.get(caller) }
     catch (err) {
-        console.error({ err, caller, path });
+        console.error({ err, caller });
         return client.log('error', `Unable to get event for ${caller}`, null, err, {
-            params: { caller, path, args },
+            params: { caller, args },
             additional: { event }
         });
     }
@@ -52,7 +42,7 @@ export async function HandleEvent<EventType extends keyof PinguMusicClientEvents
     async function execute() {
         try { return event.execute(client, ...args); } 
         catch (err) { client.log('error', `${event.name}.execute`, null, err, {
-                params: { caller, path, args },
+                params: { caller, args },
                 additional: { event }
             });
         }
@@ -60,7 +50,7 @@ export async function HandleEvent<EventType extends keyof PinguMusicClientEvents
 
     await execute().catch(err => {
         return client.log('error', err.message, JSON.stringify(args, null, 2), err, {
-            params: { caller, path, args },
+            params: { caller, args },
             additional: { event }
         });
     })
@@ -69,7 +59,7 @@ export async function HandleEvent<EventType extends keyof PinguMusicClientEvents
 import PinguHandler from "./PinguHandler";
 export class PinguMusicEvent<Event extends keyof PinguMusicClientEvents> extends PinguHandler {
     public static HandleEvent<EventType extends keyof PinguMusicClientEvents>(caller: EventType, client: PinguMusicClient, path: string, ...args: PinguMusicClientEvents[EventType]) {
-        return HandleMusicEvent(caller, client, path, ...args);
+        return HandleMusicEvent(caller, client, ...args);
     }
 
     constructor(name: Event, execute?: (client: PinguMusicClient, ...args: PinguMusicClientEvents[Event]) => Promise<Message>) {

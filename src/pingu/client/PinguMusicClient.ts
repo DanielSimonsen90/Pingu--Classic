@@ -4,38 +4,16 @@ import * as fs from 'fs';
 import PinguHandler from "../handlers/PinguHandler";
 import PinguMusicCommand, { PinguMusicCommandParams } from '../handlers/PinguMusicCommand';
 import PinguMusicEvent, { PinguMusicClientEvents, HandleMusicEvent } from '../handlers/PinguMusicEvent';
-import { PinguMusicIntentEvents } from '../../helpers/IntentEvents';
 
 import Queue from "../guild/items/music/Queue/Queue";
 import Song from "../guild/items/music/Song";
 
-import PinguClientBase from "./BasePinguClient";
+import PinguClientBase from "./PinguClientBase";
 
-<<<<<<< HEAD
 interface VideoThing { url: string }
 
-export class PinguMusicClient extends PinguClientBase<PinguMusicIntentEvents> {
-=======
-import * as fs from 'fs';
-import PinguHandler from "../handlers/PinguHandler";
+export class PinguMusicClient extends PinguClientBase<PinguMusicClientEvents> {
 
-export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
-    constructor(
-        config: IConfigRequirements, 
-        permissions: PermissionString[], 
-        subscribedEvents: [keyof PinguMusicClientEvents], 
-        dirname?: string,
-        commandsPath?: string, 
-        eventsPath?: string, 
-        options?: ClientOptions
-    ) {
-        super(config, permissions, subscribedEvents as any, dirname, commandsPath, eventsPath, options);
-    }
-
-<<<<<<< HEAD
->>>>>>> parent of 92c7bfa (Get events from intents)
-=======
->>>>>>> parent of 92c7bfa (Get events from intents)
     public queues = new Collection<Snowflake, Queue>();
     public declare events: Collection<keyof PinguMusicClientEvents, PinguMusicEvent<keyof PinguMusicClientEvents>>;
     public declare commands: Collection<string, PinguMusicCommand>;
@@ -153,7 +131,7 @@ export class PinguMusicClient extends BasePinguClient<PinguClientEvents> {
     }
     protected handleEvent<EventType extends keyof PinguMusicClientEvents>(caller: EventType, ...args: PinguMusicClientEvents[EventType]) {
         if (this.subscribedEvents.find(e => e == caller))
-            HandleMusicEvent(caller, this, this.events.get(caller).path, ...args);
+            HandleMusicEvent(caller, this, ...args);
         return this;
     }
 }

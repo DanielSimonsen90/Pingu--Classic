@@ -1,14 +1,14 @@
 import { Guild, GuildEmoji, Collection } from "discord.js";
-import BasePinguClient from "../client/BasePinguClient";
+import PinguClientBase from "../client/PinguClientBase";
 
 export class EmojiCollection {
-    constructor(client: BasePinguClient<any>) {
+    constructor(client: PinguClientBase<any>) {
         this._client = client;
         this._cached = new Array<GuildEmoji>();
     }
 
     private _cached: Array<GuildEmoji>
-    private _client: BasePinguClient
+    private _client: PinguClientBase
 
     public get(name: string, limit?: number): GuildEmoji[] {
         const result = this._cached
@@ -27,7 +27,7 @@ export class EmojiCollection {
     public guild(guild: Guild): Collection<string, GuildEmoji> {
         return this._cached.filter(e => e.guild.id == guild.id).reduce((result, e) => result.set(e.name, e), new Collection<string, GuildEmoji>());
     }
-    public refresh(client?: BasePinguClient<any>) {
+    public refresh(client?: PinguClientBase<any>) {
         if (client) this._client = client;
 
         this._cached = this._client.guilds.cache.reduce((result, guild) => {

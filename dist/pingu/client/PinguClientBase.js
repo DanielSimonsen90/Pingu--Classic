@@ -1,28 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-exports.PinguClientBase = void 0;
+exports.PinguClientBase = exports.Clients = void 0;
 const discord_js_1 = require("discord.js");
-const PinguClientShell_1 = require("./PinguClientShell");
-class PinguClientBase extends PinguClientShell_1.default {
-    constructor(config, permissions, intents, subscribedEvents, dirname, commandsPath, eventsPath, options) {
-        super(config, permissions, {
-            intents: intents,
-            ...options
-        });
-=======
-exports.BasePinguClient = exports.Clients = void 0;
-const discord_js_1 = require("discord.js");
-=======
-exports.BasePinguClient = exports.Clients = void 0;
-const discord_js_1 = require("discord.js");
->>>>>>> parent of 92c7bfa (Get events from intents)
-=======
-exports.BasePinguClient = exports.Clients = void 0;
-const discord_js_1 = require("discord.js");
->>>>>>> parent of 92c7bfa (Get events from intents)
+const discord_js_2 = require("discord.js");
 const fs = require("fs");
 exports.Clients = {
     PinguID: '562176550674366464',
@@ -47,7 +27,7 @@ class SavedServer {
     name;
     id;
 }
-class BasePinguClient extends discord_js_1.Client {
+class PinguClientBase extends discord_js_2.Client {
     static Clients = exports.Clients;
     constructor(config, permissions, subscribedEvents, dirname, commandsPath, eventsPath, options) {
         super(options);
@@ -67,13 +47,6 @@ class BasePinguClient extends discord_js_1.Client {
         // this.raspberryLog = this.raspberryLog.bind(this);
         // this.tellLog = this.tellLog.bind(this);
         this.config = config;
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> parent of 92c7bfa (Get events from intents)
-=======
->>>>>>> parent of 92c7bfa (Get events from intents)
-=======
->>>>>>> parent of 92c7bfa (Get events from intents)
         this.subscribedEvents = subscribedEvents;
         this.permissions = new PermissionsManager_1.default(this, permissions);
         this.emotes = new EmojiCollection_1.default(this);
@@ -263,7 +236,7 @@ class BasePinguClient extends discord_js_1.Client {
                     const fileContent = getErrorMessage(message, messageContent, err);
                     fs.writeFile(filePath, fileContent, () => fsCallback(fileExtension));
                 }
-                return channel.sendFiles(new discord_js_1.MessageAttachment(filePath, `Error ${errorID}.${fileExtension}`));
+                return channel.sendFiles(new discord_js_2.MessageAttachment(filePath, `Error ${errorID}.${fileExtension}`));
             }
         };
         const getErrorMessage = (function (message, messageContent, err) {
@@ -300,7 +273,7 @@ class BasePinguClient extends discord_js_1.Client {
                 if (user.isPinguDev() || !reaction.users.cache.has(this.id))
                     return reaction.remove();
                 if (reaction.emoji.name == '📄') {
-                    let fileMessage = await reaction.message.channel.sendFiles(new discord_js_1.MessageAttachment(`${errorPath}/${errorID}.json`, `Error ${errorID}.json`));
+                    let fileMessage = await reaction.message.channel.sendFiles(new discord_js_2.MessageAttachment(`${errorPath}/${errorID}.json`, `Error ${errorID}.json`));
                     return this.cache.errors.set(errorID, [...this.cache.errors.get(errorID), fileMessage]);
                 }
                 this.cache.errors.get(errorID).forEach(m => m.delete());

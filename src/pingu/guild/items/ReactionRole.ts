@@ -1,7 +1,7 @@
 import { Message, Role, GuildChannel, MessageReaction, Client, User, MessageEmbed, Collection } from "discord.js";
 import PinguGuild from '../PinguGuild';
 import { PRole, PChannel } from '../../../database/json';
-import { Clients } from '../../client/BasePinguClient';
+import { Clients } from '../../client/PinguClientBase';
 import PinguClient from "../../client/PinguClient";
 
 export async function GetReactionRole(reaction: MessageReaction, user: User) {

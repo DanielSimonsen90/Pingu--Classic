@@ -1,10 +1,10 @@
 export type AchievementBaseNotificationType = 'NONE';
 
-import { Client, DMChannel, Guild, GuildChannel, MessageEmbed, TextChannel } from "discord.js";
+import { DMChannel, Guild, GuildChannel, MessageEmbed, TextChannel } from "discord.js";
 import { PChannel, PAchievement } from "../../../database/json";
 import Percentage from "../../../helpers/Percentage";
 import AchievementBase from "../items/AchievementBase";
-import BasePinguClient from '../../client/BasePinguClient'
+import PinguClientBase from '../../client/PinguClientBase'
 
 export abstract class AchievementConfigBase {
     public enabled: boolean = true;
@@ -12,7 +12,7 @@ export abstract class AchievementConfigBase {
     public achievements: PAchievement[] = new Array<PAchievement>();
 
     protected static async _notify
-    (client: BasePinguClient, achievement: AchievementBase, embedCB: (percentage: Percentage) => MessageEmbed, channel: {_id: string}, notificationType: AchievementBaseNotificationType, guild?: Guild) {
+    (client: PinguClientBase, achievement: AchievementBase, embedCB: (percentage: Percentage) => MessageEmbed, channel: {_id: string}, notificationType: AchievementBaseNotificationType, guild?: Guild) {
         const [announceChannel, percentage] = await Promise.all([client.channels.fetch(channel._id), achievement.getPercentage(client, guild)]);
         const embed = embedCB(percentage);
         

@@ -1,5 +1,5 @@
-import { Client, Guild, Message, User, GuildMember } from 'discord.js';
-import BasePinguClient from '../client/BasePinguClient';
+import { Guild, Message, User, GuildMember } from 'discord.js';
+import PinguClientBase from '../client/PinguClientBase';
 
 import { AchieverTypes, AchievementBaseType } from "./items/AchievementBase";
 import { UserAchievement, UserAchievementType, UserAchievementTypeKey, UserAchievementCallbackParams } from "./items/UserAchievement";
@@ -44,7 +44,7 @@ export async function AchievementCheckType
     Type extends AchievementTypes[AchieverType][Key],
     CallbackKey extends keyof AchievementCallbackParams[AchieverType]>
     (
-        client: BasePinguClient,
+        client: PinguClientBase,
         achieverType: AchieverType, 
         achiever: Achievers[AchieverType], 
         key: Key, 
@@ -169,7 +169,7 @@ export interface AchievementCheckData {
 export async function AchievementCheck
 <AchievementType extends GuildMemberAchievementType | GuildAchievementType | AchievementBaseType,
 Key extends keyof AchievementType, Type extends AchievementType[Key],>
-(client: BasePinguClient, data: AchievementCheckData, key: Key, type: Type, callback: any[]) {
+(client: PinguClientBase, data: AchievementCheckData, key: Key, type: Type, callback: any[]) {
     if (data.user && !data.user.bot) {
         const pUser = client.pUsers.get(data.user);
         if (!pUser) return false;

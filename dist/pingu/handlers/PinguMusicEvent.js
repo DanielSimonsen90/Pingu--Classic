@@ -1,14 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PinguMusicEvent = exports.HandleMusicEvent = void 0;
-async function HandleMusicEvent(caller, client, path, ...args) {
+async function HandleMusicEvent(caller, client, ...args) {
     try {
-        var event = require(`../../../../..${path}`);
+        var event = client.events.get(caller);
     }
     catch (err) {
-        console.error({ err, caller, path });
+        console.error({ err, caller });
         return client.log('error', `Unable to get event for ${caller}`, null, err, {
-            params: { caller, path, args },
+            params: { caller, args },
             additional: { event }
         });
     }
@@ -20,14 +20,14 @@ async function HandleMusicEvent(caller, client, path, ...args) {
         }
         catch (err) {
             client.log('error', `${event.name}.execute`, null, err, {
-                params: { caller, path, args },
+                params: { caller, args },
                 additional: { event }
             });
         }
     }
     await execute().catch(err => {
         return client.log('error', err.message, JSON.stringify(args, null, 2), err, {
-            params: { caller, path, args },
+            params: { caller, args },
             additional: { event }
         });
     });
@@ -36,7 +36,7 @@ exports.HandleMusicEvent = HandleMusicEvent;
 const PinguHandler_1 = require("./PinguHandler");
 class PinguMusicEvent extends PinguHandler_1.default {
     static HandleEvent(caller, client, path, ...args) {
-        return HandleMusicEvent(caller, client, path, ...args);
+        return HandleMusicEvent(caller, client, ...args);
     }
     constructor(name, execute) {
         super(name);

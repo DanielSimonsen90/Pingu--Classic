@@ -9,13 +9,13 @@ export interface BaseManager<T> {
 }
 
 export type SavedItems = 'PinguUser' | 'PinguGuildMember' | 'PinguGuild';
-import BasePinguClient from '../client/BasePinguClient';
+import PinguClientBase from '../client/PinguClientBase';
 import Reason from '../../helpers/Reason';
 
 export abstract class IPinguCollection<T extends BaseT, PT extends BasePT> {
     constructor(
-        client: BasePinguClient, logChannelName: string, itemName: SavedItems,
-        newPT: (item: T, client: BasePinguClient) => PT, typeManager: (client: BasePinguClient, pItem: PT) => BaseManager<T>
+        client: PinguClientBase, logChannelName: string, itemName: SavedItems,
+        newPT: (item: T, client: PinguClientBase) => PT, typeManager: (client: PinguClientBase, pItem: PT) => BaseManager<T>
     ) {
         this._client = client;
         this._inner = new Collection();
@@ -26,7 +26,7 @@ export abstract class IPinguCollection<T extends BaseT, PT extends BasePT> {
         this._typeManager = typeManager
     }
 
-    protected _client: BasePinguClient;
+    protected _client: PinguClientBase;
     protected _inner: Collection<Snowflake, PT>;
     protected _itemName: SavedItems;
     protected _logChannelName: string;
@@ -36,13 +36,13 @@ export abstract class IPinguCollection<T extends BaseT, PT extends BasePT> {
         return logChannelCategory.children.find(c => c.name.includes(this._logChannelName)) as TextChannel;
     }
 
-    protected _newPT: (item: T, client: BasePinguClient) => PT;
-    protected _typeManager: (client: BasePinguClient, pItem: PT) => BaseManager<T>
+    protected _newPT: (item: T, client: PinguClientBase) => PT;
+    protected _typeManager: (client: PinguClientBase, pItem: PT) => BaseManager<T>
 
     public abstract add(item: T, scriptName: string, reason: string): Promise<PT>;
     public abstract update(pItem: PT, scriptName: string, reason: string): Promise<PT>;
     public abstract delete(item: T, scriptName: string, reason: string): Promise<this>;
-    public abstract refresh(client?: BasePinguClient): Promise<this>;
+    public abstract refresh(client?: PinguClientBase): Promise<this>;
 
     public get(item: T): PT {
         return this._inner.get(item.id);

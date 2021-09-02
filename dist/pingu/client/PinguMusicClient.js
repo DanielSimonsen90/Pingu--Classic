@@ -6,11 +6,8 @@ const fs = require("fs");
 const PinguMusicEvent_1 = require("../handlers/PinguMusicEvent");
 const Queue_1 = require("../guild/items/music/Queue/Queue");
 const Song_1 = require("../guild/items/music/Song");
-const BasePinguClient_1 = require("./BasePinguClient");
-class PinguMusicClient extends BasePinguClient_1.default {
-    constructor(config, permissions, subscribedEvents, dirname, commandsPath, eventsPath, options) {
-        super(config, permissions, subscribedEvents, dirname, commandsPath, eventsPath, options);
-    }
+const PinguClientBase_1 = require("./PinguClientBase");
+class PinguMusicClient extends PinguClientBase_1.default {
     queues = new discord_js_1.Collection();
     emit(key, ...args) {
         console.log(typeof key);
@@ -110,7 +107,7 @@ class PinguMusicClient extends BasePinguClient_1.default {
     }
     handleEvent(caller, ...args) {
         if (this.subscribedEvents.find(e => e == caller))
-            PinguMusicEvent_1.HandleMusicEvent(caller, this, this.events.get(caller).path, ...args);
+            PinguMusicEvent_1.HandleMusicEvent(caller, this, ...args);
         return this;
     }
 }

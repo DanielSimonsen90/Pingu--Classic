@@ -3,13 +3,11 @@ export interface UserAchievementType extends AchievementBaseType  {
     COMMAND: noGuildOnlyCommands
 }
 export type UserAchievementTypeKey = keyof UserAchievementType;
-
 export interface UserAchievementCallbackParams extends AchievementCallbackParams {}
 
 import { IUserAchievement } from "./IAchievementBase";
-import { User } from "discord.js";
 import Percentage from "../../../helpers/Percentage";
-import BasePinguClient from '../../client/BasePinguClient'
+import PinguClientBase from '../../client/PinguClientBase'
 
 export class UserAchievement
 <Key extends keyof UserAchievementType, 
@@ -37,7 +35,7 @@ extends AchievementBase implements IUserAchievement<Key, Type, AchievementCallba
         return true;
     }
 
-    public async getPercentage(client: BasePinguClient) {
+    public async getPercentage(client: PinguClientBase) {
         let pUsers = client.pUsers.array();
         let whole = pUsers.length;
         let part = pUsers.filter(pUser => pUser.achievementConfig.achievements.find(a => a._id == this._id)).length;
@@ -53,7 +51,7 @@ extends AchievementBase implements IUserAchievement<Key, Type, AchievementCallba
     public static Achievements = [
         new UserAchievement(1, "Pingu? Yeah he's my best friend!", 'EVENT', 'mostKnownUser', "Of all Pingu Users, you share the most servers with Pingu")
             .setCallback('mostKnownUser', async ([user]) => {
-            const client = user.client as BasePinguClient;
+            const client = user.client as PinguClientBase;
             const [pUser, pUsers] = [client.pUsers.get(user), client.pUsers.array()];
             const mKUser = pUsers.sort((a, b) => b.sharedServers.length - a.sharedServers.length)[0];
             return pUser._id == mKUser._id
@@ -89,7 +87,7 @@ extends AchievementBase implements IUserAchievement<Key, Type, AchievementCallba
         new UserAchievement(23, "You! With me.", 'COMMAND', 'invite', "Use the `invite` command to invite Pingu to your server"),
         new UserAchievement(24, "Marry me!", 'COMMAND', 'marry', "Use the `marry` command to marry someone"),
         new UserAchievement(25, "I'm the chosen one!", 'EVENT', 'chosenUser', "Become the chosen user in Pingu Support")
-            .setCallback('chosenUser', async ([user, pUser]) => pUser?.sharedServers.find(pg => pg._id == (user.client as BasePinguClient).savedServers.get('Pingu Support').id) != null)
+            .setCallback('chosenUser', async ([user, pUser]) => pUser?.sharedServers.find(pg => pg._id == (user.client as PinguClientBase).savedServers.get('Pingu Support').id) != null)
     ];
 }
 
