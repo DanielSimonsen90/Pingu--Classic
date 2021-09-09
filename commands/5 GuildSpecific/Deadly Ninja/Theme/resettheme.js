@@ -8,10 +8,9 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
 }, async ({ client, message, args, pAuthor, pGuild, pGuildClient }) => {
     const { member, author, guild, channel } = message;
 
-    if (!member.roles.cache.has('497439032138006530') || author.id == '361815289278627851')
-        return channel.send(`Only cool people have access to this command!`);
+    if (!member.roles.cache.has('497439032138006530')) return channel.send(`Only cool people have access to this command!`);
 
-    let adminCheck = client.permissions.checkFor({
+    const adminCheck = client.permissions.checkFor({
         author: client.user,
         channel
     }, 'ADMINISTRATOR');
@@ -29,6 +28,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
     await Promise.all([
         (async function setChannels() {
             const defaultChannles = (function setDefaultChannels() {
+                /**@type Collection<string, string> */
                 let collection = new Collection();
 
                 (function setInformation() {
@@ -144,7 +144,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                 return collection;
             })();
             for (var item of defaultChannles) {
-                let id = item[0], name = item[1];
+                const [id, name] = item;
 
                 let currentChannel = channels.get(id);
                 if (!currentChannel || currentChannel.name == name) continue;
@@ -154,6 +154,7 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
         })(),
         (async function setRoles() {
             const defaultRoles = (function setDefaultRoles() {
+                /**@type Collection<string, Role>*/
                 let collection = new Collection();
                 class Role {
                     /**@param {string} name
@@ -286,10 +287,13 @@ module.exports = new PinguCommand('resettheme', 'GuildSpecific', `Resets theme i
                 return collection;
             })();
             for (var item of defaultRoles) {
-                let id = item[0], role = item[1];
+                const [id, role] = item;
 
                 let currentRole = roles.get(id);
-                if (!currentRole || currentRole.name == role.name && (typeof role.color == 'string' && currentRole.hexColor == role.color || currentRole.color == role.color)) continue;
+                if (!currentRole || currentRole.name == role.name && (
+                    typeof role.color == 'string' && currentRole.hexColor == role.color || 
+                    currentRole.color == role.color
+                )) continue;
 
                 if (currentRole.name != role.name) await currentRole.setName(role.name, reason);
                 if (typeof role.color == 'string' && currentRole.hexColor != role.color || currentRole.color != role.color) await currentRole.setColor(role.color, reason).catch(err => {

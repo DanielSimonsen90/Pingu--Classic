@@ -1,9 +1,9 @@
-export const TimeLeftObject = {
-    endsAt: Date,
+export const TimeSpan = {
+    date: Date,
     seconds: Number,
     minutes: Number,
     hours: Number,
     days: Number
 }
 
-export default TimeLeftObject;
+export default TimeSpan;
