@@ -1,5 +1,5 @@
 import { Collection, Message, MessageEmbed } from "discord.js";
-import { LoggedCache } from './handlers/PinguEvent';
+import { LoggedCache } from './handlers/Pingu/PinguEvent';
 
 export class PinguCacheManager {
     constructor() {

@@ -11,10 +11,10 @@ export const Clients = {
 }
 
 import PinguHandler from "../handlers/PinguHandler";
-import { PinguCommandParams } from "../handlers/PinguCommand";
+import { PinguCommandParams } from "../handlers/Pingu/PinguCommand";
 
 import IConfigRequirements from "../../helpers/Config";
-import { TimestampStyles, TimestampStyle } from '../../helpers/TimeLeftObject';
+import { TimestampStyle, TimeFormat } from '../../helpers/TimeSpan';
 
 import PinguCollection from '../collection/PinguCollection'
 import DeveloperCollection, { developers } from '../collection/DeveloperCollection'
@@ -203,8 +203,8 @@ export abstract class PinguClientBase<Events extends ClientEvents = any> extends
 
         return (await Danho.createDM()).send(message);
     }
-    public timeFormat(timestamp: number, format?: TimestampStyle) {
-        return `<t:${Math.round(timestamp / 1000)}${format ? `:${TimestampStyles.get(format)}` : ''}>`;
+    public timeFormat(timestamp: number | Date, format?: TimestampStyle) {
+        return TimeFormat(timestamp, format);
     }
     //#endregion
 

@@ -6,7 +6,7 @@ const fs = require("fs");
 const request = require("request");
 const PinguBadge_1 = require("../badge/PinguBadge");
 const achievements_1 = require("../achievements");
-const PinguEvent_1 = require("../handlers/PinguEvent");
+const PinguEvent_1 = require("../handlers/Pingu/PinguEvent");
 const PinguClientBase_1 = require("./PinguClientBase");
 class PinguClient extends PinguClientBase_1.default {
     //#endregion

@@ -2,7 +2,7 @@ import { User } from "discord.js";
 import { MoreVideoDetails } from "ytdl-core";
 
 import PUser from "../../../../database/json/PUser";
-import TimeLeftObject from "../../../../helpers/TimeLeftObject";
+import TimeSpan from "../../../../helpers/TimeSpan";
 import IMuisc from "./IMusic";
 
 export class Song implements IMuisc {
@@ -41,7 +41,7 @@ export class Song implements IMuisc {
         this.endsAt = null;
     }
     public getTimeLeft() {
-        return new TimeLeftObject(new Date(Date.now()), this.endsAt);
+        return new TimeSpan(new Date(Date.now()), this.endsAt);
     }
     private GetLength(secondsLength: string) {
         var seconds = parseInt(secondsLength), minutes = 0, hours = 0, final = [];

@@ -1,8 +1,8 @@
-import TimeLeftObject from "./TimeLeftObject";
+import TimeSpan from "./TimeSpan";
 
 export const Daily = {
     lastClaim: Date,
-    nextClaim: TimeLeftObject,
+    nextClaim: TimeSpan,
     streak: Number
 }
 

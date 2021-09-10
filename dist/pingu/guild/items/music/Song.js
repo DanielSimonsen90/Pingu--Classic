@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Song = void 0;
 const PUser_1 = require("../../../../database/json/PUser");
-const TimeLeftObject_1 = require("../../../../helpers/TimeLeftObject");
+const TimeSpan_1 = require("../../../../helpers/TimeSpan");
 class Song {
     constructor(author, songInfo) {
         //YouTube
@@ -37,7 +37,7 @@ class Song {
         this.endsAt = null;
     }
     getTimeLeft() {
-        return new TimeLeftObject_1.default(new Date(Date.now()), this.endsAt);
+        return new TimeSpan_1.default(new Date(Date.now()), this.endsAt);
     }
     GetLength(secondsLength) {
         var seconds = parseInt(secondsLength), minutes = 0, hours = 0, final = [];

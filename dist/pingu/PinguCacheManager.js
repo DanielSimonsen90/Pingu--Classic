@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PinguCacheManager = void 0;
 const discord_js_1 = require("discord.js");
-const PinguEvent_1 = require("./handlers/PinguEvent");
+const PinguEvent_1 = require("./handlers/Pingu/PinguEvent");
 class PinguCacheManager {
     constructor() {
         this.events = PinguEvent_1.LoggedCache;

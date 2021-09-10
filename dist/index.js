@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PinguMusicClient = exports.PinguClient = exports.PinguMusicCommand = exports.PinguMusicEvent = exports.PinguEvent = exports.CommandCategories = exports.PinguCommand = exports.ReactionRole = exports.Song = exports.Queue = exports.PinguGuild = exports.PinguGuildMember = exports.Marry = exports.Daily = exports.PinguUser = exports.GuildMemberAchievement = exports.GuildAchievement = exports.UserAchievement = exports.GuildMemberAchievementConfig = exports.GuildAchievementConfig = exports.UserAchievementConfig = exports.PinguUserSchema = exports.PinguGuildSchema = exports.Percentage = exports.DiscordPermissions = exports.TimeLeftObject = exports.Error = exports.EmbedField = exports.Arguments = exports.Extentions = exports.HandleDecidables = exports.Decidable = exports.Theme = exports.Suggestion = exports.Poll = exports.Giveaway = exports.ThemeConfig = exports.SuggestionConfig = exports.PollConfig = exports.GiveawayConfig = exports.PUser = exports.PRole = exports.PQueue = exports.PMarry = exports.PItem = exports.PGuildMember = exports.PGuild = exports.PClient = exports.PChannel = exports.PAchievement = void 0;
-exports.config = exports.PinguBadge = void 0;
+exports.PinguBadge = exports.PinguMusicClient = exports.PinguClient = exports.PinguMusicCommand = exports.PinguMusicEvent = exports.PinguEvent = exports.PinguCommand = exports.ReactionRole = exports.Song = exports.Queue = exports.PinguGuild = exports.PinguGuildMember = exports.Marry = exports.Daily = exports.PinguUser = exports.GuildMemberAchievement = exports.GuildAchievement = exports.UserAchievement = exports.GuildMemberAchievementConfig = exports.GuildAchievementConfig = exports.UserAchievementConfig = exports.PinguUserSchema = exports.PinguGuildSchema = exports.Percentage = exports.DiscordPermissions = exports.TimeSpan = exports.Error = exports.EmbedField = exports.Arguments = exports.Extentions = exports.HandleDecidables = exports.Decidable = exports.Theme = exports.Suggestion = exports.Poll = exports.Giveaway = exports.ThemeConfig = exports.SuggestionConfig = exports.PollConfig = exports.GiveawayConfig = exports.PUser = exports.PRole = exports.PQueue = exports.PMarry = exports.PItem = exports.PGuildMember = exports.PGuild = exports.PClient = exports.PChannel = exports.PAchievement = void 0;
+exports.config = void 0;
 var database_1 = require("./database");
 Object.defineProperty(exports, "PAchievement", { enumerable: true, get: function () { return database_1.PAchievement; } });
 Object.defineProperty(exports, "PChannel", { enumerable: true, get: function () { return database_1.PChannel; } });
@@ -31,7 +31,7 @@ var helpers_1 = require("./helpers");
 Object.defineProperty(exports, "Arguments", { enumerable: true, get: function () { return helpers_1.Arguments; } });
 Object.defineProperty(exports, "EmbedField", { enumerable: true, get: function () { return helpers_1.EmbedField; } });
 Object.defineProperty(exports, "Error", { enumerable: true, get: function () { return helpers_1.Error; } });
-Object.defineProperty(exports, "TimeLeftObject", { enumerable: true, get: function () { return helpers_1.TimeLeftObject; } });
+Object.defineProperty(exports, "TimeSpan", { enumerable: true, get: function () { return helpers_1.TimeSpan; } });
 Object.defineProperty(exports, "DiscordPermissions", { enumerable: true, get: function () { return helpers_1.DiscordPermissions; } });
 Object.defineProperty(exports, "Percentage", { enumerable: true, get: function () { return helpers_1.Percentage; } });
 var MongoSchemas_1 = require("./MongoSchemas");
@@ -53,7 +53,6 @@ Object.defineProperty(exports, "Queue", { enumerable: true, get: function () { r
 Object.defineProperty(exports, "Song", { enumerable: true, get: function () { return pingu_1.Song; } });
 Object.defineProperty(exports, "ReactionRole", { enumerable: true, get: function () { return pingu_1.ReactionRole; } });
 Object.defineProperty(exports, "PinguCommand", { enumerable: true, get: function () { return pingu_1.PinguCommand; } });
-Object.defineProperty(exports, "CommandCategories", { enumerable: true, get: function () { return pingu_1.CommandCategories; } });
 Object.defineProperty(exports, "PinguEvent", { enumerable: true, get: function () { return pingu_1.PinguEvent; } });
 Object.defineProperty(exports, "PinguMusicEvent", { enumerable: true, get: function () { return pingu_1.PinguMusicEvent; } });
 Object.defineProperty(exports, "PinguMusicCommand", { enumerable: true, get: function () { return pingu_1.PinguMusicCommand; } });

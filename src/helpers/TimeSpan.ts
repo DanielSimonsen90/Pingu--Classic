@@ -10,13 +10,22 @@ export const TimestampStyles = new Map<TimestampStyle, string>([
     ['LONG_DATE/TIME', 'F'],
     ['RELATIVE', 'R']
 ]);
+export function TimeFormat(timestamp: number | Date, format?: TimestampStyle) {
+    const ms = typeof timestamp == 'number' ? timestamp : timestamp.getTime();
+    return `<t:${Math.round(ms / 1000)}${format ? `:${TimestampStyles.get(format)}` : ''}>`;
+}
 
-export class TimeLeftObject {
-    constructor(now: Date | number, endsAt: Date | number) {
+export class TimeSpan {
+    constructor(value: Date | number, now: Date | number = Date.now()) {
         //General properties
-        this.endsAt = typeof endsAt == 'number' ? new Date(endsAt) : endsAt;
+        this.date = typeof value == 'number' ? new Date(value) : value;
         const nowDate = typeof now == 'number' ? new Date(now) : now;
-        let timeDifference = Math.round(this.endsAt.getTime() - nowDate.getTime());
+
+        const highest = this.date.getTime() > nowDate.getTime() ? this.date : nowDate;
+        const lowest = this.date == highest ? nowDate : this.date;
+        this.pastTense = highest == nowDate;
+
+        let timeDifference = Math.round(highest.getTime() - lowest.getTime());
 
         //How long is each time module in ms
         const millisecond = 1;
@@ -50,7 +59,7 @@ export class TimeLeftObject {
                 result++;
             }
             console.log(
-                `TimeLeftObject.reduceTime(ms: number): ${result}`, 
+                `TimeSpan.reduceTime(ms: number): ${result}`, 
                 `timeDifference % ms: ${timeDifference % ms}`
             );
             
@@ -66,19 +75,23 @@ export class TimeLeftObject {
     public minutes: number;
     public seconds: number;
     public milliseconds: number;
-    public endsAt: Date
+    
+    public date: Date;
+    public pastTense: boolean;
 
-    public toString() {
+    public toString(includeMs?: boolean) {
         //console.log(`${this.years}Y ${this.months}M ${this.weeks}w ${this.days}d ${this.hours}h ${this.minutes}m ${this.seconds}s ${this.milliseconds}ms`);
-        const times = [this.years, this.months, this.weeks, this.days, this.hours, this.minutes, this.seconds];
-        const timeMsg = ["year", "month", "week", "day", "hour", "minute", "second"];
-        const isPlural = (index: number) => times[index] != 1;
-
+        const times = [...[this.years, this.months, this.weeks, this.days, this.hours, this.minutes, this.seconds], includeMs ? this.milliseconds : -1];
+        const timeMsg = ["year", "month", "week", "day", "hour", "minute", "second", "millisecond"];
         const result = times.reduce((result, time, i) => (
-            time > 0 ? `${result}**${times[i]}** ${timeMsg[i]}${isPlural(i) ? 's' : ''}, ` : result
+            time > 0 ? `${result}**${times[i]}** ${timeMsg[i]}${times[i] != 1 ? 's' : ''}, ` : result
         ), '');
-        return result.substring(0, result.length - 2);
+
+        return result.length > 2 && result.substring(0, result.length - 2) || '';
+    }
+    public toTimestampStyle(style?: TimestampStyle) {
+        return TimeFormat(this.date, style);
     }
 }
 
-export default TimeLeftObject;
+export default TimeSpan;

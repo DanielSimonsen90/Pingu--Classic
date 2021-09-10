@@ -16,7 +16,7 @@ export { PinguUser } from './user/PinguUser';
 export { Daily, Marry } from './user/items';
 
 export { 
-    PinguCommand, CommandCategories, PinguCommandParams, 
+    PinguCommand, PinguCommandParams, 
     PinguEvent, PinguClientEvents, 
     PinguMusicEvent, PinguMusicEvents, PinguMusicClientEvents,
     PinguMusicCommand, PinguMusicCommandParams

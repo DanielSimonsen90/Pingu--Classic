@@ -11,8 +11,8 @@ import { GuildMemberAchievementType } from '../achievements/items/GuildMemberAch
 import { GuildAchievementType } from '../achievements/items/GuildAchievement'
 import { AchievementBaseType } from '../achievements/items/AchievementBase'
 
-import PinguCommand from '../handlers/PinguCommand';
-import PinguEvent, { PinguClientEvents, HandleEvent } from '../handlers/PinguEvent';
+import PinguCommand from '../handlers/Pingu/PinguCommand';
+import PinguEvent, { PinguClientEvents, HandleEvent } from '../handlers/Pingu/PinguEvent';
 import PinguClientBase from "./PinguClientBase";
 
 export class PinguClient extends PinguClientBase<PinguClientEvents> {

@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PinguMusicClient = void 0;
 const discord_js_1 = require("discord.js");
 const fs = require("fs");
-const PinguMusicEvent_1 = require("../handlers/PinguMusicEvent");
+const PinguMusicEvent_1 = require("../handlers/Music/PinguMusicEvent");
 const Queue_1 = require("../guild/items/music/Queue/Queue");
 const Song_1 = require("../guild/items/music/Song");
 const PinguClientBase_1 = require("./PinguClientBase");

@@ -4,9 +4,9 @@ export declare const Clients: {
     BetaID: string;
 };
 import PinguHandler from "../handlers/PinguHandler";
-import { PinguCommandParams } from "../handlers/PinguCommand";
+import { PinguCommandParams } from "../handlers/Pingu/PinguCommand";
 import IConfigRequirements from "../../helpers/Config";
-import { TimestampStyle } from '../../helpers/TimeLeftObject';
+import { TimestampStyle } from '../../helpers/TimeSpan';
 import PinguCollection from '../collection/PinguCollection';
 import DeveloperCollection from '../collection/DeveloperCollection';
 import EmojiCollection from '../collection/EmojiCollection';
@@ -67,7 +67,7 @@ export declare abstract class PinguClientBase<Events extends ClientEvents = any>
     log<Type extends LogChannels>(type: Type, ...args: LogTypes[Type]): Promise<Message>;
     DBExecute<T>(callback: (mongoose: typeof import('mongoose')) => Promise<T>): Promise<T>;
     DanhoDM(message: string): Promise<Message>;
-    timeFormat(timestamp: number, format?: TimestampStyle): string;
+    timeFormat(timestamp: number | Date, format?: TimestampStyle): string;
     protected onceReady(): Promise<void>;
     protected abstract handlePath(path: string, type: 'command' | 'event'): void;
     private achievementLog;

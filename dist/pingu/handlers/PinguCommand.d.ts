@@ -1,11 +1,4 @@
-export declare enum CommandCategories {
-    'Utility' = 0,
-    'Fun' = 1,
-    'Supporting' = 2,
-    'DevOnly' = 3,
-    'GuildSpecific' = 4
-}
-declare type CommandCategoriesType = keyof typeof CommandCategories;
+declare type CommandCategoriesType = 'Utility' | 'Fun' | 'Supporting' | 'DevOnly' | 'GuildSpecific';
 import PinguClient from "../client/PinguClient";
 import Arguments from "../../helpers/Arguments";
 import { Message, PermissionString, Snowflake } from 'discord.js';

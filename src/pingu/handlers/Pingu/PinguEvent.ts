@@ -4,9 +4,9 @@ import {
     ColorResolvable, DMChannel, GuildEmoji, Snowflake, Role, HexColorString
 } from 'discord.js'
 
-import PinguClient from '../client/PinguClient'
-import PinguGuild from '../guild/PinguGuild';
-import PinguUser from '../user/PinguUser';
+import PinguClient from '../../client/PinguClient'
+import PinguGuild from '../../guild/PinguGuild';
+import PinguUser from '../../user/PinguUser';
 
 interface ChosenOnes {
     chosenGuild: [guild: Guild, pGuild: PinguGuild],
@@ -18,8 +18,8 @@ interface PinguEvents extends ChosenOnes {
 }
 export interface PinguClientEvents extends ClientEvents, PinguEvents {}
 
-import { AchievementCheck } from '../achievements';
-import Error from '../../helpers/Error';
+import { AchievementCheck } from '../../achievements';
+import Error from '../../../helpers/Error';
 
 //#region Statics
 export const Colors = {
@@ -326,7 +326,7 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
 }
 //#endregion
 
-import PinguHandler from './PinguHandler'
+import PinguHandler from '../PinguHandler'
 export class PinguEvent<Event extends keyof PinguClientEvents> extends PinguHandler {
     //#region Statics
     public static Colors = Colors;

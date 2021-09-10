@@ -1,14 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PinguCommand = exports.CommandCategories = void 0;
-var CommandCategories;
-(function (CommandCategories) {
-    CommandCategories[CommandCategories["Utility"] = 0] = "Utility";
-    CommandCategories[CommandCategories["Fun"] = 1] = "Fun";
-    CommandCategories[CommandCategories["Supporting"] = 2] = "Supporting";
-    CommandCategories[CommandCategories["DevOnly"] = 3] = "DevOnly";
-    CommandCategories[CommandCategories["GuildSpecific"] = 4] = "GuildSpecific";
-})(CommandCategories = exports.CommandCategories || (exports.CommandCategories = {}));
+exports.PinguCommand = void 0;
 const PinguHandler_1 = require("./PinguHandler");
 class PinguCommand extends PinguHandler_1.default {
     constructor(name, category, description, data, execute) {

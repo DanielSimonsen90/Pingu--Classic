@@ -1,8 +1,8 @@
-import TimeLeftObject from "../../../helpers/TimeLeftObject";
+import TimeSpan from "../../../helpers/TimeSpan";
 export declare class Daily {
     constructor();
     lastClaim: Date;
-    nextClaim: TimeLeftObject;
+    nextClaim: TimeSpan;
     streak: number;
 }
 export default Daily;
