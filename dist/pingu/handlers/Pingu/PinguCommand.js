@@ -15,12 +15,12 @@ class PinguCommand extends PinguHandler_1.default {
             this.permissions = permissions?.length ? [...permissions, 'SEND_MESSAGES'] : ['SEND_MESSAGES'];
             //Optional
             const { usage, guildOnly, specificGuildID, examples, aliases, mustBeBeta } = data;
-            this.usage = usage || "";
-            this.guildOnly = guildOnly || false;
+            this.usage = usage ?? "";
+            this.guildOnly = guildOnly ?? false;
             this.specificGuildID = specificGuildID;
             this.examples = examples?.length ? examples : [""];
             this.aliases = aliases?.length ? aliases : new Array();
-            this.mustBeBeta = mustBeBeta || false;
+            this.mustBeBeta = mustBeBeta ?? false;
         }
         else {
             this.usage = "";

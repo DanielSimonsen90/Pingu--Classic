@@ -45,6 +45,14 @@ discord_js_1.Collection.prototype.findByDisplayName = function (name) {
     ].filter(v => v)[0];
 };
 //#endregion
+//#region CommandInteraction
+discord_js_1.CommandInteraction.prototype.replyPrivate = function (options) {
+    return this.reply({
+        ...options,
+        ephemeral: true
+    });
+};
+//#endregion
 //#region Guild
 discord_js_1.Guild.prototype.owner = function () {
     return this.members.cache.get(this.ownerId);

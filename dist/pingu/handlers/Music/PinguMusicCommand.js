@@ -9,15 +9,17 @@ class PinguMusicCommand extends PinguHandler_1.default {
         if (execute)
             this.execute = execute;
         const { usage, examples, permissions, aliases, queueRequired } = data;
-        this.usage = usage || "";
+        this.permissions = permissions ?? [];
+        this.usage = usage ?? "";
         this.examples = examples?.length ? examples : [""];
         this.aliases = aliases?.length && aliases;
-        this.queueRequired = queueRequired || false;
+        this.queueRequired = queueRequired ?? false;
     }
     description;
     usage;
     examples;
     aliases;
+    permissions;
     queueRequired = false;
     execute(params) {
         return params.client.log('error', `Execute for command **${this.name}**, was not defined!`);

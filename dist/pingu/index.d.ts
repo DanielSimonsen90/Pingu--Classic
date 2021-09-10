@@ -8,4 +8,4 @@ export { Queue, Song, ReactionRole } from './guild/items';
 export { PinguGuildMember } from './guildMember/PinguGuildMember';
 export { PinguUser } from './user/PinguUser';
 export { Daily, Marry } from './user/items';
-export { PinguCommand, PinguCommandParams, PinguEvent, PinguClientEvents, PinguMusicEvent, PinguMusicEvents, PinguMusicClientEvents, PinguMusicCommand, PinguMusicCommandParams } from './handlers';
+export { PinguCommand, PinguCommandParams, PinguEvent, PinguClientEvents, PinguMusicEvent, PinguMusicEvents, PinguMusicClientEvents, PinguMusicCommand, PinguMusicCommandParams, PinguSlashCommand, PinguMusicSlashCommand } from './handlers';

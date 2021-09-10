@@ -5,6 +5,7 @@ import PinguGuild from "./pingu/guild/PinguGuild";
 import PinguGuildMember from "./pingu/guildMember/PinguGuildMember";
 import ReactionRole from "./pingu/guild/items/ReactionRole";
 import PinguUser from "./pingu/user/PinguUser";
+import { APIMessage } from "discord-api-types";
 declare type Pingu = PinguClientBase;
 declare module 'discord.js' {
     interface Base {
@@ -21,6 +22,11 @@ declare module 'discord.js' {
         keyArray(): Array<K>;
         findByDisplayName(name: string): V;
     }
+    interface CommandInteraction {
+        replyPrivate(options: InteractionReplyOptions & {
+            fetchReply: true;
+        }): Promise<Message | APIMessage>;
+    }
     interface Guild {
         client: Pingu;
         owner(): GuildMember;
@@ -32,6 +38,9 @@ declare module 'discord.js' {
     interface GuildMember {
         client: Pingu;
         pGuildMember(): PinguGuildMember;
+    }
+    interface Interaction {
+        client: Pingu;
     }
     interface Message {
         client: Pingu;

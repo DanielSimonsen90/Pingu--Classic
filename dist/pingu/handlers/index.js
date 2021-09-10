@@ -1,8 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PinguMusicCommand = exports.HandleMusicEvent = exports.PinguMusicEvent = exports.HandleEvent = exports.LoggedCache = exports.PinguEvent = exports.PinguCommand = void 0;
+exports.HandleMusicEvent = exports.PinguMusicEvent = exports.HandleEvent = exports.LoggedCache = exports.PinguEvent = exports.SlashCommandOption = exports.PinguMusicSlashCommand = exports.PinguSlashCommand = exports.PinguMusicCommand = exports.PinguCommand = void 0;
 var PinguCommand_1 = require("./Pingu/PinguCommand");
 Object.defineProperty(exports, "PinguCommand", { enumerable: true, get: function () { return PinguCommand_1.PinguCommand; } });
+var PinguMusicCommand_1 = require("./Music/PinguMusicCommand");
+Object.defineProperty(exports, "PinguMusicCommand", { enumerable: true, get: function () { return PinguMusicCommand_1.PinguMusicCommand; } });
+const PinguSlashCommand_1 = require("./Pingu/PinguSlashCommand");
+exports.PinguSlashCommand = PinguSlashCommand_1.default;
+const PinguMusicSlashCommand_1 = require("./Music/PinguMusicSlashCommand");
+exports.PinguMusicSlashCommand = PinguMusicSlashCommand_1.default;
+var SlashCommand_1 = require("./SlashCommand");
+Object.defineProperty(exports, "SlashCommandOption", { enumerable: true, get: function () { return SlashCommand_1.Option; } });
 var PinguEvent_1 = require("./Pingu/PinguEvent");
 Object.defineProperty(exports, "PinguEvent", { enumerable: true, get: function () { return PinguEvent_1.PinguEvent; } });
 Object.defineProperty(exports, "LoggedCache", { enumerable: true, get: function () { return PinguEvent_1.LoggedCache; } });
@@ -10,5 +18,3 @@ Object.defineProperty(exports, "HandleEvent", { enumerable: true, get: function 
 var PinguMusicEvent_1 = require("./Music/PinguMusicEvent");
 Object.defineProperty(exports, "PinguMusicEvent", { enumerable: true, get: function () { return PinguMusicEvent_1.PinguMusicEvent; } });
 Object.defineProperty(exports, "HandleMusicEvent", { enumerable: true, get: function () { return PinguMusicEvent_1.HandleMusicEvent; } });
-var PinguMusicCommand_1 = require("./Music/PinguMusicCommand");
-Object.defineProperty(exports, "PinguMusicCommand", { enumerable: true, get: function () { return PinguMusicCommand_1.PinguMusicCommand; } });

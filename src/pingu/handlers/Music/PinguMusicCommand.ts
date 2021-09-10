@@ -1,30 +1,33 @@
-import { Message, PermissionString, VoiceChannel } from "discord.js";
+import { PermissionString, VoiceChannel } from "discord.js";
 import { ExecuteReturns } from "../Pingu/PinguCommand";
 import PinguGuild from "../../guild/PinguGuild";
 import PinguMusicClient from "../../client/PinguMusicClient";
 import PClient from "../../../database/json/PClient";
 import Queue from "../../guild/items/music/Queue/Queue";
-import Arguments from '../../../helpers/Arguments';
 
-export interface PinguMusicCommandParams {
-    client?: PinguMusicClient,
-    message: Message,
+export interface MusicCommandParams {
     queue?: Queue,
     voiceChannel?: VoiceChannel,
-    args?: Arguments,
     pGuild?: PinguGuild,
-    pGuildClient: PClient
+    pGuildClient?: PClient
+}
+
+import ClassicCommandParams from "../ClassicCommandParams";
+export interface PinguMusicCommandParams extends ClassicCommandParams, MusicCommandParams {
+    client?: PinguMusicClient
+}
+
+interface PinguMusicCommandData {
+    usage: string,
+    examples?: string[],
+    permissions: PermissionString[],
+    aliases?: string[],
+    queueRequired?: boolean
 }
 
 import PinguHandler from "../PinguHandler";
 export class PinguMusicCommand extends PinguHandler {
-    constructor(name: string, description: string, data: {
-        usage: string,
-        examples?: string[],
-        permissions: PermissionString[],
-        aliases?: string[],
-        queueRequired?: boolean
-    },
+    constructor(name: string, description: string, data: PinguMusicCommandData,
     execute: (params: PinguMusicCommandParams) => Promise<ExecuteReturns>) {
         super(name);
         this.description = description;
@@ -32,16 +35,18 @@ export class PinguMusicCommand extends PinguHandler {
 
         const { usage, examples, permissions, aliases, queueRequired } = data;
         
-        this.usage = usage || "";
+        this.permissions = permissions ?? [];
+        this.usage = usage ?? "";
         this.examples = examples?.length ? examples : [""];
         this.aliases = aliases?.length && aliases;
-        this.queueRequired = queueRequired || false;
+        this.queueRequired = queueRequired ?? false;
     }
 
     public description: string;
     public usage: string;
     public examples: string[];
     public aliases: string[];
+    public permissions: PermissionString[];
     public queueRequired = false;
 
     public execute(params: PinguMusicCommandParams): Promise<ExecuteReturns> {

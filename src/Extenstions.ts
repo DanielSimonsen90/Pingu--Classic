@@ -1,6 +1,6 @@
 import { 
-    Base, BaseGuildVoiceChannel, Collection, DMChannel, 
-    EmojiResolvable, Guild, GuildMember, Message, 
+    Base, BaseGuildVoiceChannel, Collection, CommandInteraction, DMChannel, 
+    EmojiResolvable, Guild, GuildMember, InteractionReplyOptions, Message, 
     MessageAttachment, MessageEmbed, NewsChannel, 
     PartialTextBasedChannelFields, TextChannel, 
     ThreadChannel, User 
@@ -15,6 +15,7 @@ import PinguGuildMember from "./pingu/guildMember/PinguGuildMember";
 import ReactionRole from "./pingu/guild/items/ReactionRole";
 import PChannel from "./database/json/PChannel";
 import PinguUser from "./pingu/user/PinguUser";
+import { APIMessage } from "discord-api-types";
 
 type Pingu = PinguClientBase;
 
@@ -31,6 +32,9 @@ declare module 'discord.js' {
         keyArray(): Array<K>
         findByDisplayName(name: string): V
     }
+    interface CommandInteraction {
+        replyPrivate(options: InteractionReplyOptions & { fetchReply: true }): Promise<Message | APIMessage>
+    }
     interface Guild { 
         client: Pingu 
 
@@ -43,6 +47,9 @@ declare module 'discord.js' {
     interface GuildMember { 
         client: Pingu
         pGuildMember(): PinguGuildMember
+    }
+    interface Interaction {
+        client: Pingu
     }
     interface Message { 
         client: Pingu 
@@ -109,6 +116,15 @@ Collection.prototype.findByDisplayName = function<K, V extends INameable>(this: 
         this.find(v => v.name == name),
         this.find(v => v.displayName == name),
     ].filter(v => v)[0];
+}
+//#endregion
+
+//#region CommandInteraction
+CommandInteraction.prototype.replyPrivate = function(this: CommandInteraction, options: InteractionReplyOptions & { fetchReply: true }) {
+    return this.reply({
+        ...options,
+        ephemeral: true
+    })
 }
 //#endregion
 

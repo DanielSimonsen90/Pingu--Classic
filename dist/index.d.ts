@@ -5,6 +5,6 @@ export { HandleDecidables, DecidablesTypes } from './decidable/HandleDecidables'
 export * as Extentions from './Extenstions';
 export { Arguments, EmbedField, Error, TimeSpan, DiscordPermissions, Percentage } from './helpers';
 export { PinguGuildSchema, PinguUserSchema } from './MongoSchemas';
-export { UserAchievementConfig, GuildAchievementConfig, GuildMemberAchievementConfig, UserAchievement, GuildAchievement, GuildMemberAchievement, PinguUser, Daily, Marry, PinguGuildMember, PinguGuild, Queue, Song, ReactionRole, PinguCommand, PinguCommandParams, PinguEvent, PinguClientEvents, PinguMusicEvent, PinguMusicEvents, PinguMusicClientEvents, PinguMusicCommand, PinguMusicCommandParams, PinguClient, PinguMusicClient, PinguBadge } from './pingu';
+export { UserAchievementConfig, GuildAchievementConfig, GuildMemberAchievementConfig, UserAchievement, GuildAchievement, GuildMemberAchievement, PinguUser, Daily, Marry, PinguGuildMember, PinguGuild, Queue, Song, ReactionRole, PinguCommand, PinguCommandParams, PinguEvent, PinguClientEvents, PinguSlashCommand, PinguMusicEvent, PinguMusicEvents, PinguMusicClientEvents, PinguMusicCommand, PinguMusicCommandParams, PinguMusicSlashCommand, PinguClient, PinguMusicClient, PinguBadge } from './pingu';
 import IConfigRequirements from './helpers/Config';
 export declare const config: IConfigRequirements;

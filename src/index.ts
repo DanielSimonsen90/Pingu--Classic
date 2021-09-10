@@ -20,9 +20,11 @@ export {
     
     PinguCommand, PinguCommandParams, 
     PinguEvent, PinguClientEvents,
+    PinguSlashCommand,
     
     PinguMusicEvent, PinguMusicEvents, PinguMusicClientEvents,
     PinguMusicCommand, PinguMusicCommandParams,
+    PinguMusicSlashCommand,
     
     PinguClient, PinguMusicClient,
     
