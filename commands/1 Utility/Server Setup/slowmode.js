@@ -1,5 +1,5 @@
-const { Message, TextChannel } = require('discord.js');
-const { PinguCommand, TimeLeftObject } = require('PinguPackage');
+const { TextChannel } = require('discord.js');
+const { PinguCommand, TimeSpan } = require('PinguPackage');
 const ms = require('ms');
 
 module.exports = new PinguCommand('slowmode', 'Utility', 'Sets the slowmode to specified argument in channel', {
@@ -42,6 +42,6 @@ module.exports = new PinguCommand('slowmode', 'Utility', 'Sets the slowmode to s
     }
     /** @param {number} time*/
     function getTimeString(time) {
-        return new TimeLeftObject(message.createdAt, new Date(message.createdTimestamp + time * 1000)).toString()
+        return new TimeSpan(message.createdTimestamp + time * 1000, message.createdAt).toString()
     }
 });

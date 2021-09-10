@@ -1,5 +1,5 @@
 const { MessageEmbed } = require('discord.js');
-const { PinguCommand, TimeLeftObject } = require('PinguPackage');
+const { PinguCommand, TimeSpan } = require('PinguPackage');
 const timeBetweenClaims = 21;
 
 module.exports = new PinguCommand('daily', 'Fun', `Daily streams just like as if you were having a Snapchat streak with me ;)`, null,
@@ -19,16 +19,11 @@ module.exports = new PinguCommand('daily', 'Fun', `Daily streams just like as if
         let endsAt = new Date(nextClaim.endsAt);
         let lastClaimDate = new Date(lastClaim);
 
-        nextClaim = new TimeLeftObject(now, endsAt);
+        nextClaim = new TimeSpan(endsAt, now);
 
         await client.pUsers.update(pAuthor, module.exports.name, `**${message.author.tag}**'s daily endsAt.`);
 
         let hourDiff = (now.getDate() > lastClaimDate.getDate() ? 24 : 0) - now.getHours() - lastClaimDate.getHours();
-        const format = {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        };
 
         if (nextClaim.toString())
             return message.channel.send(`You've already claimed your daily! Come back in ${nextClaim.toString()} (${client.timeFormat(nextClaim.endsAt.getTime(), 'RELATIVE')})`);
@@ -39,7 +34,7 @@ module.exports = new PinguCommand('daily', 'Fun', `Daily streams just like as if
         function ClaimDaily(streak) {
             daily.streak = streak;
             daily.lastClaim = now;
-            daily.nextClaim = new TimeLeftObject(now, new Date(new Date().setHours(now.getHours() + timeBetweenClaims)));
+            daily.nextClaim = new TimeSpan(new Date().setHours(now.getHours() + timeBetweenClaims), now);
 
             setTimeout(async () => await client.pUsers.update(pAuthor, module.exports.name, 
                 `Updated **${message.author.tag}**'s daily streak to ${daily.streak}.`

@@ -1,8 +1,8 @@
 const { Message, MessageEmbed, Collection } = require('discord.js');
 const {
-    PinguCommand, PinguClient,
+    PinguCommand,
     PinguGuild, PinguGuildMember, PinguUser, PClient, PGuild,
-    EmbedField, Queue, TimeLeftObject, Marry,
+    EmbedField, Queue, TimeSpan, Marry,
     UserAchievement, GuildMemberAchievement, GuildAchievement, PAchievement
 } = require('PinguPackage');
 
@@ -350,7 +350,7 @@ async function GetInfo(message, userType, type, obj, prop, pGuildClient) {
         let authorJoined = (await guild.members.fetch(message.author)).joinedTimestamp;
         let clientJoined = guild.me.joinedTimestamp;
 
-        var knownSince = new TimeLeftObject(new Date(authorJoined < clientJoined ? clientJoined : authorJoined), new Date(Date.now()));
+        var knownSince = new TimeSpan(authorJoined < clientJoined ? clientJoined : authorJoined);
         guildInfo.push(`Both been members for ${knownSince.toString()}.`);
 
         return guildInfo.join('\n') + '\n';

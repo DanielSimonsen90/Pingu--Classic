@@ -1,10 +1,10 @@
 import { Message, PermissionString, VoiceChannel } from "discord.js";
-import { ExecuteReturns } from "./PinguCommand";
-import PinguGuild from "../guild/PinguGuild";
-import PinguMusicClient from "../client/PinguMusicClient";
-import PClient from "../../database/json/PClient";
-import Queue from "../guild/items/music/Queue/Queue";
-import Arguments from '../../helpers/Arguments';
+import { ExecuteReturns } from "../Pingu/PinguCommand";
+import PinguGuild from "../../guild/PinguGuild";
+import PinguMusicClient from "../../client/PinguMusicClient";
+import PClient from "../../../database/json/PClient";
+import Queue from "../../guild/items/music/Queue/Queue";
+import Arguments from '../../../helpers/Arguments';
 
 export interface PinguMusicCommandParams {
     client?: PinguMusicClient,
@@ -16,7 +16,7 @@ export interface PinguMusicCommandParams {
     pGuildClient: PClient
 }
 
-import PinguHandler from "./PinguHandler";
+import PinguHandler from "../PinguHandler";
 export class PinguMusicCommand extends PinguHandler {
     constructor(name: string, description: string, data: {
         usage: string,

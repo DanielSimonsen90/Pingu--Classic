@@ -90,11 +90,10 @@ export class GuildMemberAchievement<
         new GuildMemberAchievement(13, "Proffesional DJ", 'COMMAND', 'music', GuildMemberAchievement.useCommand('music', "play some sick tunes in a voice channel")),
         new GuildMemberAchievement(14, "I said that?", 'COMMAND', 'quote', "Be quoted by someone that used the `quote` command")
             .setCallback('0', async ([params]) => {
-            const { message, client: _client } = params;
+            const { message, client } = params;
             const member = message.mentions.members.first();
             if (!member || message.member.id == member.id) return false;
 
-            const client = _client as PinguClientBase;
             const pMention = client.pUsers.get(member.user);
             return pMention != null;
         }),

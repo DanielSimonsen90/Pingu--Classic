@@ -1,8 +1,8 @@
 import { GuildMember, Message, VoiceChannel } from "discord.js";
-import { PinguClientEvents } from "./PinguEvent";
-import Queue from "../guild/items/music/Queue/Queue";
-import Song from "../guild/items/music/Song";
-import PinguMusicClient from "../client/PinguMusicClient";
+import { PinguClientEvents } from "../Pingu/PinguEvent";
+import Queue from "../../guild/items/music/Queue/Queue";
+import Song from "../../guild/items/music/Song";
+import PinguMusicClient from "../../client/PinguMusicClient";
 
 type QueueMessage = [Queue, Message];
 type QueueMessageSong = [...QueueMessage, Song]
@@ -56,7 +56,7 @@ export async function HandleMusicEvent<EventType extends keyof PinguMusicClientE
     })
 }
 
-import PinguHandler from "./PinguHandler";
+import PinguHandler from "../PinguHandler";
 export class PinguMusicEvent<Event extends keyof PinguMusicClientEvents> extends PinguHandler {
     public static HandleEvent<EventType extends keyof PinguMusicClientEvents>(caller: EventType, client: PinguMusicClient, path: string, ...args: PinguMusicClientEvents[EventType]) {
         return HandleMusicEvent(caller, client, ...args);

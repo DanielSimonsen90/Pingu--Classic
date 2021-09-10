@@ -2,8 +2,8 @@ import { ClientEvents, Collection, Snowflake, TextChannel } from "discord.js";
 import * as fs from 'fs';
 
 import PinguHandler from "../handlers/PinguHandler";
-import PinguMusicCommand, { PinguMusicCommandParams } from '../handlers/PinguMusicCommand';
-import PinguMusicEvent, { PinguMusicClientEvents, HandleMusicEvent } from '../handlers/PinguMusicEvent';
+import PinguMusicCommand, { PinguMusicCommandParams } from '../handlers/Music/PinguMusicCommand';
+import PinguMusicEvent, { PinguMusicClientEvents, HandleMusicEvent } from '../handlers/Music/PinguMusicEvent';
 
 import Queue from "../guild/items/music/Queue/Queue";
 import Song from "../guild/items/music/Song";

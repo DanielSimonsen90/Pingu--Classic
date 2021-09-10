@@ -1,5 +1,5 @@
 export declare type AchieverTypes = 'USER' | 'GUILD' | 'GUILDMEMBER';
-import { PinguClientEvents } from "../../handlers/PinguEvent";
+import { PinguClientEvents } from "../../handlers/Pingu/PinguEvent";
 export interface AchievementBaseType {
     CHAT: string;
     EVENT: keyof PinguClientEvents;
@@ -11,7 +11,7 @@ export declare type noGuildOnlyCommands = 'help' | 'info' | 'ping' | 'sort' | 's
 export declare type guildOnlyCommands = 'giveaway' | 'poll' | 'suggestion' | 'serverinfo' | 'whois' | 'clear' | 'role' | 'embed' | 'fetch' | 'prefix' | 'publish' | 'reactionroles' | 'slowmode' | 'boomer' | 'activity' | 'noice' | 'music' | 'quote' | 'viberate';
 export declare type Commands = noGuildOnlyCommands | guildOnlyCommands;
 import { Guild, Message, VoiceState } from "discord.js";
-import { PinguCommandParams } from "../../handlers/PinguCommand";
+import { PinguCommandParams } from "../../handlers/Pingu/PinguCommand";
 export interface PinguCommandParamsResponse extends PinguCommandParams {
     response: Message;
 }
@@ -23,11 +23,11 @@ export interface AchievementCallbackParams {
 }
 import PItem from "../../../database/json/PItem";
 import Percentage from "../../../helpers/Percentage";
-import BasePinguClient from '../../client/BasePinguClient';
+import PinguClientBase from '../../client/PinguClientBase';
 export declare abstract class AchievementBase extends PItem {
     constructor(id: number, name: string, description: string);
     description: string;
-    abstract getPercentage(client: BasePinguClient, guild?: Guild): Promise<Percentage>;
+    abstract getPercentage(client: PinguClientBase, guild?: Guild): Promise<Percentage>;
     protected static useCommand(command: Commands, extraInfo: string): string;
 }
 export default AchievementBase;

@@ -1,0 +1,35 @@
+{
+  "err": {},
+  "params": {
+    "params": {
+      "message": {
+        "authorId": "245572699894710272",
+        "channelId": "874132078843813928",
+        "id": "885586736279875664",
+        "guildId": "791312245555855401",
+        "content": "b*test"
+      }
+    },
+    "additional": {
+      "args": [],
+      "logMessage": "User **Danho** executed command **test**, from \"Pingu Emote Server\", #beta-tests, and **failed!**\nError: RangeError [MESSAGE_CONTENT_TYPE]: Message content must be a non-empty string.",
+      "commandName": "test",
+      "command": {
+        "name": "test",
+        "path": "c:\\Users\\Daniel Simonsen\\Documents\\GitHub\\Discord\\Bots\\Pingu\\Pingu\\commands/4 DevOnly/test.js",
+        "description": "Test command for Danho",
+        "usage": "",
+        "guildOnly": false,
+        "category": "DevOnly",
+        "examples": [
+          ""
+        ],
+        "permissions": [
+          "SEND_MESSAGES"
+        ],
+        "aliases": [],
+        "mustBeBeta": true
+      }
+    }
+  }
+}

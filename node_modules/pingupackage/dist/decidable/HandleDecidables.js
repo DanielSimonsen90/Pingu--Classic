@@ -9,7 +9,7 @@ const PRole_1 = require("../database/json/PRole");
 const PChannel_1 = require("../database/json/PChannel");
 const PGuildMember_1 = require("../database/json/PGuildMember");
 const achievements_1 = require("../pingu/achievements");
-const TimeLeftObject_1 = require("../helpers/TimeLeftObject");
+const TimeSpan_1 = require("../helpers/TimeSpan");
 function SetConfigObjects(config) {
     const { giveawayConfig, pollConfig, suggestionConfig, themeConfig } = config;
     const giveawayObj = {
@@ -110,9 +110,9 @@ async function HandleDecidables(params) {
         color: pGuildClient.embedColor,
         description: isGiveawayType(decidablesType) ? (`**React with ${reactionEmojis[0]} to enter!**\n` +
             `Winners: **${winners}**\n` +
-            `Ends in: ${new TimeLeftObject_1.default(new Date(), endsAt).toString()}\n` +
+            `Ends in: ${new TimeSpan_1.default(endsAt).toString()}\n` +
             `Hosted by ${author}`) : decidablesType == 'Poll' ? (`Brought to you by ${author}\n` +
-            `Time left: ${new TimeLeftObject_1.default(new Date(), endsAt).toString()}`) : value,
+            `Time left: ${new TimeSpan_1.default(endsAt).toString()}`) : value,
         footer: { text: decidablesType == 'Suggestion' ? `This suggestion is currently Undecided` : `Ends at` },
         timestamp: decidablesType != 'Suggestion' ? endsAt : null
     });
@@ -125,7 +125,7 @@ async function HandleDecidables(params) {
     reactionEmojis.forEach(e => sent.react(e));
     sent.createReactionCollector({
         filter: (r, u) => reactionEmojis.includes(r.emoji.name) && !u.bot,
-        time: endsAt && new TimeLeftObject_1.default(new Date(), endsAt).milliseconds || 0
+        time: endsAt && new TimeSpan_1.default(endsAt).milliseconds || 0
     }).on('collect', (r, u) => client.log('console', `**${u.tag}** ${isGiveawayType(decidablesType) ?
         `entered ${decidablesType.toLowerCase()}` :
         `voted **${'👍' == r.emoji.name ? 'Yes' : 'No'}**`}`));
@@ -138,9 +138,9 @@ async function HandleDecidables(params) {
         sent.editEmbeds(sent.embeds[0]
             .setDescription(isGiveawayType(decidablesType) ? (`**React with ${reactionEmojis[0]} to enter!**\n` +
             `Winners: **${winners}**\n` +
-            `Ends in: ${new TimeLeftObject_1.default(new Date(), endsAt).toString()}.\n` +
+            `Ends in: ${new TimeSpan_1.default(endsAt).toString()}.\n` +
             `Hosted by <@${decidable.author._id}>`) : decidablesType == 'Poll' ? (`Brought to you by <@${decidable.author._id}>\n` +
-            `Time left: ${new TimeLeftObject_1.default(new Date(), endsAt).toString()}.`) : sent.embeds[0].description)).catch(err => {
+            `Time left: ${new TimeSpan_1.default(endsAt).toString()}.`) : sent.embeds[0].description)).catch(err => {
             client.log('error', `Updating ${decidablesType.toLowerCase()} timer`, content, err);
             author.send(`I had an issue updating the ${decidablesType.toLowerCase()} message, so your ${decidablesType.toLowerCase()} might be broken!`);
         });

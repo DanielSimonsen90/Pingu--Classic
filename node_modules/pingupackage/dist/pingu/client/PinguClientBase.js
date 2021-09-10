@@ -7,7 +7,7 @@ exports.Clients = {
     PinguID: '562176550674366464',
     BetaID: '778288722055659520'
 };
-const TimeLeftObject_1 = require("../../helpers/TimeLeftObject");
+const TimeSpan_1 = require("../../helpers/TimeSpan");
 const PinguCollection_1 = require("../collection/PinguCollection");
 const DeveloperCollection_1 = require("../collection/DeveloperCollection");
 const EmojiCollection_1 = require("../collection/EmojiCollection");
@@ -146,7 +146,7 @@ class PinguClientBase extends discord_js_1.Client {
         return (await Danho.createDM()).send(message);
     }
     timeFormat(timestamp, format) {
-        return `<t:${Math.round(timestamp / 1000)}${format ? `:${TimeLeftObject_1.TimestampStyles.get(format)}` : ''}>`;
+        return TimeSpan_1.TimeFormat(timestamp, format);
     }
     //#endregion
     //#region Protected methods

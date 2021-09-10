@@ -1,7 +1,7 @@
 export declare const Daily: {
     lastClaim: DateConstructor;
     nextClaim: {
-        endsAt: DateConstructor;
+        date: DateConstructor;
         seconds: NumberConstructor;
         minutes: NumberConstructor;
         hours: NumberConstructor;
