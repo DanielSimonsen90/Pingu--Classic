@@ -1,5 +1,4 @@
-import { PermissionString, VoiceChannel } from "discord.js";
-import { ExecuteReturns } from "../Pingu/PinguCommand";
+import { VoiceChannel } from "discord.js";
 import PinguGuild from "../../guild/PinguGuild";
 import PinguMusicClient from "../../client/PinguMusicClient";
 import PClient from "../../../database/json/PClient";
@@ -12,46 +11,28 @@ export interface MusicCommandParams {
     pGuildClient?: PClient
 }
 
-import ClassicCommandParams from "../ClassicCommandParams";
 export interface PinguMusicCommandParams extends ClassicCommandParams, MusicCommandParams {
     client?: PinguMusicClient
 }
 
-interface PinguMusicCommandData {
-    usage: string,
-    examples?: string[],
-    permissions: PermissionString[],
-    aliases?: string[],
+interface PinguMusicCommandData extends BaseCommandData {
     queueRequired?: boolean
 }
 
-import PinguHandler from "../PinguHandler";
-export class PinguMusicCommand extends PinguHandler {
-    constructor(name: string, description: string, data: PinguMusicCommandData,
-    execute: (params: PinguMusicCommandParams) => Promise<ExecuteReturns>) {
-        super(name);
-        this.description = description;
-        if (execute) this.execute = execute;
-
-        const { usage, examples, permissions, aliases, queueRequired } = data;
-        
-        this.permissions = permissions ?? [];
-        this.usage = usage ?? "";
-        this.examples = examples?.length ? examples : [""];
-        this.aliases = aliases?.length && aliases;
+import PinguCommandBase, { BaseCommandData, ClassicCommandParams, ExecuteFunction, ExecuteFunctions, SlashCommandParams } from "../Command/PinguCommandBase";
+import PinguSlashCommandBuilder, { SlashCommandConstructionData } from "../Command/Slash/PinguSlashCommandBuilder";
+export class PinguMusicCommand extends PinguCommandBase {
+    constructor(name: string, description: string, 
+        data: PinguMusicCommandData,
+        slashCommandBuilder: SlashCommandConstructionData,
+        executes: ExecuteFunctions<PinguMusicClient, PinguMusicCommandParams>
+    ) {
+        super(name, description, data, new PinguSlashCommandBuilder(name, description, slashCommandBuilder), executes);
+        const { queueRequired } = data;
         this.queueRequired = queueRequired ?? false;
     }
 
-    public description: string;
-    public usage: string;
-    public examples: string[];
-    public aliases: string[];
-    public permissions: PermissionString[];
     public queueRequired = false;
-
-    public execute(params: PinguMusicCommandParams): Promise<ExecuteReturns> {
-        return params.client.log('error', `Execute for command **${this.name}**, was not defined!`)
-    }
 }
 
 export default PinguMusicCommand;

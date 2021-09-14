@@ -25,10 +25,10 @@ import { IGuildAchievement } from "./IAchievementBase";
 import Percentage from "../../../helpers/Percentage";
 import PinguClientBase from '../../client/PinguClientBase'
 
-export class GuildAchievement
-<Key extends keyof GuildAchievementType,
-Type extends GuildAchievementType[Key]> 
-extends AchievementBase implements IGuildAchievement<Key, Type, GuildAchievementCallbackParams> {
+export class GuildAchievement<
+    Key extends keyof GuildAchievementType,
+    Type extends GuildAchievementType[Key]
+> extends AchievementBase implements IGuildAchievement<Key, Type, GuildAchievementCallbackParams> {
     constructor(id: number, name: string, key: Key, type: Type, description: string) {
         super(id, name, description);
         this.key = key;

@@ -1,5 +1,5 @@
 import { Collection } from 'discord.js';
-import { Model, Document, Query } from 'mongoose';
+import { Model, Document } from 'mongoose';
 
 import PinguClientBase from '../client/PinguClientBase';
 import Reason from '../../helpers/Reason'

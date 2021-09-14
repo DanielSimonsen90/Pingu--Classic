@@ -37,13 +37,14 @@ interface AchievementCallbackParams {
     GUILDMEMBER: GuildMemberAchievementCallbackParams,
     GUILD: GuildAchievementCallbackParams
 }
-export async function AchievementCheckType
-    <AchieverType extends AchieverTypes,
+
+export async function AchievementCheckType<
+    AchieverType extends AchieverTypes,
     AchievementType extends Achievements[AchieverType],
     Key extends keyof AchievementTypes[AchieverType],
     Type extends AchievementTypes[AchieverType][Key],
-    CallbackKey extends keyof AchievementCallbackParams[AchieverType]>
-    (
+    CallbackKey extends keyof AchievementCallbackParams[AchieverType]
+>(
         client: PinguClientBase,
         achieverType: AchieverType, 
         achiever: Achievers[AchieverType], 
@@ -166,10 +167,10 @@ export interface AchievementCheckData {
     guild?: Guild
 }
 
-export async function AchievementCheck
-<AchievementType extends GuildMemberAchievementType | GuildAchievementType | AchievementBaseType,
-Key extends keyof AchievementType, Type extends AchievementType[Key],>
-(client: PinguClientBase, data: AchievementCheckData, key: Key, type: Type, callback: any[]) {
+export async function AchievementCheck<
+    AchievementType extends GuildMemberAchievementType | GuildAchievementType | AchievementBaseType,
+    Key extends keyof AchievementType, Type extends AchievementType[Key]
+>(client: PinguClientBase, data: AchievementCheckData, key: Key, type: Type, callback: any[]) {
     if (data.user && !data.user.bot) {
         const pUser = client.pUsers.get(data.user);
         if (!pUser) return false;

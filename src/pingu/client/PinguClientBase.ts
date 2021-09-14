@@ -11,7 +11,7 @@ export const Clients = {
 }
 
 import PinguHandler from "../handlers/PinguHandler";
-import { PinguCommandParams } from "../handlers/Pingu/PinguCommand";
+import { PinguClassicCommandParams } from "../handlers/Pingu/PinguCommand";
 
 import IConfigRequirements from "../../helpers/Config";
 import { TimestampStyle, TimeFormat } from '../../helpers/TimeSpan';
@@ -31,7 +31,7 @@ import PinguGuild from '../guild/PinguGuild';
 
 type ConsoleLogType = 'log' | 'warn' | 'error';
 interface ErrorLogParams { 
-    params?: PinguCommandParams | {}, 
+    params?: PinguClassicCommandParams | {}, 
     trycatch?: {}
     additional?: {}
 }
@@ -59,6 +59,7 @@ class SavedServer {
     public id: Snowflake;
 }
 
+import SlashCommandCollection from "../collection/SlashCommandCollection";
 export abstract class PinguClientBase<Events extends ClientEvents = any> extends Client {
     public static Clients = Clients;
 
@@ -118,6 +119,7 @@ export abstract class PinguClientBase<Events extends ClientEvents = any> extends
     public readonly invite = `https://discord.gg/gbxRV4Ekvh`;
     
     public commands = new Collection<string, PinguHandler>();
+    public slashCommands = new SlashCommandCollection(this);
     public events = new Collection<string | keyof Events, PinguHandler>();
     public subscribedEvents = new Array<string | keyof Events>();
     public DefaultPrefix: string;
@@ -203,6 +205,15 @@ export abstract class PinguClientBase<Events extends ClientEvents = any> extends
 
         return (await Danho.createDM()).send(message);
     }
+    /**
+     * @SHORT_TIME hh:mm
+     * @LONG_TIME hh:mm:ss
+     * @SHORT_DATE dd/MM/yyyy
+     * @LONG_DATE dd Monthname yyyy
+     * @SHORT_DATETIME dd Monthname yyyy hh:mm
+     * @LONG_DATETIME Day, dd Monthname yyyy hh:mm
+     * @RELATIVE x timeunit ago
+     */
     public timeFormat(timestamp: number | Date, format?: TimestampStyle) {
         return TimeFormat(timestamp, format);
     }
@@ -210,7 +221,7 @@ export abstract class PinguClientBase<Events extends ClientEvents = any> extends
 
     //#region Protected methods
     protected async onceReady() {
-        this.DefaultPrefix = this.isLive || !this.config.BetaPrefix ? this.config.Prefix : this.config.BetaPrefix;
+        this.DefaultPrefix = this.isLive || !this.config.betaPrefix ? this.config.prefix : this.config.betaPrefix;
 
         this.savedServers = new Collection<SavedServerNames, Guild>([
             new SavedServer('Danho Misc', '460926327269359626'),

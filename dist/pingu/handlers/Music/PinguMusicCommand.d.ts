@@ -1,5 +1,4 @@
-import { PermissionString, VoiceChannel } from "discord.js";
-import { ExecuteReturns } from "../Pingu/PinguCommand";
+import { VoiceChannel } from "discord.js";
 import PinguGuild from "../../guild/PinguGuild";
 import PinguMusicClient from "../../client/PinguMusicClient";
 import PClient from "../../../database/json/PClient";
@@ -10,26 +9,16 @@ export interface MusicCommandParams {
     pGuild?: PinguGuild;
     pGuildClient?: PClient;
 }
-import ClassicCommandParams from "../ClassicCommandParams";
 export interface PinguMusicCommandParams extends ClassicCommandParams, MusicCommandParams {
     client?: PinguMusicClient;
 }
-interface PinguMusicCommandData {
-    usage: string;
-    examples?: string[];
-    permissions: PermissionString[];
-    aliases?: string[];
+interface PinguMusicCommandData extends BaseCommandData {
     queueRequired?: boolean;
 }
-import PinguHandler from "../PinguHandler";
-export declare class PinguMusicCommand extends PinguHandler {
-    constructor(name: string, description: string, data: PinguMusicCommandData, execute: (params: PinguMusicCommandParams) => Promise<ExecuteReturns>);
-    description: string;
-    usage: string;
-    examples: string[];
-    aliases: string[];
-    permissions: PermissionString[];
+import PinguCommandBase, { BaseCommandData, ClassicCommandParams, ExecuteFunctions } from "../Command/PinguCommandBase";
+import { SlashCommandConstructionData } from "../Command/Slash/PinguSlashCommandBuilder";
+export declare class PinguMusicCommand extends PinguCommandBase {
+    constructor(name: string, description: string, data: PinguMusicCommandData, slashCommandBuilder: SlashCommandConstructionData, executes: ExecuteFunctions<PinguMusicClient, PinguMusicCommandParams>);
     queueRequired: boolean;
-    execute(params: PinguMusicCommandParams): Promise<ExecuteReturns>;
 }
 export default PinguMusicCommand;

@@ -1,4 +1,4 @@
-export { UserAchievement, GuildMemberAchievement, GuildAchievement } from './achievements/items';
+export { UserAchievement, GuildMemberAchievement, GuildAchievement, AchievementBase, IAchievementBase } from './achievements/items';
 export { UserAchievementConfig, GuildMemberAchievementConfig, GuildAchievementConfig } from './achievements/config';
 export { PinguBadge } from './badge/PinguBadge';
 export { PinguClient } from './client/PinguClient';
@@ -8,4 +8,4 @@ export { Queue, Song, ReactionRole } from './guild/items';
 export { PinguGuildMember } from './guildMember/PinguGuildMember';
 export { PinguUser } from './user/PinguUser';
 export { Daily, Marry } from './user/items';
-export { PinguCommand, PinguCommandParams, PinguEvent, PinguClientEvents, PinguMusicEvent, PinguMusicEvents, PinguMusicClientEvents, PinguMusicCommand, PinguMusicCommandParams, PinguSlashCommand, PinguMusicSlashCommand } from './handlers';
+export { PinguCommand, PinguCommandParams, ExecuteFunctionProps, ReplyMethods, PinguEvent, PinguClientEvents, PinguMusicEvent, PinguMusicEvents, PinguMusicClientEvents, PinguMusicCommand, PinguMusicCommandParams, SlashCommandOption, PinguSlashCommandBuilder, PinguSlashCommandSub, PinguSlashCommandGroup, PinguSlashCommandBase } from './handlers';

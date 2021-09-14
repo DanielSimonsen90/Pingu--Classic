@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const SlashCommand_1 = require("../SlashCommand");
-class PinguMusicSlashCommand extends SlashCommand_1.default {
+const PinguSlashCommandBuilderBase_1 = require("../PinguSlashCommandBuilderBase");
+class PinguMusicSlashCommandBuilder extends PinguSlashCommandBuilderBase_1.default {
     constructor(name, description, options, extra, onInteraction) {
         super(name, description, options, extra);
         const { queueRequired } = extra;
@@ -15,4 +15,4 @@ class PinguMusicSlashCommand extends SlashCommand_1.default {
         return null;
     }
 }
-exports.default = PinguMusicSlashCommand;
+exports.default = PinguMusicSlashCommandBuilder;

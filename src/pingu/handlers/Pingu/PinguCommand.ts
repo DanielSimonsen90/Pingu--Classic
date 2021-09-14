@@ -1,97 +1,77 @@
-type CommandCategoriesType = 'Utility' | 'Fun' | 'Supporting' | 'DevOnly' | 'GuildSpecific';
-
-import { Message, PermissionString, Snowflake } from 'discord.js';
-
+import { Snowflake } from 'discord.js';
 import PinguUser from "../../user/PinguUser";
 import PinguGuildMember from "../../guildMember/PinguGuildMember";
 import PinguGuild from "../../guild/PinguGuild";
 import PClient from "../../../database/json/PClient";
+import PinguClient from "../../client/PinguClient";
+import PinguCommandBase, { 
+    BaseCommandData, 
+    ClassicCommandParams, 
+    ExecuteFunctionProps, 
+    ExecuteFunctions, 
+    throwInvalidTypeError 
+} from '../Command/PinguCommandBase';
+
+interface PItems {
+    author: PinguUser,
+    member: PinguGuildMember,
+    guild: PinguGuild,
+    client: PClient
+}
 
 export interface CommandParams {
+    client?: PinguClient,
     pAuthor?: PinguUser,
     pGuildMember?: PinguGuildMember,
     pGuild?: PinguGuild,
     pGuildClient?: PClient,
+    pItems?: PItems
 }
 
-import ClassicCommandParams from "../ClassicCommandParams";
-import PinguClient from "../../client/PinguClient";
-export interface PinguCommandParams extends ClassicCommandParams, CommandParams {
-    client?: PinguClient,
+import PinguSlashCommandBuilder, { SlashCommandConstructionData, InteractionCommandParams } from '../Command/Slash/PinguSlashCommandBuilder';
+export interface PinguClassicCommandParams extends ClassicCommandParams, CommandParams {
+    client: PinguClient
 }
-export interface PinguCommandData {
-    usage: string;
-    guildOnly?: false;
+export interface PinguSlashCommandParams extends InteractionCommandParams, CommandParams {
+    client: PinguClient
+}
+
+export interface PinguCommandData extends BaseCommandData {
+    guildOnly?: boolean;
     specificGuildID?: Snowflake;
-    examples?: string[];
-    permissions: PermissionString[];
-    aliases?: string[];
-    mustBeBeta?: false;
+    mustBeBeta?: boolean;
 }
 
-export type ExecuteReturns = void | Message;
-import PinguHandler from '../PinguHandler';
-
-export class PinguCommand extends PinguHandler {
+type CommandCategoriesType = 'Utility' | 'Fun' | 'Supporting' | 'DevOnly' | 'GuildSpecific';
+export class PinguCommand<ExecutePropsType = {}> extends PinguCommandBase<ExecutePropsType> {
     constructor(name: string, category: CommandCategoriesType, description: string, 
-        data: PinguCommandData, 
-        execute: (params: PinguCommandParams) => Promise<ExecuteReturns>) 
-    { 
-        //Must need these
-        super(name);
-        this.description = description;
+        data: PinguCommandData,
+        slashCommandBuilder: SlashCommandConstructionData<PinguClient, ExecutePropsType, CommandParams>,
+        executes: ExecuteFunctions<PinguClient, PinguClassicCommandParams, PinguSlashCommandParams, ExecutePropsType>
+    ) { 
+        super(name, description, data, 
+            new PinguSlashCommandBuilder<PinguClient, ExecutePropsType>(name, description, slashCommandBuilder), 
+            executes
+        );
         this.category = category;
-        if (execute) this.execute = execute;
 
-        if (data) {
-            const { permissions } = data;
-            this.permissions = permissions?.length ? [...permissions, 'SEND_MESSAGES'] as PermissionString[] : ['SEND_MESSAGES'] as PermissionString[];
-            
-            //Optional
-            const { usage, guildOnly, specificGuildID, examples, aliases, mustBeBeta } = data;
-            this.usage = usage ?? "";
-            this.guildOnly = guildOnly ?? false;
-            this.specificGuildID = specificGuildID;
-            this.examples = examples?.length ? examples : [""];
-            this.aliases = aliases?.length ? aliases : new Array<string>();
-            this.mustBeBeta = mustBeBeta ?? false;
-        }
-        else {
-            this.usage = "";
-            this.guildOnly = false;
-            this.examples = [""];
-            this.aliases = new Array<string>();
-            this.mustBeBeta = false;
-        }
+        const { guildOnly, specificGuildID, mustBeBeta } = data;
+        this.guildOnly = guildOnly ?? false;
+        this.specificGuildID = specificGuildID;
+        this.mustBeBeta = mustBeBeta ?? false;
 
-        const throwError = function<Prop extends keyof PinguCommandData>(prop: Prop, type: 'array' | 'string' | 'boolean') {
-            throw new Error(`"${prop}" for ${name} is not typeof ${type}!`)
-        };
-
-        if (data) {
-            if (this.permissions && !this.permissions.push) throwError('permissions', 'array');
-
-            if (this.usage && typeof this.usage != 'string') throwError('usage', 'string');
-            if (this.specificGuildID && typeof this.specificGuildID != 'string') throwError('specificGuildID', 'string');
-            if (this.guildOnly && typeof this.guildOnly != 'boolean') throwError('guildOnly', 'boolean');
-            if (this.mustBeBeta && typeof this.mustBeBeta != 'boolean') throwError('mustBeBeta', 'boolean');
-            if (this.examples && !this.examples.push) throwError('examples', 'array');
-            if (this.aliases && !this.aliases.push) throwError('aliases', 'array');
-        }
+        if (this.specificGuildID && typeof this.specificGuildID != 'string') throwInvalidTypeError<PinguCommandData, 'specificGuildID'>('specificGuildID', name, 'string');
+        if (this.guildOnly && typeof this.guildOnly != 'boolean') throwInvalidTypeError<PinguCommandData, 'guildOnly'>('guildOnly', name, 'boolean');
+        if (this.mustBeBeta && typeof this.mustBeBeta != 'boolean') throwInvalidTypeError<PinguCommandData, 'mustBeBeta'>('mustBeBeta', name, 'boolean');
     }
     
-    public description: string;
-    public usage: string;
     public guildOnly = false;
     public category: CommandCategoriesType;
     public specificGuildID: string;
-    public examples: string[];
-    public permissions: PermissionString[];
-    public aliases: string[];
     public mustBeBeta = false;
-    
-    public async execute(params: PinguCommandParams): Promise<ExecuteReturns> {
-        return params.client.log('error', `Execute for command **${this.name}**, was not defined!`)
+
+    protected _execute(client: PinguClient, props: ExecuteFunctionProps, extra?: ExecutePropsType) {
+        return this._logError(client, `_execute`);
     }
 }
 

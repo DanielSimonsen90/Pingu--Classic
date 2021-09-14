@@ -6,6 +6,11 @@ export declare class Mention {
     value: boolean;
     index: number;
     regex: RegExp;
+    /**
+     * Cuts and returns argument value from Argument class
+     * @param remove Default: true
+     * @returns Argument value from Argument class
+     */
     argument(remove?: boolean): string;
 }
 export declare class Arguments extends Array<string> {

@@ -16,6 +16,11 @@ export class Mention {
     public index: number;
     public regex: RegExp;
 
+    /**
+     * Cuts and returns argument value from Argument class
+     * @param remove Default: true
+     * @returns Argument value from Argument class
+     */
     public argument(remove = true): string {
         return null;
     }

@@ -6,3 +6,4 @@ export { DiscordPermissions } from './DiscordPermissions';
 export { TimeSpan } from './TimeSpan';
 export { Percentage } from './Percentage'
 export { Reason } from './Reason';
+export { IConfigRequirements as Config } from './Config';

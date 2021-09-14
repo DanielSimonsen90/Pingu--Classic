@@ -1,4 +1,4 @@
-import { ClientEvents, Collection, TextChannel, User, Guild, MessageEmbed, Message } from "discord.js";
+import { ClientEvents, Collection, TextChannel, User, Guild, MessageEmbed, Message, PermissionString, ClientOptions } from "discord.js";
 import * as fs from 'fs';   
 import * as request from 'request';
 
@@ -14,8 +14,21 @@ import { AchievementBaseType } from '../achievements/items/AchievementBase'
 import PinguCommand from '../handlers/Pingu/PinguCommand';
 import PinguEvent, { PinguClientEvents, HandleEvent } from '../handlers/Pingu/PinguEvent';
 import PinguClientBase from "./PinguClientBase";
+import IConfigRequirements from "../../helpers/Config";
 
 export class PinguClient extends PinguClientBase<PinguClientEvents> {
+    constructor(
+        config: IConfigRequirements, 
+        permissions: PermissionString[],
+        subscribedEvents: Array<keyof PinguClientEvents>,
+        dirname: string,
+        commandsPath?: string,
+        eventsPath?: string,
+        options?: ClientOptions
+    ) {
+        super(config, permissions, subscribedEvents as (keyof ClientEvents)[], dirname, commandsPath, eventsPath, options)
+    }
+    
     //#region Public Properties
     public declare commands: Collection<string, PinguCommand>;
     public declare events: Collection<keyof PinguClientEvents, PinguEvent<keyof PinguClientEvents>>;

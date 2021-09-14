@@ -4,7 +4,7 @@ export declare const Clients: {
     BetaID: string;
 };
 import PinguHandler from "../handlers/PinguHandler";
-import { PinguCommandParams } from "../handlers/Pingu/PinguCommand";
+import { PinguClassicCommandParams } from "../handlers/Pingu/PinguCommand";
 import IConfigRequirements from "../../helpers/Config";
 import { TimestampStyle } from '../../helpers/TimeSpan';
 import PinguCollection from '../collection/PinguCollection';
@@ -18,7 +18,7 @@ import PinguUser from '../user/PinguUser';
 import PinguGuild from '../guild/PinguGuild';
 declare type ConsoleLogType = 'log' | 'warn' | 'error';
 interface ErrorLogParams {
-    params?: PinguCommandParams | {};
+    params?: PinguClassicCommandParams | {};
     trycatch?: {};
     additional?: {};
 }
@@ -35,6 +35,7 @@ interface LogTypes {
 }
 export declare type LogChannels = keyof LogTypes;
 export declare type SavedServerNames = 'Danho Misc' | 'Pingu Support' | 'Pingu Emotes' | 'Deadly Ninja';
+import SlashCommandCollection from "../collection/SlashCommandCollection";
 export declare abstract class PinguClientBase<Events extends ClientEvents = any> extends Client {
     static Clients: {
         PinguID: string;
@@ -47,6 +48,7 @@ export declare abstract class PinguClientBase<Events extends ClientEvents = any>
     readonly DefaultEmbedColor = 3447003;
     readonly invite = "https://discord.gg/gbxRV4Ekvh";
     commands: Collection<string, PinguHandler>;
+    slashCommands: SlashCommandCollection;
     events: Collection<string | keyof Events, PinguHandler>;
     subscribedEvents: (string | keyof Events)[];
     DefaultPrefix: string;
@@ -67,6 +69,15 @@ export declare abstract class PinguClientBase<Events extends ClientEvents = any>
     log<Type extends LogChannels>(type: Type, ...args: LogTypes[Type]): Promise<Message>;
     DBExecute<T>(callback: (mongoose: typeof import('mongoose')) => Promise<T>): Promise<T>;
     DanhoDM(message: string): Promise<Message>;
+    /**
+     * @SHORT_TIME hh:mm
+     * @LONG_TIME hh:mm:ss
+     * @SHORT_DATE dd/MM/yyyy
+     * @LONG_DATE dd Monthname yyyy
+     * @SHORT_DATETIME dd Monthname yyyy hh:mm
+     * @LONG_DATETIME Day, dd Monthname yyyy hh:mm
+     * @RELATIVE x timeunit ago
+     */
     timeFormat(timestamp: number | Date, format?: TimestampStyle): string;
     protected onceReady(): Promise<void>;
     protected abstract handlePath(path: string, type: 'command' | 'event'): void;

@@ -319,7 +319,6 @@ async function HandleEvent(caller, client, ...args) {
     }
 }
 exports.HandleEvent = HandleEvent;
-//#endregion
 const PinguHandler_1 = require("../PinguHandler");
 class PinguEvent extends PinguHandler_1.default {
     //#region Statics
@@ -338,8 +337,10 @@ class PinguEvent extends PinguHandler_1.default {
     static GoThroughObjectArray(type, preArr, newArr) { return GoThroughObjectArray(type, preArr, newArr); }
     static async HandleEvent(caller, client, ...args) { return HandleEvent(caller, client, ...args); }
     //#endregion
-    constructor(name, setContent, execute) {
+    constructor(name, handlers) {
         super(name);
+        handlers ?? {};
+        const { setContent, execute } = handlers;
         if (setContent)
             this.setContent = setContent;
         this.execute = execute;

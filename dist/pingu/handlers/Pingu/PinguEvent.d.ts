@@ -32,6 +32,10 @@ export declare function SetDescriptionValuesLink(type: string, previousValue: an
 export declare function GoThroughArrays<T>(type: string, preArr: T[], curArr: T[], callback: (item: T, loopItem: T) => T): string;
 export declare function GoThroughObjectArray<T>(type: string, preArr: T[], curArr: T[]): string;
 export declare function HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: PinguClient, ...args: PinguClientEvents[EventType]): Promise<void>;
+interface Handlers<Event extends keyof PinguClientEvents> {
+    setContent?: (client: PinguClient, embed: MessageEmbed, ...args: PinguClientEvents[Event]) => Promise<MessageEmbed>;
+    execute?: (client: PinguClient, ...args: PinguClientEvents[Event]) => Promise<Message>;
+}
 import PinguHandler from '../PinguHandler';
 export declare class PinguEvent<Event extends keyof PinguClientEvents> extends PinguHandler {
     static Colors: {
@@ -50,7 +54,7 @@ export declare class PinguEvent<Event extends keyof PinguClientEvents> extends P
     static GoThroughArrays<T>(type: string, preArr: T[], newArr: T[], callback: (item: T, loopItem: T) => T): string;
     static GoThroughObjectArray<T>(type: string, preArr: T[], newArr: T[]): string;
     static HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: PinguClient, ...args: PinguClientEvents[EventType]): Promise<void>;
-    constructor(name: Event, setContent?: (client: PinguClient, embed: MessageEmbed, ...args: PinguClientEvents[Event]) => Promise<MessageEmbed>, execute?: (client: PinguClient, ...args: PinguClientEvents[Event]) => Promise<Message>);
+    constructor(name: Event, handlers?: Handlers<Event>);
     name: Event;
     content: MessageEmbed;
     setContent(client: PinguClient, embed: MessageEmbed, ...args: PinguClientEvents[Event]): Promise<MessageEmbed>;

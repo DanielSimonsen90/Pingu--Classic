@@ -1,42 +1,43 @@
-declare type CommandCategoriesType = 'Utility' | 'Fun' | 'Supporting' | 'DevOnly' | 'GuildSpecific';
-import { Message, PermissionString, Snowflake } from 'discord.js';
+import { Snowflake } from 'discord.js';
 import PinguUser from "../../user/PinguUser";
 import PinguGuildMember from "../../guildMember/PinguGuildMember";
 import PinguGuild from "../../guild/PinguGuild";
 import PClient from "../../../database/json/PClient";
+import PinguClient from "../../client/PinguClient";
+import PinguCommandBase, { BaseCommandData, ClassicCommandParams, ExecuteFunctionProps, ExecuteFunctions } from '../Command/PinguCommandBase';
+interface PItems {
+    author: PinguUser;
+    member: PinguGuildMember;
+    guild: PinguGuild;
+    client: PClient;
+}
 export interface CommandParams {
+    client?: PinguClient;
     pAuthor?: PinguUser;
     pGuildMember?: PinguGuildMember;
     pGuild?: PinguGuild;
     pGuildClient?: PClient;
+    pItems?: PItems;
 }
-import ClassicCommandParams from "../ClassicCommandParams";
-import PinguClient from "../../client/PinguClient";
-export interface PinguCommandParams extends ClassicCommandParams, CommandParams {
-    client?: PinguClient;
+import { SlashCommandConstructionData, InteractionCommandParams } from '../Command/Slash/PinguSlashCommandBuilder';
+export interface PinguClassicCommandParams extends ClassicCommandParams, CommandParams {
+    client: PinguClient;
 }
-export interface PinguCommandData {
-    usage: string;
-    guildOnly?: false;
+export interface PinguSlashCommandParams extends InteractionCommandParams, CommandParams {
+    client: PinguClient;
+}
+export interface PinguCommandData extends BaseCommandData {
+    guildOnly?: boolean;
     specificGuildID?: Snowflake;
-    examples?: string[];
-    permissions: PermissionString[];
-    aliases?: string[];
-    mustBeBeta?: false;
+    mustBeBeta?: boolean;
 }
-export declare type ExecuteReturns = void | Message;
-import PinguHandler from '../PinguHandler';
-export declare class PinguCommand extends PinguHandler {
-    constructor(name: string, category: CommandCategoriesType, description: string, data: PinguCommandData, execute: (params: PinguCommandParams) => Promise<ExecuteReturns>);
-    description: string;
-    usage: string;
+declare type CommandCategoriesType = 'Utility' | 'Fun' | 'Supporting' | 'DevOnly' | 'GuildSpecific';
+export declare class PinguCommand<ExecutePropsType = {}> extends PinguCommandBase<ExecutePropsType> {
+    constructor(name: string, category: CommandCategoriesType, description: string, data: PinguCommandData, slashCommandBuilder: SlashCommandConstructionData<PinguClient, ExecutePropsType, CommandParams>, executes: ExecuteFunctions<PinguClient, PinguClassicCommandParams, PinguSlashCommandParams, ExecutePropsType>);
     guildOnly: boolean;
     category: CommandCategoriesType;
     specificGuildID: string;
-    examples: string[];
-    permissions: PermissionString[];
-    aliases: string[];
     mustBeBeta: boolean;
-    execute(params: PinguCommandParams): Promise<ExecuteReturns>;
+    protected _execute(client: PinguClient, props: ExecuteFunctionProps, extra?: ExecutePropsType): Promise<import("discord.js").Message>;
 }
 export default PinguCommand;

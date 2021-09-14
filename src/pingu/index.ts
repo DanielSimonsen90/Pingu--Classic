@@ -1,5 +1,5 @@
 
-export { UserAchievement, GuildMemberAchievement, GuildAchievement } from './achievements/items';
+export { UserAchievement, GuildMemberAchievement, GuildAchievement, AchievementBase, IAchievementBase } from './achievements/items';
 export { UserAchievementConfig, GuildMemberAchievementConfig, GuildAchievementConfig } from './achievements/config';
 
 export { PinguBadge } from './badge/PinguBadge';
@@ -16,9 +16,9 @@ export { PinguUser } from './user/PinguUser';
 export { Daily, Marry } from './user/items';
 
 export { 
-    PinguCommand, PinguCommandParams,
+    PinguCommand, PinguCommandParams, ExecuteFunctionProps, ReplyMethods,
     PinguEvent, PinguClientEvents, 
     PinguMusicEvent, PinguMusicEvents, PinguMusicClientEvents,
     PinguMusicCommand, PinguMusicCommandParams,
-    PinguSlashCommand, PinguMusicSlashCommand
+    SlashCommandOption, PinguSlashCommandBuilder, PinguSlashCommandSub, PinguSlashCommandGroup, PinguSlashCommandBase
 } from './handlers';

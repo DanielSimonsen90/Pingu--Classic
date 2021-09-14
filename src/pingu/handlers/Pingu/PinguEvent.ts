@@ -326,6 +326,11 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
 }
 //#endregion
 
+interface Handlers<Event extends keyof PinguClientEvents> {
+    setContent?: (client: PinguClient, embed: MessageEmbed, ...args: PinguClientEvents[Event]) => Promise<MessageEmbed>,
+    execute?: (client: PinguClient, ...args: PinguClientEvents[Event]) => Promise<Message>
+}
+
 import PinguHandler from '../PinguHandler'
 export class PinguEvent<Event extends keyof PinguClientEvents> extends PinguHandler {
     //#region Statics
@@ -352,10 +357,13 @@ export class PinguEvent<Event extends keyof PinguClientEvents> extends PinguHand
 
     constructor(
         name: Event, 
-        setContent?: (client: PinguClient, embed: MessageEmbed, ...args: PinguClientEvents[Event]) => Promise<MessageEmbed>, 
-        execute?: (client: PinguClient, ...args: PinguClientEvents[Event]) => Promise<Message>
+        handlers?: Handlers<Event>
     ){
         super(name);
+        
+        handlers ?? {};
+        const { setContent, execute } = handlers;
+
         if (setContent) this.setContent = setContent;
         this.execute = execute;
     }

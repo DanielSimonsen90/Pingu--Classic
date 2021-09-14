@@ -17,8 +17,8 @@ export type guildOnlyCommands =
 export type Commands = noGuildOnlyCommands | guildOnlyCommands
 
 import { Guild, Message, VoiceState } from "discord.js";
-import { PinguCommandParams } from "../../handlers/Pingu/PinguCommand";
-export interface PinguCommandParamsResponse extends PinguCommandParams {
+import { PinguClassicCommandParams } from "../../handlers/Pingu/PinguCommand";
+export interface PinguCommandParamsResponse extends PinguClassicCommandParams {
     response: Message
 }
 

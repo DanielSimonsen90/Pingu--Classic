@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PinguClient = exports.PinguMusicSlashCommand = exports.PinguMusicCommand = exports.PinguMusicEvent = exports.PinguSlashCommand = exports.PinguEvent = exports.PinguCommand = exports.ReactionRole = exports.Song = exports.Queue = exports.PinguGuild = exports.PinguGuildMember = exports.Marry = exports.Daily = exports.PinguUser = exports.GuildMemberAchievement = exports.GuildAchievement = exports.UserAchievement = exports.GuildMemberAchievementConfig = exports.GuildAchievementConfig = exports.UserAchievementConfig = exports.PinguUserSchema = exports.PinguGuildSchema = exports.Percentage = exports.DiscordPermissions = exports.TimeSpan = exports.Error = exports.EmbedField = exports.Arguments = exports.Extentions = exports.HandleDecidables = exports.Decidable = exports.Theme = exports.Suggestion = exports.Poll = exports.Giveaway = exports.ThemeConfig = exports.SuggestionConfig = exports.PollConfig = exports.GiveawayConfig = exports.PUser = exports.PRole = exports.PQueue = exports.PMarry = exports.PItem = exports.PGuildMember = exports.PGuild = exports.PClient = exports.PChannel = exports.PAchievement = void 0;
-exports.config = exports.PinguBadge = exports.PinguMusicClient = void 0;
+exports.PinguCommand = exports.PinguSlashCommandGroup = exports.PinguSlashCommandBase = exports.PinguSlashCommandSub = exports.PinguSlashCommandBuilder = exports.SlashCommandOption = exports.ReactionRole = exports.Song = exports.Queue = exports.PinguGuild = exports.PinguGuildMember = exports.Marry = exports.Daily = exports.PinguUser = exports.AchievementBase = exports.GuildMemberAchievement = exports.GuildAchievement = exports.UserAchievement = exports.GuildMemberAchievementConfig = exports.GuildAchievementConfig = exports.UserAchievementConfig = exports.PinguUserSchema = exports.PinguGuildSchema = exports.Percentage = exports.DiscordPermissions = exports.TimeSpan = exports.Error = exports.EmbedField = exports.Arguments = exports.Extentions = exports.HandleDecidables = exports.Decidable = exports.Theme = exports.Suggestion = exports.Poll = exports.Giveaway = exports.ThemeConfig = exports.SuggestionConfig = exports.PollConfig = exports.GiveawayConfig = exports.PUser = exports.PRole = exports.PQueue = exports.PMarry = exports.PItem = exports.PGuildMember = exports.PGuild = exports.PClient = exports.PChannel = exports.PAchievement = void 0;
+exports.PinguBadge = exports.PinguMusicClient = exports.PinguClient = exports.PinguMusicCommand = exports.PinguMusicEvent = exports.PinguEvent = void 0;
 var database_1 = require("./database");
 Object.defineProperty(exports, "PAchievement", { enumerable: true, get: function () { return database_1.PAchievement; } });
 Object.defineProperty(exports, "PChannel", { enumerable: true, get: function () { return database_1.PChannel; } });
@@ -44,6 +44,7 @@ Object.defineProperty(exports, "GuildMemberAchievementConfig", { enumerable: tru
 Object.defineProperty(exports, "UserAchievement", { enumerable: true, get: function () { return pingu_1.UserAchievement; } });
 Object.defineProperty(exports, "GuildAchievement", { enumerable: true, get: function () { return pingu_1.GuildAchievement; } });
 Object.defineProperty(exports, "GuildMemberAchievement", { enumerable: true, get: function () { return pingu_1.GuildMemberAchievement; } });
+Object.defineProperty(exports, "AchievementBase", { enumerable: true, get: function () { return pingu_1.AchievementBase; } });
 Object.defineProperty(exports, "PinguUser", { enumerable: true, get: function () { return pingu_1.PinguUser; } });
 Object.defineProperty(exports, "Daily", { enumerable: true, get: function () { return pingu_1.Daily; } });
 Object.defineProperty(exports, "Marry", { enumerable: true, get: function () { return pingu_1.Marry; } });
@@ -52,14 +53,15 @@ Object.defineProperty(exports, "PinguGuild", { enumerable: true, get: function (
 Object.defineProperty(exports, "Queue", { enumerable: true, get: function () { return pingu_1.Queue; } });
 Object.defineProperty(exports, "Song", { enumerable: true, get: function () { return pingu_1.Song; } });
 Object.defineProperty(exports, "ReactionRole", { enumerable: true, get: function () { return pingu_1.ReactionRole; } });
+Object.defineProperty(exports, "SlashCommandOption", { enumerable: true, get: function () { return pingu_1.SlashCommandOption; } });
+Object.defineProperty(exports, "PinguSlashCommandBuilder", { enumerable: true, get: function () { return pingu_1.PinguSlashCommandBuilder; } });
+Object.defineProperty(exports, "PinguSlashCommandSub", { enumerable: true, get: function () { return pingu_1.PinguSlashCommandSub; } });
+Object.defineProperty(exports, "PinguSlashCommandBase", { enumerable: true, get: function () { return pingu_1.PinguSlashCommandBase; } });
+Object.defineProperty(exports, "PinguSlashCommandGroup", { enumerable: true, get: function () { return pingu_1.PinguSlashCommandGroup; } });
 Object.defineProperty(exports, "PinguCommand", { enumerable: true, get: function () { return pingu_1.PinguCommand; } });
 Object.defineProperty(exports, "PinguEvent", { enumerable: true, get: function () { return pingu_1.PinguEvent; } });
-Object.defineProperty(exports, "PinguSlashCommand", { enumerable: true, get: function () { return pingu_1.PinguSlashCommand; } });
 Object.defineProperty(exports, "PinguMusicEvent", { enumerable: true, get: function () { return pingu_1.PinguMusicEvent; } });
 Object.defineProperty(exports, "PinguMusicCommand", { enumerable: true, get: function () { return pingu_1.PinguMusicCommand; } });
-Object.defineProperty(exports, "PinguMusicSlashCommand", { enumerable: true, get: function () { return pingu_1.PinguMusicSlashCommand; } });
 Object.defineProperty(exports, "PinguClient", { enumerable: true, get: function () { return pingu_1.PinguClient; } });
 Object.defineProperty(exports, "PinguMusicClient", { enumerable: true, get: function () { return pingu_1.PinguMusicClient; } });
 Object.defineProperty(exports, "PinguBadge", { enumerable: true, get: function () { return pingu_1.PinguBadge; } });
-const configFile = require("./config.json");
-exports.config = configFile;

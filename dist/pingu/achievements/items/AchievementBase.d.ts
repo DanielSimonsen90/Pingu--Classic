@@ -11,8 +11,8 @@ export declare type noGuildOnlyCommands = 'help' | 'info' | 'ping' | 'sort' | 's
 export declare type guildOnlyCommands = 'giveaway' | 'poll' | 'suggestion' | 'serverinfo' | 'whois' | 'clear' | 'role' | 'embed' | 'fetch' | 'prefix' | 'publish' | 'reactionroles' | 'slowmode' | 'boomer' | 'activity' | 'noice' | 'music' | 'quote' | 'viberate';
 export declare type Commands = noGuildOnlyCommands | guildOnlyCommands;
 import { Guild, Message, VoiceState } from "discord.js";
-import { PinguCommandParams } from "../../handlers/Pingu/PinguCommand";
-export interface PinguCommandParamsResponse extends PinguCommandParams {
+import { PinguClassicCommandParams } from "../../handlers/Pingu/PinguCommand";
+export interface PinguCommandParamsResponse extends PinguClassicCommandParams {
     response: Message;
 }
 export interface AchievementCallbackParams {

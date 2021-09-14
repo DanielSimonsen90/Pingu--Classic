@@ -26,6 +26,7 @@ class SavedServer {
     name;
     id;
 }
+const SlashCommandCollection_1 = require("../collection/SlashCommandCollection");
 class PinguClientBase extends discord_js_1.Client {
     static Clients = exports.Clients;
     constructor(config, permissions, subscribedEvents, dirname, commandsPath, eventsPath, options) {
@@ -71,6 +72,7 @@ class PinguClientBase extends discord_js_1.Client {
     DefaultEmbedColor = 3447003;
     invite = `https://discord.gg/gbxRV4Ekvh`;
     commands = new discord_js_1.Collection();
+    slashCommands = new SlashCommandCollection_1.default(this);
     events = new discord_js_1.Collection();
     subscribedEvents = new Array();
     DefaultPrefix;
@@ -145,13 +147,22 @@ class PinguClientBase extends discord_js_1.Client {
             return;
         return (await Danho.createDM()).send(message);
     }
+    /**
+     * @SHORT_TIME hh:mm
+     * @LONG_TIME hh:mm:ss
+     * @SHORT_DATE dd/MM/yyyy
+     * @LONG_DATE dd Monthname yyyy
+     * @SHORT_DATETIME dd Monthname yyyy hh:mm
+     * @LONG_DATETIME Day, dd Monthname yyyy hh:mm
+     * @RELATIVE x timeunit ago
+     */
     timeFormat(timestamp, format) {
         return TimeSpan_1.TimeFormat(timestamp, format);
     }
     //#endregion
     //#region Protected methods
     async onceReady() {
-        this.DefaultPrefix = this.isLive || !this.config.BetaPrefix ? this.config.Prefix : this.config.BetaPrefix;
+        this.DefaultPrefix = this.isLive || !this.config.betaPrefix ? this.config.prefix : this.config.betaPrefix;
         this.savedServers = new discord_js_1.Collection([
             new SavedServer('Danho Misc', '460926327269359626'),
             new SavedServer('Pingu Support', '756383096646926376'),

@@ -10,6 +10,15 @@ exports.TimestampStyles = new Map([
     ['LONG_DATE/TIME', 'F'],
     ['RELATIVE', 'R']
 ]);
+/**
+ * @SHORT_TIME hh:mm
+ * @LONG_TIME hh:mm:ss
+ * @SHORT_DATE dd/MM/yyyy
+ * @LONG_DATE dd Monthname yyyy
+ * @SHORT_DATETIME dd Monthname yyyy hh:mm
+ * @LONG_DATETIME Day, dd Monthname yyyy hh:mm
+ * @RELATIVE x timeunit ago
+ */
 function TimeFormat(timestamp, format) {
     const ms = typeof timestamp == 'number' ? timestamp : timestamp.getTime();
     return `<t:${Math.round(ms / 1000)}${format ? `:${exports.TimestampStyles.get(format)}` : ''}>`;

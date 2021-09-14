@@ -1,4 +1,4 @@
-interface IAchievementBase<Key, Type> {
+export interface IAchievementBase<Key, Type> {
     key: Key,
     type: Type,
 }
