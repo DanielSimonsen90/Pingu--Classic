@@ -14,18 +14,21 @@ export {
     UserAchievementConfig, GuildAchievementConfig, GuildMemberAchievementConfig,
     UserAchievement, GuildAchievement, GuildMemberAchievement, AchievementBase, IAchievementBase,
 
+    PinguBadge,
+    PinguActionRow,
+    Component, 
+
     PinguUser, Daily, Marry,
     PinguGuildMember,
     PinguGuild, Queue, Song, ReactionRole,
     
-    SlashCommandOption, PinguSlashCommandBuilder, PinguSlashCommandSub, PinguSlashCommandBase, PinguSlashCommandGroup,
+    SlashCommandOption, PinguSlashCommandBuilder, 
+    PinguSlashCommandBase, PinguSlashCommandSub, PinguSlashCommandGroup,
 
     PinguCommand, PinguCommandParams, ExecuteFunctionProps, ReplyMethods,
     PinguEvent, PinguClientEvents,
     PinguMusicEvent, PinguMusicEvents, PinguMusicClientEvents,
     PinguMusicCommand, PinguMusicCommandParams,
     
-    PinguClient, PinguMusicClient,
-    
-    PinguBadge
+    PinguClient, PinguMusicClient
 } from './pingu';

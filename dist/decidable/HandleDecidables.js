@@ -92,7 +92,7 @@ async function HandleDecidables(params) {
         decidablesChannel = (reroll ? guild.channels.cache.get(channel?._id) || message.channel : message.channel);
     const users = new Map([[author, ['VIEW_CHANNEL']], [client.user, ['SEND_MESSAGES', 'ADD_REACTIONS']]]);
     for (const [u, perms] of users) {
-        let channelPerms = client.permissions.checkFor({ author: u, channel: decidablesChannel }, ...perms);
+        let channelPerms = client.permissions.checkFor({ member: guild.member(u), channel: decidablesChannel }, ...perms);
         if (channelPerms != client.permissions.PermissionGranted)
             return message.channel.send(channelPerms);
     }
@@ -117,7 +117,7 @@ async function HandleDecidables(params) {
         timestamp: decidablesType != 'Suggestion' ? endsAt : null
     });
     if (message.channel.id == decidablesChannel.id &&
-        client.permissions.checkFor({ author: client.user, channel: decidablesChannel }, 'MANAGE_MESSAGES') == client.permissions.PermissionGranted)
+        client.permissions.checkFor({ member: guild.member(client.user), channel: decidablesChannel }, 'MANAGE_MESSAGES') == client.permissions.PermissionGranted)
         message.delete();
     else
         message.channel.send(`Announcing the ${decidablesType.toLowerCase()} in ${decidablesChannel} now!`).then(s => s.doIn(s => s.delete(), '5s'));

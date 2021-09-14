@@ -134,7 +134,7 @@ export async function HandleDecidables(params: DecidablesParams) {
 
     const users = new Map<User, Array<PermissionString>>([[author, ['VIEW_CHANNEL']], [client.user, ['SEND_MESSAGES', 'ADD_REACTIONS']]]);
     for (const [u, perms] of users) {
-        let channelPerms = client.permissions.checkFor({ author: u, channel: decidablesChannel }, ...perms);
+        let channelPerms = client.permissions.checkFor({ member: guild.member(u), channel: decidablesChannel }, ...perms);
         if (channelPerms != client.permissions.PermissionGranted) return message.channel.send(channelPerms);
     }
     
@@ -166,7 +166,7 @@ export async function HandleDecidables(params: DecidablesParams) {
 
     if (message.channel.id == decidablesChannel.id &&
         client.permissions.checkFor(
-            { author: client.user, channel: decidablesChannel },
+            { member: guild.member(client.user), channel: decidablesChannel },
             'MANAGE_MESSAGES'
         ) == client.permissions.PermissionGranted)
         message.delete();

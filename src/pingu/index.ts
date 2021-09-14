@@ -7,6 +7,9 @@ export { PinguBadge } from './badge/PinguBadge';
 export { PinguClient } from './client/PinguClient';
 export { PinguMusicClient } from './client/PinguMusicClient';
 
+export { PinguActionRow } from './collection/PinguActionRow';
+export { Component } from './components/IComponent';
+
 export { PinguGuild } from './guild/PinguGuild';
 export { Queue, Song, ReactionRole } from './guild/items';
 
@@ -20,5 +23,6 @@ export {
     PinguEvent, PinguClientEvents, 
     PinguMusicEvent, PinguMusicEvents, PinguMusicClientEvents,
     PinguMusicCommand, PinguMusicCommandParams,
-    SlashCommandOption, PinguSlashCommandBuilder, PinguSlashCommandSub, PinguSlashCommandGroup, PinguSlashCommandBase
+    SlashCommandOption, PinguSlashCommandBuilder, 
+    PinguSlashCommandBase, PinguSlashCommandSub, PinguSlashCommandGroup
 } from './handlers';

@@ -22,7 +22,7 @@ export async function GetReactionRole(reaction: MessageReaction, user: User) {
     let member = guild.member(user);
 
     let permCheck = client.permissions.checkFor({
-        author: client.user,
+        member: guild.member(client.user),
         channel: reaction.message.channel as GuildChannel,
     }, 'MANAGE_ROLES');
     if (permCheck != client.permissions.PermissionGranted) {
