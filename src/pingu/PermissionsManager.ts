@@ -4,8 +4,9 @@ import BitPermission from '../helpers/BitPermission';
 import PinguClientBase from './client/PinguClientBase';
 
 interface PermissionCheck {
-    member: GuildMember,
-    channel?: GuildChannel
+    member?: GuildMember,
+    channel?: GuildChannel,
+    user?: User
 }
 
 export class PermissionsManager {
@@ -44,9 +45,9 @@ export class PermissionsManager {
     public checkFor(check: PermissionCheck, ...permissions: PermissionString[]) {
         const checkPermission = (
             channel: GuildChannel | ThreadChannel, 
-            member: GuildMember, 
+            user: User, 
             permission: PermissionString
-        ) => channel.permissionsFor(member.user).has(permission);
+        ) => channel.permissionsFor(user).has(permission);
         const { isPinguDev } = this._client.developers;
         const { testingMode } = this._client.config;
 
@@ -54,15 +55,20 @@ export class PermissionsManager {
             const permString = permission.toLowerCase().replace(/_+/, ' ');
 
             const { member, channel } = check;
+            const user = member.user || check.user;
 
-            if (!channel) {
+            if (!channel && !member) {
+                throw new Error('Invalid PermissionCheck params. channel & member are undefined');
+            }
+
+            if (!channel && member) {
                 if (!member.permissions.has(permission)) return `You don't have permission to **${permString}**!`;
                 continue;
             } 
             
-            if (!checkPermission(channel, member, permission)) return `I don't have permission to **${permString}** in ${channel}!`;
-            else if (!checkPermission(channel, member, permission) && 
-                (isPinguDev(member.user) && testingMode || !isPinguDev(member.user)))
+            if (!checkPermission(channel, user, permission)) return `I don't have permission to **${permString}** in ${channel}!`;
+            else if (!checkPermission(channel, user, permission) && 
+                (isPinguDev(user) && testingMode || !isPinguDev(user)))
                 return `You don't have permission to **${permString}** in ${channel}!`
         }
 

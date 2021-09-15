@@ -31,7 +31,7 @@ class EmojiCollection {
      * @param fromIndex For whatever reason you'd be insane enough to require a specific index, instead of being sure you're getting the right emote... Default: 0
      */
     getOne(name, fromIndex = 0) {
-        return this.get(name)[fromIndex];
+        return this.get(name)[fromIndex] || '😵';
     }
     guild(guild) {
         return this._cached.filter(e => e.guild.id == guild.id).reduce((result, e) => result.set(e.name, e), new discord_js_1.Collection());

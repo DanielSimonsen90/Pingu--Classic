@@ -32,7 +32,7 @@ export class EmojiCollection {
      * @param fromIndex For whatever reason you'd be insane enough to require a specific index, instead of being sure you're getting the right emote... Default: 0
      */
     public getOne(name: string, fromIndex = 0) {
-        return this.get(name)[fromIndex];
+        return this.get(name)[fromIndex] || '😵';
     }
     public guild(guild: Guild): Collection<string, GuildEmoji> {
         return this._cached.filter(e => e.guild.id == guild.id).reduce((result, e) => result.set(e.name, e), new Collection<string, GuildEmoji>());

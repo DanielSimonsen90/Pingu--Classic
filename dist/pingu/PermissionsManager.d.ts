@@ -1,9 +1,10 @@
-import { Guild, GuildChannel, GuildMember, PermissionString } from 'discord.js';
+import { Guild, GuildChannel, GuildMember, PermissionString, User } from 'discord.js';
 import BitPermission from '../helpers/BitPermission';
 import PinguClientBase from './client/PinguClientBase';
 interface PermissionCheck {
-    member: GuildMember;
+    member?: GuildMember;
     channel?: GuildChannel;
+    user?: User;
 }
 export declare class PermissionsManager {
     constructor(client: PinguClientBase<any>, given: PermissionString[]);

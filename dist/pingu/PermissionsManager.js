@@ -29,21 +29,25 @@ class PermissionsManager {
         return { granted, missing };
     }
     checkFor(check, ...permissions) {
-        const checkPermission = (channel, member, permission) => channel.permissionsFor(member.user).has(permission);
+        const checkPermission = (channel, user, permission) => channel.permissionsFor(user).has(permission);
         const { isPinguDev } = this._client.developers;
         const { testingMode } = this._client.config;
         for (const permission of permissions) {
             const permString = permission.toLowerCase().replace(/_+/, ' ');
             const { member, channel } = check;
-            if (!channel) {
+            const user = member.user || check.user;
+            if (!channel && !member) {
+                throw new Error('Invalid PermissionCheck params. channel & member are undefined');
+            }
+            if (!channel && member) {
                 if (!member.permissions.has(permission))
                     return `You don't have permission to **${permString}**!`;
                 continue;
             }
-            if (!checkPermission(channel, member, permission))
+            if (!checkPermission(channel, user, permission))
                 return `I don't have permission to **${permString}** in ${channel}!`;
-            else if (!checkPermission(channel, member, permission) &&
-                (isPinguDev(member.user) && testingMode || !isPinguDev(member.user)))
+            else if (!checkPermission(channel, user, permission) &&
+                (isPinguDev(user) && testingMode || !isPinguDev(user)))
                 return `You don't have permission to **${permString}** in ${channel}!`;
         }
         return this.PermissionGranted;

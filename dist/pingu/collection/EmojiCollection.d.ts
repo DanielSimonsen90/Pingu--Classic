@@ -13,7 +13,7 @@ export declare class EmojiCollection {
      * @param name Name of emoji (case sensitive)
      * @param fromIndex For whatever reason you'd be insane enough to require a specific index, instead of being sure you're getting the right emote... Default: 0
      */
-    getOne(name: string, fromIndex?: number): GuildEmoji;
+    getOne(name: string, fromIndex?: number): GuildEmoji | "😵";
     guild(guild: Guild): Collection<string, GuildEmoji>;
     refresh(client?: PinguClientBase<any>): this;
 }
