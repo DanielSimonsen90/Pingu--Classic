@@ -3,8 +3,8 @@ declare type StaffBadge = 'Pingu Staff Member' | 'Pingu Support Team' | 'Pingu M
 declare type PinguSupporter = 'Early Supporter' | 'Patreon Supporter';
 declare type PinguPartners = 'Partnered Developer' | 'Partnered Server Owner';
 export declare type IAmBadge = DeveloperBadge | StaffBadge | PinguSupporter | PinguPartners;
-import { GuildEmoji, Collection, User } from "discord.js";
-import { SavedServerNames } from "../client/PinguClientBase";
+import { GuildEmoji, Collection, User, UserFlagsString } from "discord.js";
+import PinguClientBase, { SavedServerNames } from "../client/PinguClientBase";
 export declare class PinguBadge {
     constructor(name: IAmBadge, emoji: GuildEmoji, weight: number);
     name: IAmBadge;
@@ -20,4 +20,5 @@ declare class TempBadge {
 }
 export declare const TempBadges: Collection<IAmBadge, TempBadge>;
 export declare function getBadges(user: User): Promise<Collection<IAmBadge, PinguBadge>>;
+export declare function UserFlagBadges(client: PinguClientBase, ...flags: UserFlagsString[]): (GuildEmoji | "😵")[];
 export default PinguBadge;

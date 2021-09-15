@@ -2,7 +2,7 @@
 export { UserAchievement, GuildMemberAchievement, GuildAchievement, AchievementBase, IAchievementBase } from './achievements/items';
 export { UserAchievementConfig, GuildMemberAchievementConfig, GuildAchievementConfig } from './achievements/config';
 
-export { PinguBadge } from './badge/PinguBadge';
+export { PinguBadge, UserFlagBadges } from './badge/PinguBadge';
 
 export { PinguClient } from './client/PinguClient';
 export { PinguMusicClient } from './client/PinguMusicClient';

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getBadges = exports.TempBadges = exports.PinguBadge = void 0;
+exports.UserFlagBadges = exports.getBadges = exports.TempBadges = exports.PinguBadge = void 0;
 const discord_js_1 = require("discord.js");
 class PinguBadge {
     constructor(name, emoji, weight) {
@@ -75,4 +75,23 @@ async function getBadges(user) {
     return toReturnValue();
 }
 exports.getBadges = getBadges;
+function UserFlagBadges(client, ...flags) {
+    return new discord_js_1.Collection([
+        ['BUGHUNTER_LEVEL_1', 'BugHunterGreen'],
+        ['BUGHUNTER_LEVEL_2', 'BugHunterGold'],
+        ['DISCORD_CERTIFIED_MODERATOR', 'CertifiedModerator'],
+        ['DISCORD_EMPLOYEE', 'DiscordStaff'],
+        ['EARLY_SUPPORTER', 'EarlySupporter'],
+        ['EARLY_VERIFIED_BOT_DEVELOPER', 'EarlyVerifiedBotDeveloper'],
+        ['HOUSE_BALANCE', 'HypeSquadBalance'],
+        ['HOUSE_BRAVERY', 'HypeSquadBravery'],
+        ['HOUSE_BRILLIANCE', 'HypeSquadBrilliance'],
+        ['HYPESQUAD_EVENTS', 'HypeSquadEvents'],
+        ['PARTNERED_SERVER_OWNER', 'PartneredServerOwner'],
+        ['VERIFIED_BOT', 'VerifiedBot']
+    ]).reduce((map, name, flag) => map.set(flag, `Badge${name}`), new discord_js_1.Collection())
+        .filter((name, flag) => flags.includes(flag))
+        .map(name => client.emotes.getOne(name));
+}
+exports.UserFlagBadges = UserFlagBadges;
 exports.default = PinguBadge;

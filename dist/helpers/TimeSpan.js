@@ -19,9 +19,11 @@ exports.TimestampStyles = new Map([
  * @LONG_DATETIME Day, dd Monthname yyyy hh:mm
  * @RELATIVE x timeunit ago
  */
-function TimeFormat(timestamp, format) {
+function TimeFormat(timestamp, ...formats) {
     const ms = typeof timestamp == 'number' ? timestamp : timestamp.getTime();
-    return `<t:${Math.round(ms / 1000)}${format ? `:${exports.TimestampStyles.get(format)}` : ''}>`;
+    if (!formats.length)
+        return `<t:${Math.round(ms / 1000)}>`;
+    return formats.map(format => `<t:${Math.round(ms / 1000)}:${exports.TimestampStyles.get(format)}>`).join(', ');
 }
 exports.TimeFormat = TimeFormat;
 class TimeSpan {

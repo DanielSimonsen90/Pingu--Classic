@@ -214,8 +214,8 @@ export abstract class PinguClientBase<Events extends ClientEvents = any> extends
      * @LONG_DATETIME Day, dd Monthname yyyy hh:mm
      * @RELATIVE x timeunit ago
      */
-    public timeFormat(timestamp: number | Date, format?: TimestampStyle) {
-        return TimeFormat(timestamp, format);
+    public timeFormat(timestamp: number | Date, ...formats: TimestampStyle[]) {
+        return TimeFormat(timestamp, ...formats);
     }
     //#endregion
 

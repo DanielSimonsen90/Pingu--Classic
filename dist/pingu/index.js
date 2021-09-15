@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PinguSlashCommandGroup = exports.PinguSlashCommandSub = exports.PinguSlashCommandBase = exports.PinguSlashCommandBuilder = exports.SlashCommandOption = exports.PinguMusicCommand = exports.PinguMusicEvent = exports.PinguEvent = exports.PinguCommand = exports.Marry = exports.Daily = exports.PinguUser = exports.PinguGuildMember = exports.ReactionRole = exports.Song = exports.Queue = exports.PinguGuild = exports.Component = exports.PinguActionRow = exports.PinguMusicClient = exports.PinguClient = exports.PinguBadge = exports.GuildAchievementConfig = exports.GuildMemberAchievementConfig = exports.UserAchievementConfig = exports.AchievementBase = exports.GuildAchievement = exports.GuildMemberAchievement = exports.UserAchievement = void 0;
+exports.PinguSlashCommandGroup = exports.PinguSlashCommandSub = exports.PinguSlashCommandBase = exports.PinguSlashCommandBuilder = exports.SlashCommandOption = exports.PinguMusicCommand = exports.PinguMusicEvent = exports.PinguEvent = exports.PinguCommand = exports.Marry = exports.Daily = exports.PinguUser = exports.PinguGuildMember = exports.ReactionRole = exports.Song = exports.Queue = exports.PinguGuild = exports.Component = exports.PinguActionRow = exports.PinguMusicClient = exports.PinguClient = exports.UserFlagBadges = exports.PinguBadge = exports.GuildAchievementConfig = exports.GuildMemberAchievementConfig = exports.UserAchievementConfig = exports.AchievementBase = exports.GuildAchievement = exports.GuildMemberAchievement = exports.UserAchievement = void 0;
 var items_1 = require("./achievements/items");
 Object.defineProperty(exports, "UserAchievement", { enumerable: true, get: function () { return items_1.UserAchievement; } });
 Object.defineProperty(exports, "GuildMemberAchievement", { enumerable: true, get: function () { return items_1.GuildMemberAchievement; } });
@@ -12,6 +12,7 @@ Object.defineProperty(exports, "GuildMemberAchievementConfig", { enumerable: tru
 Object.defineProperty(exports, "GuildAchievementConfig", { enumerable: true, get: function () { return config_1.GuildAchievementConfig; } });
 var PinguBadge_1 = require("./badge/PinguBadge");
 Object.defineProperty(exports, "PinguBadge", { enumerable: true, get: function () { return PinguBadge_1.PinguBadge; } });
+Object.defineProperty(exports, "UserFlagBadges", { enumerable: true, get: function () { return PinguBadge_1.UserFlagBadges; } });
 var PinguClient_1 = require("./client/PinguClient");
 Object.defineProperty(exports, "PinguClient", { enumerable: true, get: function () { return PinguClient_1.PinguClient; } });
 var PinguMusicClient_1 = require("./client/PinguMusicClient");

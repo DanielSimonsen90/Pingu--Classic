@@ -14,9 +14,8 @@ export {
     UserAchievementConfig, GuildAchievementConfig, GuildMemberAchievementConfig,
     UserAchievement, GuildAchievement, GuildMemberAchievement, AchievementBase, IAchievementBase,
 
-    PinguBadge,
-    PinguActionRow,
-    Component, 
+    PinguBadge, UserFlagBadges,
+    PinguActionRow, Component, 
 
     PinguUser, Daily, Marry,
     PinguGuildMember,

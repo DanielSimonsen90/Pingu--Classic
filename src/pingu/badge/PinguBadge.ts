@@ -5,7 +5,7 @@ type PinguPartners = 'Partnered Developer' | 'Partnered Server Owner';
 
 export type IAmBadge = DeveloperBadge | StaffBadge | PinguSupporter | PinguPartners;
 
-import { GuildEmoji, Collection, User } from "discord.js";
+import { GuildEmoji, Collection, User, UserFlagsString } from "discord.js";
 import PinguClientBase, { SavedServerNames } from "../client/PinguClientBase";
 
 export class PinguBadge {
@@ -94,5 +94,25 @@ export async function getBadges(user: User) {
 
     return toReturnValue();
 }
+export function UserFlagBadges(client: PinguClientBase, ...flags: UserFlagsString[]) {
+    return new Collection<UserFlagsString, string>([
+        ['BUGHUNTER_LEVEL_1', 'BugHunterGreen'],
+        ['BUGHUNTER_LEVEL_2', 'BugHunterGold'],
+        ['DISCORD_CERTIFIED_MODERATOR', 'CertifiedModerator'],
+        ['DISCORD_EMPLOYEE', 'DiscordStaff'],
+        ['EARLY_SUPPORTER', 'EarlySupporter'],
+        ['EARLY_VERIFIED_BOT_DEVELOPER', 'EarlyVerifiedBotDeveloper'],
+        ['HOUSE_BALANCE', 'HypeSquadBalance'],
+        ['HOUSE_BRAVERY', 'HypeSquadBravery'],
+        ['HOUSE_BRILLIANCE', 'HypeSquadBrilliance'],
+        ['HYPESQUAD_EVENTS', 'HypeSquadEvents'],
+        ['PARTNERED_SERVER_OWNER', 'PartneredServerOwner'],
+        ['VERIFIED_BOT', 'VerifiedBot']
+    ]).reduce((map, name, flag) => 
+        map.set(flag, `Badge${name}`), 
+    new Collection<UserFlagsString, string>())
+        .filter((name, flag) => flags.includes(flag))
+        .map(name => client.emotes.getOne(name))
 
+}
 export default PinguBadge;

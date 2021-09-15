@@ -78,7 +78,7 @@ export declare abstract class PinguClientBase<Events extends ClientEvents = any>
      * @LONG_DATETIME Day, dd Monthname yyyy hh:mm
      * @RELATIVE x timeunit ago
      */
-    timeFormat(timestamp: number | Date, format?: TimestampStyle): string;
+    timeFormat(timestamp: number | Date, ...formats: TimestampStyle[]): string;
     protected onceReady(): Promise<void>;
     protected abstract handlePath(path: string, type: 'command' | 'event'): void;
     private achievementLog;

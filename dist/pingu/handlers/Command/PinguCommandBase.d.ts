@@ -1,4 +1,4 @@
-import { PermissionString, Message, Guild, MessagePayload, ReplyMessageOptions, InteractionReplyOptions, User } from "discord.js";
+import { PermissionString, Message, Guild, MessagePayload, ReplyMessageOptions, InteractionReplyOptions, User, GuildMember } from "discord.js";
 import PinguHandler from "../PinguHandler";
 import PinguSlashCommandBuilder, { InteractionCommandParams } from "./Slash/PinguSlashCommandBuilder";
 import Arguments from "../../../helpers/Arguments";
@@ -12,6 +12,7 @@ export interface CommandParamsBase<Client = PinguClientBase> {
     client: Client;
     executor: User;
     guild: Guild;
+    member: GuildMember;
 }
 /** A classic v12 command handler must have these properties */
 export interface ClassicCommandParams<Client = PinguClientBase> extends CommandParamsBase<Client> {
@@ -33,6 +34,7 @@ declare type ReplyOptions = string | MessagePayload | ReplyMessageOptions | (Int
 interface ExecuteFunctionPropsPublic {
     guild: Guild;
     executor: User;
+    member: GuildMember;
 }
 /** All kinds of reply methods */
 export interface ReplyMethods {

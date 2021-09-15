@@ -156,8 +156,8 @@ class PinguClientBase extends discord_js_1.Client {
      * @LONG_DATETIME Day, dd Monthname yyyy hh:mm
      * @RELATIVE x timeunit ago
      */
-    timeFormat(timestamp, format) {
-        return TimeSpan_1.TimeFormat(timestamp, format);
+    timeFormat(timestamp, ...formats) {
+        return TimeSpan_1.TimeFormat(timestamp, ...formats);
     }
     //#endregion
     //#region Protected methods

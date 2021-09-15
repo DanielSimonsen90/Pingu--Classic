@@ -11,7 +11,7 @@ export declare const TimestampStyles: Map<TimestampStyle, string>;
  * @LONG_DATETIME Day, dd Monthname yyyy hh:mm
  * @RELATIVE x timeunit ago
  */
-export declare function TimeFormat(timestamp: number | Date, format?: TimestampStyle): string;
+export declare function TimeFormat(timestamp: number | Date, ...formats: TimestampStyle[]): string;
 export declare class TimeSpan {
     constructor(value: Date | number, now?: Date | number);
     years: number;
