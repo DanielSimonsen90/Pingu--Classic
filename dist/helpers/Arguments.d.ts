@@ -1,5 +1,5 @@
 import { Collection } from "discord.js";
-declare type MentionType = 'USER' | 'NICKNAME' | 'CHANNEL' | 'ROLE' | 'EVERYONE' | 'HERE' | 'SNOWFLAKE' | 'EMOJI' | 'UNICODE_EMOJI' | 'CUSTOM_EMOJI' | 'CUSTOM_ANIMATED_EMOJI' | 'TIMESTAMP' | 'IMAGE';
+declare type MentionType = 'SNOWFLAKE' | 'USER' | 'NICKNAME' | 'CHANNEL' | 'ROLE' | 'EVERYONE' | 'HERE' | 'EMOJI' | 'UNICODE_EMOJI' | 'CUSTOM_EMOJI' | 'CUSTOM_ANIMATED_EMOJI' | 'TIMESTAMP' | 'IMAGE';
 export declare class Mention {
     constructor(prop: string, v: string, i: number, types: {}, args: Arguments);
     mentionType: MentionType;

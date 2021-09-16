@@ -1,20 +1,19 @@
-import { Collection } from "discord.js";
+import { Collection, ApplicationCommand } from "discord.js";
 import PinguClientBase from "../client/PinguClientBase";
-import PinguSlashCommandBase from "../handlers/Command/Slash/PinguSlashCommandBase";
 
 export default class SlashCommandCollection {
-    constructor(client: PinguClientBase, entries?: readonly (readonly [string, PinguSlashCommandBase])[]) {
+    constructor(client: PinguClientBase, entries?: readonly (readonly [string, ApplicationCommand])[]) {
         this._client = client;
-        this._inner = new Collection<string, PinguSlashCommandBase>(entries);
+        this._inner = new Collection<string, ApplicationCommand>(entries);
     }
 
     private _client: PinguClientBase;
-    private _inner: Collection<string, PinguSlashCommandBase>;
+    private _inner: Collection<string, ApplicationCommand>;
     private get _clientCommands() {
         return this._client.application.commands;
     }
 
-    private _set(name: string, command: PinguSlashCommandBase) {
+    private _set(name: string, command: ApplicationCommand) {
         this._inner.set(name, command);
         return this;
     }
@@ -22,11 +21,11 @@ export default class SlashCommandCollection {
         return this._inner.get(name);
     }
 
-    public async post(name: string, command: PinguSlashCommandBase) {
+    public async post(name: string, command: ApplicationCommand) {
         await this._clientCommands.create(command);
         return this._set(name, command);
     }
-    public async put(name: string, update: PinguSlashCommandBase) {
+    public async put(name: string, update: ApplicationCommand) {
         await this._clientCommands.edit(this.get(name), update);
         return this._set(name, update);
     }

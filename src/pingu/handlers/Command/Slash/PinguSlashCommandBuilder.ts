@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import { APIMessage } from "discord-api-types";
 import { CommandInteraction, Message } from "discord.js";
 import PinguClientBase from "../../../client/PinguClientBase";
-import { CommandParamsBase, ExecuteFunctionProps, ExecuteFunctionPublic } from "../PinguCommandBase";
+import { CommandParamsBase, ExecuteFunctionPublic } from "../PinguCommandBase";
 import { PinguSlashCommandGroup } from "./PinguSlashCommandGroup";
 import PinguSlashCommandSub, { SubCommandConstructionData, SubCommandExtraOptions } from "./PinguSlashCommandSub";
 

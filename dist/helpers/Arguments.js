@@ -8,7 +8,7 @@ class Mention {
         this.regex = types[prop];
         this.value = this.regex.test(v);
         this.index = i;
-        this.argument = (remove = true) => args.get(this.regex, remove);
+        this.argument = (remove = true) => this.value && args.get(this.regex, remove) || null;
     }
     mentionType;
     value;

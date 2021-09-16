@@ -6,7 +6,7 @@ export { HandleDecidables, DecidablesTypes } from './decidable/HandleDecidables'
 
 export * as Extentions from './Extenstions';
 
-export { Arguments, EmbedField, Error, TimeSpan, DiscordPermissions, Percentage, Config } from './helpers';
+export { Arguments, EmbedField, Error, TimeSpan, DiscordPermissions, Percentage, Config, StaticColorsArray, StaticColors } from './helpers';
 
 export { PinguGuildSchema, PinguUserSchema } from './MongoSchemas';
 

@@ -24,9 +24,7 @@ declare module 'discord.js' {
         findByDisplayName(name: string): V;
     }
     interface BaseCommandInteraction {
-        replyPrivate(options: InteractionReplyOptions & {
-            fetchReply: true;
-        }): Promise<Message | APIMessage>;
+        replyPrivate(options: InteractionReplyOptions): Promise<Message | APIMessage>;
     }
     interface Guild {
         client: Pingu;
