@@ -32,10 +32,16 @@ discord_js_1.BaseGuildVoiceChannel.prototype.join = function () {
 //#endregion
 //#region Collection
 discord_js_1.Collection.prototype.array = function () {
-    return [...this.values()];
+    return this.reduce((arr, v, k) => {
+        arr.push([k, v]);
+        return arr;
+    }, new Array());
 };
 discord_js_1.Collection.prototype.keyArray = function () {
     return [...this.keys()];
+};
+discord_js_1.Collection.prototype.valueArray = function () {
+    return [...this.values()];
 };
 discord_js_1.Collection.prototype.findByDisplayName = function (name) {
     return [
@@ -45,8 +51,8 @@ discord_js_1.Collection.prototype.findByDisplayName = function (name) {
     ].filter(v => v)[0];
 };
 //#endregion
-//#region CommandInteraction
-discord_js_1.CommandInteraction.prototype.replyPrivate = function (options) {
+//#region BaseCommandInteraction
+discord_js_1.BaseCommandInteraction.prototype.replyPrivate = function (options) {
     return this.reply({
         ...options,
         ephemeral: true

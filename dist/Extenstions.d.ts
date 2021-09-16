@@ -18,11 +18,12 @@ declare module 'discord.js' {
         client: Pingu;
     }
     interface Collection<K, V> {
-        array(): Array<V>;
+        array(): Array<[K, V]>;
         keyArray(): Array<K>;
+        valueArray(): Array<V>;
         findByDisplayName(name: string): V;
     }
-    interface CommandInteraction {
+    interface BaseCommandInteraction {
         replyPrivate(options: InteractionReplyOptions & {
             fetchReply: true;
         }): Promise<Message | APIMessage>;

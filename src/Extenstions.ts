@@ -1,5 +1,5 @@
 import { 
-    Base, BaseGuildVoiceChannel, Collection, CommandInteraction, DMChannel, 
+    Base, BaseCommandInteraction, BaseGuildVoiceChannel, Collection, CommandInteraction, DMChannel, 
     EmojiResolvable, Guild, GuildMember, InteractionReplyOptions, Message, 
     MessageAttachment, MessageEmbed, NewsChannel, 
     PartialTextBasedChannelFields, TextChannel, 
@@ -28,11 +28,12 @@ declare module 'discord.js' {
     }
     interface Channel { client: Pingu }
     interface Collection<K, V> {
-        array(): Array<V>
+        array(): Array<[K, V]>
         keyArray(): Array<K>
+        valueArray(): Array<V>
         findByDisplayName(name: string): V
     }
-    interface CommandInteraction {
+    interface BaseCommandInteraction {
         replyPrivate(options: InteractionReplyOptions & { fetchReply: true }): Promise<Message | APIMessage>
     }
     interface Guild { 
@@ -99,10 +100,16 @@ BaseGuildVoiceChannel.prototype.join = function(this: BaseGuildVoiceChannel) {
 
 //#region Collection
 Collection.prototype.array = function<K, V>(this: Collection<K, V>) {
-    return [...this.values()];
+    return this.reduce((arr, v, k) => {
+        arr.push([k, v]);
+        return arr;
+    }, new Array<[K, V]>())
 }
 Collection.prototype.keyArray = function<K, V>(this: Collection<K, V>) {
     return [...this.keys()];
+}
+Collection.prototype.valueArray = function<K, V>(this: Collection<K, V>) {
+    return [...this.values()];
 }
 
 interface INameable {
@@ -119,8 +126,8 @@ Collection.prototype.findByDisplayName = function<K, V extends INameable>(this: 
 }
 //#endregion
 
-//#region CommandInteraction
-CommandInteraction.prototype.replyPrivate = function(this: CommandInteraction, options: InteractionReplyOptions & { fetchReply: true }) {
+//#region BaseCommandInteraction
+BaseCommandInteraction.prototype.replyPrivate = function(this: CommandInteraction, options: InteractionReplyOptions & { fetchReply: true }) {
     return this.reply({
         ...options,
         ephemeral: true

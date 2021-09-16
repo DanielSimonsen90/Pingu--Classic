@@ -12,14 +12,14 @@ export interface MusicCommandParams {
 }
 
 export interface PinguMusicCommandParams extends ClassicCommandParams, MusicCommandParams {
-    client?: PinguMusicClient
+    client: PinguMusicClient
 }
 
 interface PinguMusicCommandData extends BaseCommandData {
     queueRequired?: boolean
 }
 
-import PinguCommandBase, { BaseCommandData, ClassicCommandParams, ExecuteFunction, ExecuteFunctions, SlashCommandParams } from "../Command/PinguCommandBase";
+import PinguCommandBase, { BaseCommandData, ClassicCommandParams, ExecuteFunctions } from "../Command/PinguCommandBase";
 import PinguSlashCommandBuilder, { SlashCommandConstructionData } from "../Command/Slash/PinguSlashCommandBuilder";
 export class PinguMusicCommand extends PinguCommandBase {
     constructor(name: string, description: string, 

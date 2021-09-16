@@ -10,7 +10,7 @@ export interface MusicCommandParams {
     pGuildClient?: PClient;
 }
 export interface PinguMusicCommandParams extends ClassicCommandParams, MusicCommandParams {
-    client?: PinguMusicClient;
+    client: PinguMusicClient;
 }
 interface PinguMusicCommandData extends BaseCommandData {
     queueRequired?: boolean;

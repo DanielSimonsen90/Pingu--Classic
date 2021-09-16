@@ -6,7 +6,7 @@ import PinguClientBase from "../../client/PinguClientBase";
 import { APIMessage } from "discord-api-types";
 import PinguActionRow from "../../collection/PinguActionRow";
 /** Used for returning execute functions */
-declare type ReturnType = Promise<Message | APIMessage>;
+export declare type ReturnType = Promise<Message | APIMessage>;
 /** An execute function *must* have these properties */
 export interface CommandParamsBase<Client = PinguClientBase> {
     client: Client;
@@ -27,7 +27,7 @@ interface CommandTypesParams {
 /** Interaction | Classic */
 export declare type CommandTypes = keyof CommandTypesParams;
 /** Acceptable types for replying to command */
-declare type ReplyOptions = string | MessagePayload | ReplyMessageOptions | (InteractionReplyOptions & {
+export declare type ReplyOptions = string | MessagePayload | ReplyMessageOptions | (InteractionReplyOptions & {
     fetchReply: true;
 });
 /** When returning provided execute function in command handler, these properties should be returned with it */

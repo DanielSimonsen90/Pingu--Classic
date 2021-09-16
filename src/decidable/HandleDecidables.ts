@@ -521,7 +521,7 @@ async function onTimeFinished(sent: Message, value: string, winnersAllowed: numb
             return null as Promise<Collection<string, User>>;
         });
 
-        let members = await guild.members.fetch({ user: reactedUsers.array() });
+        let members = await guild.members.fetch({ user: reactedUsers.valueArray() });
         const winnerOrWinners = `Winner${winnersAllowed > 1 ? 's' : ''}`;
 
         reactedUsers = reactedUsers.filter(u => {
@@ -605,7 +605,7 @@ async function onTimeFinished(sent: Message, value: string, winnersAllowed: numb
             let winner = (function selectWinner() {
                 if (!reactedUsers.size) return `A winner couldn't be found!`;
 
-                let user = reactedUsers.array()[Math.floor(Math.random() * reactedUsers.size)];
+                let user = reactedUsers.valueArray()[Math.floor(Math.random() * reactedUsers.size)];
                 const member = guild.member(user);
 
                 if (!winnerRole) return member;
@@ -842,7 +842,7 @@ async function Reroll(params: DecidablesParams, sent: Message) {
     let id = args.mentions.get('SNOWFLAKE').argument();
 
     if (!id) {
-        const messages = channel.messages.cache.array();
+        const messages = channel.messages.cache.valueArray();
         const preDecidables = Configs.get(config).collection.filter(d => d.channel._id == channel.id);
         id = messages.find(m => preDecidables.find(d => d._id == m.id))?.id;
 

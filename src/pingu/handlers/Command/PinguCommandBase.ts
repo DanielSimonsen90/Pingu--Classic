@@ -8,7 +8,7 @@ import { APIMessage } from "discord-api-types";
 import PinguActionRow from "../../collection/PinguActionRow";
 
 /** Used for returning execute functions */
-type ReturnType = Promise<Message | APIMessage>;
+export type ReturnType = Promise<Message | APIMessage>;
 
 /** An execute function *must* have these properties */
 export interface CommandParamsBase<Client = PinguClientBase> {
@@ -32,7 +32,7 @@ interface CommandTypesParams {
 export type CommandTypes = keyof CommandTypesParams
 
 /** Acceptable types for replying to command */
-type ReplyOptions = string | MessagePayload | ReplyMessageOptions | (InteractionReplyOptions & { fetchReply: true });
+export type ReplyOptions = string | MessagePayload | ReplyMessageOptions | (InteractionReplyOptions & { fetchReply: true });
 /** When returning provided execute function in command handler, these properties should be returned with it */
 interface ExecuteFunctionPropsPublic { 
     guild: Guild,

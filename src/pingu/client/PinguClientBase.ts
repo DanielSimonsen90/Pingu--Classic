@@ -439,7 +439,7 @@ export abstract class PinguClientBase<Events extends ClientEvents = any> extends
             var format = (ping: boolean) => `${new Date().toLocaleTimeString()} [${(ping ? sender : sender.username)} ➡️ ${(ping ? reciever : reciever.username)}]`;
     
             if (messageAsMessage.content && messageAsMessage.attachments)
-                channel.send({ content: format(false) + `: ||${messageAsMessage.content}||`, files: messageAsMessage.attachments.array() })
+                channel.send({ content: format(false) + `: ||${messageAsMessage.content}||`, files: messageAsMessage.attachments.valueArray() })
                     .then(sent => sent.edit(format(true) + `: ||${messageAsMessage.content}||`));
     
             else if (messageAsMessage.content)
@@ -447,7 +447,7 @@ export abstract class PinguClientBase<Events extends ClientEvents = any> extends
                     .then(sent => sent.edit(format(true) + `: ||${messageAsMessage.content}||`));
     
             else if (messageAsMessage.attachments)
-                channel.send({ content: format(false), files: messageAsMessage.attachments.array() })
+                channel.send({ content: format(false), files: messageAsMessage.attachments.valueArray() })
                     .then(sent => sent.edit(format(true)));
     
             else this.log('error', 

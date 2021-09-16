@@ -48,7 +48,7 @@ export abstract class IPinguCollection<T extends BaseT, PT extends BasePT> {
         return this._inner.get(item.id);
     }
     public array(): PT[] {
-        return this._inner.array();
+        return this._inner.valueArray();
     }
     public find(predicate: (pItem: PT, item: T, index: number, self: this) => boolean): PT {
         const entries = this.array();

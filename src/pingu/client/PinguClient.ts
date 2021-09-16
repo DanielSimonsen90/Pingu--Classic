@@ -51,7 +51,7 @@ export class PinguClient extends PinguClientBase<PinguClientEvents> {
 
     //#region Gets
     public getSharedServers(user: User): Guild[] {
-        return this.guilds.cache.filter(g => g.members.cache.has(user.id)).array();   
+        return this.guilds.cache.filter(g => g.members.cache.has(user.id)).valueArray();   
     }
     public getTextChannel(guildId: string, channelName: string) {
         const guild = this.guilds.cache.get(guildId);
