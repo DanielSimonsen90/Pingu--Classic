@@ -1,12 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.HandleMusicEvent = exports.PinguMusicEvent = exports.HandleEvent = exports.LoggedCache = exports.PinguEvent = exports.PinguSlashCommandSub = exports.PinguSlashCommandGroup = exports.SlashCommandOption = exports.PinguSlashCommandBuilder = exports.PinguSlashCommandBase = exports.PinguMusicCommand = exports.PinguCommand = void 0;
+exports.HandleMusicEvent = exports.PinguMusicEvent = exports.HandleEvent = exports.LoggedCache = exports.PinguEvent = exports.PinguSlashCommandSub = exports.PinguSlashCommandGroup = exports.SlashCommandOption = exports.PinguSlashCommandBuilder = exports.PinguMusicCommand = exports.PinguCommand = void 0;
 var PinguCommand_1 = require("./Pingu/PinguCommand");
 Object.defineProperty(exports, "PinguCommand", { enumerable: true, get: function () { return PinguCommand_1.PinguCommand; } });
 var PinguMusicCommand_1 = require("./Music/PinguMusicCommand");
 Object.defineProperty(exports, "PinguMusicCommand", { enumerable: true, get: function () { return PinguMusicCommand_1.PinguMusicCommand; } });
 var Slash_1 = require("./Command/Slash");
-Object.defineProperty(exports, "PinguSlashCommandBase", { enumerable: true, get: function () { return Slash_1.PinguSlashCommandBase; } });
 Object.defineProperty(exports, "PinguSlashCommandBuilder", { enumerable: true, get: function () { return Slash_1.PinguSlashCommandBuilder; } });
 Object.defineProperty(exports, "SlashCommandOption", { enumerable: true, get: function () { return Slash_1.SlashCommandOption; } });
 Object.defineProperty(exports, "PinguSlashCommandGroup", { enumerable: true, get: function () { return Slash_1.PinguSlashCommandGroup; } });

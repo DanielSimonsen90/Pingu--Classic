@@ -1,8 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PinguSlashCommandSub = exports.PinguSlashCommandGroup = exports.SlashCommandOption = exports.PinguSlashCommandBuilder = exports.PinguSlashCommandBase = void 0;
-var PinguSlashCommandBase_1 = require("./PinguSlashCommandBase");
-Object.defineProperty(exports, "PinguSlashCommandBase", { enumerable: true, get: function () { return PinguSlashCommandBase_1.PinguSlashCommandBase; } });
+exports.PinguSlashCommandSub = exports.PinguSlashCommandGroup = exports.SlashCommandOption = exports.PinguSlashCommandBuilder = void 0;
 var PinguSlashCommandBuilder_1 = require("./PinguSlashCommandBuilder");
 Object.defineProperty(exports, "PinguSlashCommandBuilder", { enumerable: true, get: function () { return PinguSlashCommandBuilder_1.PinguSlashCommandBuilder; } });
 Object.defineProperty(exports, "SlashCommandOption", { enumerable: true, get: function () { return PinguSlashCommandBuilder_1.Option; } });

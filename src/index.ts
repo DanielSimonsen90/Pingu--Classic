@@ -22,7 +22,7 @@ export {
     PinguGuild, Queue, Song, ReactionRole,
     
     SlashCommandOption, PinguSlashCommandBuilder, 
-    PinguSlashCommandBase, PinguSlashCommandSub, PinguSlashCommandGroup,
+    PinguSlashCommandSub, PinguSlashCommandGroup,
 
     PinguCommand, PinguCommandParams, ExecuteFunctionProps, ReplyMethods,
     PinguEvent, PinguClientEvents,

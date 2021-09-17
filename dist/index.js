@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReactionRole = exports.Song = exports.Queue = exports.PinguGuild = exports.PinguGuildMember = exports.Marry = exports.Daily = exports.PinguUser = exports.Component = exports.PinguActionRow = exports.UserFlagBadges = exports.PinguBadge = exports.AchievementBase = exports.GuildMemberAchievement = exports.GuildAchievement = exports.UserAchievement = exports.GuildMemberAchievementConfig = exports.GuildAchievementConfig = exports.UserAchievementConfig = exports.PinguUserSchema = exports.PinguGuildSchema = exports.StaticColors = exports.StaticColorsArray = exports.Percentage = exports.DiscordPermissions = exports.TimeSpan = exports.Error = exports.EmbedField = exports.Arguments = exports.Extentions = exports.HandleDecidables = exports.Decidable = exports.Theme = exports.Suggestion = exports.Poll = exports.Giveaway = exports.ThemeConfig = exports.SuggestionConfig = exports.PollConfig = exports.GiveawayConfig = exports.PUser = exports.PRole = exports.PQueue = exports.PMarry = exports.PItem = exports.PGuildMember = exports.PGuild = exports.PClient = exports.PChannel = exports.PAchievement = void 0;
-exports.PinguMusicClient = exports.PinguClient = exports.PinguMusicCommand = exports.PinguMusicEvent = exports.PinguEvent = exports.PinguCommand = exports.PinguSlashCommandGroup = exports.PinguSlashCommandSub = exports.PinguSlashCommandBase = exports.PinguSlashCommandBuilder = exports.SlashCommandOption = void 0;
+exports.PinguMusicClient = exports.PinguClient = exports.PinguMusicCommand = exports.PinguMusicEvent = exports.PinguEvent = exports.PinguCommand = exports.PinguSlashCommandGroup = exports.PinguSlashCommandSub = exports.PinguSlashCommandBuilder = exports.SlashCommandOption = void 0;
 var database_1 = require("./database");
 Object.defineProperty(exports, "PAchievement", { enumerable: true, get: function () { return database_1.PAchievement; } });
 Object.defineProperty(exports, "PChannel", { enumerable: true, get: function () { return database_1.PChannel; } });
@@ -61,7 +61,6 @@ Object.defineProperty(exports, "Song", { enumerable: true, get: function () { re
 Object.defineProperty(exports, "ReactionRole", { enumerable: true, get: function () { return pingu_1.ReactionRole; } });
 Object.defineProperty(exports, "SlashCommandOption", { enumerable: true, get: function () { return pingu_1.SlashCommandOption; } });
 Object.defineProperty(exports, "PinguSlashCommandBuilder", { enumerable: true, get: function () { return pingu_1.PinguSlashCommandBuilder; } });
-Object.defineProperty(exports, "PinguSlashCommandBase", { enumerable: true, get: function () { return pingu_1.PinguSlashCommandBase; } });
 Object.defineProperty(exports, "PinguSlashCommandSub", { enumerable: true, get: function () { return pingu_1.PinguSlashCommandSub; } });
 Object.defineProperty(exports, "PinguSlashCommandGroup", { enumerable: true, get: function () { return pingu_1.PinguSlashCommandGroup; } });
 Object.defineProperty(exports, "PinguCommand", { enumerable: true, get: function () { return pingu_1.PinguCommand; } });

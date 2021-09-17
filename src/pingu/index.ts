@@ -24,5 +24,5 @@ export {
     PinguMusicEvent, PinguMusicEvents, PinguMusicClientEvents,
     PinguMusicCommand, PinguMusicCommandParams,
     SlashCommandOption, PinguSlashCommandBuilder, 
-    PinguSlashCommandBase, PinguSlashCommandSub, PinguSlashCommandGroup
+    PinguSlashCommandSub, PinguSlashCommandGroup
 } from './handlers';

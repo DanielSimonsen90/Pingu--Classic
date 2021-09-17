@@ -10,4 +10,4 @@ export { Queue, Song, ReactionRole } from './guild/items';
 export { PinguGuildMember } from './guildMember/PinguGuildMember';
 export { PinguUser } from './user/PinguUser';
 export { Daily, Marry } from './user/items';
-export { PinguCommand, PinguCommandParams, ExecuteFunctionProps, ReplyMethods, PinguEvent, PinguClientEvents, PinguMusicEvent, PinguMusicEvents, PinguMusicClientEvents, PinguMusicCommand, PinguMusicCommandParams, SlashCommandOption, PinguSlashCommandBuilder, PinguSlashCommandBase, PinguSlashCommandSub, PinguSlashCommandGroup } from './handlers';
+export { PinguCommand, PinguCommandParams, ExecuteFunctionProps, ReplyMethods, PinguEvent, PinguClientEvents, PinguMusicEvent, PinguMusicEvents, PinguMusicClientEvents, PinguMusicCommand, PinguMusicCommandParams, SlashCommandOption, PinguSlashCommandBuilder, PinguSlashCommandSub, PinguSlashCommandGroup } from './handlers';
