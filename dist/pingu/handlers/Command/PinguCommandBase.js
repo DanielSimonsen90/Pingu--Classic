@@ -59,7 +59,8 @@ class PinguCommandBase extends PinguHandler_1.default {
                     replySemiPrivate: pc.message.reply,
                     replyPrivate: pc.message.author.send,
                     followUp: pc.message.channel.send,
-                    replyReturn: pc.message.reply
+                    replyReturn: pc.message.reply,
+                    allowPrivate: false
                 }], [
                 'Interaction', {
                     execute: (() => {
@@ -72,16 +73,17 @@ class PinguCommandBase extends PinguHandler_1.default {
                     replySemiPrivate: ps.interaction.replyPrivate,
                     replyPrivate: ps.interaction.replyPrivate,
                     followUp: ps.interaction.followUp,
-                    replyReturn: ps.interaction.options.getBoolean('private') ? ps.interaction.replyPrivate : ps.interaction.reply
+                    replyReturn: ps.interaction.options.getBoolean('private') ? ps.interaction.replyPrivate : ps.interaction.reply,
+                    allowPrivate: ps.interaction.options.getBoolean('private')
                 }
             ]
         ]).get(type);
         if (!handler)
             return params.client.log('error', `Invalid execute type "${type}" for command ${this.name}`);
-        const { execute, replyPublic, replySemiPrivate, replyPrivate, followUp, replyReturn } = handler;
-        return execute(params, (client, { guild, executor }, extra) => this._execute(client, {
-            executor, guild, ...params, reply: { replyPublic, replySemiPrivate, replyPrivate, followUp, replyReturn },
-            replyPublic, replySemiPrivate, replyPrivate, followUp, replyReturn,
+        const { execute, replyPublic, replySemiPrivate, replyPrivate, followUp, replyReturn, allowPrivate } = handler;
+        return execute(params, (client, commandProps, extra) => this._execute(client, {
+            commandProps, ...params, reply: { replyPublic, replySemiPrivate, replyPrivate, followUp, replyReturn, allowPrivate },
+            replyPublic, replySemiPrivate, replyPrivate, followUp, replyReturn, allowPrivate,
             components: this.components
         }, extra));
     }

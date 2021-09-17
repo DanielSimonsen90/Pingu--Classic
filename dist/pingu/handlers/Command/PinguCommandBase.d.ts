@@ -1,4 +1,4 @@
-import { PermissionString, Message, Guild, MessagePayload, ReplyMessageOptions, InteractionReplyOptions, User, GuildMember } from "discord.js";
+import { PermissionString, Message, MessagePayload, ReplyMessageOptions, InteractionReplyOptions, User, GuildMember, CommandInteraction } from "discord.js";
 import PinguHandler from "../PinguHandler";
 import PinguSlashCommandBuilder, { InteractionCommandParams } from "./Slash/PinguSlashCommandBuilder";
 import Arguments from "../../../helpers/Arguments";
@@ -7,12 +7,20 @@ import { APIMessage } from "discord-api-types";
 import PinguActionRow from "../../collection/PinguActionRow";
 /** Used for returning execute functions */
 export declare type ReturnType = Promise<Message | APIMessage>;
-/** An execute function *must* have these properties */
-export interface CommandParamsBase<Client = PinguClientBase> {
-    client: Client;
+/** All the common properties from commands */
+declare type CommandPropsCombined = Message | CommandInteraction;
+/** Properties from command caller */
+declare type CommandProps = Omit<CommandPropsCombined, 'member'> & {
     executor: User;
-    guild: Guild;
     member: GuildMember;
+};
+/** When returning provided execute function in command handler, these properties should be returned with it */
+interface ExecuteFunctionPropsPublic {
+    commandProps: CommandProps;
+}
+/** An execute function *must* have these properties */
+export interface CommandParamsBase<Client = PinguClientBase> extends ExecuteFunctionPropsPublic {
+    client: Client;
 }
 /** A classic v12 command handler must have these properties */
 export interface ClassicCommandParams<Client = PinguClientBase> extends CommandParamsBase<Client> {
@@ -30,12 +38,6 @@ export declare type CommandTypes = keyof CommandTypesParams;
 export declare type ReplyOptions = string | MessagePayload | ReplyMessageOptions | (InteractionReplyOptions & {
     fetchReply: true;
 });
-/** When returning provided execute function in command handler, these properties should be returned with it */
-interface ExecuteFunctionPropsPublic {
-    guild: Guild;
-    executor: User;
-    member: GuildMember;
-}
 /** All kinds of reply methods */
 export interface ReplyMethods {
     /** Replies so all eyes can see response */
@@ -48,15 +50,15 @@ export interface ReplyMethods {
     followUp: (options: ReplyOptions) => ReturnType;
     /** Final reply - either replies public or private, depending on allowPrivate option */
     replyReturn: (options: ReplyOptions) => ReturnType;
+    allowPrivate?: boolean;
 }
 /** Properties included in execute function */
-export interface ExecuteFunctionProps<Client = PinguClientBase> extends CommandParamsBase<Client>, ReplyMethods {
-    executor: User;
+export interface ExecuteFunctionProps<Client = PinguClientBase> extends ExecuteFunctionPropsPublic, CommandParamsBase<Client>, ReplyMethods {
     reply: ReplyMethods;
     components: Map<string, PinguActionRow>;
 }
 /** Execute function when calling in execute handlers */
-export declare type ExecuteFunctionPublic<ExecutePropsType = {}> = (client: PinguClientBase, props: ExecuteFunctionPropsPublic, extra?: ExecutePropsType) => ReturnType;
+export declare type ExecuteFunctionPublic<ExecutePropsType = {}> = (client: PinguClientBase, props: ExecuteFunctionPropsPublic['commandProps'], extra?: ExecutePropsType) => ReturnType;
 /** Actual execute function */
 export declare type ExecuteFunction<Client = PinguClientBase, ExtraProps = ClassicCommandParams & InteractionCommandParams, ExecutePropsType = {}> = (client: Client, props: ExecuteFunctionProps<Client> & ExtraProps, extra?: ExecutePropsType) => ReturnType;
 /** Default data for a command */
