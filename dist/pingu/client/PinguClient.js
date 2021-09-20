@@ -14,9 +14,6 @@ class PinguClient extends PinguClientBase_1.default {
     }
     //#endregion
     //#region Public Methods
-    toPClient(pGuild) {
-        return pGuild.clients.find(c => c && c._id == this.user.id);
-    }
     emit(key, ...args) {
         return super.emit(key, ...args);
     }

@@ -135,6 +135,9 @@ class PinguClientBase extends discord_js_1.Client {
     }
     //#endregion
     //#region Public methods
+    toPClient(pGuild) {
+        return pGuild.clients.find(c => c && c._id == this.user.id);
+    }
     async log(type, ...args) {
         const logChannel = this.logChannels.get(type);
         return this._logTypeHandlers.get(type)(logChannel, ...args);

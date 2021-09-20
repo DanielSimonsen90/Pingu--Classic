@@ -30,6 +30,7 @@ export interface PinguCommandData extends BaseCommandData {
     guildOnly?: boolean;
     specificGuildID?: Snowflake;
     mustBeBeta?: boolean;
+    earlySupporterExclusive?: boolean;
 }
 declare type CommandCategoriesType = 'Utility' | 'Fun' | 'Supporting' | 'DevOnly' | 'GuildSpecific';
 export declare class PinguCommand<ExecutePropsType = {}> extends PinguCommandBase<ExecutePropsType> {

@@ -1,5 +1,4 @@
 import { ClientEvents, Collection, TextChannel, User, Guild, Message, PermissionString, ClientOptions } from "discord.js";
-import PinguGuild from '../guild/PinguGuild';
 import PClient from '../../database/json/PClient';
 import { AchievementCheckData } from '../achievements';
 import { GuildMemberAchievementType } from '../achievements/items/GuildMemberAchievement';
@@ -14,7 +13,6 @@ export declare class PinguClient extends PinguClientBase<PinguClientEvents> {
     commands: Collection<string, PinguCommand>;
     events: Collection<keyof PinguClientEvents, PinguEvent<keyof PinguClientEvents>>;
     subscribedEvents: Array<keyof PinguClientEvents>;
-    toPClient(pGuild: PinguGuild): PClient;
     emit<PCE extends keyof PinguClientEvents, CE extends keyof ClientEvents>(key: PCE, ...args: PinguClientEvents[PCE]): boolean;
     getSharedServers(user: User): Guild[];
     getTextChannel(guildId: string, channelName: string): TextChannel;

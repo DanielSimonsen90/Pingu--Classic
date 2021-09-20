@@ -192,6 +192,9 @@ export abstract class PinguClientBase<Events extends ClientEvents = any> extends
     //#endregion
 
     //#region Public methods
+    public toPClient(pGuild: PinguGuild) {
+        return pGuild.clients.find(c => c && c._id == this.user.id);
+    }
     public async log<Type extends LogChannels>(type: Type, ...args: LogTypes[Type]): Promise<Message> {
         const logChannel = this.logChannels.get(type);
         return this._logTypeHandlers.get(type)(logChannel, ...args);

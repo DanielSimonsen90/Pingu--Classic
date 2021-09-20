@@ -13,7 +13,7 @@ export type ReturnType = Promise<Message | APIMessage>;
 /** All the common properties from commands */
 type CommandPropsCombined = Message | CommandInteraction;
 /** Properties from command caller */
-type CommandProps = Omit<CommandPropsCombined, 'member'> & {
+export type CommandProps = Omit<CommandPropsCombined, 'member'> & {
     executor: User
     member: GuildMember
 }

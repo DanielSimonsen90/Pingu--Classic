@@ -36,9 +36,6 @@ export class PinguClient extends PinguClientBase<PinguClientEvents> {
     //#endregion
     
     //#region Public Methods
-    public toPClient(pGuild: PinguGuild) {
-        return pGuild.clients.find(c => c && c._id == this.user.id);
-    }
     public emit<
         PCE extends keyof PinguClientEvents, 
         CE extends keyof ClientEvents
