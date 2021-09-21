@@ -1,7 +1,7 @@
 import { 
     Base, BaseCommandInteraction, BaseGuildVoiceChannel, Collection, CommandInteraction, DMChannel, 
     EmojiResolvable, Guild, GuildMember, InteractionReplyOptions, Message, 
-    MessageAttachment, MessageEmbed, NewsChannel, 
+    MessageAttachment, MessageEmbed, MessageMentions, NewsChannel, 
     PartialTextBasedChannelFields, TextChannel, 
     ThreadChannel, User 
 } from "discord.js";
@@ -15,7 +15,8 @@ import PinguGuildMember from "./pingu/guildMember/PinguGuildMember";
 import ReactionRole from "./pingu/guild/items/ReactionRole";
 import PChannel from "./database/json/PChannel";
 import PinguUser from "./pingu/user/PinguUser";
-import { APIMessage } from "discord-api-types";
+import { APIMessage, Snowflake } from "discord-api-types";
+import { Arguments } from ".";
 
 type Pingu = PinguClientBase;
 
@@ -34,7 +35,7 @@ declare module 'discord.js' {
         findByDisplayName(name: string): V
     }
     interface BaseCommandInteraction {
-        replyPrivate(options: InteractionReplyOptions): Promise<Message | APIMessage>
+        replyPrivate(options: InteractionReplyOptions | string): Promise<Message | APIMessage>
     }
     interface Guild { 
         client: Pingu 
@@ -58,6 +59,9 @@ declare module 'discord.js' {
 
         editEmbeds(...embeds: MessageEmbed[]): Promise<this>;
         editFiles(...files: MessageAttachment[]): Promise<this>;
+    }
+    interface MessageMentions {
+        messages(message: Message): Collection<Snowflake, Message>
     }
     interface PartialTextBasedChannelFields {
         sendEmbeds(...embeds: MessageEmbed[]): Promise<Message>
@@ -127,11 +131,13 @@ Collection.prototype.findByDisplayName = function<K, V extends INameable>(this: 
 //#endregion
 
 //#region BaseCommandInteraction
-BaseCommandInteraction.prototype.replyPrivate = function(this: CommandInteraction, options: InteractionReplyOptions & { fetchReply: true }) {
+BaseCommandInteraction.prototype.replyPrivate = function(this: CommandInteraction, options: InteractionReplyOptions | string) {
+    if (typeof options == 'string') return this.reply({ content: options, ephemeral: true }) as any as Promise<Message | APIMessage>;
+
     return this.reply({
         ...options,
         ephemeral: true
-    })
+    }) as any as Promise<Message | APIMessage>
 }
 //#endregion
 
@@ -140,7 +146,7 @@ Guild.prototype.owner = function(this: Guild) {
     return this.members.cache.get(this.ownerId);
 }
 Guild.prototype.pGuild = function(this: Guild) {
-    return (this.client as PinguClientBase).pGuilds.get(this);
+    return this.client.pGuilds.get(this);
 }
 Guild.prototype.member = function(this: Guild, user: User) {
     return this.members.cache.get(user.id);
@@ -196,6 +202,21 @@ Message.prototype.editEmbeds = function(this: Message, ...embeds: MessageEmbed[]
 }
 Message.prototype.editFiles = function(this: Message, ...files: MessageAttachment[]) {
     return this.edit({ files })
+}
+//#endregion
+
+//#region MessageMentions
+MessageMentions.prototype.messages = function(this: MessageMentions, message: Message): Collection<Snowflake, Message> {
+    const args = new Arguments(message.content);
+    const messageMentions = args.getAll(args.mentions.get('SNOWFLAKE').regex);
+    if (!messageMentions.length) return new Collection();
+
+    const messages = messageMentions.map(id => 
+        this.client.channels.cache.filter(c => c.isText())
+        .map(c => c.isText() && c.messages.cache.get(id))
+    ).flat().filter(v => v);
+
+    return messages.reduce((result, m) => result.set(m.id, m), new Collection<Snowflake, Message>())
 }
 //#endregion
 

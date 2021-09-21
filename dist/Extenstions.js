@@ -4,6 +4,7 @@ const discord_js_1 = require("discord.js");
 const voice_1 = require("@discordjs/voice");
 const ms_1 = require("ms");
 const PChannel_1 = require("./database/json/PChannel");
+const _1 = require(".");
 //#region Base
 discord_js_1.Base.prototype.doIn = function (callback, time) {
     const timeout = typeof time == 'number' ? time : ms_1.default(time);
@@ -53,6 +54,8 @@ discord_js_1.Collection.prototype.findByDisplayName = function (name) {
 //#endregion
 //#region BaseCommandInteraction
 discord_js_1.BaseCommandInteraction.prototype.replyPrivate = function (options) {
+    if (typeof options == 'string')
+        return this.reply({ content: options, ephemeral: true });
     return this.reply({
         ...options,
         ephemeral: true
@@ -116,6 +119,17 @@ discord_js_1.Message.prototype.editEmbeds = function (...embeds) {
 };
 discord_js_1.Message.prototype.editFiles = function (...files) {
     return this.edit({ files });
+};
+//#endregion
+//#region MessageMentions
+discord_js_1.MessageMentions.prototype.messages = function (message) {
+    const args = new _1.Arguments(message.content);
+    const messageMentions = args.getAll(args.mentions.get('SNOWFLAKE').regex);
+    if (!messageMentions.length)
+        return new discord_js_1.Collection();
+    const messages = messageMentions.map(id => this.client.channels.cache.filter(c => c.isText())
+        .map(c => c.isText() && c.messages.cache.get(id))).flat().filter(v => v);
+    return messages.reduce((result, m) => result.set(m.id, m), new discord_js_1.Collection());
 };
 //#endregion
 //#region PartialTextBasedChannelFields

@@ -5,7 +5,7 @@ import PinguGuild from "./pingu/guild/PinguGuild";
 import PinguGuildMember from "./pingu/guildMember/PinguGuildMember";
 import ReactionRole from "./pingu/guild/items/ReactionRole";
 import PinguUser from "./pingu/user/PinguUser";
-import { APIMessage } from "discord-api-types";
+import { APIMessage, Snowflake } from "discord-api-types";
 declare type Pingu = PinguClientBase;
 declare module 'discord.js' {
     interface Base {
@@ -24,7 +24,7 @@ declare module 'discord.js' {
         findByDisplayName(name: string): V;
     }
     interface BaseCommandInteraction {
-        replyPrivate(options: InteractionReplyOptions): Promise<Message | APIMessage>;
+        replyPrivate(options: InteractionReplyOptions | string): Promise<Message | APIMessage>;
     }
     interface Guild {
         client: Pingu;
@@ -46,6 +46,9 @@ declare module 'discord.js' {
         reactioRoles(): Collection<EmojiResolvable, ReactionRole>;
         editEmbeds(...embeds: MessageEmbed[]): Promise<this>;
         editFiles(...files: MessageAttachment[]): Promise<this>;
+    }
+    interface MessageMentions {
+        messages(message: Message): Collection<Snowflake, Message>;
     }
     interface PartialTextBasedChannelFields {
         sendEmbeds(...embeds: MessageEmbed[]): Promise<Message>;
