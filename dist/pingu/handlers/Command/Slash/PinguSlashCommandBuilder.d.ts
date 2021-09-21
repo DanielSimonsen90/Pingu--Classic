@@ -1,12 +1,23 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { APIMessage } from "discord-api-types";
-import { CommandInteraction, Message } from "discord.js";
+import { CommandInteraction, GuildChannel, Message, Role, User } from "discord.js";
 import PinguClientBase from "../../../client/PinguClientBase";
 import { CommandParamsBase, ExecuteFunctionPublic } from "../PinguCommandBase";
 import { PinguSlashCommandGroup } from "./PinguSlashCommandGroup";
 import PinguSlashCommandSub, { SubCommandConstructionData, SubCommandExtraOptions } from "./PinguSlashCommandSub";
-declare type SlashCommandOptionTypes = 'Number' | 'Integer' | 'String' | 'Boolean' | 'Role' | 'Channel' | 'User' | 'default' | 'Mentionable';
-declare type ChoiceTypes = number | string | any;
+interface SlashCommandOptions {
+    Number: number;
+    Integer: number;
+    String: string;
+    Boolean: boolean;
+    Role: Role;
+    Channel: GuildChannel;
+    User: User;
+    default: unknown;
+    Mentionable: User | Role;
+}
+declare type SlashCommandOptionTypes = keyof SlashCommandOptions;
+declare type ChoiceTypes = number | string | unknown;
 interface Choice<CT extends ChoiceTypes> {
     name: string;
     value: CT;
@@ -18,23 +29,9 @@ export interface SlashCommandOption<CT extends ChoiceTypes = any> {
     choices: Choice<CT>[];
     type: SlashCommandOptionTypes;
 }
-declare type DefaultChoiceParams = [name: string, description: string, required?: boolean];
-declare type ChocieOptionParams<T extends ChoiceTypes> = [name: string, description: string, options?: {
-    choices?: Choice<T>[];
-    required?: boolean;
-}];
 interface SlashCommandOptionParams {
-    default: DefaultChoiceParams;
-    Boolean: DefaultChoiceParams;
-    Mentionable: DefaultChoiceParams;
-    Role: DefaultChoiceParams;
-    Channel: DefaultChoiceParams;
-    User: DefaultChoiceParams;
-    Number: ChocieOptionParams<number>;
-    String: ChocieOptionParams<string>;
-    Integer: ChocieOptionParams<number>;
 }
-export declare function SlashCommandOption<T extends SlashCommandOptionTypes = 'default'>(type: T, ...params: SlashCommandOptionParams[T]): SlashCommandOption;
+export declare function SlashCommandOption<T extends SlashCommandOptionTypes = 'default'>(type: T, ...params: SlashCommandOptionParams[T]): SlashCommandOption<T>;
 export interface SlashCommandsExtraOptions extends SubCommandExtraOptions {
     defaultPermission?: boolean;
 }

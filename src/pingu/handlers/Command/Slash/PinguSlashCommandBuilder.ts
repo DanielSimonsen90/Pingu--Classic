@@ -1,13 +1,24 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { APIMessage } from "discord-api-types";
-import { CommandInteraction, Message } from "discord.js";
+import { CommandInteraction, GuildChannel, Message, Role, User } from "discord.js";
 import PinguClientBase from "../../../client/PinguClientBase";
 import { CommandParamsBase, ExecuteFunctionPublic } from "../PinguCommandBase";
 import { PinguSlashCommandGroup } from "./PinguSlashCommandGroup";
 import PinguSlashCommandSub, { SubCommandConstructionData, SubCommandExtraOptions } from "./PinguSlashCommandSub";
 
-type SlashCommandOptionTypes = 'Number' | 'Integer' | 'String' | 'Boolean' | 'Role' | 'Channel' | 'User' | 'default' | 'Mentionable';
-type ChoiceTypes = number | string | any;
+interface SlashCommandOptions {
+    Number: number,
+    Integer: number,
+    String: string,
+    Boolean: boolean,
+    Role: Role,
+    Channel: GuildChannel,
+    User: User,
+    default: unknown,
+    Mentionable: User | Role
+}
+type SlashCommandOptionTypes = keyof SlashCommandOptions;
+type ChoiceTypes = number | string | unknown;
 
 interface Choice<CT extends ChoiceTypes> { name: string; value: CT; }
 export interface SlashCommandOption<CT extends ChoiceTypes = any> {
@@ -21,20 +32,21 @@ export interface SlashCommandOption<CT extends ChoiceTypes = any> {
 type DefaultChoiceParams = [name: string, description: string, required?: boolean];
 type ChocieOptionParams<T extends ChoiceTypes> = [name: string, description: string, options?: { choices?: Choice<T>[], required?: boolean }]
 
-interface SlashCommandOptionParams {
+interface SlashCommandOptionParamsChoices {
+    Number: ChocieOptionParams<number>;
+    String: ChocieOptionParams<string>;
+    Integer: ChocieOptionParams<number>;
+}
+interface SlashCommandOptionParams extends SlashCommandOptionParamsChoices {
     default: DefaultChoiceParams;
     Boolean: DefaultChoiceParams;
     Mentionable: DefaultChoiceParams;
     Role: DefaultChoiceParams;
     Channel: DefaultChoiceParams;
     User: DefaultChoiceParams;
-
-    Number: ChocieOptionParams<number>;
-    String: ChocieOptionParams<string>;
-    Integer: ChocieOptionParams<number>;
 }
 
-export function SlashCommandOption<T extends SlashCommandOptionTypes = 'default'>(type: T, ...params: SlashCommandOptionParams[T]): SlashCommandOption {
+export function SlashCommandOption<T extends SlashCommandOptionTypes = 'default'>(type: T, ...params: SlashCommandOptionParams[T]): SlashCommandOption<SlashCommandOptions[T]> {
     const [name, description] = params;
     const required = typeof params[2] == 'boolean' ? params[2] : params[2].required;
     const choices = typeof params[2] == 'boolean' ? null : params[2].choices;

@@ -6,7 +6,8 @@ function SlashCommandOption(type, ...params) {
     const [name, description] = params;
     const required = typeof params[2] == 'boolean' ? params[2] : params[2].required;
     const choices = typeof params[2] == 'boolean' ? null : params[2].choices;
-    return { name, description, required, choices, type };
+    if (['Number', 'Integer', 'String'].includes(type))
+        return { name, description, required, choices, type };
 }
 exports.SlashCommandOption = SlashCommandOption;
 exports.Option = SlashCommandOption;
