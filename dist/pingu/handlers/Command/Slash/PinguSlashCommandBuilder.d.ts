@@ -29,9 +29,31 @@ export interface SlashCommandOption<CT extends ChoiceTypes = any> {
     choices: Choice<CT>[];
     type: SlashCommandOptionTypes;
 }
-interface SlashCommandOptionParams {
+declare type DefaultChoiceParams = [name: string, description: string, required?: boolean];
+declare type ChocieOptionParams<T extends ChoiceTypes> = [name: string, description: string, options?: {
+    choices?: Choice<T>[];
+    required?: boolean;
+}];
+interface SlashCommandOptionParamsChoices {
+    Number: ChocieOptionParams<number>;
+    String: ChocieOptionParams<string>;
+    Integer: ChocieOptionParams<number>;
 }
-export declare function SlashCommandOption<T extends SlashCommandOptionTypes = 'default'>(type: T, ...params: SlashCommandOptionParams[T]): SlashCommandOption<T>;
+interface SlashCommandOptionParams extends SlashCommandOptionParamsChoices {
+    default: DefaultChoiceParams;
+    Boolean: DefaultChoiceParams;
+    Mentionable: DefaultChoiceParams;
+    Role: DefaultChoiceParams;
+    Channel: DefaultChoiceParams;
+    User: DefaultChoiceParams;
+}
+export declare function SlashCommandOption<T extends SlashCommandOptionTypes = 'default'>(type: T, ...params: SlashCommandOptionParams[T]): {
+    name: string;
+    description: string;
+    required: boolean;
+    choices: Choice<number>[] | Choice<string>[];
+    type: T;
+};
 export interface SlashCommandsExtraOptions extends SubCommandExtraOptions {
     defaultPermission?: boolean;
 }

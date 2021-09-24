@@ -28,7 +28,7 @@ export {
     PinguEvent, PinguClientEvents,
     PinguMusicEvent, PinguMusicEvents, PinguMusicClientEvents,
     PinguMusicCommand, PinguMusicCommandParams,
-    ReplyOptions, ReturnType, CommandProps,
+    ReplyOptions, ReplyReturn, ReplyFunction, CommandProps,
     
     PinguClient, PinguMusicClient
 } from './pingu';

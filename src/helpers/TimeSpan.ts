@@ -25,7 +25,50 @@ export function TimeFormat(timestamp: number | Date, ...formats: TimestampStyle[
     return formats.map(format => `<t:${Math.round(ms / 1000)}:${TimestampStyles.get(format)}>`).join(', ');
 }
 
+/**
+ * @param value string value to convert into ms
+ * @options ms|s|m|h|d|w|M|y
+ */
+export function TimeString(input: string): number {
+    const [value, unit] = input.match(/^(\d+(?:\.|,)?\d*)(ms|s|m|h|d|w|M|y)$/);
+    const units = new Map<string, number>([
+        ['ms', TimeSpan.millisecond],
+        ['s', TimeSpan.second],
+        ['m', TimeSpan.minute],
+        ['h', TimeSpan.hour],
+        ['d', TimeSpan.day],
+        ['w', TimeSpan.week],
+        ['M', TimeSpan.month],
+        ['y', TimeSpan.year]
+    ]);
+
+    return parseInt(value) * units.get(unit);
+}
+
 export class TimeSpan {
+    public static get millisecond(): number { return 1; }
+    public static get second(): number { return TimeSpan.millisecond * 1000; }
+    public static get minute(): number { return TimeSpan.second * 60; }
+    public static get hour(): number { return TimeSpan.minute * 60; }
+    public static get day(): number { return TimeSpan.hour * 24 }
+    public static get week(): number { return TimeSpan.day * 7; }
+    public static get month(): number {
+        const now = new Date();
+        return (
+            [1, 3, 5, 7, 8, 10, 12].includes(now.getMonth()) ? 31 : 
+            [4, 6, 9, 11].includes(now.getMonth()) ? 30 : 
+            now.getFullYear() % 4 == 0 ? 29 : 28
+        ) * TimeSpan.day; 
+    }
+    public static get year(): number {
+        const now = new Date()
+        return (365 + (now.getFullYear() % 4 == 0 ? 1 : 0)) * TimeSpan.day
+    }
+
+    public static ms(value: string): number {
+        return TimeString(value);
+    }
+
     constructor(value: Date | number, now: Date | number = Date.now()) {
         //General properties
         this.date = typeof value == 'number' ? new Date(value) : value;
@@ -37,29 +80,15 @@ export class TimeSpan {
 
         let timeDifference = Math.round(highest.getTime() - lowest.getTime());
 
-        //How long is each time module in ms
-        const millisecond = 1;
-        const second = millisecond * 1000;
-        const minute = second * 60;
-        const hour = minute * 60;
-        const day = hour * 24;
-        const week = day * 7;
-        const month = (
-            [1, 3, 5, 7, 8, 10, 12].includes(nowDate.getMonth()) ? 31 : 
-            [4, 6, 9, 11].includes(nowDate.getMonth()) ? 30 : 
-            nowDate.getFullYear() % 4 == 0 ? 29 : 28
-        ) * day;
-        const year = (365 + (nowDate.getFullYear() % 4 == 0 ? 1 : 0)) * day;
-
         //Calculate time difference between Now & EndsAt and set to object properties
-        this.years = reduceTime(year);
-        this.months = reduceTime(month);
-        this.weeks = reduceTime(week);
-        this.days = reduceTime(day);
-        this.hours = reduceTime(hour);
-        this.minutes = reduceTime(minute);
-        this.seconds = reduceTime(second);
-        this.milliseconds = reduceTime(millisecond);
+        this.years = reduceTime(TimeSpan.year);
+        this.months = reduceTime(TimeSpan.month);
+        this.weeks = reduceTime(TimeSpan.week);
+        this.days = reduceTime(TimeSpan.day);
+        this.hours = reduceTime(TimeSpan.hour);
+        this.minutes = reduceTime(TimeSpan.minute);
+        this.seconds = reduceTime(TimeSpan.second);
+        this.milliseconds = reduceTime(TimeSpan.millisecond);
 
         function reduceTime(ms: number) {
             let result = 0;

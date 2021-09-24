@@ -11,6 +11,9 @@ class PinguActionRow extends discord_js_1.MessageActionRow {
     get(type, id) {
         return this.components.find(c => c.customId == id);
     }
+    getMultiple(type, ...ids) {
+        return ids.map(id => this.get(type, id));
+    }
 }
 exports.PinguActionRow = PinguActionRow;
 exports.default = PinguActionRow;

@@ -276,8 +276,8 @@ async function HandleEvent(caller, client, ...args) {
         }
         async function CreateEmbed() {
             let [user, guild, executed] = [
-                client.users.cache.findByDisplayName(emitAssociator),
-                client.guilds.cache.findByDisplayName(emitAssociator),
+                client.users.cache.findFromString(emitAssociator),
+                client.guilds.cache.findFromString(emitAssociator),
                 new Date()
             ];
             const getDoubleDigit = (num) => num < 10 ? `0${num}` : `${num}`;

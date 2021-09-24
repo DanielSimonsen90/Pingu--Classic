@@ -1,8 +1,8 @@
 import { 
     Base, BaseCommandInteraction, BaseGuildVoiceChannel, Collection, CommandInteraction, DMChannel, 
-    EmojiResolvable, Guild, GuildMember, InteractionReplyOptions, Message, 
+    EmojiResolvable, Guild, GuildChannel, GuildMember, InteractionReplyOptions, Message, 
     MessageAttachment, MessageEmbed, MessageMentions, NewsChannel, 
-    PartialTextBasedChannelFields, TextChannel, 
+    PartialTextBasedChannelFields, PermissionString, Role, TextChannel, 
     ThreadChannel, User 
 } from "discord.js";
 import { joinVoiceChannel, VoiceConnection } from "@discordjs/voice";
@@ -32,7 +32,10 @@ declare module 'discord.js' {
         array(): Array<[K, V]>
         keyArray(): Array<K>
         valueArray(): Array<V>
-        findByDisplayName(name: string): V
+        /**
+         * @param value Id | tag | displayName | name
+         */
+        findFromString(value: string): V
     }
     interface BaseCommandInteraction {
         replyPrivate(options: InteractionReplyOptions | string): Promise<Message | APIMessage>
@@ -66,6 +69,12 @@ declare module 'discord.js' {
     interface PartialTextBasedChannelFields {
         sendEmbeds(...embeds: MessageEmbed[]): Promise<Message>
         sendFiles(...files: MessageAttachment[]): Promise<Message>
+    }
+    interface Role {
+        addPermissions(options: { reason?: string, permissions: PermissionString[] }): Promise<Role>
+        addPermissions(permissions: PermissionString[]): Promise<Role>
+        removePermissions(options: { reason?: string, permissions: PermissionString[] }): Promise<Role>
+        removePermissions(permissions: PermissionString[]): Promise<Role>
     }
     interface User { 
         client: Pingu 
@@ -116,16 +125,13 @@ Collection.prototype.valueArray = function<K, V>(this: Collection<K, V>) {
     return [...this.values()];
 }
 
-interface INameable {
-    name?: string;
-    displayName?: string;
-    tag?: string;
-}
-Collection.prototype.findByDisplayName = function<K, V extends INameable>(this: Collection<K, V>, name: string) {
+type CollectionItem = User & GuildMember & Guild & Role & GuildChannel;
+Collection.prototype.findFromString = function<K, V extends CollectionItem>(this: Collection<K, V>, value: string) {
     return [
-        this.find(v => v.tag == name),
-        this.find(v => v.name == name),
-        this.find(v => v.displayName == name),
+        this.find(v => v.id == value),
+        this.find(v => v.tag == value),
+        this.find(v => v.name == value),
+        this.find(v => v.displayName == value),
     ].filter(v => v)[0];
 }
 //#endregion
@@ -240,6 +246,19 @@ NewsChannel.prototype.sendFiles = sendFiles;
 DMChannel.prototype.sendFiles = sendFiles;
 ThreadChannel.prototype.sendFiles = sendFiles;
 //#endregion
+//#endregion
+
+//#region Role
+Role.prototype.addPermissions = function(this: Role, idk: PermissionString[] | { reason?: string, permissions: PermissionString[] }): Promise<Role> {
+    const permissions: PermissionString[] = (idk as any).reason ? (idk as any).permissions : idk;
+    const reason = (idk as any).reason
+    return this.setPermissions([...this.permissions, ...permissions], reason);
+}
+Role.prototype.removePermissions = function(this: Role, idk: PermissionString[] | { reason?: string, permissions: PermissionString[] }): Promise<Role> {
+    const permissions: PermissionString[] = (idk as any).reason ? (idk as any).permissions : idk;
+    const reason = (idk as any).reason
+    return this.setPermissions(this.permissions.toArray().filter(p => !permissions.includes(p)), reason);
+}
 //#endregion
 
 //#region User

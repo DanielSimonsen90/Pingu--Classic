@@ -14,11 +14,9 @@ class ButtonComponent extends discord_js_1.MessageButton {
         return this;
     }
     listenTo(channel, options) {
-        const filter = (i) => i.isButton() && i.customId == this.customId && options.filter(i);
+        const filter = (i) => i.isButton() && i.customId == this.customId && options.filter ? options.filter(i) : true;
         this._collector = channel.createMessageComponentCollector({ ...options, filter });
-        this._collector.on('collect', i => {
-            this.onclick(i);
-        });
+        this._collector.on('collect', i => this.onclick(i));
         return this;
     }
     stopListening(reason) {

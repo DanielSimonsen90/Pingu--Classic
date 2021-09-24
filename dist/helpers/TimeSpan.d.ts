@@ -12,7 +12,21 @@ export declare const TimestampStyles: Map<TimestampStyle, string>;
  * @RELATIVE x timeunit ago
  */
 export declare function TimeFormat(timestamp: number | Date, ...formats: TimestampStyle[]): string;
+/**
+ * @param value string value to convert into ms
+ * @options ms|s|m|h|d|w|M|y
+ */
+export declare function TimeString(input: string): number;
 export declare class TimeSpan {
+    static get millisecond(): number;
+    static get second(): number;
+    static get minute(): number;
+    static get hour(): number;
+    static get day(): number;
+    static get week(): number;
+    static get month(): number;
+    static get year(): number;
+    static ms(value: string): number;
     constructor(value: Date | number, now?: Date | number);
     years: number;
     months: number;

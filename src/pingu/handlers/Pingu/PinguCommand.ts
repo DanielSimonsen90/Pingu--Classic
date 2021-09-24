@@ -13,10 +13,10 @@ import PinguCommandBase, {
 } from '../Command/PinguCommandBase';
 
 interface PItems {
-    author: PinguUser,
-    member: PinguGuildMember,
-    guild: PinguGuild,
-    client: PClient
+    pAuthor: PinguUser,
+    pGuildMember: PinguGuildMember,
+    pGuild: PinguGuild,
+    pGuildClient: PClient
 }
 
 export interface CommandParams {

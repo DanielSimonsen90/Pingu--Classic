@@ -1,4 +1,4 @@
-export { ExecuteFunctionProps, ReplyMethods, ReplyOptions, ReturnType, CommandProps } from './Command/PinguCommandBase'
+export { ExecuteFunctionProps, ReplyMethods, ReplyOptions, ReplyReturn, ReplyFunction, CommandProps } from './Command/PinguCommandBase'
 export { PinguCommand, PinguClassicCommandParams as PinguCommandParams } from './Pingu/PinguCommand';
 export { PinguMusicCommand, PinguMusicCommandParams } from './Music/PinguMusicCommand';
 

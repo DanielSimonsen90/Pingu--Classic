@@ -21,7 +21,10 @@ declare module 'discord.js' {
         array(): Array<[K, V]>;
         keyArray(): Array<K>;
         valueArray(): Array<V>;
-        findByDisplayName(name: string): V;
+        /**
+         * @param value Id | tag | displayName | name
+         */
+        findFromString(value: string): V;
     }
     interface BaseCommandInteraction {
         replyPrivate(options: InteractionReplyOptions | string): Promise<Message | APIMessage>;
@@ -53,6 +56,18 @@ declare module 'discord.js' {
     interface PartialTextBasedChannelFields {
         sendEmbeds(...embeds: MessageEmbed[]): Promise<Message>;
         sendFiles(...files: MessageAttachment[]): Promise<Message>;
+    }
+    interface Role {
+        addPermissions(options: {
+            reason?: string;
+            permissions: PermissionString[];
+        }): Promise<Role>;
+        addPermissions(permissions: PermissionString[]): Promise<Role>;
+        removePermissions(options: {
+            reason?: string;
+            permissions: PermissionString[];
+        }): Promise<Role>;
+        removePermissions(permissions: PermissionString[]): Promise<Role>;
     }
     interface User {
         client: Pingu;

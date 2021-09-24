@@ -25,5 +25,5 @@ export {
     PinguMusicCommand, PinguMusicCommandParams,
     SlashCommandOption, PinguSlashCommandBuilder, 
     PinguSlashCommandSub, PinguSlashCommandGroup,
-    ReplyOptions, ReturnType, CommandProps
+    ReplyOptions, ReplyReturn, ReplyFunction, CommandProps
 } from './handlers';

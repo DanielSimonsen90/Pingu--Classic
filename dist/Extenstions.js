@@ -44,11 +44,12 @@ discord_js_1.Collection.prototype.keyArray = function () {
 discord_js_1.Collection.prototype.valueArray = function () {
     return [...this.values()];
 };
-discord_js_1.Collection.prototype.findByDisplayName = function (name) {
+discord_js_1.Collection.prototype.findFromString = function (value) {
     return [
-        this.find(v => v.tag == name),
-        this.find(v => v.name == name),
-        this.find(v => v.displayName == name),
+        this.find(v => v.id == value),
+        this.find(v => v.tag == value),
+        this.find(v => v.name == value),
+        this.find(v => v.displayName == value),
     ].filter(v => v)[0];
 };
 //#endregion
@@ -151,6 +152,18 @@ discord_js_1.NewsChannel.prototype.sendFiles = sendFiles;
 discord_js_1.DMChannel.prototype.sendFiles = sendFiles;
 discord_js_1.ThreadChannel.prototype.sendFiles = sendFiles;
 //#endregion
+//#endregion
+//#region Role
+discord_js_1.Role.prototype.addPermissions = function (idk) {
+    const permissions = idk.reason ? idk.permissions : idk;
+    const reason = idk.reason;
+    return this.setPermissions([...this.permissions, ...permissions], reason);
+};
+discord_js_1.Role.prototype.removePermissions = function (idk) {
+    const permissions = idk.reason ? idk.permissions : idk;
+    const reason = idk.reason;
+    return this.setPermissions(this.permissions.toArray().filter(p => !permissions.includes(p)), reason);
+};
 //#endregion
 //#region User
 discord_js_1.User.prototype.isPinguDev = function () {

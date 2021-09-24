@@ -8,7 +8,7 @@ import { APIMessage } from "discord-api-types";
 import PinguActionRow from "../../collection/PinguActionRow";
 
 /** Used for returning execute functions */
-export type ReturnType = Promise<Message | APIMessage>;
+export type ReplyReturn = Promise<Message | APIMessage>;
 
 /** All the common properties from commands */
 type CommandPropsCombined = Message | CommandInteraction;
@@ -42,19 +42,20 @@ export type CommandTypes = keyof CommandTypesParams
 
 /** Acceptable types for replying to command */
 export type ReplyOptions = string | MessagePayload | ReplyMessageOptions | (InteractionReplyOptions & { fetchReply: true });
+export type ReplyFunction = (options: ReplyOptions) => ReplyReturn;
 
 /** All kinds of reply methods */
 export interface ReplyMethods {
     /** Replies so all eyes can see response */
-    replyPublic: (options: ReplyOptions) => ReturnType,
+    replyPublic: (options: ReplyOptions) => ReplyReturn,
     /** Either replies public or replies private, depending on what's most appropriate */
-    replySemiPrivate: (options: ReplyOptions) => ReturnType,
+    replySemiPrivate: (options: ReplyOptions) => ReplyReturn,
     /** Replies private */
-    replyPrivate: (options: ReplyOptions) => ReturnType,
+    replyPrivate: (options: ReplyOptions) => ReplyReturn,
     /** Follow up for @see replyReturn */
-    followUp: (options: ReplyOptions) => ReturnType,
+    followUp: (options: ReplyOptions) => ReplyReturn,
     /** Final reply - either replies public or private, depending on allowPrivate option */
-    replyReturn: (options: ReplyOptions) => ReturnType,
+    replyReturn: (options: ReplyOptions) => ReplyReturn,
     allowPrivate?: boolean
 }
 /** Properties included in execute function */
@@ -66,13 +67,13 @@ export interface ExecuteFunctionProps<Client = PinguClientBase> extends
 }
 
 /** Execute function when calling in execute handlers */
-export type ExecuteFunctionPublic<ExecutePropsType = {}> = (client:  PinguClientBase, props: ExecuteFunctionPropsPublic['commandProps'], extra?: ExecutePropsType) => ReturnType
+export type ExecuteFunctionPublic<ExecutePropsType = {}> = (client:  PinguClientBase, props: ExecuteFunctionPropsPublic['commandProps'], extra?: ExecutePropsType) => ReplyReturn
 /** Actual execute function */
 export type ExecuteFunction<
     Client = PinguClientBase,
     ExtraProps = ClassicCommandParams & InteractionCommandParams,
     ExecutePropsType = {}
-> = (client: Client, props: ExecuteFunctionProps<Client> & ExtraProps, extra?: ExecutePropsType) => ReturnType;
+> = (client: Client, props: ExecuteFunctionProps<Client> & ExtraProps, extra?: ExecutePropsType) => ReplyReturn;
 /** Default data for a command */
 export interface BaseCommandData {
     usage?: string;
@@ -91,7 +92,7 @@ export function throwInvalidTypeError<
 
 /** Execute handler for map in public execute function */
 interface ExecuteHandler<T extends CommandTypes> extends ReplyMethods {
-    execute: (params: CommandTypesParams[T], execute: ExecuteFunctionPublic) => ReturnType
+    execute: (params: CommandTypesParams[T], execute: ExecuteFunctionPublic) => ReplyReturn
 }
 /** All execute functions */
 export interface ExecuteFunctions<
@@ -101,7 +102,7 @@ export interface ExecuteFunctions<
     ExecutePropsType = {},
     ExtraProps = ClassicParams & SlashParams,
 > {
-    classic: (params: ClassicParams, execute: ExecuteFunctionPublic<ExecutePropsType>) => ReturnType,
+    classic: (params: ClassicParams, execute: ExecuteFunctionPublic<ExecutePropsType>) => ReplyReturn,
     execute: ExecuteFunction<Client, ExtraProps, ExecutePropsType>
 }
 
@@ -135,10 +136,10 @@ export default class PinguCommandBase<ExecutePropsType = {}> extends PinguHandle
     protected _logError(client: PinguClientBase, functionName: string) {
         return client.log('error', `${functionName} not defined for command ${this.name}`)
     }
-    protected _execute(client: PinguClientBase, props: ExecuteFunctionProps<PinguClientBase>, extra?: ExecutePropsType | {}): ReturnType {
+    protected _execute(client: PinguClientBase, props: ExecuteFunctionProps<PinguClientBase>, extra?: ExecutePropsType | {}): ReplyReturn {
         return this._logError(client, `_execute`);
     }
-    private _executeClassic(params: ClassicCommandParams, execute: ExecuteFunctionPublic): ReturnType {
+    private _executeClassic(params: ClassicCommandParams, execute: ExecuteFunctionPublic): ReplyReturn {
         return this._logError(params.client, `_executeClassic`);
     }
 

@@ -23,12 +23,9 @@ export class ButtonComponent extends MessageButton {
         return this;
     }
     public listenTo(channel: TextBasedChannels, options?: InteractionCollectorOptions<MessageComponentInteraction>) {
-        const filter = (i: MessageComponentInteraction) => i.isButton() && i.customId == this.customId && options.filter(i);
+        const filter = (i: MessageComponentInteraction) => i.isButton() && i.customId == this.customId && options.filter ? options.filter(i) : true;
         this._collector = channel.createMessageComponentCollector({ ...options, filter });
-
-        this._collector.on('collect', i => {
-            this.onclick(i as ButtonInteraction);
-        });
+        this._collector.on('collect', i => this.onclick(i as ButtonInteraction));
         return this;
     }
     public stopListening(reason?: string) {

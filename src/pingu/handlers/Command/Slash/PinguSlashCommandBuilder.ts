@@ -46,7 +46,7 @@ interface SlashCommandOptionParams extends SlashCommandOptionParamsChoices {
     User: DefaultChoiceParams;
 }
 
-export function SlashCommandOption<T extends SlashCommandOptionTypes = 'default'>(type: T, ...params: SlashCommandOptionParams[T]): SlashCommandOption<SlashCommandOptions[T]> {
+export function SlashCommandOption<T extends SlashCommandOptionTypes = 'default'>(type: T, ...params: SlashCommandOptionParams[T]) {
     const [name, description] = params;
     const required = typeof params[2] == 'boolean' ? params[2] : params[2].required;
     const choices = typeof params[2] == 'boolean' ? null : params[2].choices;

@@ -6,10 +6,10 @@ import PClient from "../../../database/json/PClient";
 import PinguClient from "../../client/PinguClient";
 import PinguCommandBase, { BaseCommandData, ClassicCommandParams, ExecuteFunctionProps, ExecuteFunctions } from '../Command/PinguCommandBase';
 interface PItems {
-    author: PinguUser;
-    member: PinguGuildMember;
-    guild: PinguGuild;
-    client: PClient;
+    pAuthor: PinguUser;
+    pGuildMember: PinguGuildMember;
+    pGuild: PinguGuild;
+    pGuildClient: PClient;
 }
 export interface CommandParams {
     client?: PinguClient;

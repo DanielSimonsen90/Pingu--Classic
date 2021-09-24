@@ -35,7 +35,6 @@ interface LogTypes {
 }
 export declare type LogChannels = keyof LogTypes;
 export declare type SavedServerNames = 'Danho Misc' | 'Pingu Support' | 'Pingu Emotes' | 'Deadly Ninja';
-import SlashCommandCollection from "../collection/SlashCommandCollection";
 export declare abstract class PinguClientBase<Events extends ClientEvents = any> extends Client {
     static Clients: {
         PinguID: string;
@@ -48,7 +47,7 @@ export declare abstract class PinguClientBase<Events extends ClientEvents = any>
     readonly DefaultEmbedColor = 3447003;
     readonly invite = "https://discord.gg/gbxRV4Ekvh";
     commands: Collection<string, PinguHandler>;
-    slashCommands: SlashCommandCollection;
+    slashCommands: any;
     events: Collection<string | keyof Events, PinguHandler>;
     subscribedEvents: (string | keyof Events)[];
     DefaultPrefix: string;
