@@ -521,7 +521,7 @@ async function onTimeFinished(sent: Message, value: string, winnersAllowed: numb
             return null as Promise<Collection<string, User>>;
         });
 
-        let members = await guild.members.fetch({ user: reactedUsers.valueArray() });
+        let members = await guild.members.fetch({ user: reactedUsers.valueArr() });
         const winnerOrWinners = `Winner${winnersAllowed > 1 ? 's' : ''}`;
 
         reactedUsers = reactedUsers.filter(u => {
@@ -605,7 +605,7 @@ async function onTimeFinished(sent: Message, value: string, winnersAllowed: numb
             let winner = (function selectWinner() {
                 if (!reactedUsers.size) return `A winner couldn't be found!`;
 
-                let user = reactedUsers.valueArray()[Math.floor(Math.random() * reactedUsers.size)];
+                let user = reactedUsers.valueArr()[Math.floor(Math.random() * reactedUsers.size)];
                 const member = guild.member(user);
 
                 if (!winnerRole) return member;

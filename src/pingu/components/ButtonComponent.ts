@@ -1,5 +1,5 @@
 import { 
-    ButtonInteraction, InteractionButtonOptions, 
+    ButtonInteraction, CollectorResetTimerOptions, InteractionButtonOptions, 
     InteractionCollector, InteractionCollectorOptions, 
     MessageButton, MessageComponentInteraction, 
     TextBasedChannels 
@@ -22,10 +22,20 @@ export class ButtonComponent extends MessageButton {
         this.onclick = onclick;
         return this;
     }
+    public onstop: (interactions: Array<ButtonInteraction>, reason?: string) => any;
+    public resetTimer(options?: CollectorResetTimerOptions) {
+        return this._collector.resetTimer(options);
+    }
+
     public listenTo(channel: TextBasedChannels, options?: InteractionCollectorOptions<MessageComponentInteraction>) {
         const filter = (i: MessageComponentInteraction) => i.isButton() && i.customId == this.customId && options.filter ? options.filter(i) : true;
-        this._collector = channel.createMessageComponentCollector({ ...options, filter });
-        this._collector.on('collect', i => this.onclick(i as ButtonInteraction));
+        this._collector = channel.createMessageComponentCollector({ ...options, filter })
+            .on('collect', i => this.onclick(i as ButtonInteraction))
+            .on('end', (collected, reason) => this.onstop(collected
+                .filter(c => c.isButton())
+                .valueArr() as Array<ButtonInteraction>, 
+                reason
+        ));
         return this;
     }
     public stopListening(reason?: string) {

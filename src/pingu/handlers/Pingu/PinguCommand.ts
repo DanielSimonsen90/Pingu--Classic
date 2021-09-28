@@ -12,7 +12,7 @@ import PinguCommandBase, {
     throwInvalidTypeError 
 } from '../Command/PinguCommandBase';
 
-interface PItems {
+export interface PItems {
     pAuthor: PinguUser,
     pGuildMember: PinguGuildMember,
     pGuild: PinguGuild,

@@ -1,48 +1,21 @@
+import { Extensions } from 'danholibraryjs';
 import { 
-    DecidablesParams, DecidablesTypes, 
-    SetConfigObjects, BaseExecuteProps, IValueTime, ConfigKeys, IRunDecidable,
+    DecidablesParams, DecidablesTypes, SetConfigObjects, BaseExecuteProps, 
+    ConfigKeys, ISetupOptions, DecidableItems, IMenuItem,
 } from './DecidableCommandProps';
 import TimeSpan from '../helpers/TimeSpan';
-import PinguCommand, { CommandParams } from '../pingu/handlers/Pingu/PinguCommand';
-import PRole from '../database/json/PRole';
+import PinguCommand from '../pingu/handlers/Pingu/PinguCommand';
+import { PRole, PChannel } from '../database/json';
 import IDecidableConfigOptions from './interfaces/IDecidableConfigOptions';
-import { ExecuteFunctionProps } from '../pingu/handlers/Command/PinguCommandBase';
-import PinguClient from '../pingu/client/PinguClient';
+import { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from './config';
+import { Giveaway, Poll, Suggestion, Theme } from './items';
+import { Message, MessageCollector, PermissionString, Role, TextChannel, User } from 'discord.js';
+import DecidablesData from './DecidablesData';
+import DecidableCollection from './DecidableCollection';
+import { Arguments } from '..';
+import { channelMention } from '@discordjs/builders';
 
-class DecidablesData<
-    DecidablesType extends DecidablesTypes, 
-    ExecuteProps extends BaseExecuteProps<DecidablesType>
-> implements DecidablesParams<DecidablesType> {
-    constructor(public executeProps: ExecuteFunctionProps<PinguClient> & CommandParams & ExecuteProps) {}
-
-    public get client() { return this.executeProps.client; }
-    public get command() { return this.executeProps.command }
-    public get commandProps() { return this.executeProps.commandProps }
-    public get components() { return this.executeProps.components }
-    public get config() { return this.executeProps.config }
-    public get filter() { return this.executeProps.filter }
-    public get pAuthor() { return this.executeProps.pAuthor }
-    public get pGuildMember() { return this.executeProps.pGuildMember }
-    public get pGuild() { return this.executeProps.pGuild }
-    public get pGuildClient() { return this.executeProps.pGuildClient }
-    public get pItems() { return this.executeProps.pItems }
-    public get reactions() { return this.executeProps.reactions }
-    public get reply() { return this.executeProps.reply }
-    public get replyPrivate() { return this.executeProps.replyPrivate }
-    public get replySemiPrivate() { return this.executeProps.replySemiPrivate }
-    public get replyPublic() { return this.executeProps.replyPublic }
-    public get replyReturn() { return this.executeProps.replyReturn }
-    public get followUp() { return this.executeProps.followUp }
-    public get runOptions() { return this.executeProps.runOptions }
-    public get setup() { return this.executeProps.setup }
-    public get type() { return this.executeProps.type }
-
-    public is<T extends DecidablesTypes>(type: DecidablesTypes): this is T {
-        return this.type == type;
-    }
-}
-
-export default class DecdiableCommand<
+export default class DecidableCommand<
     DecidablesType extends DecidablesTypes, 
     ExecuteProps extends BaseExecuteProps<DecidablesType>
 > extends PinguCommand<ExecuteProps> {
@@ -52,22 +25,17 @@ export default class DecdiableCommand<
     static ExecuteDecidables<
         DecidablesType extends DecidablesTypes, 
         ExecuteProps extends BaseExecuteProps<DecidablesType>
-    > (cmd: DecdiableCommand<DecidablesType, ExecuteProps>, params: DecidablesParams<DecidablesType>) {
+    > (cmd: DecidableCommand<DecidablesType, ExecuteProps>, params: DecidablesParams<DecidablesType>) {
         return cmd.handleDecdiables(params);
     }
 
-    private _configs: Map<IDecidableConfigOptions, ConfigKeys<any>>
+    private _configs: Map<IDecidableConfigOptions, ConfigKeys<DecidablesTypes>>
     private _data: DecidablesData<DecidablesType, ExecuteProps>;
+    private _collector: MessageCollector;
 
     public async handleDecdiables(params: DecidablesParams<DecidablesType>) {
-        const { executeProps: {
-            client, commandProps: { executor, member, guild, channel: executedFrom }, components,
-            pAuthor, pGuildMember, pGuild, pGuildClient,
-            replyPublic, replySemiPrivate, replyPrivate, replyReturn, followUp, allowPrivate,
-            type, command, reactions, config, filter, setup, runOptions
-        }} = params;
-        const { firstTimeExecuted, channel } = config;
         this._data = new DecidablesData<DecidablesType, ExecuteProps>(params.executeProps as any);
+        const { pGuild, client, replyReturn, type, commandProps: { guild } } = this._data;
 
         //A decidables command must have a Pingu Guild registered
         if (!pGuild) {
@@ -75,8 +43,46 @@ export default class DecdiableCommand<
             return replyReturn(`I couldn't get your PinguGuild, so I can't host the ${type.toLowerCase()} for you!`);
         }
 
+        const { replySemiPrivate } = this._data;
         const decidablesConfig = pGuild.settings.config.decidables;
         this._configs = SetConfigObjects(decidablesConfig);
+        const permCheck = await this.permissionCheckDecidable();
+        if (permCheck != client.permissions.PermissionGranted) return replySemiPrivate(permCheck);
+
+        const { command, config, commandProps: { executor } } = this._data;
+        const { firstTimeExecuted } = config;
+        if (firstTimeExecuted || command == 'setup') return this.firstTimeExecuted();
+        else if (command == 'list') return this.listDecidables(this._configs.get(config).collection);
+
+        const reroll = this._data.isGiveawayType() && command == 'reroll';
+
+        if (this._data.isTimable()) {
+            var time = this._data.runOptions.time;
+            
+            if (this._data.isGiveawayType()) {
+                var winners = this._data.runOptions.winners || 1;
+                var decidabelsChannel = (this._data.runOptions.channel || this._data.commandProps.channel) as TextChannel;
+            }
+        }
+
+        const users = new Map<User, Array<PermissionString>>([
+            [executor, ['VIEW_CHANNEL']],
+            [client.user, ['SEND_MESSAGES', 'ADD_REACTIONS']]
+        ]);
+        for (const [u, perms] of users) {
+            let channelPerms = client.permissions.checkFor({ member: guild.member(u), channel: decidabelsChannel }, ...perms);
+            if (channelPerms != client.permissions.PermissionGranted) return replyReturn(channelPerms);
+        }
+
+        let { value } = this._data.runOptions;
+        const argsMentions = new Arguments(value).mentions;
+        const mention = argsMentions.get('USER').argument();
+        if (mention) value = value.replace(mention, guild.members.cache.get(argsMentions.get('SNOWFLAKE').argument()).displayName);
+
+        if (reroll) {
+            const sent = await replyReturn(`Rerolling ${type.toLowerCase()}...`);
+            return this.reroll(sent as Message);
+        }
     }
 
     protected async permissionCheckDecidable() {
@@ -84,7 +90,7 @@ export default class DecdiableCommand<
         const { PermissionGranted } = client.permissions;
         const { hostRole } = this._configs.get(config);
 
-        if (!this._data.is('Poll')) {
+        if (!this._data.isGiveawayType()) {
             return PermissionGranted;
         }
         
@@ -92,14 +98,219 @@ export default class DecdiableCommand<
             return "You don't have `Administrator` permissions" + (hostRole ? ` or the \`${hostRole.name}\` role` : "" + "!");
         }
 
-        const { time } = this._data.executeProps.runOptions;
+        const { time } = this._data.runOptions;
         if (!time) return 'Please provide a valid time!';
 
-        const timeValue = runOptions
+        // const timeValue = parseInt(time.substring(0, time.length - 1))
+        const timeValue = parseInt(time.clip(0, -1));
+        if (time.endsWith('s') && timeValue < 30) return `Please specify a time higher than 29s!`;
+        else if (time.length == timeValue.toString().length) this._data.runOptions.time += 'm'; //No s|m|h provided, treat as minutes
+        return PermissionGranted;
     }
 
-    public async checkRoleUpdates(params: DecidablesParams<DecidablesType>) {
-        const { executeProps: { config, type, commandProps: { guild } } } = params;
+    public async firstTimeExecuted() {
+        const { command, replySemiPrivate, commandProps: { guild } } = this._data;
+        if (command != 'setup') replySemiPrivate(`**Hold on fella!**\nWe need to get ${guild} set up first!`);
+
+        const hasAllArguments = await this._checkAllArguments();
+        if (hasAllArguments) return hasAllArguments;
+
+        const { type, commandProps, config, replyReturn } = this._data;
+        const { channel: executedFrom, executor } = commandProps;
+        this._collector = executedFrom.createMessageCollector({ filter: m => m.author.id == executor.id });
+        const lowerType = type.toLowerCase();
+        const { staffRoleType } = this._configs.get(config);
+
+        replyReturn(`Firstly, ${this._find('Role', staffRoleType, 'Exists', null)}`);
+
+        this._collector.on('collect', async input => { await onCollect.bind(this)(input).next() });
+        this._collector.on('end', async () => {
+            replyReturn(`Alright, you're all set!`);
+            this._data.client.log('console', `${guild} successfully configured their ${type}Config.`);
+            if (command != 'setup') DecidableCommand.ExecuteDecidables(this, { executeProps: this._data.executeProps });
+        })
+
+        async function* onCollect(this: DecidableCommand<DecidablesType, ExecuteProps>, input: Message) {
+            //staffRole Tag
+            yield input.channel.send(this._find('Role', staffRoleType, 'Tag', input));
+
+            //staffRole Find
+            let staffRoleResult = this._find('Role', staffRoleType, 'Tag', input);
+            let staffRole = this._nullMakeValue<Role>('Role', staffRoleResult);
+
+            //winnerRole Exists
+            if (this._data.isGiveawayType()) {
+                yield input.channel.send(this._find('Role', `${type} Winner`, 'Exists', input));
+
+                //winnerRole Find
+                let winnerRoleResult = this._find('Role', `${type} Winner`, 'Find', input);
+                var winnerRole = this._nullMakeValue<Role>('Role', winnerRoleResult);
+            }
+
+            //channel Tag
+            yield input.channel.send(this._find('Channel', lowerType, 'Exists', input));
+
+            //channel Find
+            let channelResult = this._find('Channel', lowerType, 'Find', input);
+            let channel = this._nullMakeValue<TextChannel>('Channel', channelResult);
+
+            //Poll & Suggestion finished
+            const reason = `${executor.tag} requested`;
+            const make = (type: 'channel' | 'role') => guild[`${type}s`].create(`${type}s`, { reason });
+            const goodToGo = {
+                channel: channel == 'make' ? (await make('channel') as TextChannel) : undefined, 
+                staffRole: staffRole == 'make' ? (await make('role') as Role) : undefined
+            }
+
+            if (!this._data.isGiveawayType()) return this._goodToGo(goodToGo);
+
+            //allowSameWinner Ask
+            yield input.channel.send(`Alright last thing, should I allow same winners? (A user winning a ${lowerType} can't win the next one, if you say no!)`);
+
+            //allowSameWinner Process
+            let allowSameWinner = input.content.toLowerCase() == 'yes';
+
+            //Giveaway finished
+            const winner = winnerRole == 'make' ? (await make('role') as Role) : undefined;
+            if (this._data.is('Giveaway')) return this._goodToGo<'Giveaway'>({ ...goodToGo,
+                allowSameWinner, winner
+            });
+
+            //ignoreLastWins ask
+            yield input.channel.send(
+                `Okay last thing I promise- how many ${lowerType}s' winners should I ignore?` +
+                `(If sete to 2, the winners for the last to ${lowerType}s will not be able to win the current one.) Default is 0.`
+            );
+
+            //Theme finished
+            return this._goodToGo({ ...goodToGo, winner, allowSameWinner, ignoreLastWins: parseInt(input.content) || 0 })
+        }
+    }
+    private async _checkAllArguments() {
+        const { type, setup, replySemiPrivate } = this._data;
+        try {
+            await this._goodToGo(setup);
+            return replySemiPrivate('Setup done!');
+        }
+        catch (err) { return replySemiPrivate(err); }
+    }
+    private async _goodToGo<T extends DecidablesTypes>(setup: ISetupOptions<T>) {
+        const { pGuild, type } = this._data;
+        const config = pGuild.settings.config.decidables;
+        const staffRole = setup.staffRole && new PRole(setup.staffRole);
+        const base = {
+            firstTimeExecuted: false,
+            channel: setup.channel && new PChannel(setup.channel)
+        }
+
+        const result = (function constructConfig(data) {
+            if (data.is('Poll')) return config.pollConfig = new PollConfig({ ...base,
+                pollRole: staffRole, polls: new Array<Poll>()
+            });
+            else if (data.is('Suggestion')) return config.suggestionConfig = new SuggestionConfig({ ...base,
+                managerRole: staffRole, suggestions: new Array<Suggestion>()
+             });
+            else if (data.is('Giveaway')) return config.giveawayConfig = new GiveawayConfig({ ...base, 
+                hostRole: staffRole, giveaways: new Array<Giveaway>(), 
+                winnerRole: data.setup.winner && new PRole(data.setup.winner),
+                allowSameWinner: data.setup.allowSameWinner
+            });
+            else if (data.is('Theme')) return config.themeConfig = new ThemeConfig({ ...base, 
+                hostRole: staffRole, themes: new Array<Theme>(), 
+                winnerRole: data.setup.winner && new PRole(data.setup.winner),
+                allowSameWinner: data.setup.allowSameWinner,
+                ignoreLastWins: data.setup.ignoreLastWins
+            })
+        })(this._data) as typeof this._data.config;
+
+        await this.updatePGuilds(`**${pGuild.name}**'s ${type}Config after setting it up.`);
+        this._collector.stop('Setup done');
+
+        const { executor, member, guild, channel } = this._data.commandProps;
+        this._data.client.AchievementCheck({ user: executor, guildMember: member, guild }, 'CHANNEL' as any, type, [channel]);
+
+        return result;
+    }
+    private _find(type: 'Role' | 'Channel', typeName: string, pinguResponse: 'Exists' | 'Tag' | 'Find', message: Message) {
+        const response = message?.content?.toLowerCase();
+        let typeResult/*: (Role | TextChannel) | string*/ = null;
+        const lowerType = type.toLowerCase();
+
+        switch (pinguResponse) {
+            case 'Exists': return `Do you have a **${typeName}** ${lowerType}?`;
+            case 'Tag': return (
+                response == 'yes' ? `Please tag the ${lowerType} id` : 
+                response == 'no' ? `Would you like a **${typeName}** ${lowerType}` :
+                null
+            );
+            case 'Find': 
+                typeResult = message.guild[`${lowerType}s`].cache.findFromString(response) || message.mentions[`${lowerType}s`].first();
+                if (typeResult) message.channel.send(`Okay, I found ${typeResult.name}`);
+                else if (response == 'yes') {
+                    typeResult = 'make';
+                    message.channel.send(`Okay, I'll make that...`);
+                }
+                else if (response == 'no') {
+                    typeResult = 'undefined';
+                    message.channel.send(`Okay, I won't make that`)
+                }
+                return typeResult.id || typeResult;
+            default: return null;
+        }
+    }
+    private _nullMakeValue<T extends Role | TextChannel>(type: 'Role' | 'Channel', result: string): string | T {
+        return [!'undefined', 'make'].includes(result) ? this._data.commandProps.guild[`${type.toLowerCase()}s`].cache.get(result) : result;
+    }
+
+    public listDecidables(collection: Array<DecidableItems[DecidablesType]>) {
+        return new DecidableCollection(this._data, collection).list();
+    }
+
+    public async reroll(sent: Message) {
+        let id = new Arguments(this._data.runOptions.value).mentions.get('SNOWFLAKE').argument();
+        const { channel, guild } = sent;
+        const config = this._configs.get(this._data.config);
+
+        if (!id) {
+            const messages = channel.messages.cache.valueArr();
+            const preDecidables = config.collection.filter(d => d.channel._id == channel.id);
+            id = messages.find(m => preDecidables.find(d => d._id == m.id))?.id;
+
+            if (!id) return sent.edit(`${this._data.lowerType} message not found - please provide a message id!`);
+        }
+
+        let previousMessage = channel.messages.cache.get(id);
+        if (!previousMessage) {
+            previousMessage = channel.messages.cache.get(id.split('/')[6]) || channel.messages.cache.find(m => config.collection.some(d => d._id == m.id))?.[0];
+            if (!previousMessage) return sent.edit(`Unable to parse ${id} as id, or message can't be found!`);
+            else if (!previousMessage.embeds[0]) return sent.edit(`There's no embed in that message!`);
+            else if (previousMessage.author.id != this._data.client.id) return sent.edit(`That isn't my message!`);
+        }
+
+        const decidable = config.collection.find(d => d._id == id) as Giveaway | Theme;
+        const previousWinners = await Promise.all(decidable.winners.map(w => guild.members.fetch(w._id)));
+        const embed = previousMessage.embeds[0];
+
+        const winnerLength = (() => {
+            const winnerLine = embed.description.split(':')[0];
+            const [left, right] = winnerLine.split('&');
+            const partOne = left.split(',');
+            return [...partOne, right].length;
+        })();
+
+        return this._onTimeFinished(
+            previousMessage,
+            decidable.value,
+            winnerLength || 1,
+            embed,
+            decidable,
+            null,
+            previousWinners
+        )
+    }
+
+    public async checkRoleUpdates() {
+        const { executeProps: { config, type, commandProps: { guild } } } = this._data;
         const hostPRole = this._configs.get(config).hostRole;
         const winnerPRole = this._configs.get(config).winnerRole;
         const CheckRole = (pRole: PRole) => pRole && guild.roles.fetch(pRole._id);
@@ -114,15 +325,12 @@ export default class DecdiableCommand<
 
         //Any condition is true
         if ([noWinnerRole, noHostRole, winnerNameChanged, hostNameChanged].some(v => v)) {
-            await this.updatePGuilds(params, `${type} role${type == 'Giveaway' ? 's' : ''} updated.`);
+            await this.updatePGuilds(`${type} role${type == 'Giveaway' ? 's' : ''} updated.`);
         }
     }
-    protected updatePGuilds(params: DecidablesParams<DecidablesType>, reason: string) {
-        const { executeProps: { client, type, pGuild } } = params;
+    protected updatePGuilds(reason: string) {
+        const { executeProps: { client, type, pGuild } } = this._data;
         return client.pGuilds.update(pGuild, `HandleDecidables: ${type}`, reason);
-    }
-    protected is<T extends DecidablesType>(type: T, params: DecidablesParams<DecidablesType>): params is DecidablesParams<T> {
-        return this.name == type.toLowerCase();
     }
 }
 

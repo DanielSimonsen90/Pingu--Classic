@@ -8,7 +8,7 @@ export interface DecidableItems {
 export type DecidablesTypes = keyof DecidableItems;
 
 import { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from "./config";
-interface DecidableConfigs {
+export interface DecidableConfigs {
     Giveaway: GiveawayConfig,
     Poll: PollConfig,
     Suggestion: SuggestionConfig,
@@ -64,7 +64,7 @@ export function SetConfigObjects(config: DecidablesConfig) {
         collection: suggestionConfig.suggestions,
         staffRoleType: 'Suggestion Manager'
     } as ConfigKeys<'Suggestion'>;
-    const themeMap = {
+    const themeObj = {
         constructor: Theme,
         firstTimeExecuted: themeConfig.firstTimeExecuted,
         channel: themeConfig.channel,
@@ -76,11 +76,11 @@ export function SetConfigObjects(config: DecidablesConfig) {
         staffRoleType: 'Theme Host'
     } as ConfigKeys<'Theme'>;
 
-    return new Map<IDecidableConfigOptions, ConfigKeys<any>>([
+    return new Map<IDecidableConfigOptions, ConfigKeys<DecidablesTypes>>([
         [giveawayConfig, giveawayObj],
         [pollConfig, pollObj],
         [suggestionConfig, suggestionsObj],
-        [themeConfig, themeMap]
+        [themeConfig, themeObj]
     ]);
 }
 
@@ -102,7 +102,8 @@ interface BaseIFilterOptions {
     limit: ILimit
 }
 
-import { GuildMember, Role, TextChannel } from 'discord.js';
+import { GuildMember, MessageButtonStyleResolvable, Role, TextChannel } from 'discord.js';
+import { MessageButtonStyles } from 'discord.js/typings/enums';
 interface IBy {
     hosted: GuildMember,
     won: GuildMember,
@@ -123,10 +124,10 @@ interface IBaseSetupOptions {
 }
 interface ISetupOptionsWinnable extends IBaseSetupOptions {
     winner?: Role,
-    allowSameWinner: boolean
+    allowSameWinner?: boolean
 }
 interface IThemeSetupOptions extends ISetupOptionsWinnable {
-    ignoreLastWins: boolean
+    ignoreLastWins?: number
 }
 export type ISetupOptions<T extends DecidablesTypes> = 
     T extends 'Theme' ? IThemeSetupOptions :
@@ -152,7 +153,13 @@ export type IRunDecidable<T extends DecidablesTypes> =
     IRunTheme
 ;
 
-export type SubCommand<T extends DecidablesTypes> = 'setup' | 'list' | T
+type SubCommandBase<T extends DecidablesTypes> = 'setup' | 'list' | T;
+type SubCommandReroll<T extends DecidablesTypes> = SubCommandBase<T> | 'reroll';
+export type SubCommand<T extends DecidablesTypes> = 
+    T extends 'Giveaway' ? SubCommandReroll<T> : 
+    T extends 'Theme' ? SubCommandReroll<T> : 
+    SubCommandBase<T>
+;
 export interface BaseExecuteProps<T extends DecidablesTypes> {
     type: T,
     command: SubCommand<T>,
@@ -161,4 +168,17 @@ export interface BaseExecuteProps<T extends DecidablesTypes> {
     filter?: IFilterOptions<T>,
     setup?: ISetupOptions<T>,
     runOptions: IRunDecidable<T>
+}
+
+export interface IMenuItem {
+    id: string;
+    emoji: string;
+    label: string;
+    style: Exclude<MessageButtonStyleResolvable, 'LINK' | MessageButtonStyles.LINK>;
+}
+export interface IMenu {
+    left: IMenuItem,
+    right: IMenuItem,
+    bin: IMenuItem,
+    stop: IMenuItem
 }

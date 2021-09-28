@@ -13,6 +13,13 @@ export class PinguActionRow extends MessageActionRow {
     }
     public getMultiple<Component extends keyof ComponentTypes>(type: Component, ...ids: string[]): Array<ComponentTypes[Component]> {
         return ids.map(id => this.get(type, id));
-    } 
+    }
+    public getAll<Component extends keyof ComponentTypes>(type: Component): Array<ComponentTypes[Component]> {
+        const ctorName = new Map<keyof ComponentTypes, string>([
+            ['Button', 'ButtonComponent'],
+            ['SelectMenu', 'SelectMenu']
+        ]).get(type);
+        return this.components.filter(c => c.constructor.name == ctorName) as Array<ComponentTypes[Component]>;
+    }
 }
 export default PinguActionRow;

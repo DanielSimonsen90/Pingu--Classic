@@ -29,9 +29,9 @@ declare module 'discord.js' {
     }
     interface Channel { client: Pingu }
     interface Collection<K, V> {
-        array(): Array<[K, V]>
-        keyArray(): Array<K>
-        valueArray(): Array<V>
+        // array(): Array<[K, V]>
+        // keyArray(): Array<K>
+        // valueArray(): Array<V>
         /**
          * @param value Id | tag | displayName | name
          */
@@ -112,18 +112,18 @@ BaseGuildVoiceChannel.prototype.join = function(this: BaseGuildVoiceChannel) {
 //#endregion
 
 //#region Collection
-Collection.prototype.array = function<K, V>(this: Collection<K, V>) {
-    return this.reduce((arr, v, k) => {
-        arr.push([k, v]);
-        return arr;
-    }, new Array<[K, V]>())
-}
-Collection.prototype.keyArray = function<K, V>(this: Collection<K, V>) {
-    return [...this.keys()];
-}
-Collection.prototype.valueArray = function<K, V>(this: Collection<K, V>) {
-    return [...this.values()];
-}
+// Collection.prototype.array = function<K, V>(this: Collection<K, V>) {
+//     return this.reduce((arr, v, k) => {
+//         arr.push([k, v]);
+//         return arr;
+//     }, new Array<[K, V]>())
+// }
+// Collection.prototype.keyArray = function<K, V>(this: Collection<K, V>) {
+//     return [...this.keys()];
+// }
+// Collection.prototype.valueArray = function<K, V>(this: Collection<K, V>) {
+//     return [...this.values()];
+// }
 
 type CollectionItem = User & GuildMember & Guild & Role & GuildChannel;
 Collection.prototype.findFromString = function<K, V extends CollectionItem>(this: Collection<K, V>, value: string) {
