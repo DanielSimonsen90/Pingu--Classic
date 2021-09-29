@@ -410,7 +410,7 @@ async function onTimeFinished(sent, value, winnersAllowed, embed, decidable, int
             host.createDM().then(dm => dm.send(`Hi! I ran into an issue while finding a winner for your ${decidablesType.toLowerCase()} "${value}"... I've already contacted my developers!`).catch(err => null));
             return null;
         });
-        let members = await guild.members.fetch({ user: reactedUsers.valueArray() });
+        let members = await guild.members.fetch({ user: reactedUsers.valueArr() });
         const winnerOrWinners = `Winner${winnersAllowed > 1 ? 's' : ''}`;
         reactedUsers = reactedUsers.filter(u => {
             if (u.bot)
@@ -480,7 +480,7 @@ async function onTimeFinished(sent, value, winnersAllowed, embed, decidable, int
             let winner = (function selectWinner() {
                 if (!reactedUsers.size)
                     return `A winner couldn't be found!`;
-                let user = reactedUsers.valueArray()[Math.floor(Math.random() * reactedUsers.size)];
+                let user = reactedUsers.valueArr()[Math.floor(Math.random() * reactedUsers.size)];
                 const member = guild.member(user);
                 if (!winnerRole)
                     return member;
@@ -687,7 +687,7 @@ async function Reroll(params, sent) {
     const { guild, channel } = message;
     let id = args.mentions.get('SNOWFLAKE').argument();
     if (!id) {
-        const messages = channel.messages.cache.valueArray();
+        const messages = channel.messages.cache.valueArr();
         const preDecidables = Configs.get(config).collection.filter(d => d.channel._id == channel.id);
         id = messages.find(m => preDecidables.find(d => d._id == m.id))?.id;
         if (!id)

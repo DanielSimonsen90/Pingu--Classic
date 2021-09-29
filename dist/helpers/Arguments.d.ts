@@ -33,6 +33,5 @@ export declare class Arguments extends Array<string> {
     getAll(match: RegExp | string, remove?: boolean): string[];
     findIndexRegex(value: RegExp): number;
     lowercase(): this;
-    private remove;
 }
 export default Arguments;

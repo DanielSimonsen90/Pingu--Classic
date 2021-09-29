@@ -1,7 +1,32 @@
-import { DecidablesParams, DecidablesTypes, BaseExecuteProps } from './DecidableCommandProps';
+import { Message } from 'discord.js';
+import { DecidablesParams, DecidablesTypes, BaseExecuteProps, DecidableItems } from './DecidableCommandProps';
 import PinguCommand from '../pingu/handlers/Pingu/PinguCommand';
-export default class DecdiableCommand<DecidableType extends DecidablesTypes, ExecuteProps extends BaseExecuteProps<DecidableType>> extends PinguCommand<ExecuteProps> {
-    static valudateTime(input: string): number;
-    static HandleDecdiables<T extends DecidablesTypes>(params: DecidablesParams<T>): Promise<import("discord.js").Message | import("discord-api-types").APIMessage>;
+import PinguClient from '../pingu/client/PinguClient';
+import { ExecuteFunctionProps, ReplyReturn } from '../pingu/handlers/Command/PinguCommandBase';
+export declare class DecidableCommand<DecidablesType extends DecidablesTypes, ExecuteProps extends BaseExecuteProps<DecidablesType>, Decidable extends DecidableItems[DecidablesType]> extends PinguCommand<ExecuteProps> {
+    static ValidateTime(input: string): number;
+    static ExecuteDecidables<DecidablesType extends DecidablesTypes, ExecuteProps extends BaseExecuteProps<DecidablesType>>(cmd: DecidableCommand<DecidablesType, ExecuteProps, DecidableItems[DecidablesType]>, params: DecidablesParams<DecidablesType>): ReplyReturn;
+    private _configs;
+    private get _config();
+    private _data;
+    private _collector;
+    private _collection;
+    handleDecdiables(params: DecidablesParams<DecidablesType>): ReplyReturn;
+    private _addDecidableToPGuilds;
+    protected permissionCheckDecidable(): Promise<string>;
+    firstTimeExecuted(): Promise<Message | import("discord-api-types").APIMessage>;
+    private _checkAllArguments;
+    private _goodToGo;
+    private _find;
+    private _nullMakeValue;
+    listDecidables(): Promise<Message | import("discord-api-types").APIMessage>;
+    private _onTimeFinished;
+    private _getGiveawayDescription;
+    reroll(sent: Message): Promise<Message>;
+    checkRoleUpdates(): Promise<void>;
+    private _saveVerdict;
+    protected updatePGuilds(reason: string): Promise<import("..").PinguGuild>;
+    setExecute(execute: (client: PinguClient, props: ExecuteFunctionProps<PinguClient>, extra?: ExecuteProps) => ReplyReturn): this;
 }
+export default DecidableCommand;
 export { BaseExecuteProps as DecidablesExecuteProps };

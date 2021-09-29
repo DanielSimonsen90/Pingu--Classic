@@ -842,7 +842,7 @@ async function Reroll(params: DecidablesParams, sent: Message) {
     let id = args.mentions.get('SNOWFLAKE').argument();
 
     if (!id) {
-        const messages = channel.messages.cache.valueArray();
+        const messages = channel.messages.cache.valueArr();
         const preDecidables = Configs.get(config).collection.filter(d => d.channel._id == channel.id);
         id = messages.find(m => preDecidables.find(d => d._id == m.id))?.id;
 

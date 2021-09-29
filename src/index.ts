@@ -2,7 +2,8 @@ export { PAchievement, PChannel, PClient, PGuild, PGuildMember, PItem, PMarry, P
 
 export { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from './decidable/config';
 export { Giveaway, Poll, Suggestion, Theme, Decidable } from './decidable/items';
-export { HandleDecidables, DecidablesTypes } from './decidable/HandleDecidables';
+export { DecidableCommand, DecidablesExecuteProps } from './decidable/DecidableCommand';
+export { IDateFilter, ILimit, IBy } from './decidable/DecidableCommandProps';
 
 export * as Extentions from './Extenstions';
 

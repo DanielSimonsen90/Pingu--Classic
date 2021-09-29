@@ -104,7 +104,7 @@ function GoThroughObjectArray(type, preArr, curArr) {
                 changes.set(key, `__Removed__: ${preArr[key]}`);
         });
     }
-    changes.keyArray().forEach(key => updateMessage += `**${key}**: ${changes.get(key)}\n`);
+    changes.keyArr().forEach(key => updateMessage += `**${key}**: ${changes.get(key)}\n`);
     return updateMessage;
 }
 exports.GoThroughObjectArray = GoThroughObjectArray;

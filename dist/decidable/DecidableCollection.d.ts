@@ -1,0 +1,34 @@
+import { Message, MessageEmbed } from "discord.js";
+import PinguActionRow from "../pingu/collection/PinguActionRow";
+import { BaseExecuteProps, DecidableItems, DecidablesTypes } from "./DecidableCommandProps";
+import DecidablesData from "./DecidablesData";
+export default class DecidableCollection<DecidablesType extends DecidablesTypes, ExecuteProps extends BaseExecuteProps<DecidablesType>, Decidable extends DecidableItems[DecidablesType]> {
+    private _data;
+    private _collection;
+    constructor(_data: DecidablesData<DecidablesType, ExecuteProps>, _collection: Array<Decidable>);
+    row: PinguActionRow;
+    private _collector;
+    private _sent;
+    list(): Promise<Message | import("discord-api-types").APIMessage>;
+    private get _client();
+    private get _type();
+    private _embeds;
+    private _embedIndex;
+    get embed(): MessageEmbed;
+    private _createEmbeds;
+    private _removeDecidables;
+    private _getEmbedDecdiable;
+    private _onMenuItemClicked;
+    private _onLeft;
+    private _onThumbsUp;
+    private _onThumbsDown;
+    private _onBin;
+    private _onRight;
+    private _onStop;
+    private _onVerdict;
+    private _direction;
+    private _deleteDecidable;
+    private _decide;
+    private _saveVerdictToPGuilds;
+    private _updatePGuildCollection;
+}

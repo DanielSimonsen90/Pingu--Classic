@@ -18,9 +18,6 @@ declare module 'discord.js' {
         client: Pingu;
     }
     interface Collection<K, V> {
-        array(): Array<[K, V]>;
-        keyArray(): Array<K>;
-        valueArray(): Array<V>;
         /**
          * @param value Id | tag | displayName | name
          */

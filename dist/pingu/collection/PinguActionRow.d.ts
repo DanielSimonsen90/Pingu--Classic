@@ -6,5 +6,6 @@ export declare class PinguActionRow extends MessageActionRow {
     components: IComponent[];
     get<Component extends keyof ComponentTypes>(type: Component, id: string): ComponentTypes[Component];
     getMultiple<Component extends keyof ComponentTypes>(type: Component, ...ids: string[]): Array<ComponentTypes[Component]>;
+    getAll<Component extends keyof ComponentTypes>(type: Component): Array<ComponentTypes[Component]>;
 }
 export default PinguActionRow;

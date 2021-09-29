@@ -348,13 +348,13 @@ class PinguClientBase extends discord_js_1.Client {
             this.log('console', consoleLogValue);
             var format = (ping) => `${new Date().toLocaleTimeString()} [${(ping ? sender : sender.username)} ➡️ ${(ping ? reciever : reciever.username)}]`;
             if (messageAsMessage.content && messageAsMessage.attachments)
-                channel.send({ content: format(false) + `: ||${messageAsMessage.content}||`, files: messageAsMessage.attachments.valueArray() })
+                channel.send({ content: format(false) + `: ||${messageAsMessage.content}||`, files: messageAsMessage.attachments.valueArr() })
                     .then(sent => sent.edit(format(true) + `: ||${messageAsMessage.content}||`));
             else if (messageAsMessage.content)
                 channel.send(format(false) + `: ||${messageAsMessage.content}||`)
                     .then(sent => sent.edit(format(true) + `: ||${messageAsMessage.content}||`));
             else if (messageAsMessage.attachments)
-                channel.send({ content: format(false), files: messageAsMessage.attachments.valueArray() })
+                channel.send({ content: format(false), files: messageAsMessage.attachments.valueArr() })
                     .then(sent => sent.edit(format(true)));
             else
                 this.log('error', `${sender} ➡️ ${reciever} sent something that didn't have content or attachments`, message.constructor.name == 'Message' ? message.content : message.description, null, {

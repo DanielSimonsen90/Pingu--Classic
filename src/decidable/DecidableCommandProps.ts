@@ -1,4 +1,5 @@
-import { Giveaway, Poll, Suggestion, Theme } from './items'
+//#region Config & Items
+import { Giveaway, Poll, Suggestion, Theme } from './items';
 export interface DecidableItems {
     Giveaway: Giveaway,
     Poll: Poll,
@@ -14,13 +15,17 @@ export interface DecidableConfigs {
     Suggestion: SuggestionConfig,
     Theme: ThemeConfig
 }
+//#endregion
 
+//#region Execute
 import { ExecuteFunctionProps } from "../pingu/handlers/Command/PinguCommandBase";
 import { CommandParams } from "../pingu/handlers/Pingu/PinguCommand";
 export interface DecidablesParams<T extends DecidablesTypes> {
     executeProps: ExecuteFunctionProps & CommandParams & BaseExecuteProps<T>
 }
+//#endregion
 
+//#region Config
 import IDecidableConfigOptions from './interfaces/IDecidableConfigOptions';
 import PRole from '../database/json/PRole';
 import Decidable from './items/Decidable';
@@ -83,41 +88,36 @@ export function SetConfigObjects(config: DecidablesConfig) {
         [themeConfig, themeObj]
     ]);
 }
+//#endregion
 
-export const RegexUtil = {
-    hasWinners: /^\d{1,}w$/
-}
-
-interface IDateFilter {
+//#region Filter
+export interface IDateFilter {
     before: Date,
     during: Date,
     after: Date
 }
-interface ILimit {
+export interface ILimit {
     oldest: number,
     newest: number
-}
-interface BaseIFilterOptions {
-    date: IDateFilter,
-    limit: ILimit
 }
 
 import { GuildMember, MessageButtonStyleResolvable, Role, TextChannel } from 'discord.js';
 import { MessageButtonStyles } from 'discord.js/typings/enums';
-interface IBy {
+export interface IBy {
     hosted: GuildMember,
     won: GuildMember,
 }
-interface BaseIFilterOptionsWinnable extends BaseIFilterOptions {
-    by: IBy,
-    prize: string
-}
-export type IFilterOptions<T extends DecidablesTypes> = 
-    T extends 'Giveaway' ? BaseIFilterOptionsWinnable :
-    T extends 'Theme' ? BaseIFilterOptionsWinnable :
-    BaseIFilterOptions
-;
 
+export interface IFilterOptions {
+    date: IDateFilter,
+    limit: ILimit,
+    value: string,
+    by: IBy,
+    from: TextChannel
+}
+//#endregion
+
+//#region Setup
 interface IBaseSetupOptions {
     staffRole?: Role,
     channel?: TextChannel
@@ -134,7 +134,9 @@ export type ISetupOptions<T extends DecidablesTypes> =
     T extends 'Giveaway' ? ISetupOptionsWinnable :
     IBaseSetupOptions
 ;
+//#endregion
 
+//#region Execute options
 export interface IValueable { value: string }
 export interface IValueTime extends IValueable { time: string }
 export interface IRunDecidableWinnable extends IValueTime { 
@@ -152,7 +154,9 @@ export type IRunDecidable<T extends DecidablesTypes> =
     T extends 'Giveaway' ? IRunDecidableWinnable :
     IRunTheme
 ;
+//#endregion
 
+//#region Sub Command
 type SubCommandBase<T extends DecidablesTypes> = 'setup' | 'list' | T;
 type SubCommandReroll<T extends DecidablesTypes> = SubCommandBase<T> | 'reroll';
 export type SubCommand<T extends DecidablesTypes> = 
@@ -160,14 +164,16 @@ export type SubCommand<T extends DecidablesTypes> =
     T extends 'Theme' ? SubCommandReroll<T> : 
     SubCommandBase<T>
 ;
+//#endregion
+
 export interface BaseExecuteProps<T extends DecidablesTypes> {
     type: T,
     command: SubCommand<T>,
-    reactions: string[],
     config: DecidableConfigs[T],
-    filter?: IFilterOptions<T>,
+    reactions?: string[],
+    filter?: IFilterOptions,
     setup?: ISetupOptions<T>,
-    runOptions: IRunDecidable<T>
+    runOptions?: IRunDecidable<T>
 }
 
 export interface IMenuItem {
@@ -175,10 +181,4 @@ export interface IMenuItem {
     emoji: string;
     label: string;
     style: Exclude<MessageButtonStyleResolvable, 'LINK' | MessageButtonStyles.LINK>;
-}
-export interface IMenu {
-    left: IMenuItem,
-    right: IMenuItem,
-    bin: IMenuItem,
-    stop: IMenuItem
 }

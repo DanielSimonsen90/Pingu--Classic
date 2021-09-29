@@ -69,7 +69,7 @@ class Arguments extends Array {
      */
     get(match, remove = true) {
         const item = this.find(v => typeof match != 'string' && match.test(v) || match == v);
-        return remove ? this.remove(item) : item;
+        return remove ? this.remove(item) && item : item;
     }
     /**
      * Finds and cuts all elements matching match
@@ -96,11 +96,6 @@ class Arguments extends Array {
             this[item] = item.toLowerCase();
         }
         return this;
-    }
-    remove(item) {
-        if (!item || this.indexOf(item) == -1)
-            return null;
-        return this.splice(this.indexOf(item), 1)[0];
     }
 }
 exports.Arguments = Arguments;

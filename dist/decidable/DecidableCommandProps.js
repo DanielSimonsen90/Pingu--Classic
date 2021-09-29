@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RegexUtil = exports.SetConfigObjects = void 0;
+exports.SetConfigObjects = void 0;
+//#region Config & Items
 const items_1 = require("./items");
 function SetConfigObjects(config) {
     const { giveawayConfig, pollConfig, suggestionConfig, themeConfig } = config;
@@ -30,7 +31,7 @@ function SetConfigObjects(config) {
         collection: suggestionConfig.suggestions,
         staffRoleType: 'Suggestion Manager'
     };
-    const themeMap = {
+    const themeObj = {
         constructor: items_1.Theme,
         firstTimeExecuted: themeConfig.firstTimeExecuted,
         channel: themeConfig.channel,
@@ -45,10 +46,7 @@ function SetConfigObjects(config) {
         [giveawayConfig, giveawayObj],
         [pollConfig, pollObj],
         [suggestionConfig, suggestionsObj],
-        [themeConfig, themeMap]
+        [themeConfig, themeObj]
     ]);
 }
 exports.SetConfigObjects = SetConfigObjects;
-exports.RegexUtil = {
-    hasWinners: /^\d{1,}w$/
-};

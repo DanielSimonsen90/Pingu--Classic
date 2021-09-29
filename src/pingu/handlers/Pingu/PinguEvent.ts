@@ -112,7 +112,7 @@ export function GoThroughObjectArray<T>(type: string, preArr: T[], curArr: T[]) 
         });
     }
 
-    changes.keyArray().forEach(key => updateMessage += `**${key}**: ${changes.get(key)}\n`)
+    changes.keyArr().forEach(key => updateMessage += `**${key}**: ${changes.get(key)}\n`)
     return updateMessage;
 }
 export async function HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: PinguClient, ...args: PinguClientEvents[EventType]) {

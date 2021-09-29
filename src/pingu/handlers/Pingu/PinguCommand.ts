@@ -9,6 +9,7 @@ import PinguCommandBase, {
     ClassicCommandParams, 
     ExecuteFunctionProps, 
     ExecuteFunctions, 
+    ReplyReturn, 
     throwInvalidTypeError 
 } from '../Command/PinguCommandBase';
 
@@ -71,7 +72,7 @@ export class PinguCommand<ExecutePropsType = {}> extends PinguCommandBase<Execut
     public specificGuildID: string;
     public mustBeBeta = false;
 
-    protected _execute(client: PinguClient, props: ExecuteFunctionProps, extra?: ExecutePropsType) {
+    protected _execute(client: PinguClient, props: ExecuteFunctionProps, extra?: ExecutePropsType): ReplyReturn {
         return this._logError(client, `_execute`);
     }
 }

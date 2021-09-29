@@ -7,7 +7,7 @@ export interface DecidableItems {
 }
 export declare type DecidablesTypes = keyof DecidableItems;
 import { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from "./config";
-interface DecidableConfigs {
+export interface DecidableConfigs {
     Giveaway: GiveawayConfig;
     Poll: PollConfig;
     Suggestion: SuggestionConfig;
@@ -31,43 +31,39 @@ export interface ConfigKeys<T extends DecidablesTypes> extends IDecidableConfigO
     ignoreLastWins?: number;
 }
 import DecidablesConfig from './config/DecidablesConfig';
-export declare function SetConfigObjects(config: DecidablesConfig): Map<IDecidableConfigOptions, ConfigKeys<any>>;
-export declare const RegexUtil: {
-    hasWinners: RegExp;
-};
-interface IDateFilter {
+export declare function SetConfigObjects(config: DecidablesConfig): Map<IDecidableConfigOptions, ConfigKeys<keyof DecidableItems>>;
+export interface IDateFilter {
     before: Date;
     during: Date;
     after: Date;
 }
-interface ILimit {
+export interface ILimit {
     oldest: number;
     newest: number;
 }
-interface BaseIFilterOptions {
-    date: IDateFilter;
-    limit: ILimit;
-}
-import { GuildMember, Role, TextChannel } from 'discord.js';
-interface IBy {
+import { GuildMember, MessageButtonStyleResolvable, Role, TextChannel } from 'discord.js';
+import { MessageButtonStyles } from 'discord.js/typings/enums';
+export interface IBy {
     hosted: GuildMember;
     won: GuildMember;
 }
-interface BaseIFilterOptionsWinnable extends BaseIFilterOptions {
+export interface IFilterOptions {
+    date: IDateFilter;
+    limit: ILimit;
+    value: string;
     by: IBy;
-    prize: string;
+    from: TextChannel;
 }
-export declare type IFilterOptions<T extends DecidablesTypes> = T extends 'Giveaway' ? BaseIFilterOptionsWinnable : T extends 'Theme' ? BaseIFilterOptionsWinnable : BaseIFilterOptions;
 interface IBaseSetupOptions {
     staffRole?: Role;
     channel?: TextChannel;
 }
 interface ISetupOptionsWinnable extends IBaseSetupOptions {
     winner?: Role;
-    allowSameWinner: boolean;
+    allowSameWinner?: boolean;
 }
 interface IThemeSetupOptions extends ISetupOptionsWinnable {
-    ignoreLastWins: boolean;
+    ignoreLastWins?: number;
 }
 export declare type ISetupOptions<T extends DecidablesTypes> = T extends 'Theme' ? IThemeSetupOptions : T extends 'Giveaway' ? ISetupOptionsWinnable : IBaseSetupOptions;
 export interface IValueable {
@@ -85,14 +81,22 @@ export interface IRunTheme extends IRunDecidableWinnable {
     ignoreLastWins: number;
 }
 export declare type IRunDecidable<T extends DecidablesTypes> = T extends 'Suggestion' ? IValueable : T extends 'Poll' ? IValueTime : T extends 'Giveaway' ? IRunDecidableWinnable : IRunTheme;
-export declare type SubCommand<T extends DecidablesTypes> = 'setup' | 'list' | T;
+declare type SubCommandBase<T extends DecidablesTypes> = 'setup' | 'list' | T;
+declare type SubCommandReroll<T extends DecidablesTypes> = SubCommandBase<T> | 'reroll';
+export declare type SubCommand<T extends DecidablesTypes> = T extends 'Giveaway' ? SubCommandReroll<T> : T extends 'Theme' ? SubCommandReroll<T> : SubCommandBase<T>;
 export interface BaseExecuteProps<T extends DecidablesTypes> {
     type: T;
     command: SubCommand<T>;
-    reactions: string[];
     config: DecidableConfigs[T];
-    filter?: IFilterOptions<T>;
+    reactions?: string[];
+    filter?: IFilterOptions;
     setup?: ISetupOptions<T>;
-    runOptions: IRunDecidable<T>;
+    runOptions?: IRunDecidable<T>;
+}
+export interface IMenuItem {
+    id: string;
+    emoji: string;
+    label: string;
+    style: Exclude<MessageButtonStyleResolvable, 'LINK' | MessageButtonStyles.LINK>;
 }
 export {};

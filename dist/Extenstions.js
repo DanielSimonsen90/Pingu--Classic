@@ -30,20 +30,6 @@ discord_js_1.BaseGuildVoiceChannel.prototype.join = function () {
         adapterCreator: this.guild.voiceAdapterCreator
     });
 };
-//#endregion
-//#region Collection
-discord_js_1.Collection.prototype.array = function () {
-    return this.reduce((arr, v, k) => {
-        arr.push([k, v]);
-        return arr;
-    }, new Array());
-};
-discord_js_1.Collection.prototype.keyArray = function () {
-    return [...this.keys()];
-};
-discord_js_1.Collection.prototype.valueArray = function () {
-    return [...this.values()];
-};
 discord_js_1.Collection.prototype.findFromString = function (value) {
     return [
         this.find(v => v.id == value),

@@ -26,7 +26,7 @@ class IPinguCollection {
         return this._inner.get(item.id);
     }
     array() {
-        return this._inner.valueArray();
+        return this._inner.valueArr();
     }
     find(predicate) {
         const entries = this.array();

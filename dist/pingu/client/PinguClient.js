@@ -19,7 +19,7 @@ class PinguClient extends PinguClientBase_1.default {
     }
     //#region Gets
     getSharedServers(user) {
-        return this.guilds.cache.filter(g => g.members.cache.has(user.id)).valueArray();
+        return this.guilds.cache.filter(g => g.members.cache.has(user.id)).valueArr();
     }
     getTextChannel(guildId, channelName) {
         const guild = this.guilds.cache.get(guildId);

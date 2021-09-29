@@ -4,8 +4,8 @@ import PinguGuildMember from "../../guildMember/PinguGuildMember";
 import PinguGuild from "../../guild/PinguGuild";
 import PClient from "../../../database/json/PClient";
 import PinguClient from "../../client/PinguClient";
-import PinguCommandBase, { BaseCommandData, ClassicCommandParams, ExecuteFunctionProps, ExecuteFunctions } from '../Command/PinguCommandBase';
-interface PItems {
+import PinguCommandBase, { BaseCommandData, ClassicCommandParams, ExecuteFunctionProps, ExecuteFunctions, ReplyReturn } from '../Command/PinguCommandBase';
+export interface PItems {
     pAuthor: PinguUser;
     pGuildMember: PinguGuildMember;
     pGuild: PinguGuild;
@@ -39,6 +39,6 @@ export declare class PinguCommand<ExecutePropsType = {}> extends PinguCommandBas
     category: CommandCategoriesType;
     specificGuildID: string;
     mustBeBeta: boolean;
-    protected _execute(client: PinguClient, props: ExecuteFunctionProps, extra?: ExecutePropsType): Promise<import("discord.js").Message>;
+    protected _execute(client: PinguClient, props: ExecuteFunctionProps, extra?: ExecutePropsType): ReplyReturn;
 }
 export default PinguCommand;
