@@ -4,7 +4,8 @@ import { CommandParams } from "../pingu/handlers/Pingu/PinguCommand";
 import { BaseExecuteProps, DecidablesParams, DecidablesTypes } from "./DecidableCommandProps";
 
 type TimeableDecidables = Exclude<DecidablesTypes, 'Suggestion'>;
-type Timeable = DecidablesData<TimeableDecidables, BaseExecuteProps<TimeableDecidables>>
+type Timeable = DecidablesData<TimeableDecidables, BaseExecuteProps<TimeableDecidables>>;
+// type GiveawayType = DecidablesData<
 
 export default class DecidablesData<
     DecidablesType extends DecidablesTypes, 

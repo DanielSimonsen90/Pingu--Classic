@@ -199,7 +199,7 @@ class DecidableCommand extends PinguCommand_1.default {
         }
     }
     async _checkAllArguments() {
-        const { type, setup, replySemiPrivate } = this._data;
+        const { setup, replySemiPrivate } = this._data;
         try {
             await this._goodToGo(setup);
             return replySemiPrivate('Setup done!');
@@ -283,9 +283,11 @@ class DecidableCommand extends PinguCommand_1.default {
                 filter.date.during.getDate() == m.createdAt.getDate()) : true))();
             const value = d.value ? d.value.includes(filter.value) : true;
             const channel = filter.from ? filter.from.id == d.channel._id : true;
-            const by = (() => (filter.by.hosted ? filter.by.hosted.id == d.author._id : true &&
-                filter.by.won ? d.winners.some(pgm => pgm._id == filter.by.won.id) : true))();
-            return date && value && channel && by;
+            const by = (() => (this._data.isGiveawayType() ? (this._data.filter.by.hosted ? this._data.filter.by.hosted.id == d.author._id : true &&
+                this._data.filter.by.won ? d.winners.some(pgm => pgm._id == this._data.filter.by.won.id) : true) : this._data.is('Poll') ? this._data.filter.by.asked ? this._data.filter.by.asked.id == d.author._id : true : (this._data.is('Suggestion') && (this._data.filter.by.decided ? this._data.filter.by.decided.id == d.decidedBy._id : true &&
+                this._data.filter.by.suggested ? this._data.filter.by.suggested.id == d.author._id : true))))();
+            const decision = this._data.is('Poll') || this._data.is('Suggestion') ? (this._data.filter.decision == d.approved) : true;
+            return date && value && channel && by && decision;
         });
         const { limit } = this._data.filter;
         if (limit.newest)

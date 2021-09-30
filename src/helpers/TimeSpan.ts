@@ -25,12 +25,13 @@ export function TimeFormat(timestamp: number | Date, ...formats: TimestampStyle[
     return formats.map(format => `<t:${Math.round(ms / 1000)}:${TimestampStyles.get(format)}>`).join(', ');
 }
 
+export const ValidTime = /^(\d+(?:\.|,)?\d*)(ms|s|m|h|d|w|M|y)$/;
 /**
  * @param value string value to convert into ms
  * @options ms|s|m|h|d|w|M|y
  */
 export function TimeString(input: string): number {
-    const [value, unit] = input.match(/^(\d+(?:\.|,)?\d*)(ms|s|m|h|d|w|M|y)$/);
+    const [value, unit] = input.match(ValidTime);
     const units = new Map<string, number>([
         ['ms', TimeSpan.millisecond],
         ['s', TimeSpan.second],
@@ -68,6 +69,7 @@ export class TimeSpan {
     public static ms(value: string): number {
         return TimeString(value);
     }
+    public static ValidTime = ValidTime;
 
     constructor(value: Date | number, now: Date | number = Date.now()) {
         //General properties

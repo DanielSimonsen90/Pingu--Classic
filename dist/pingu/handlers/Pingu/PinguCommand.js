@@ -7,7 +7,7 @@ class PinguCommand extends PinguCommandBase_1.default {
     constructor(name, category, description, data, slashCommandBuilder, executes) {
         super(name, description, data, new PinguSlashCommandBuilder_1.default(name, description, slashCommandBuilder), executes);
         this.category = category;
-        const { guildOnly, specificGuildID, mustBeBeta } = data;
+        const { guildOnly, specificGuildId: specificGuildID, mustBeBeta } = data;
         this.guildOnly = guildOnly ?? false;
         this.specificGuildID = specificGuildID;
         this.mustBeBeta = mustBeBeta ?? false;

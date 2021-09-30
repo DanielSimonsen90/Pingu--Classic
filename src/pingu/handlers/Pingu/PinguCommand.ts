@@ -39,7 +39,7 @@ export interface PinguSlashCommandParams extends InteractionCommandParams, Comma
 
 export interface PinguCommandData extends BaseCommandData {
     guildOnly?: boolean;
-    specificGuildID?: Snowflake;
+    specificGuildId?: Snowflake;
     mustBeBeta?: boolean;
     earlySupporterExclusive?: boolean
 }
@@ -57,7 +57,7 @@ export class PinguCommand<ExecutePropsType = {}> extends PinguCommandBase<Execut
         );
         this.category = category;
 
-        const { guildOnly, specificGuildID, mustBeBeta } = data;
+        const { guildOnly, specificGuildId: specificGuildID, mustBeBeta } = data;
         this.guildOnly = guildOnly ?? false;
         this.specificGuildID = specificGuildID;
         this.mustBeBeta = mustBeBeta ?? false;

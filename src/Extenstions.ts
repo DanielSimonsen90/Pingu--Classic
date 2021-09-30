@@ -1,5 +1,5 @@
 import { 
-    Base, BaseCommandInteraction, BaseGuildVoiceChannel, Collection, CommandInteraction, DMChannel, 
+    Base, BaseCommandInteraction, BaseGuildVoiceChannel, Collection, CommandInteraction, CommandInteractionOptionResolver, DMChannel, 
     EmojiResolvable, Guild, GuildChannel, GuildMember, InteractionReplyOptions, Message, 
     MessageAttachment, MessageEmbed, MessageMentions, NewsChannel, 
     PartialTextBasedChannelFields, PermissionString, Role, TextChannel, 
@@ -16,7 +16,7 @@ import ReactionRole from "./pingu/guild/items/ReactionRole";
 import PChannel from "./database/json/PChannel";
 import PinguUser from "./pingu/user/PinguUser";
 import { APIMessage, Snowflake } from "discord-api-types";
-import { Arguments } from ".";
+import Arguments from "./helpers/Arguments";
 
 type Pingu = PinguClientBase;
 

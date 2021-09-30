@@ -12,6 +12,7 @@ export declare const TimestampStyles: Map<TimestampStyle, string>;
  * @RELATIVE x timeunit ago
  */
 export declare function TimeFormat(timestamp: number | Date, ...formats: TimestampStyle[]): string;
+export declare const ValidTime: RegExp;
 /**
  * @param value string value to convert into ms
  * @options ms|s|m|h|d|w|M|y
@@ -27,6 +28,7 @@ export declare class TimeSpan {
     static get month(): number;
     static get year(): number;
     static ms(value: string): number;
+    static ValidTime: RegExp;
     constructor(value: Date | number, now?: Date | number);
     years: number;
     months: number;

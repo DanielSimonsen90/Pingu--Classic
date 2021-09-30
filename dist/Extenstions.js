@@ -4,7 +4,7 @@ const discord_js_1 = require("discord.js");
 const voice_1 = require("@discordjs/voice");
 const ms_1 = require("ms");
 const PChannel_1 = require("./database/json/PChannel");
-const _1 = require(".");
+const Arguments_1 = require("./helpers/Arguments");
 //#region Base
 discord_js_1.Base.prototype.doIn = function (callback, time) {
     const timeout = typeof time == 'number' ? time : ms_1.default(time);
@@ -110,7 +110,7 @@ discord_js_1.Message.prototype.editFiles = function (...files) {
 //#endregion
 //#region MessageMentions
 discord_js_1.MessageMentions.prototype.messages = function (message) {
-    const args = new _1.Arguments(message.content);
+    const args = new Arguments_1.default(message.content);
     const messageMentions = args.getAll(args.mentions.get('SNOWFLAKE').regex);
     if (!messageMentions.length)
         return new discord_js_1.Collection();

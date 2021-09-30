@@ -28,7 +28,7 @@ export interface PinguSlashCommandParams extends InteractionCommandParams, Comma
 }
 export interface PinguCommandData extends BaseCommandData {
     guildOnly?: boolean;
-    specificGuildID?: Snowflake;
+    specificGuildId?: Snowflake;
     mustBeBeta?: boolean;
     earlySupporterExclusive?: boolean;
 }

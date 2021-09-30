@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TimeSpan = exports.TimeString = exports.TimeFormat = exports.TimestampStyles = void 0;
+exports.TimeSpan = exports.TimeString = exports.ValidTime = exports.TimeFormat = exports.TimestampStyles = void 0;
 exports.TimestampStyles = new Map([
     ['SHORT_TIME', 't'],
     ['LONG_TIME', 'T'],
@@ -26,12 +26,13 @@ function TimeFormat(timestamp, ...formats) {
     return formats.map(format => `<t:${Math.round(ms / 1000)}:${exports.TimestampStyles.get(format)}>`).join(', ');
 }
 exports.TimeFormat = TimeFormat;
+exports.ValidTime = /^(\d+(?:\.|,)?\d*)(ms|s|m|h|d|w|M|y)$/;
 /**
  * @param value string value to convert into ms
  * @options ms|s|m|h|d|w|M|y
  */
 function TimeString(input) {
-    const [value, unit] = input.match(/^(\d+(?:\.|,)?\d*)(ms|s|m|h|d|w|M|y)$/);
+    const [value, unit] = input.match(exports.ValidTime);
     const units = new Map([
         ['ms', TimeSpan.millisecond],
         ['s', TimeSpan.second],
@@ -65,6 +66,7 @@ class TimeSpan {
     static ms(value) {
         return TimeString(value);
     }
+    static ValidTime = exports.ValidTime;
     constructor(value, now = Date.now()) {
         //General properties
         this.date = typeof value == 'number' ? new Date(value) : value;

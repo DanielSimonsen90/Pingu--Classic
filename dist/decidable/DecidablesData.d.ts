@@ -8,11 +8,11 @@ export default class DecidablesData<DecidablesType extends DecidablesTypes, Exec
     executeProps: ExecuteFunctionProps<PinguClient> & CommandParams & ExecuteProps;
     constructor(executeProps: ExecuteFunctionProps<PinguClient> & CommandParams & ExecuteProps);
     get client(): PinguClient;
-    get command(): import("./DecidableCommandProps").SubCommand<DecidablesType>;
+    get command(): "Giveaway" | "Poll" | "Suggestion" | "Theme" | "setup" | "list" | "reroll" | "reset";
     get commandProps(): import("../pingu/handlers/Command/PinguCommandBase").CommandProps;
     get components(): Map<string, import("..").PinguActionRow>;
-    get config(): import("./DecidableCommandProps").DecidableConfigs[DecidablesType];
-    get filter(): import("./DecidableCommandProps").IFilterOptions;
+    get config(): import("./config").GiveawayConfig | import("./config").PollConfig | import("./config").ThemeConfig | import("./config").SuggestionConfig;
+    get filter(): import("./DecidableCommandProps").IBaseFilterOptions<"Giveaway"> | import("./DecidableCommandProps").IFilterOptionsDecidable<"Poll"> | import("./DecidableCommandProps").IBaseFilterOptions<"Theme"> | import("./DecidableCommandProps").IFilterOptionsDecidable<"Suggestion">;
     get pAuthor(): import("..").PinguUser;
     get pGuildMember(): import("..").PinguGuildMember;
     get pGuild(): import("..").PinguGuild;
@@ -25,8 +25,8 @@ export default class DecidablesData<DecidablesType extends DecidablesTypes, Exec
     get replyPublic(): (options: import("../pingu/handlers/Command/PinguCommandBase").ReplyOptions) => import("../pingu/handlers/Command/PinguCommandBase").ReplyReturn;
     get replyReturn(): (options: import("../pingu/handlers/Command/PinguCommandBase").ReplyOptions) => import("../pingu/handlers/Command/PinguCommandBase").ReplyReturn;
     get followUp(): (options: import("../pingu/handlers/Command/PinguCommandBase").ReplyOptions) => import("../pingu/handlers/Command/PinguCommandBase").ReplyReturn;
-    get runOptions(): import("./DecidableCommandProps").IRunDecidable<DecidablesType>;
-    get setup(): import("./DecidableCommandProps").ISetupOptions<DecidablesType>;
+    get runOptions(): import("./DecidableCommandProps").IRunDecidableWinnable | import("./DecidableCommandProps").IValueTime | import("./DecidableCommandProps").IValueable | import("./DecidableCommandProps").IRunTheme;
+    get setup(): import("./DecidableCommandProps").ISetupOptionsWinnable | import("./DecidableCommandProps").IBaseSetupOptions | import("./DecidableCommandProps").IThemeSetupOptions;
     get type(): DecidablesTypes;
     get lowerType(): string;
     is<T extends DecidablesTypes>(type: T): this is DecidablesData<T, BaseExecuteProps<T>>;

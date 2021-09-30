@@ -6,7 +6,7 @@ import {
 } from 'discord.js';
 import { 
     DecidablesParams, DecidablesTypes, SetConfigObjects, 
-    BaseExecuteProps, ConfigKeys, ISetupOptions, DecidableItems, IFilterOptions
+    BaseExecuteProps, ConfigKeys, ISetupOptions, DecidableItems, IFilterOptions, IByGiveaway
 } from './DecidableCommandProps';
 
 import TimeSpan from '../helpers/TimeSpan';
@@ -257,7 +257,7 @@ export class DecidableCommand<
         }
     }
     private async _checkAllArguments() {
-        const { type, setup, replySemiPrivate } = this._data;
+        const { setup, replySemiPrivate } = this._data;
         try {
             await this._goodToGo(setup);
             return replySemiPrivate('Setup done!');
@@ -351,11 +351,22 @@ export class DecidableCommand<
             const value = d.value ? d.value.includes(filter.value) : true;
             const channel = filter.from ? filter.from.id == d.channel._id : true;
             const by = (() => (
-                filter.by.hosted ? filter.by.hosted.id == d.author._id : true &&
-                filter.by.won ? (d as Giveaway).winners.some(pgm => pgm._id == filter.by.won.id) : true
+                this._data.isGiveawayType() ? (
+                    this._data.filter.by.hosted ? this._data.filter.by.hosted.id == d.author._id : true &&
+                    this._data.filter.by.won ? (d as Giveaway).winners.some(pgm => pgm._id == (this._data.filter.by as IByGiveaway).won.id) : true
+                ) : this._data.is('Poll') ? this._data.filter.by.asked ? this._data.filter.by.asked.id == d.author._id : true : (
+                    this._data.is('Suggestion') && (
+                        this._data.filter.by.decided ? this._data.filter.by.decided.id == (d as Suggestion).decidedBy._id : true &&
+                        this._data.filter.by.suggested ? this._data.filter.by.suggested.id == (d as Suggestion).author._id : true
+                    )
+                )
             ))();
 
-            return date && value && channel && by;
+            const decision = this._data.is('Poll') || this._data.is('Suggestion') ? (
+                this._data.filter.decision == (d as Suggestion).approved 
+            ) : true;
+
+            return date && value && channel && by && decision;
         }) as Decidable[];
         
         const { limit } = this._data.filter;
