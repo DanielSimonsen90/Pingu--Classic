@@ -1,4 +1,4 @@
-import { Message, Guild, User, MessageEmbed, GuildAuditLogsAction, ClientEvents } from 'discord.js';
+import { Guild, User, MessageEmbed, GuildAuditLogsAction, ClientEvents } from 'discord.js';
 import PinguClient from '../../client/PinguClient';
 import PinguGuild from '../../guild/PinguGuild';
 import PinguUser from '../../user/PinguUser';
@@ -34,7 +34,7 @@ export declare function GoThroughObjectArray<T>(type: string, preArr: T[], curAr
 export declare function HandleEvent<EventType extends keyof PinguClientEvents>(caller: EventType, client: PinguClient, ...args: PinguClientEvents[EventType]): Promise<void>;
 interface Handlers<Event extends keyof PinguClientEvents> {
     setContent?: (client: PinguClient, embed: MessageEmbed, ...args: PinguClientEvents[Event]) => Promise<MessageEmbed>;
-    execute?: (client: PinguClient, ...args: PinguClientEvents[Event]) => Promise<Message>;
+    execute?: (client: PinguClient, ...args: PinguClientEvents[Event]) => Promise<any>;
 }
 import PinguHandler from '../PinguHandler';
 export declare class PinguEvent<Event extends keyof PinguClientEvents> extends PinguHandler {
@@ -58,6 +58,6 @@ export declare class PinguEvent<Event extends keyof PinguClientEvents> extends P
     name: Event;
     content: MessageEmbed;
     setContent(client: PinguClient, embed: MessageEmbed, ...args: PinguClientEvents[Event]): Promise<MessageEmbed>;
-    execute(client: PinguClient, ...args: PinguClientEvents[Event]): Promise<Message>;
+    execute(client: PinguClient, ...args: PinguClientEvents[Event]): Promise<any>;
 }
 export default PinguEvent;

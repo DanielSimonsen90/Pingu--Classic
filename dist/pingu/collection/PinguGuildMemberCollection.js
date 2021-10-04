@@ -28,7 +28,7 @@ class PinguGuildMemberCollection extends IPinguCollection_1.default {
         this._inner.set(pgm._id, pgm);
         await client.pGuilds.update(this.pGuild, scriptName, reason);
         //Add join achievement
-        await achievements_1.AchievementCheckType(client, 'GUILDMEMBER', item, 'EVENT', 'guildMemberAdd', pgm.achievementConfig, 'EVENT', [item]);
+        await (0, achievements_1.AchievementCheckType)(client, 'GUILDMEMBER', item, 'EVENT', 'guildMemberAdd', pgm.achievementConfig, 'EVENT', [item]);
         return pgm;
     }
     async update(pItem, scriptName, reason) {

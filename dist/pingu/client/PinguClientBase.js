@@ -19,12 +19,12 @@ const PinguBadge_1 = require("../badge/PinguBadge");
 const PinguUser_1 = require("../user/PinguUser");
 const PinguGuild_1 = require("../guild/PinguGuild");
 class SavedServer {
+    name;
+    id;
     constructor(name, id) {
         this.name = name;
         this.id = id;
     }
-    name;
-    id;
 }
 const SlashCommandCollection_1 = require("../collection/SlashCommandCollection");
 class PinguClientBase extends discord_js_1.Client {
@@ -72,7 +72,7 @@ class PinguClientBase extends discord_js_1.Client {
     DefaultEmbedColor = 3447003;
     invite = `https://discord.gg/gbxRV4Ekvh`;
     commands = new discord_js_1.Collection();
-    slashCommands = new SlashCommandCollection_1.default(this);
+    slashCommands;
     events = new discord_js_1.Collection();
     subscribedEvents = new Array();
     DefaultPrefix;
@@ -97,12 +97,12 @@ class PinguClientBase extends discord_js_1.Client {
         if (options)
             return this.user.setActivity(options);
         class Activity {
+            text;
+            type;
             constructor(text, type) {
                 this.text = text;
                 this.type = type;
             }
-            text;
-            type;
         }
         let date = {
             day: new Date(Date.now()).getDate(),
@@ -142,7 +142,7 @@ class PinguClientBase extends discord_js_1.Client {
         const logChannel = this.logChannels.get(type);
         return this._logTypeHandlers.get(type)(logChannel, ...args);
     }
-    async DBExecute(callback) { return database_1.DBExecute(this, callback); }
+    async DBExecute(callback) { return (0, database_1.DBExecute)(this, callback); }
     async DanhoDM(message) {
         console.error(message);
         const Danho = this.developers.get('Danho');
@@ -160,7 +160,10 @@ class PinguClientBase extends discord_js_1.Client {
      * @RELATIVE x timeunit ago
      */
     timeFormat(timestamp, ...formats) {
-        return TimeSpan_1.TimeFormat(timestamp, ...formats);
+        return (0, TimeSpan_1.TimeFormat)(timestamp, ...formats);
+    }
+    async postSlashCommands() {
+        return this.slashCommands.postAll(this, this.commands.valueArr());
     }
     //#endregion
     //#region Protected methods
@@ -217,6 +220,7 @@ class PinguClientBase extends discord_js_1.Client {
         })))).map(({ guild, collection }) => [guild, collection]));
         this.log('console', `Successfull refreshed all entries for **PinguGuildMember**.`);
         await this.pUsers.refresh(this);
+        this.slashCommands = new SlashCommandCollection_1.default(this);
         this.emit('onready', this);
     }
     //#endregion

@@ -1,4 +1,10 @@
-import { PermissionString, Message, Collection, Guild, MessagePayload, ReplyMessageOptions, InteractionReplyOptions, User, MessageComponentType, GuildMember, CommandInteraction } from "discord.js";
+import { 
+    PermissionString, Message, Collection, 
+    MessagePayload, ReplyMessageOptions, 
+    InteractionReplyOptions, User, 
+    GuildMember, CommandInteraction,
+    Snowflake
+} from "discord.js";
 import PinguHandler from "../PinguHandler";
 import PinguSlashCommandBuilder, { InteractionCommandParams } from "./Slash/PinguSlashCommandBuilder";
 
@@ -33,9 +39,12 @@ export interface ClassicCommandParams<Client = PinguClientBase> extends CommandP
 }
 
 /** Methods of handling commands */
-interface CommandTypesParams {
-    Interaction: InteractionCommandParams;
-    Classic: ClassicCommandParams;
+interface CommandTypesParams<
+    ClassicParams extends ClassicCommandParams = ClassicCommandParams,
+    SlashParams extends InteractionCommandParams = InteractionCommandParams
+> {
+    Classic: ClassicParams;
+    Interaction: SlashParams;
 }
 /** Interaction | Classic */
 export type CommandTypes = keyof CommandTypesParams
@@ -80,7 +89,9 @@ export interface BaseCommandData {
     permissions?: PermissionString[];
     examples?: string[];
     aliases?: string[];
-    components?: PinguActionRow[]
+    components?: PinguActionRow[];
+    guildOnly?: boolean;
+    specificGuildId?: Snowflake;
 }
 /** Propertytype invalid error */
 export function throwInvalidTypeError<
@@ -106,26 +117,34 @@ export interface ExecuteFunctions<
     execute: ExecuteFunction<Client, ExtraProps, ExecutePropsType>
 }
 
-export default class PinguCommandBase<ExecutePropsType = {}> extends PinguHandler {
+export default class PinguCommandBase<
+    ExecutePropsType = {},
+    ClassicParams extends ClassicCommandParams = ClassicCommandParams,
+    SlashParams extends InteractionCommandParams = InteractionCommandParams
+> extends PinguHandler {
     constructor(name: string, description: string, data: BaseCommandData, 
         slashCommandBuilder: PinguSlashCommandBuilder,
-        executes: ExecuteFunctions<PinguClientBase, ClassicCommandParams, InteractionCommandParams, ExecutePropsType>
+        executes: ExecuteFunctions<PinguClientBase, ClassicParams, SlashParams, ExecutePropsType>
     ) {
         super(name);
         this.description = description;
         this.builder = slashCommandBuilder;
 
-        const { permissions, usage, aliases, examples, components } = data;
+        const { permissions, usage, aliases, examples, components, guildOnly, specificGuildId } = data;
         this.components = components?.reduce((map, row) => map.set(row.name, row), new Map()) ?? new Map();
         this.permissions = permissions ?? [];
         this.usage = usage ?? '';
         this.aliases = aliases ?? [];
         this.examples = examples?.length ? examples : [''];
+        this.guildOnly = guildOnly ?? false;
+        this.specificGuildId = specificGuildId;
 
         if (this.permissions && !this.permissions.push) throwInvalidTypeError('permissions', name, 'array');
         if (this.usage && typeof this.usage != 'string') throwInvalidTypeError('usage', name, 'string');
         if (this.examples && !this.examples.push) throwInvalidTypeError('examples', name, 'array');
         if (this.aliases && !this.aliases.push) throwInvalidTypeError('aliases', name, 'array');
+        if (this.guildOnly && typeof this.guildOnly != 'boolean') throwInvalidTypeError('guildOnly', name, 'boolean');
+        if (this.specificGuildId && typeof this.specificGuildId != 'string') throwInvalidTypeError('specificGuildId', name, 'string');
 
 
         const { classic, execute } = executes;
@@ -148,11 +167,14 @@ export default class PinguCommandBase<ExecutePropsType = {}> extends PinguHandle
     public permissions: PermissionString[];
     public examples: string[];
     public aliases: string[];
+    public guildOnly: boolean;
+    public specificGuildId: Snowflake;
+
 
     public builder: PinguSlashCommandBuilder;
     public components: Map<string, PinguActionRow>;
 
-    public execute<T extends CommandTypes>(type: T, params: CommandTypesParams[T]) {
+    public execute<T extends CommandTypes>(type: T, params: CommandTypesParams<ClassicParams, SlashParams>[T]) {
         const pc = params as ClassicCommandParams;
         const ps = params as InteractionCommandParams;
 
@@ -188,7 +210,7 @@ export default class PinguCommandBase<ExecutePropsType = {}> extends PinguHandle
         return execute(params, (client, commandProps, extra) => this._execute(client, {
             commandProps, ...params, reply: { replyPublic, replySemiPrivate, replyPrivate, followUp, replyReturn, allowPrivate },
             replyPublic, replySemiPrivate, replyPrivate, followUp, replyReturn, allowPrivate,
-            components: this.components
+            components: this.components, client
         }, extra));
     }
 }

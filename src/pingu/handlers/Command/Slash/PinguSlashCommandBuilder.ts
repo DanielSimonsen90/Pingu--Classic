@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { APIMessage } from "discord-api-types";
+import { APIApplicationCommandOption, APIMessage } from "discord-api-types";
 import { CommandInteraction, GuildChannel, Message, Role, User } from "discord.js";
 import PinguClientBase from "../../../client/PinguClientBase";
 import { CommandParamsBase, ExecuteFunctionPublic } from "../PinguCommandBase";
@@ -71,6 +71,12 @@ export interface SlashCommandConstructionData<
     subCommandGroups?: PinguSlashCommandGroup[],
 }
 
+export interface SlashCommandJson {
+    name: string;
+    description: string;
+    options: APIApplicationCommandOption[];
+    default_permission: boolean | undefined;
+}
 
 export class PinguSlashCommandBuilder<
     Client extends PinguClientBase = PinguClientBase,

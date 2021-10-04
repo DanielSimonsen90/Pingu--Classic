@@ -5,12 +5,9 @@ import PinguGuild from "../../guild/PinguGuild";
 import PClient from "../../../database/json/PClient";
 import PinguClient from "../../client/PinguClient";
 import PinguCommandBase, { 
-    BaseCommandData, 
-    ClassicCommandParams, 
-    ExecuteFunctionProps, 
-    ExecuteFunctions, 
-    ReplyReturn, 
-    throwInvalidTypeError 
+    BaseCommandData, ClassicCommandParams, 
+    ExecuteFunctionProps, ExecuteFunctions, 
+    ReplyReturn, throwInvalidTypeError 
 } from '../Command/PinguCommandBase';
 
 export interface PItems {
@@ -38,14 +35,12 @@ export interface PinguSlashCommandParams extends InteractionCommandParams, Comma
 }
 
 export interface PinguCommandData extends BaseCommandData {
-    guildOnly?: boolean;
-    specificGuildId?: Snowflake;
     mustBeBeta?: boolean;
     earlySupporterExclusive?: boolean
 }
 
-type CommandCategoriesType = 'Utility' | 'Fun' | 'Supporting' | 'DevOnly' | 'GuildSpecific';
-export class PinguCommand<ExecutePropsType = {}> extends PinguCommandBase<ExecutePropsType> {
+type CommandCategoriesType = 'Utility' | 'Fun' | 'Support' | 'DevOnly' | 'GuildSpecific';
+export class PinguCommand<ExecutePropsType = {}> extends PinguCommandBase<ExecutePropsType, PinguClassicCommandParams, PinguSlashCommandParams> {
     constructor(name: string, category: CommandCategoriesType, description: string, 
         data: PinguCommandData,
         slashCommandBuilder: SlashCommandConstructionData<PinguClient, ExecutePropsType, CommandParams>,
@@ -57,19 +52,12 @@ export class PinguCommand<ExecutePropsType = {}> extends PinguCommandBase<Execut
         );
         this.category = category;
 
-        const { guildOnly, specificGuildId: specificGuildID, mustBeBeta } = data;
-        this.guildOnly = guildOnly ?? false;
-        this.specificGuildID = specificGuildID;
+        const { mustBeBeta } = data;
         this.mustBeBeta = mustBeBeta ?? false;
-
-        if (this.specificGuildID && typeof this.specificGuildID != 'string') throwInvalidTypeError<PinguCommandData, 'specificGuildID'>('specificGuildID', name, 'string');
-        if (this.guildOnly && typeof this.guildOnly != 'boolean') throwInvalidTypeError<PinguCommandData, 'guildOnly'>('guildOnly', name, 'boolean');
         if (this.mustBeBeta && typeof this.mustBeBeta != 'boolean') throwInvalidTypeError<PinguCommandData, 'mustBeBeta'>('mustBeBeta', name, 'boolean');
     }
     
-    public guildOnly = false;
     public category: CommandCategoriesType;
-    public specificGuildID: string;
     public mustBeBeta = false;
 
     protected _execute(client: PinguClient, props: ExecuteFunctionProps, extra?: ExecutePropsType): ReplyReturn {

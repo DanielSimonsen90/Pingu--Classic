@@ -3,7 +3,7 @@ export { PAchievement, PChannel, PClient, PGuild, PGuildMember, PItem, PMarry, P
 export { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from './decidable/config';
 export { Giveaway, Poll, Suggestion, Theme, Decidable, ApproveTypes } from './decidable/items';
 export { DecidableCommand, DecidablesExecuteProps } from './decidable/DecidableCommand';
-export { IDateFilter, ILimit, IBy, SubCommand as DecidablesSubCommand } from './decidable/DecidableCommandProps';
+export { IDateFilter, ILimit, IBy, SubCommand as DecidablesSubCommand, ResetSubCommand, DecidablesTypes } from './decidable/DecidableCommandProps';
 
 export * as Extentions from './Extenstions';
 
@@ -25,7 +25,7 @@ export {
     SlashCommandOption, PinguSlashCommandBuilder, 
     PinguSlashCommandSub, PinguSlashCommandGroup,
 
-    PinguCommand, PinguCommandParams, ExecuteFunctionProps, ReplyMethods,
+    PinguCommand, PinguCommandParams, ExecuteFunctionProps, ReplyMethods, PItems,
     PinguEvent, PinguClientEvents,
     PinguMusicEvent, PinguMusicEvents, PinguMusicClientEvents,
     PinguMusicCommand, PinguMusicCommandParams,

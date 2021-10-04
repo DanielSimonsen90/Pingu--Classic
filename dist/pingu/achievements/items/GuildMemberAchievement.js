@@ -77,7 +77,7 @@ class GuildMemberAchievement extends AchievementBase_1.default {
             .setCallback('0', async ([params]) => params.response && params.response.author.bot &&
             [PinguClientBase_1.Clients.BetaID, PinguClientBase_1.Clients.PinguID].includes(params.response.author.id) &&
             params.response.content.includes('7')),
-        new GuildMemberAchievement(16, "Text-To-Image", 'CHANNEL', "Emotes", GuildAchievement_1.useChannel('Emotes', "create an emote")),
+        new GuildMemberAchievement(16, "Text-To-Image", 'CHANNEL', "Emotes", (0, GuildAchievement_1.useChannel)('Emotes', "create an emote")),
         // new GuildMemberAchievement(17, "I have spoken", 'EVENT', 'guildMemberSpeaking', "Say something in a voice channel"),
         new GuildMemberAchievement(18, "Twitch might as well partner me now", 'VOICE', 'Streaming', "Livestream in a voice channel"),
         new GuildMemberAchievement(19, "Subscribe to my OnlyFans!", 'VOICE', 'Video', "Turn on your camera in a voice channel"),

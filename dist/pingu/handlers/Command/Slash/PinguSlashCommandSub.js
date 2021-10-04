@@ -12,7 +12,7 @@ class PinguSlashCommandSub extends builders_1.SlashCommandSubcommandBuilder {
         this.setName(name);
         this.setDescription(description);
         if (allowPrivate ?? true)
-            options.push(PinguSlashCommandBuilder_1.SlashCommandOption('Boolean', 'private', 'Send response privately'));
+            options.push((0, PinguSlashCommandBuilder_1.SlashCommandOption)('Boolean', 'private', 'Send response privately'));
         options.forEach(({ name, description, required, choices, type }) => this[`add${type}Option`](o => o
             .setName(name)
             .setDescription(description)

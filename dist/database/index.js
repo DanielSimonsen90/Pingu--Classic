@@ -15,6 +15,8 @@ Object.defineProperty(exports, "PUser", { enumerable: true, get: function () { r
 async function DBExecute(client, callback) {
     return new Promise(async (resolve, reject) => {
         const mongoose = require('mongoose');
+        if (!client.config.mongoPass)
+            return null;
         try {
             await mongoose.connect(`mongodb+srv://Pingu:${client.config.mongoPass}@pingudb.kh2uq.mongodb.net/PinguDB?retryWrites=true&w=majority`, {
                 useNewUrlParser: true,

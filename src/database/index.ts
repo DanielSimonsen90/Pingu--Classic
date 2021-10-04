@@ -5,6 +5,7 @@ import PinguClientBase from "../pingu/client/PinguClientBase";
 export async function DBExecute<T>(client: PinguClientBase, callback: (mongoose: typeof import('mongoose')) => Promise<T>) {
     return new Promise<T>(async (resolve, reject) => {
         const mongoose = require('mongoose');
+        if (!client.config.mongoPass) return null;
 
         try {
             await mongoose.connect(`mongodb+srv://Pingu:${client.config.mongoPass}@pingudb.kh2uq.mongodb.net/PinguDB?retryWrites=true&w=majority`, {

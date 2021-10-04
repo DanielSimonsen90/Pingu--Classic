@@ -20,6 +20,7 @@ export declare class PinguClient extends PinguClientBase<PinguClientEvents> {
     getBadges(user: User): Promise<Collection<import("../badge/PinguBadge").IAmBadge, import("../badge/PinguBadge").PinguBadge>>;
     requestImage(message: Message, pGuildClient: PClient, caller: 'gif' | 'meme', types: string[], searchTerm?: (type: string) => string): Promise<Message>;
     AchievementCheck<AchievementType extends GuildMemberAchievementType | GuildAchievementType | AchievementBaseType, Key extends keyof AchievementType, Type extends AchievementType[Key]>(data: AchievementCheckData, key: Key, type: Type, callbackParams: any[]): Promise<boolean>;
+    postSlashCommands(): Promise<import("../collection/SlashCommandCollection").default>;
     protected handlePath(path: string, type: 'command' | 'event'): void;
     private handleEvent;
 }

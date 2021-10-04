@@ -35,7 +35,7 @@ class DecidableCommand extends PinguCommand_1.default {
         }
         const { replySemiPrivate } = this._data;
         const decidablesConfig = pGuild.settings.config.decidables;
-        this._configs = DecidableCommandProps_1.SetConfigObjects(decidablesConfig);
+        this._configs = (0, DecidableCommandProps_1.SetConfigObjects)(decidablesConfig);
         const permCheck = await this.permissionCheckDecidable();
         if (permCheck != client.permissions.PermissionGranted)
             return replySemiPrivate(permCheck);

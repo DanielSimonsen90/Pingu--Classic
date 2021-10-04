@@ -37,7 +37,7 @@ class PinguClient extends PinguClientBase_1.default {
     getImage(script, imageName, extension = 'png') {
         return `./embedImages/${script}/${imageName}.${extension}`;
     }
-    getBadges(user) { return PinguBadge_1.getBadges(user); }
+    getBadges(user) { return (0, PinguBadge_1.getBadges)(user); }
     //#endregion
     async requestImage(message, pGuildClient, caller, types, searchTerm) {
         const { config } = this;
@@ -87,7 +87,13 @@ class PinguClient extends PinguClientBase_1.default {
         });
     }
     async AchievementCheck(data, key, type, callbackParams) {
-        return achievements_1.AchievementCheck(this, data, key, type, callbackParams);
+        return (0, achievements_1.AchievementCheck)(this, data, key, type, callbackParams);
+    }
+    async postSlashCommands() {
+        return this.slashCommands.postAll(this, this.commands.valueArr().filter(cmd => !cmd.specificGuildId &&
+            cmd.category != 'DevOnly' &&
+            cmd.category != 'GuildSpecific' &&
+            (!cmd.mustBeBeta || !this.isLive)));
     }
     //#endregion
     //#region Protected Methods
@@ -130,7 +136,7 @@ class PinguClient extends PinguClientBase_1.default {
     handleEvent(caller, ...args) {
         if (this.subscribedEvents.find(e => e == caller))
             try {
-                PinguEvent_1.HandleEvent(caller, this, ...args);
+                (0, PinguEvent_1.HandleEvent)(caller, this, ...args);
             }
             catch (err) {
                 this.log('error', `Event error`, null, err, { params: { caller, args } });

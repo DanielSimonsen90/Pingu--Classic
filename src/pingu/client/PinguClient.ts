@@ -118,11 +118,19 @@ export class PinguClient extends PinguClientBase<PinguClientEvents> {
             );
         });
     }
-    public async AchievementCheck
-        <AchievementType extends GuildMemberAchievementType | GuildAchievementType | AchievementBaseType,
-        Key extends keyof AchievementType, Type extends AchievementType[Key]>
-    (data: AchievementCheckData, key: Key, type: Type, callbackParams: any[]) {
+    public async AchievementCheck<
+        AchievementType extends GuildMemberAchievementType | GuildAchievementType | AchievementBaseType,
+        Key extends keyof AchievementType, Type extends AchievementType[Key]
+    > (data: AchievementCheckData, key: Key, type: Type, callbackParams: any[]) {
         return AchievementCheck<AchievementType, Key, Type>(this, data, key, type, callbackParams);
+    }
+    public async postSlashCommands() {
+        return this.slashCommands.postAll(this, this.commands.valueArr().filter(cmd => 
+            !cmd.specificGuildId && 
+            cmd.category != 'DevOnly' && 
+            cmd.category != 'GuildSpecific' &&
+            (!cmd.mustBeBeta || !this.isLive)
+        ));
     }
     //#endregion
 

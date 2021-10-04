@@ -7,7 +7,8 @@ export interface DecidableItems {
     Theme: Theme
 }
 export type DecidablesTypes = keyof DecidableItems;
-export type GiveawayTypes = Exclude<DecidablesTypes, 'Poll'> & Exclude<DecidablesTypes, 'Suggestion'>;
+export type TimeableType = Exclude<DecidablesTypes, 'Suggestion'>;
+export type GiveawayTypes = Exclude<TimeableType, 'Poll'>;
 
 import { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from "./config";
 export interface DecidableConfigs {
@@ -149,17 +150,12 @@ export interface IValueable { value: string, channel: TextChannel }
 export interface IValueTime extends IValueable { time: string }
 export interface IRunDecidableWinnable extends IValueTime { 
     winners: number,
-    allowSameWinner: boolean
-}
-export interface IRunTheme extends IRunDecidableWinnable {
-    ignoreLastWins: number
 }
 
 export type IRunDecidable<T extends DecidablesTypes> = 
     T extends 'Suggestion' ? IValueable :
     T extends 'Poll' ? IValueTime :
-    T extends 'Giveaway' ? IRunDecidableWinnable :
-    IRunTheme
+    IRunDecidableWinnable
 ;
 //#endregion
 
@@ -174,7 +170,7 @@ export type SubCommand<T extends DecidablesTypes> =
 ;
 //#endregion
 
-interface IExecuteProps<T extends DecidablesTypes> {
+export interface IExecuteProps<T extends DecidablesTypes> {
     type: T,
     command: SubCommand<T>,
     config: DecidableConfigs[T],
@@ -184,8 +180,12 @@ interface IExecuteProps<T extends DecidablesTypes> {
     runOptions?: IRunDecidable<T>
 }
 export type ResetSubCommand = 'channels' | 'roles' | 'general';
+interface ExecuteThemeProps extends IExecuteProps<'Theme'> {
+    command: SubCommand<'Theme'> | 'reset'
+    resetOnly?: ResetSubCommand
+}
 export type BaseExecuteProps<T extends DecidablesTypes> = 
-    T extends 'Theme' ? IExecuteProps<T> & { resetOnly: ResetSubCommand } : IExecuteProps<T>
+    T extends 'Theme' ? ExecuteThemeProps : IExecuteProps<T>
 
 export interface IMenuItem {
     id: string;

@@ -4,8 +4,8 @@ exports.Queue = void 0;
 const discord_js_1 = require("discord.js");
 const statics_1 = require("./statics");
 class Queue {
-    static get(guildID) { return statics_1.get(guildID); }
-    static set(guildID, queue) { return statics_1.set(guildID, queue); }
+    static get(guildID) { return (0, statics_1.get)(guildID); }
+    static set(guildID, queue) { return (0, statics_1.set)(guildID, queue); }
     constructor(logChannel, voiceChannel, songs, playing = true) {
         this.logChannel = logChannel;
         this.voiceChannel = voiceChannel;

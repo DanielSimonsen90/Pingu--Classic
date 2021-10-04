@@ -328,7 +328,7 @@ export async function HandleEvent<EventType extends keyof PinguClientEvents>(cal
 
 interface Handlers<Event extends keyof PinguClientEvents> {
     setContent?: (client: PinguClient, embed: MessageEmbed, ...args: PinguClientEvents[Event]) => Promise<MessageEmbed>,
-    execute?: (client: PinguClient, ...args: PinguClientEvents[Event]) => Promise<Message>
+    execute?: (client: PinguClient, ...args: PinguClientEvents[Event]) => Promise<any>
 }
 
 import PinguHandler from '../PinguHandler'
@@ -372,7 +372,7 @@ export class PinguEvent<Event extends keyof PinguClientEvents> extends PinguHand
     public content: MessageEmbed;
 
     public async setContent(client: PinguClient, embed: MessageEmbed, ...args: PinguClientEvents[Event]): Promise<MessageEmbed> { return null; }
-    public async execute(client: PinguClient, ...args: PinguClientEvents[Event]): Promise<Message> { return null; }
+    public async execute(client: PinguClient, ...args: PinguClientEvents[Event]): Promise<any> { return null; }
 }
 
 export default PinguEvent;

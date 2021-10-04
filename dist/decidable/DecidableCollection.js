@@ -21,13 +21,13 @@ class DecidableCollection {
             ['forward', { id: 'forward', style: 'PRIMARY', emoji: '➡️', label: 'Go Forward' }],
             ['stop', { id: 'stop', style: 'DANGER', emoji: '🛑', label: 'Stop' }]
         ]);
-        this.row = new PinguActionRow_1.default('list', ...menuItems.valueArr().map(({ emoji, id, label, style }) => IComponent_1.Component('Button', {
+        this.row = new PinguActionRow_1.default('list', ...menuItems.valueArr().map(({ emoji, id, label, style }) => (0, IComponent_1.Component)('Button', {
             customId: id, emoji, label, style,
             onclick: (interaction) => this._onMenuItemClicked(interaction, id, emoji)
         })));
         this.row.getAll('Button').forEach(btn => btn.listenTo(this._data.commandProps.channel, {
             filter: i => i.user.id == this._data.commandProps.executor.id,
-            time: TimeSpan_1.TimeString('20s')
+            time: (0, TimeSpan_1.TimeString)('20s')
         }));
         this.row.getAll('Button')[0].onstop = async (interactions, reason) => {
             if (reason != StopRequest) {

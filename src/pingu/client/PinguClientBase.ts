@@ -49,17 +49,10 @@ interface LogTypes {
 export type LogChannels = keyof LogTypes;
 type LogMethod = (channel: TextChannel, ...args: LogTypes[LogChannels]) => Promise<Message>
 export type SavedServerNames = 'Danho Misc' | 'Pingu Support' | 'Pingu Emotes' | 'Deadly Ninja';
-class SavedServer {
-    constructor(name: SavedServerNames, id: Snowflake) {
-        this.name = name;
-        this.id = id;
-    }
-
-    public name: SavedServerNames;
-    public id: Snowflake;
-}
+class SavedServer { constructor(public name: SavedServerNames, public id: Snowflake) {}}
 
 import SlashCommandCollection from "../collection/SlashCommandCollection";
+import PinguCommandBase from "../handlers/Command/PinguCommandBase";
 export abstract class PinguClientBase<Events extends ClientEvents = any> extends Client {
     public static Clients = Clients;
 
@@ -118,8 +111,8 @@ export abstract class PinguClientBase<Events extends ClientEvents = any> extends
     public readonly DefaultEmbedColor = 3447003;
     public readonly invite = `https://discord.gg/gbxRV4Ekvh`;
     
-    public commands = new Collection<string, PinguHandler>();
-    public slashCommands = new SlashCommandCollection(this);
+    public commands = new Collection<string, PinguCommandBase>();
+    public slashCommands: SlashCommandCollection;
     public events = new Collection<string | keyof Events, PinguHandler>();
     public subscribedEvents = new Array<string | keyof Events>();
     public DefaultPrefix: string;
@@ -148,14 +141,7 @@ export abstract class PinguClientBase<Events extends ClientEvents = any> extends
     public setActivity(options?: ActivityOptions) {
         if (options) return this.user.setActivity(options);
 
-        class Activity {
-            constructor(text: string, type: ActivityType) {
-                this.text = text;
-                this.type = type;
-            }
-            public text: string
-            public type: ActivityType
-        }
+        class Activity { constructor(public text: string, public type: ActivityType) {}}
         
         let date = {
             day: new Date(Date.now()).getDate(),
@@ -219,6 +205,9 @@ export abstract class PinguClientBase<Events extends ClientEvents = any> extends
      */
     public timeFormat(timestamp: number | Date, ...formats: TimestampStyle[]) {
         return TimeFormat(timestamp, ...formats);
+    }
+    public async postSlashCommands() {
+        return this.slashCommands.postAll(this, this.commands.valueArr());
     }
     //#endregion
 
@@ -284,6 +273,8 @@ export abstract class PinguClientBase<Events extends ClientEvents = any> extends
         })))).map(({ guild, collection }) => [guild, collection]));
         this.log('console', `Successfull refreshed all entries for **PinguGuildMember**.`)
         await this.pUsers.refresh(this);
+
+        this.slashCommands = new SlashCommandCollection(this);
         
         this.emit('onready', this);
     }

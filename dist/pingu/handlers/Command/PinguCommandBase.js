@@ -13,12 +13,14 @@ class PinguCommandBase extends PinguHandler_1.default {
         super(name);
         this.description = description;
         this.builder = slashCommandBuilder;
-        const { permissions, usage, aliases, examples, components } = data;
+        const { permissions, usage, aliases, examples, components, guildOnly, specificGuildId } = data;
         this.components = components?.reduce((map, row) => map.set(row.name, row), new Map()) ?? new Map();
         this.permissions = permissions ?? [];
         this.usage = usage ?? '';
         this.aliases = aliases ?? [];
         this.examples = examples?.length ? examples : [''];
+        this.guildOnly = guildOnly ?? false;
+        this.specificGuildId = specificGuildId;
         if (this.permissions && !this.permissions.push)
             throwInvalidTypeError('permissions', name, 'array');
         if (this.usage && typeof this.usage != 'string')
@@ -27,6 +29,10 @@ class PinguCommandBase extends PinguHandler_1.default {
             throwInvalidTypeError('examples', name, 'array');
         if (this.aliases && !this.aliases.push)
             throwInvalidTypeError('aliases', name, 'array');
+        if (this.guildOnly && typeof this.guildOnly != 'boolean')
+            throwInvalidTypeError('guildOnly', name, 'boolean');
+        if (this.specificGuildId && typeof this.specificGuildId != 'string')
+            throwInvalidTypeError('specificGuildId', name, 'string');
         const { classic, execute } = executes;
         if (classic)
             this._executeClassic = classic;
@@ -47,6 +53,8 @@ class PinguCommandBase extends PinguHandler_1.default {
     permissions;
     examples;
     aliases;
+    guildOnly;
+    specificGuildId;
     builder;
     components;
     execute(type, params) {
@@ -84,7 +92,7 @@ class PinguCommandBase extends PinguHandler_1.default {
         return execute(params, (client, commandProps, extra) => this._execute(client, {
             commandProps, ...params, reply: { replyPublic, replySemiPrivate, replyPrivate, followUp, replyReturn, allowPrivate },
             replyPublic, replySemiPrivate, replyPrivate, followUp, replyReturn, allowPrivate,
-            components: this.components
+            components: this.components, client
         }, extra));
     }
 }

@@ -1,4 +1,3 @@
-import { Snowflake } from 'discord.js';
 import PinguUser from "../../user/PinguUser";
 import PinguGuildMember from "../../guildMember/PinguGuildMember";
 import PinguGuild from "../../guild/PinguGuild";
@@ -27,17 +26,13 @@ export interface PinguSlashCommandParams extends InteractionCommandParams, Comma
     client: PinguClient;
 }
 export interface PinguCommandData extends BaseCommandData {
-    guildOnly?: boolean;
-    specificGuildId?: Snowflake;
     mustBeBeta?: boolean;
     earlySupporterExclusive?: boolean;
 }
-declare type CommandCategoriesType = 'Utility' | 'Fun' | 'Supporting' | 'DevOnly' | 'GuildSpecific';
-export declare class PinguCommand<ExecutePropsType = {}> extends PinguCommandBase<ExecutePropsType> {
+declare type CommandCategoriesType = 'Utility' | 'Fun' | 'Support' | 'DevOnly' | 'GuildSpecific';
+export declare class PinguCommand<ExecutePropsType = {}> extends PinguCommandBase<ExecutePropsType, PinguClassicCommandParams, PinguSlashCommandParams> {
     constructor(name: string, category: CommandCategoriesType, description: string, data: PinguCommandData, slashCommandBuilder: SlashCommandConstructionData<PinguClient, ExecutePropsType, CommandParams>, executes: ExecuteFunctions<PinguClient, PinguClassicCommandParams, PinguSlashCommandParams, ExecutePropsType>);
-    guildOnly: boolean;
     category: CommandCategoriesType;
-    specificGuildID: string;
     mustBeBeta: boolean;
     protected _execute(client: PinguClient, props: ExecuteFunctionProps, extra?: ExecutePropsType): ReplyReturn;
 }

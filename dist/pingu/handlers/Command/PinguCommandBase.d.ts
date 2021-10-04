@@ -1,4 +1,4 @@
-import { PermissionString, Message, MessagePayload, ReplyMessageOptions, InteractionReplyOptions, User, GuildMember, CommandInteraction } from "discord.js";
+import { PermissionString, Message, MessagePayload, ReplyMessageOptions, InteractionReplyOptions, User, GuildMember, CommandInteraction, Snowflake } from "discord.js";
 import PinguHandler from "../PinguHandler";
 import PinguSlashCommandBuilder, { InteractionCommandParams } from "./Slash/PinguSlashCommandBuilder";
 import Arguments from "../../../helpers/Arguments";
@@ -28,9 +28,9 @@ export interface ClassicCommandParams<Client = PinguClientBase> extends CommandP
     args?: Arguments;
 }
 /** Methods of handling commands */
-interface CommandTypesParams {
-    Interaction: InteractionCommandParams;
-    Classic: ClassicCommandParams;
+interface CommandTypesParams<ClassicParams extends ClassicCommandParams = ClassicCommandParams, SlashParams extends InteractionCommandParams = InteractionCommandParams> {
+    Classic: ClassicParams;
+    Interaction: SlashParams;
 }
 /** Interaction | Classic */
 export declare type CommandTypes = keyof CommandTypesParams;
@@ -69,6 +69,8 @@ export interface BaseCommandData {
     examples?: string[];
     aliases?: string[];
     components?: PinguActionRow[];
+    guildOnly?: boolean;
+    specificGuildId?: Snowflake;
 }
 /** Propertytype invalid error */
 export declare function throwInvalidTypeError<CommandData extends BaseCommandData, Prop extends keyof CommandData>(prop: Prop, cmdName: string, type: 'array' | 'string' | 'boolean' | 'number'): void;
@@ -77,8 +79,8 @@ export interface ExecuteFunctions<Client = PinguClientBase, ClassicParams = Clas
     classic: (params: ClassicParams, execute: ExecuteFunctionPublic<ExecutePropsType>) => ReplyReturn;
     execute: ExecuteFunction<Client, ExtraProps, ExecutePropsType>;
 }
-export default class PinguCommandBase<ExecutePropsType = {}> extends PinguHandler {
-    constructor(name: string, description: string, data: BaseCommandData, slashCommandBuilder: PinguSlashCommandBuilder, executes: ExecuteFunctions<PinguClientBase, ClassicCommandParams, InteractionCommandParams, ExecutePropsType>);
+export default class PinguCommandBase<ExecutePropsType = {}, ClassicParams extends ClassicCommandParams = ClassicCommandParams, SlashParams extends InteractionCommandParams = InteractionCommandParams> extends PinguHandler {
+    constructor(name: string, description: string, data: BaseCommandData, slashCommandBuilder: PinguSlashCommandBuilder, executes: ExecuteFunctions<PinguClientBase, ClassicParams, SlashParams, ExecutePropsType>);
     protected _logError(client: PinguClientBase, functionName: string): Promise<Message>;
     protected _execute(client: PinguClientBase, props: ExecuteFunctionProps<PinguClientBase>, extra?: ExecutePropsType | {}): ReplyReturn;
     private _executeClassic;
@@ -87,8 +89,10 @@ export default class PinguCommandBase<ExecutePropsType = {}> extends PinguHandle
     permissions: PermissionString[];
     examples: string[];
     aliases: string[];
+    guildOnly: boolean;
+    specificGuildId: Snowflake;
     builder: PinguSlashCommandBuilder;
     components: Map<string, PinguActionRow>;
-    execute<T extends CommandTypes>(type: T, params: CommandTypesParams[T]): ReplyReturn;
+    execute<T extends CommandTypes>(type: T, params: CommandTypesParams<ClassicParams, SlashParams>[T]): ReplyReturn;
 }
 export {};

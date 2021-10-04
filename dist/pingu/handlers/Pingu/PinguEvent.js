@@ -179,7 +179,7 @@ async function HandleEvent(caller, client, ...args) {
         getAchiever('GuildMember')
     ];
     user = !user && guildMember ? guildMember.user : null;
-    achievements_1.AchievementCheck(client, { user, guild, guildMember }, 'EVENT', caller, args);
+    (0, achievements_1.AchievementCheck)(client, { user, guild, guildMember }, 'EVENT', caller, args);
     async function SendToLog() {
         const emitAssociatorOptions = (parameter = {}) => {
             const options = [

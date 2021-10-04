@@ -7,7 +7,7 @@ const PChannel_1 = require("./database/json/PChannel");
 const Arguments_1 = require("./helpers/Arguments");
 //#region Base
 discord_js_1.Base.prototype.doIn = function (callback, time) {
-    const timeout = typeof time == 'number' ? time : ms_1.default(time);
+    const timeout = typeof time == 'number' ? time : (0, ms_1.default)(time);
     return new Promise((resolve, reject) => {
         try {
             setTimeout(() => {
@@ -24,7 +24,7 @@ discord_js_1.Base.prototype.doIn = function (callback, time) {
 discord_js_1.BaseGuildVoiceChannel.prototype.join = function () {
     if (!this.joinable)
         throw new Error(`Voice channel is not joinable!`);
-    return voice_1.joinVoiceChannel({
+    return (0, voice_1.joinVoiceChannel)({
         channelId: this.id,
         guildId: this.guildId,
         adapterCreator: this.guild.voiceAdapterCreator

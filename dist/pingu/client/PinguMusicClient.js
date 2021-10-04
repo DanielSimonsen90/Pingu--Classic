@@ -107,7 +107,7 @@ class PinguMusicClient extends PinguClientBase_1.default {
     }
     handleEvent(caller, ...args) {
         if (this.subscribedEvents.find(e => e == caller))
-            PinguMusicEvent_1.HandleMusicEvent(caller, this, ...args);
+            (0, PinguMusicEvent_1.HandleMusicEvent)(caller, this, ...args);
         return this;
     }
 }

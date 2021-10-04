@@ -35,6 +35,8 @@ interface LogTypes {
 }
 export declare type LogChannels = keyof LogTypes;
 export declare type SavedServerNames = 'Danho Misc' | 'Pingu Support' | 'Pingu Emotes' | 'Deadly Ninja';
+import SlashCommandCollection from "../collection/SlashCommandCollection";
+import PinguCommandBase from "../handlers/Command/PinguCommandBase";
 export declare abstract class PinguClientBase<Events extends ClientEvents = any> extends Client {
     static Clients: {
         PinguID: string;
@@ -46,8 +48,8 @@ export declare abstract class PinguClientBase<Events extends ClientEvents = any>
     get member(): import("discord.js").GuildMember;
     readonly DefaultEmbedColor = 3447003;
     readonly invite = "https://discord.gg/gbxRV4Ekvh";
-    commands: Collection<string, PinguHandler>;
-    slashCommands: any;
+    commands: Collection<string, PinguCommandBase<{}, import("../handlers/Command/PinguCommandBase").ClassicCommandParams<PinguClientBase<any>>, import("../handlers/Command/Slash/PinguSlashCommandBuilder").InteractionCommandParams<PinguClientBase<any>>>>;
+    slashCommands: SlashCommandCollection;
     events: Collection<string | keyof Events, PinguHandler>;
     subscribedEvents: (string | keyof Events)[];
     DefaultPrefix: string;
@@ -79,6 +81,7 @@ export declare abstract class PinguClientBase<Events extends ClientEvents = any>
      * @RELATIVE x timeunit ago
      */
     timeFormat(timestamp: number | Date, ...formats: TimestampStyle[]): string;
+    postSlashCommands(): Promise<SlashCommandCollection>;
     protected onceReady(): Promise<void>;
     protected abstract handlePath(path: string, type: 'command' | 'event'): void;
     private achievementLog;

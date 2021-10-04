@@ -6,7 +6,8 @@ export interface DecidableItems {
     Theme: Theme;
 }
 export declare type DecidablesTypes = keyof DecidableItems;
-export declare type GiveawayTypes = Exclude<DecidablesTypes, 'Poll'> & Exclude<DecidablesTypes, 'Suggestion'>;
+export declare type TimeableType = Exclude<DecidablesTypes, 'Suggestion'>;
+export declare type GiveawayTypes = Exclude<TimeableType, 'Poll'>;
 import { GiveawayConfig, PollConfig, SuggestionConfig, ThemeConfig } from "./config";
 export interface DecidableConfigs {
     Giveaway: GiveawayConfig;
@@ -88,17 +89,13 @@ export interface IValueTime extends IValueable {
 }
 export interface IRunDecidableWinnable extends IValueTime {
     winners: number;
-    allowSameWinner: boolean;
 }
-export interface IRunTheme extends IRunDecidableWinnable {
-    ignoreLastWins: number;
-}
-export declare type IRunDecidable<T extends DecidablesTypes> = T extends 'Suggestion' ? IValueable : T extends 'Poll' ? IValueTime : T extends 'Giveaway' ? IRunDecidableWinnable : IRunTheme;
+export declare type IRunDecidable<T extends DecidablesTypes> = T extends 'Suggestion' ? IValueable : T extends 'Poll' ? IValueTime : IRunDecidableWinnable;
 declare type SubCommandBase<T extends DecidablesTypes> = 'setup' | 'list' | T;
 declare type SubCommandReroll<T extends DecidablesTypes> = SubCommandBase<T> | 'reroll';
 declare type SubCommandTheme = SubCommandReroll<'Theme'> | 'reset';
 export declare type SubCommand<T extends DecidablesTypes> = T extends 'Giveaway' ? SubCommandReroll<T> : T extends 'Theme' ? SubCommandTheme : SubCommandBase<T>;
-interface IExecuteProps<T extends DecidablesTypes> {
+export interface IExecuteProps<T extends DecidablesTypes> {
     type: T;
     command: SubCommand<T>;
     config: DecidableConfigs[T];
@@ -108,9 +105,11 @@ interface IExecuteProps<T extends DecidablesTypes> {
     runOptions?: IRunDecidable<T>;
 }
 export declare type ResetSubCommand = 'channels' | 'roles' | 'general';
-export declare type BaseExecuteProps<T extends DecidablesTypes> = T extends 'Theme' ? IExecuteProps<T> & {
-    resetOnly: ResetSubCommand;
-} : IExecuteProps<T>;
+interface ExecuteThemeProps extends IExecuteProps<'Theme'> {
+    command: SubCommand<'Theme'> | 'reset';
+    resetOnly?: ResetSubCommand;
+}
+export declare type BaseExecuteProps<T extends DecidablesTypes> = T extends 'Theme' ? ExecuteThemeProps : IExecuteProps<T>;
 export interface IMenuItem {
     id: string;
     emoji: string;

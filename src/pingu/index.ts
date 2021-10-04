@@ -19,7 +19,7 @@ export { PinguUser } from './user/PinguUser';
 export { Daily, Marry } from './user/items';
 
 export { 
-    PinguCommand, PinguCommandParams, ExecuteFunctionProps, ReplyMethods,
+    PinguCommand, PinguCommandParams, ExecuteFunctionProps, ReplyMethods, PItems,
     PinguEvent, PinguClientEvents, 
     PinguMusicEvent, PinguMusicEvents, PinguMusicClientEvents,
     PinguMusicCommand, PinguMusicCommandParams,

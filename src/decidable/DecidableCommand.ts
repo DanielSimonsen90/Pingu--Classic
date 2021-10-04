@@ -1,4 +1,5 @@
 import { Extensions } from 'danholibraryjs';
+import {} from 'discord-api-types';
 import { 
     Collection, GuildMember, Message, MessageCollector, 
     MessageEmbed, PermissionString, Role, Snowflake, 
