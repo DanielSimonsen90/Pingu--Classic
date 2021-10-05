@@ -133,6 +133,15 @@ class PinguClientBase extends discord_js_1.Client {
             type: activity.type
         });
     }
+    login(token) {
+        try {
+            return super.login(token);
+        }
+        catch (err) {
+            console.log(token);
+            throw err;
+        }
+    }
     //#endregion
     //#region Public methods
     toPClient(pGuild) {

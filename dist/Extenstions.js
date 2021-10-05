@@ -2,17 +2,25 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const voice_1 = require("@discordjs/voice");
-const ms_1 = require("ms");
 const PChannel_1 = require("./database/json/PChannel");
 const Arguments_1 = require("./helpers/Arguments");
+const Array_1 = require("./helpers/Array");
+const TimeSpan_1 = require("./helpers/TimeSpan");
+Array.prototype.pArray = function () {
+    return new Array_1.default(...this);
+};
+String.prototype.toPascalCase = function () {
+    return this.substring(0, 1).toUpperCase() + this.substring(1);
+};
+String.prototype.clip = function (start, end) {
+    return this.substring(start, end < 0 ? this.length - end : end);
+};
 //#region Base
 discord_js_1.Base.prototype.doIn = function (callback, time) {
-    const timeout = typeof time == 'number' ? time : (0, ms_1.default)(time);
+    const timeout = typeof time == 'number' ? time : (0, TimeSpan_1.TimeString)(time);
     return new Promise((resolve, reject) => {
         try {
-            setTimeout(() => {
-                resolve(callback(this));
-            }, timeout);
+            setTimeout(() => resolve(callback(this)), timeout);
         }
         catch (err) {
             reject(err);
@@ -30,6 +38,20 @@ discord_js_1.BaseGuildVoiceChannel.prototype.join = function () {
         adapterCreator: this.guild.voiceAdapterCreator
     });
 };
+//#endregion
+//#region Collection
+discord_js_1.Collection.prototype.array = function () {
+    return this.reduce((arr, v, k) => {
+        arr.push([k, v]);
+        return arr;
+    }, new Array_1.default());
+};
+discord_js_1.Collection.prototype.keyArr = function () {
+    return new Array_1.default(...this.keys());
+};
+discord_js_1.Collection.prototype.valueArr = function () {
+    return new Array_1.default(...this.values());
+};
 discord_js_1.Collection.prototype.findFromString = function (value) {
     return [
         this.find(v => v.id == value),
@@ -39,14 +61,12 @@ discord_js_1.Collection.prototype.findFromString = function (value) {
     ].filter(v => v)[0];
 };
 //#endregion
-//#region BaseCommandInteraction
-discord_js_1.BaseCommandInteraction.prototype.replyPrivate = function (options) {
-    if (typeof options == 'string')
-        return this.reply({ content: options, ephemeral: true });
-    return this.reply({
-        ...options,
-        ephemeral: true
-    });
+//#region CommandInteraction
+discord_js_1.CommandInteraction.prototype.replyPrivate = function (options) {
+    const _options = typeof options == 'string' ?
+        { content: options } :
+        { ...options };
+    return this.reply({ ephemeral: true, ..._options, fetchReply: true });
 };
 //#endregion
 //#region Guild
@@ -158,4 +178,3 @@ discord_js_1.User.prototype.isPinguDev = function () {
 discord_js_1.User.prototype.pUser = function () {
     return this.client.pUsers.get(this);
 };
-//#endregion

@@ -2,10 +2,11 @@ import { Message, MessageEmbed } from "discord.js";
 import PinguActionRow from "../pingu/collection/PinguActionRow";
 import { BaseExecuteProps, DecidableItems, DecidablesTypes } from "./DecidableCommandProps";
 import DecidablesData from "./DecidablesData";
+import PinguArray from '../helpers/Array';
 export default class DecidableCollection<DecidablesType extends DecidablesTypes, ExecuteProps extends BaseExecuteProps<DecidablesType>, Decidable extends DecidableItems[DecidablesType]> {
     private _data;
     private _collection;
-    constructor(_data: DecidablesData<DecidablesType, ExecuteProps>, _collection: Array<Decidable>);
+    constructor(_data: DecidablesData<DecidablesType, ExecuteProps>, _collection: PinguArray<Decidable>);
     row: PinguActionRow;
     private _collector;
     private _sent;

@@ -1,4 +1,5 @@
-import { ButtonInteraction, GuildMember, Message, MessageCollector, MessageEmbed, TextChannel } from "discord.js";
+import { ButtonInteraction, Collection, GuildMember, Message, MessageCollector, MessageEmbed, TextChannel } from "discord.js";
+import {} from 'discord-api-types';
 import { Suggestion, Giveaway, Poll, Theme } from "./items";
 import PinguActionRow from "../pingu/collection/PinguActionRow";
 import { Component } from "../pingu/components/IComponent";
@@ -6,8 +7,8 @@ import { BaseExecuteProps, DecidableItems, DecidablesTypes, IMenuItem } from "./
 import DecidablesData from "./DecidablesData";
 import IDecidable from './items/Decidable';
 import { TimeString } from "../helpers/TimeSpan";
+import PinguArray from '../helpers/Array';
 import PGuildMember from "../database/json/PGuildMember";
-import { Extensions } from 'danholibraryjs';
 
 const StopRequest = 'Stop Request';
 
@@ -16,8 +17,8 @@ export default class DecidableCollection<
     ExecuteProps extends BaseExecuteProps<DecidablesType>,
     Decidable extends DecidableItems[DecidablesType]
 >  {
-    constructor(private _data: DecidablesData<DecidablesType, ExecuteProps>, private _collection: Array<Decidable>) {
-        const menuItems = new Map<string, IMenuItem>([
+    constructor(private _data: DecidablesData<DecidablesType, ExecuteProps>, private _collection: PinguArray<Decidable>) {
+        const menuItems = new Collection<string, IMenuItem>([
             ['back', { id: 'back', style: 'PRIMARY', emoji: '⬅️', label: 'Go Back' }],
             ['thumbs-up', { id: 'thumbsUp', style: 'SUCCESS', emoji: '👍', label: 'Approve' }],
             ['thumbs-down', { id: 'thumbsDown', style: 'DANGER', emoji: '👎', label: 'Deny' }],
@@ -63,14 +64,14 @@ export default class DecidableCollection<
     private get _client() { return this._data.client; }
     private get _type() { return this._data.type; }
     
-    private _embeds: Array<MessageEmbed>;
+    private _embeds: PinguArray<MessageEmbed>;
     private _embedIndex: number;
     public get embed() { return this._embeds[this._embedIndex]; }
-    private _createEmbeds(autoCalled: boolean): Array<MessageEmbed> {
+    private _createEmbeds(autoCalled: boolean): PinguArray<MessageEmbed> {
         if (!this._collection.length) return null;
 
-        let embeds = new Array<MessageEmbed>();
-        let toRemove = new Array<Decidable>();
+        let embeds = new PinguArray<MessageEmbed>();
+        let toRemove = new PinguArray<Decidable>();
 
         const createGiveawayEmbed = (i: Giveaway | Theme) => new MessageEmbed({
             description: [
@@ -114,14 +115,14 @@ export default class DecidableCollection<
             }
         });
 
-        this._removeDecidables(...toRemove);
+        this._removeDecidables(toRemove);
         if (!embeds && !autoCalled) return null;
         return embeds;
     }
-    private async _removeDecidables(...decidables: Array<Decidable>) {
+    private async _removeDecidables(decidables: PinguArray<Decidable>) {
         if (!decidables || !decidables.length || !decidables[0]) return this._collection;
 
-        const logs = new Array<string>();
+        const logs = new PinguArray<string>();
         decidables.forEach(d => {
             this._collection.remove(d);
             logs.push(`The ${this._type}, ${d.value} (${d._id}) was removed.`);
@@ -203,7 +204,7 @@ export default class DecidableCollection<
 
     private async _deleteDecidable(embed: MessageEmbed) {
         const decidable = this._getEmbedDecdiable(embed);
-        this._collection = await this._removeDecidables(decidable);
+        this._collection = await this._removeDecidables(new PinguArray(decidable));
         this._embeds = this._createEmbeds(true);
         
         const { _sent, _direction } = this;

@@ -11,6 +11,7 @@ const items_1 = require("./items");
 const DecidablesData_1 = require("./DecidablesData");
 const DecidableCollection_1 = require("./DecidableCollection");
 const Arguments_1 = require("../helpers/Arguments");
+const Array_1 = require("../helpers/Array");
 class DecidableCommand extends PinguCommand_1.default {
     static ValidateTime(input) {
         return TimeSpan_1.default.ms(input);
@@ -294,7 +295,7 @@ class DecidableCommand extends PinguCommand_1.default {
             collection = collection.slice(collection.length - limit.newest + 1, collection.length);
         if (limit.oldest)
             collection = collection.slice(0, limit.oldest);
-        this._collection ?? new DecidableCollection_1.default(this._data, collection);
+        this._collection ?? new DecidableCollection_1.default(this._data, new Array_1.default(...collection));
         return this._collection.list();
     }
     async _onTimeFinished(sent, value, winnersAllowed, embed, decidable, interval, previousWinners) {

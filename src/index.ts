@@ -7,7 +7,7 @@ export { IDateFilter, ILimit, IBy, SubCommand as DecidablesSubCommand, ResetSubC
 
 export * as Extentions from './Extenstions';
 
-export { Arguments, EmbedField, Error, TimeSpan, DiscordPermissions, Percentage, Config, StaticColorsArray, StaticColors } from './helpers';
+export { Arguments, PinguArray, EmbedField, Error, TimeSpan, DiscordPermissions, Percentage, Config, StaticColorsArray, StaticColors } from './helpers';
 
 export { PinguGuildSchema, PinguUserSchema } from './MongoSchemas';
 

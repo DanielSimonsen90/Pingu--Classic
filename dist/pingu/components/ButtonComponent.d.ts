@@ -1,5 +1,5 @@
 import { ButtonInteraction, CollectorResetTimerOptions, InteractionButtonOptions, InteractionCollectorOptions, MessageButton, MessageComponentInteraction, TextBasedChannels } from 'discord.js';
-export declare type OnClick = (interaction: ButtonInteraction) => any;
+export declare type OnClick = (interaction: ButtonInteraction) => Promise<any>;
 export interface ButtonComponentOptions extends InteractionButtonOptions {
     onclick?: OnClick;
 }

@@ -1,4 +1,5 @@
 import { Collection } from "discord.js";
+import PinguArray from "./Array";
 
 type MentionType = 
     'SNOWFLAKE' | 
@@ -33,7 +34,7 @@ export class Mention {
     }
 }
 
-export class Arguments extends Array<string> {
+export class Arguments extends PinguArray<string> {
     public get first() {
         return this[0];
     }

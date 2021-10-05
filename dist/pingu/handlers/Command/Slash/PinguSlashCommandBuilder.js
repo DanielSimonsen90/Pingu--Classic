@@ -4,8 +4,11 @@ exports.Option = exports.PinguSlashCommandBuilder = exports.SlashCommandOption =
 const builders_1 = require("@discordjs/builders");
 function SlashCommandOption(type, ...params) {
     const [name, description] = params;
-    const required = typeof params[2] == 'boolean' ? params[2] : params[2].required;
-    const choices = typeof params[2] == 'boolean' ? null : params[2].choices;
+    const required = params[2] ? typeof params[2] == 'boolean' ? params[2] : params[2].required : false;
+    const choices = params[2] ? typeof params[2] == 'boolean' ? null : params[2].choices : [];
+    if (/( +)|([A-Z])/g.test(name)) {
+        throw new Error(`"${name}" is an invalid string. Name must not contain spaces or upper-cased letters.`);
+    }
     return { name, description, required, choices, type };
 }
 exports.SlashCommandOption = SlashCommandOption;
@@ -23,11 +26,15 @@ class PinguSlashCommandBuilder extends builders_1.SlashCommandBuilder {
         this.setDefaultPermission(defaultPermission ?? true);
         if (allowPrivate ?? true)
             options.push(SlashCommandOption('Boolean', 'private', 'Send response privately'));
-        options.forEach(({ name, description, required, choices, type }) => this[`add${type}Option`](o => o
-            .setName(name)
-            .setDescription(description)
-            .setRequired(required)
-            .addChoices?.(...choices)));
+        options.forEach(({ name, description, required, choices, type }) => (this[`add${type}Option`](builder => {
+            let result = builder
+                .setName(name)
+                .setDescription(description)
+                .setRequired(required);
+            if (builder.addChoices)
+                result = builder.addChoices(...choices);
+            return result;
+        })));
         this.subCommandGroups = subCommandGroups;
         this.subCommands = subCommands;
         subCommandGroups.forEach(group => this.addSubcommandGroup(() => group));

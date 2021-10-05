@@ -5,6 +5,7 @@ const items_1 = require("./items");
 const PinguActionRow_1 = require("../pingu/collection/PinguActionRow");
 const IComponent_1 = require("../pingu/components/IComponent");
 const TimeSpan_1 = require("../helpers/TimeSpan");
+const Array_1 = require("../helpers/Array");
 const PGuildMember_1 = require("../database/json/PGuildMember");
 const StopRequest = 'Stop Request';
 class DecidableCollection {
@@ -13,7 +14,7 @@ class DecidableCollection {
     constructor(_data, _collection) {
         this._data = _data;
         this._collection = _collection;
-        const menuItems = new Map([
+        const menuItems = new discord_js_1.Collection([
             ['back', { id: 'back', style: 'PRIMARY', emoji: '⬅️', label: 'Go Back' }],
             ['thumbs-up', { id: 'thumbsUp', style: 'SUCCESS', emoji: '👍', label: 'Approve' }],
             ['thumbs-down', { id: 'thumbsDown', style: 'DANGER', emoji: '👎', label: 'Deny' }],
@@ -59,8 +60,8 @@ class DecidableCollection {
     _createEmbeds(autoCalled) {
         if (!this._collection.length)
             return null;
-        let embeds = new Array();
-        let toRemove = new Array();
+        let embeds = new Array_1.default();
+        let toRemove = new Array_1.default();
         const createGiveawayEmbed = (i) => new discord_js_1.MessageEmbed({
             description: [
                 `**__Winner${i.winners.length > 1 ? 's' : ''}__**`,
@@ -101,15 +102,15 @@ class DecidableCollection {
                 toRemove.push(item);
             }
         });
-        this._removeDecidables(...toRemove);
+        this._removeDecidables(toRemove);
         if (!embeds && !autoCalled)
             return null;
         return embeds;
     }
-    async _removeDecidables(...decidables) {
+    async _removeDecidables(decidables) {
         if (!decidables || !decidables.length || !decidables[0])
             return this._collection;
-        const logs = new Array();
+        const logs = new Array_1.default();
         decidables.forEach(d => {
             this._collection.remove(d);
             logs.push(`The ${this._type}, ${d.value} (${d._id}) was removed.`);
@@ -177,7 +178,7 @@ class DecidableCollection {
     }
     async _deleteDecidable(embed) {
         const decidable = this._getEmbedDecdiable(embed);
-        this._collection = await this._removeDecidables(decidable);
+        this._collection = await this._removeDecidables(new Array_1.default(decidable));
         this._embeds = this._createEmbeds(true);
         const { _sent, _direction } = this;
         return showSuccess(!this._collection.includes(decidable));

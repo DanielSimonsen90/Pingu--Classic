@@ -175,6 +175,14 @@ export abstract class PinguClientBase<Events extends ClientEvents = any> extends
             type: activity.type 
         });
     }
+    public login(token?: string): Promise<string> {
+        try {
+            return super.login(token);  
+        } catch (err) {
+            console.log(token);
+            throw err;
+        }
+    }
     //#endregion
 
     //#region Public methods

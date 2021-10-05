@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Arguments = exports.Mention = void 0;
 const discord_js_1 = require("discord.js");
+const Array_1 = require("./Array");
 class Mention {
     constructor(prop, v, i, types, args) {
         this.mentionType = prop.toUpperCase();
@@ -24,7 +25,7 @@ class Mention {
     }
 }
 exports.Mention = Mention;
-class Arguments extends Array {
+class Arguments extends Array_1.default {
     get first() {
         return this[0];
     }

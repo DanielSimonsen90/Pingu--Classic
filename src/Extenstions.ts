@@ -1,25 +1,49 @@
 import { 
-    Base, BaseCommandInteraction, BaseGuildVoiceChannel, Collection, CommandInteraction, CommandInteractionOptionResolver, DMChannel, 
-    EmojiResolvable, Guild, GuildChannel, GuildMember, InteractionReplyOptions, Message, 
-    MessageAttachment, MessageEmbed, MessageMentions, NewsChannel, 
-    PartialTextBasedChannelFields, PermissionString, Role, TextChannel, 
-    ThreadChannel, User 
+    Base, BaseCommandInteraction, BaseGuildVoiceChannel, Collection, CommandInteraction, 
+    DMChannel, EmojiResolvable, Guild, GuildChannel, GuildMember, InteractionReplyOptions, 
+    Message, MessageAttachment, MessageEmbed, MessageMentions, NewsChannel, 
+    PartialTextBasedChannelFields, PermissionString, ReplyOptions, Role, TextChannel, ThreadChannel, User 
 } from "discord.js";
 import { joinVoiceChannel, VoiceConnection } from "@discordjs/voice";
-import ms from 'ms';
+import { APIMessage, Snowflake } from "discord-api-types";
 
 import PinguClientBase from './pingu/client/PinguClientBase';
 import PinguGuildMemberCollection from "./pingu/collection/PinguGuildMemberCollection";
 import PinguGuild from "./pingu/guild/PinguGuild";
-import PinguGuildMember from "./pingu/guildMember/PinguGuildMember";
 import ReactionRole from "./pingu/guild/items/ReactionRole";
-import PChannel from "./database/json/PChannel";
+import PinguGuildMember from "./pingu/guildMember/PinguGuildMember";
 import PinguUser from "./pingu/user/PinguUser";
-import { APIMessage, Snowflake } from "discord-api-types";
+import PChannel from "./database/json/PChannel";
 import Arguments from "./helpers/Arguments";
+import PinguArray from './helpers/Array';
+import { TimeString } from './helpers/TimeSpan'
+import { ReplyReturn } from ".";
 
 type Pingu = PinguClientBase;
 
+//#region Global
+declare global {
+    interface Array<T> {
+        pArray(): PinguArray<T>
+    }
+    interface String {
+        toPascalCase(): string;
+        clip(start: number, end?: number): string;
+    }
+}
+
+Array.prototype.pArray = function<T>(this: Array<T>) {
+    return new PinguArray<T>(...this);
+}
+String.prototype.toPascalCase = function(this: string) {
+    return this.substring(0, 1).toUpperCase() + this.substring(1);
+}
+String.prototype.clip = function(this: string, start: number, end?: number) {
+    return this.substring(start, end < 0 ? this.length - end : end);
+}
+//#endregion
+
+//#region Discord.js
 declare module 'discord.js' {
     interface Base {
         doIn<T>(callback: (self?: this) => T |Promise<T>, time: number | string): Promise<T>
@@ -29,16 +53,16 @@ declare module 'discord.js' {
     }
     interface Channel { client: Pingu }
     interface Collection<K, V> {
-        // array(): Array<[K, V]>
-        // keyArray(): Array<K>
-        // valueArray(): Array<V>
+        array(): PinguArray<[K, V]>
+        keyArr(): PinguArray<K>
+        valueArr(): PinguArray<V>
         /**
          * @param value Id | tag | displayName | name
          */
         findFromString(value: string): V
     }
-    interface BaseCommandInteraction {
-        replyPrivate(options: InteractionReplyOptions | string): Promise<Message | APIMessage>
+    interface CommandInteraction {
+        replyPrivate(options: ReplyOptions): ReplyReturn
     }
     interface Guild { 
         client: Pingu 
@@ -86,15 +110,10 @@ declare module 'discord.js' {
 
 //#region Base
 Base.prototype.doIn = function<ReturnType>(this: Base, callback: (self?: Base) => ReturnType | Promise<ReturnType>, time: number) {
-    const timeout = typeof time == 'number' ? time : ms(time);
+    const timeout = typeof time == 'number' ? time : TimeString(time);
     return new Promise<ReturnType>((resolve, reject) => {
-        try {
-            setTimeout(() => {
-                resolve(callback(this));
-            }, timeout);
-        } catch (err) {
-            reject(err);
-        }
+        try { setTimeout(() => resolve(callback(this)), timeout); } 
+        catch (err) { reject(err); }
     })
 }
 //#endregion
@@ -112,18 +131,18 @@ BaseGuildVoiceChannel.prototype.join = function(this: BaseGuildVoiceChannel) {
 //#endregion
 
 //#region Collection
-// Collection.prototype.array = function<K, V>(this: Collection<K, V>) {
-//     return this.reduce((arr, v, k) => {
-//         arr.push([k, v]);
-//         return arr;
-//     }, new Array<[K, V]>())
-// }
-// Collection.prototype.keyArray = function<K, V>(this: Collection<K, V>) {
-//     return [...this.keys()];
-// }
-// Collection.prototype.valueArray = function<K, V>(this: Collection<K, V>) {
-//     return [...this.values()];
-// }
+Collection.prototype.array = function<K, V>(this: Collection<K, V>) {
+    return this.reduce((arr, v, k) => {
+        arr.push([k, v]);
+        return arr;
+    }, new PinguArray<[K, V]>())
+}
+Collection.prototype.keyArr = function<K, V>(this: Collection<K, V>) {
+    return new PinguArray(...this.keys());
+}
+Collection.prototype.valueArr = function<K, V>(this: Collection<K, V>) {
+    return new PinguArray(...this.values());
+}
 
 type CollectionItem = User & GuildMember & Guild & Role & GuildChannel;
 Collection.prototype.findFromString = function<K, V extends CollectionItem>(this: Collection<K, V>, value: string) {
@@ -136,14 +155,12 @@ Collection.prototype.findFromString = function<K, V extends CollectionItem>(this
 }
 //#endregion
 
-//#region BaseCommandInteraction
-BaseCommandInteraction.prototype.replyPrivate = function(this: CommandInteraction, options: InteractionReplyOptions | string) {
-    if (typeof options == 'string') return this.reply({ content: options, ephemeral: true }) as any as Promise<Message | APIMessage>;
-
-    return this.reply({
-        ...options,
-        ephemeral: true
-    }) as any as Promise<Message | APIMessage>
+//#region CommandInteraction
+CommandInteraction.prototype.replyPrivate = function(this: CommandInteraction, options: ReplyOptions): ReplyReturn {
+    const _options = typeof options == 'string' ? 
+        { content: options } : 
+        { ...options as InteractionReplyOptions };
+    return this.reply({ ephemeral: true, ..._options, fetchReply: true });
 }
 //#endregion
 
@@ -269,3 +286,7 @@ User.prototype.pUser = function(this: User) {
     return this.client.pUsers.get(this);
 }
 //#endregion
+
+//#endregion
+
+export {}

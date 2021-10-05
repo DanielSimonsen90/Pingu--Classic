@@ -195,8 +195,18 @@ export default class PinguCommandBase<
                     return this.builder.onInteraction;
                 })(),
                 replyPublic: ps.interaction.reply,
-                replySemiPrivate: ps.interaction.replyPrivate,
-                replyPrivate: ps.interaction.replyPrivate,
+                replySemiPrivate(options: ReplyOptions) {
+                    const _options = typeof options == 'string' ? 
+                        { content: options } : 
+                        { ...options as InteractionReplyOptions };
+                    return ps.interaction.reply({ ephemeral: true, ..._options, fetchReply: true });
+                },
+                replyPrivate(options: ReplyOptions) {
+                    const _options = typeof options == 'string' ? 
+                        { content: options } : 
+                        { ...options as InteractionReplyOptions };
+                    return ps.interaction.reply({ ephemeral: true, ..._options, fetchReply: true });
+                },
                 followUp: ps.interaction.followUp,
                 replyReturn: ps.interaction.options.getBoolean('private') ? ps.interaction.replyPrivate : ps.interaction.reply,
                 allowPrivate: ps.interaction.options.getBoolean('private')

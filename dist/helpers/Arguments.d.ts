@@ -1,4 +1,5 @@
 import { Collection } from "discord.js";
+import PinguArray from "./Array";
 declare type MentionType = 'SNOWFLAKE' | 'USER' | 'NICKNAME' | 'CHANNEL' | 'ROLE' | 'EVERYONE' | 'HERE' | 'EMOJI' | 'UNICODE_EMOJI' | 'CUSTOM_EMOJI' | 'CUSTOM_ANIMATED_EMOJI' | 'TIMESTAMP' | 'IMAGE';
 export declare class Mention {
     constructor(prop: string, v: string, i: number, types: {}, args: Arguments);
@@ -13,7 +14,7 @@ export declare class Mention {
      */
     argument(remove?: boolean): string;
 }
-export declare class Arguments extends Array<string> {
+export declare class Arguments extends PinguArray<string> {
     get first(): string;
     get last(): string;
     get mentions(): Collection<MentionType, Mention>;

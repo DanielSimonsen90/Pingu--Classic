@@ -67,6 +67,7 @@ export declare abstract class PinguClientBase<Events extends ClientEvents = any>
     emotes: EmojiCollection;
     private _logTypeHandlers;
     setActivity(options?: ActivityOptions): import("discord.js").Presence;
+    login(token?: string): Promise<string>;
     toPClient(pGuild: PinguGuild): import("../../database").PClient;
     log<Type extends LogChannels>(type: Type, ...args: LogTypes[Type]): Promise<Message>;
     DBExecute<T>(callback: (mongoose: typeof import('mongoose')) => Promise<T>): Promise<T>;

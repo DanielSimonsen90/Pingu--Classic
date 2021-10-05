@@ -1,12 +1,23 @@
 import { VoiceConnection } from "@discordjs/voice";
+import { Snowflake } from "discord-api-types";
 import PinguClientBase from './pingu/client/PinguClientBase';
 import PinguGuildMemberCollection from "./pingu/collection/PinguGuildMemberCollection";
 import PinguGuild from "./pingu/guild/PinguGuild";
-import PinguGuildMember from "./pingu/guildMember/PinguGuildMember";
 import ReactionRole from "./pingu/guild/items/ReactionRole";
+import PinguGuildMember from "./pingu/guildMember/PinguGuildMember";
 import PinguUser from "./pingu/user/PinguUser";
-import { APIMessage, Snowflake } from "discord-api-types";
+import PinguArray from './helpers/Array';
+import { ReplyReturn } from ".";
 declare type Pingu = PinguClientBase;
+declare global {
+    interface Array<T> {
+        pArray(): PinguArray<T>;
+    }
+    interface String {
+        toPascalCase(): string;
+        clip(start: number, end?: number): string;
+    }
+}
 declare module 'discord.js' {
     interface Base {
         doIn<T>(callback: (self?: this) => T | Promise<T>, time: number | string): Promise<T>;
@@ -18,13 +29,16 @@ declare module 'discord.js' {
         client: Pingu;
     }
     interface Collection<K, V> {
+        array(): PinguArray<[K, V]>;
+        keyArr(): PinguArray<K>;
+        valueArr(): PinguArray<V>;
         /**
          * @param value Id | tag | displayName | name
          */
         findFromString(value: string): V;
     }
-    interface BaseCommandInteraction {
-        replyPrivate(options: InteractionReplyOptions | string): Promise<Message | APIMessage>;
+    interface CommandInteraction {
+        replyPrivate(options: ReplyOptions): ReplyReturn;
     }
     interface Guild {
         client: Pingu;

@@ -1,8 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TimeSpan = exports.StaticColorsArray = exports.StaticColors = exports.Reason = exports.Percentage = exports.Error = exports.EmbedField = exports.DiscordPermissions = exports.BitPermission = exports.Arguments = void 0;
+exports.TimeSpan = exports.StaticColorsArray = exports.StaticColors = exports.Reason = exports.Percentage = exports.Error = exports.EmbedField = exports.DiscordPermissions = exports.BitPermission = exports.PinguArray = exports.Arguments = void 0;
 var Arguments_1 = require("./Arguments");
 Object.defineProperty(exports, "Arguments", { enumerable: true, get: function () { return Arguments_1.Arguments; } });
+var Array_1 = require("./Array");
+Object.defineProperty(exports, "PinguArray", { enumerable: true, get: function () { return Array_1.PinguArray; } });
 var BitPermission_1 = require("./BitPermission");
 Object.defineProperty(exports, "BitPermission", { enumerable: true, get: function () { return BitPermission_1.BitPermission; } });
 var DiscordPermissions_1 = require("./DiscordPermissions");

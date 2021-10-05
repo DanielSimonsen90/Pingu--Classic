@@ -1,4 +1,3 @@
-import { Extensions } from 'danholibraryjs';
 import {} from 'discord-api-types';
 import { 
     Collection, GuildMember, Message, MessageCollector, 
@@ -21,6 +20,7 @@ import DecidableCollection from './DecidableCollection';
 import Arguments from '../helpers/Arguments';
 import PinguClient from '../pingu/client/PinguClient';
 import { ExecuteFunctionProps, ReplyReturn } from '../pingu/handlers/Command/PinguCommandBase';
+import PinguArray from '../helpers/Array';
 
 export class DecidableCommand<
     DecidablesType extends DecidablesTypes, 
@@ -374,7 +374,7 @@ export class DecidableCommand<
         if (limit.newest) collection = collection.slice(collection.length - limit.newest + 1, collection.length);
         if (limit.oldest) collection = collection.slice(0, limit.oldest)
 
-        this._collection ?? new DecidableCollection(this._data, collection);
+        this._collection ?? new DecidableCollection(this._data, new PinguArray(...collection));
         return this._collection.list();
     }
 

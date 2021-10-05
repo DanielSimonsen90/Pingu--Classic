@@ -1,4 +1,5 @@
 export { Arguments } from './Arguments';
+export { PinguArray } from './Array'
 export { BitPermission } from './BitPermission';
 export { IConfigRequirements as Config } from './Config';
 export { DiscordPermissions } from './DiscordPermissions';
